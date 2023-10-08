@@ -1,0 +1,15 @@
+﻿global using System.Text;
+global using System.Text.Json;
+global using CodeDesignPlus.Net.Core.Abstractions;
+global using CodeDesignPlus.Net.Core.Exceptions;
+global using CodeDesignPlus.Net.Core.Options;
+global using CodeDesignPlus.Net.Core.Services;
+global using CodeDesignPlus.Net.Core.Test.Helpers;
+global using CodeDesignPlus.Net.Core.Test.Helpers.Models;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.Configuration.Json;
+global using Microsoft.Extensions.Configuration.Memory;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using Xunit;

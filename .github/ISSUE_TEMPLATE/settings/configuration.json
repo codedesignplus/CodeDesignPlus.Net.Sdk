@@ -1,0 +1,104 @@
+{
+    "categories": [
+      {
+        "title": "## 💥 Breaking Changes",
+        "labels": ["breaking", "bc"]
+      },
+      {
+        "title": "## 🚀 Features",
+        "labels": ["feature", "feat"]
+      },
+      {
+        "title": "## 🐛 Fixes",
+        "labels": ["fix"]
+      },
+      {
+        "title": "## 🧪 Tests",
+        "labels": ["test"],
+        "key": "tests"
+      },
+      {
+        "title": "## 🔧 Chore",
+        "labels": ["chroe"],
+        "key": "chore"
+      },
+      {
+        "title": "## 📄 Documentation",
+        "labels": ["doc", "documentation"],
+        "key": "doc"
+      },
+      {
+        "title": "## 🔁 Continuous Integration",
+        "labels": ["ci"],
+        "key": "ci"
+      },
+      {
+        "title": "## 🧪 Tests and some 🪄 Magic",
+        "labels": ["test", "magic"],
+        "exclude_labels": ["no-magic"],
+        "exhaustive": true,
+        "exhaustive_rules": "false",
+        "empty_content": "- no matching PRs",
+        "rules": [
+          {
+            "pattern": "open",
+            "on_property": "status",
+            "flags": "gu"
+          }
+        ]
+      }
+    ],
+    "ignore_labels": [
+      "ignore"
+    ],
+    "sort": {
+      "order": "DESC",
+      "on_property": "mergedAt"
+    },
+    "template": "\n <h2>Summary</h2>\n <ul>\n     <li>Changed Files: ${{CHANGED_FILES}}</li>\n     <li>Addittions: ${{ADDITIONS}}</li>\n     <li>Deletions: ${{DELETIONS}}</li>\n     <li>Changes: ${{CHANGES}}</li>\n     <li>Commits: ${{COMMITS}}</li>\n     <li>Changlog: ${{RELEASE_DIFF}}</a></li>\n     \n </ul>\n \n ${{CHANGELOG}} \n \n <h2>Uncategorized - ${{UNCATEGORIZED_COUNT}}</h2>\n ${{UNCATEGORIZED}}\n \n <p>For support and more information, visit <a href='https://codedesignplus.com'>our community forum</a>.</p>",
+    "pr_template": "\n - ##### PR: [${{TITLE}} - ${{NUMBER}} - ${{AUTHOR}}](${{URL}})\n   \n<table>\n<tbody>\n<tr>\n<td></td>\n<td>\n${{BODY}}\n</td>\n</tr>\n</tbody>\n</table>",
+    "empty_template": "- No changes",
+    "label_extractor": [
+      {
+        "pattern": "(.) (.+)",
+        "target": "$1",
+        "flags": "gu"
+      },
+      {
+        "pattern": "\\[Issue\\]",
+        "on_property": "title",
+        "method": "match"
+      }
+    ],
+    "duplicate_filter": {
+      "pattern": "\\[ABC-....\\]",
+      "on_property": "title",
+      "method": "match"
+    },
+    "reference": {
+      "pattern": ".*\\ \\#(.).*",
+      "on_property": "body",
+      "method": "replace",
+      "target": "$1"
+    },
+    "transformers": [
+      {
+        "pattern": "[\\-\\*] (\\[(...|TEST|CI|SKIP)\\])( )?(.+?)\n(.+?[\\-\\*] )(.+)",
+        "target": "- $4\n  - $6"
+      }
+    ],
+    "trim_values": false,
+    "max_tags_to_fetch": 200,
+    "max_pull_requests": 200,
+    "max_back_track_time_days": 365,
+    "exclude_merge_branches": [
+      "Owner/qa"
+    ],
+    "tag_resolver": {
+      "method": "semver",
+      "filter": {
+        "pattern": "api-(.+)",
+        "flags": "gu"
+      }
+    }
+}

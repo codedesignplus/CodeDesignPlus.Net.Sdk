@@ -2,12 +2,25 @@
   "name": "codedesignplus",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "affected": "npx nx show projects --affected --head=HEAD --base=remotes/origin/main",
+    "affected:restore": "npx nx affected --target restore",
+    "affected:format": "npx nx affected --target format",
+    "affected:build": "npx nx affected --target build:production",
+    "affected:test": "npx nx affected --target test",
+    "affected:sonarqube": "npx nx affected --target sonarqube",
+    "affected:pack": "npx nx affected --target pack --args=\"--version=\"2.0.0\"\"",
+    "affected:push": "npx nx affected --target push"
+  },
   "private": true,
-  "dependencies": {},
+  "dependencies": {
+  },
   "devDependencies": {
     "@nx/js": "16.10.0",
     "nx": "16.10.0",
-    "nx-cloud": "latest"
+    "nx-cloud": "latest",    
+    "@codedesignplus/netcore": "^1.0.3-rc.0",
+    "@nrwl/workspace": "^16.10.0",    
+    "@koliveira15/nx-sonarqube": "^3.1.2"
   }
 }
