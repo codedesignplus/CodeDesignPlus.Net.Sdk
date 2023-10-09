@@ -43,3 +43,6 @@ Thumbs.db
 **/obj
 **/doc[sS]
 **/.vs
+.env
+
+.scannerwork

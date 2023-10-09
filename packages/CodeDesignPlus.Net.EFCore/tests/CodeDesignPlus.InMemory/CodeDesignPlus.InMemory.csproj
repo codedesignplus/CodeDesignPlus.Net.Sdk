@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CodeDesignPlus.Entities\CodeDesignPlus.Entities.csproj" />
+    <ProjectReference Include="..\CodeDesignPlus.Abstractions\CodeDesignPlus.Abstractions.csproj" />
+  </ItemGroup>
+
+</Project>
