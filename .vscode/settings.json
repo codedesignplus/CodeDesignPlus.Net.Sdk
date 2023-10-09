@@ -1,6 +1,7 @@
 {
     "conventionalCommits.scopes": [
         "net.core",
-        "net.efcore"
+        "net.efcore",
+        "net.event.bus"
     ]
 }
