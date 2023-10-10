@@ -56,7 +56,7 @@
         "skipImplicitDeps": false,
         "exclusions": "**CodeDesignPlus.Net.Core*,**Tests*.cs",
         "extra": {
-          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Event.Bus.Test/coverage.opencover.xml"
+          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/**/coverage.opencover.xml"
         }
       }
     },

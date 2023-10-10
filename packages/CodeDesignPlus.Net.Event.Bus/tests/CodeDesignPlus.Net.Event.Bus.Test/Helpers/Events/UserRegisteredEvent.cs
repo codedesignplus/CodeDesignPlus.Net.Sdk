@@ -8,6 +8,14 @@
         /// <summary>
         /// Crea una nueva instancia de <see cref="UserRegisteredEvent"/>
         /// </summary>
+        public UserRegisteredEvent()
+        {
+
+        }
+
+        /// <summary>
+        /// Crea una nueva instancia de <see cref="UserRegisteredEvent"/>
+        /// </summary>
         /// <param name="idEvent">Id Event</param>
         /// <param name="eventDate">Date the event was generated</param>
         /// <exception cref="ArgumentOutOfRangeException">The assigned date is invalid</exception>
