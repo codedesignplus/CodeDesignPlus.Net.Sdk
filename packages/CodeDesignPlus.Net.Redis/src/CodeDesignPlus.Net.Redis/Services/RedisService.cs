@@ -53,22 +53,17 @@ public class RedisService : IRedisService
 
         this.options = options.Value;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-
-        this.Initialize();
     }
 
     /// <summary>
-    /// Start the connection with the redis server
+    /// Initiates a connection to the provided Redis instance.
     /// </summary>
-    private void Initialize()
+    /// <param name="instance">Configuration details of the Redis instance to connect to.</param>
+    public void Initialize(Instance instance)
     {
-        var configuration = this.options.CreateConfiguration();
+        var configuration = instance.CreateConfiguration();
 
-        if (configuration.Ssl)
-        {
-            configuration.CertificateSelection += Configuration_CertificateSelection;
-            configuration.CertificateValidation += Configuration_CertificateValidation;
-        }
+        ConfigureSslIfRequired(instance, configuration);
 
         this.Connection = ConnectionMultiplexer.Connect(configuration);
 
@@ -78,26 +73,46 @@ public class RedisService : IRedisService
 
             this.Subscriber = this.Connection.GetSubscriber();
 
-            this.Database = this.Connection.GetDatabase((int)configuration.DefaultDatabase);
+            this.Database = this.Connection.GetDatabase();
         }
     }
 
     /// <summary>
-    /// A LocalCertificateSelectionCallback delegate responsible for selecting the certificate
-    /// used for authentication; note that this cannot be specified in the configuration-string.
+    /// Configures the SSL settings if required based on the provided instance and configuration options.
     /// </summary>
-    /// <param name="sender">An object that contains state information for this validation.</param>
-    /// <param name="targetHost">The host server specified by the client.</param>
-    /// <param name="localCertificates">An System.Security.Cryptography.X509Certificates.X509CertificateCollection containing local certificates.</param>
-    /// <param name="remoteCertificate">The certificate used to authenticate the remote party.</param>
-    /// <param name="acceptableIssuers"> A System.String array of certificate issuers acceptable to the remote party.</param>
-    /// <returns>An System.Security.Cryptography.X509Certificates.X509Certificate used for establishing an SSL connection.</returns>
-    private X509Certificate2 Configuration_CertificateSelection(object sender, string targetHost, X509CertificateCollection localCertificates, X509Certificate remoteCertificate, string[] acceptableIssuers)
+    /// <param name="instance">The instance whose SSL settings need to be configured.</param>
+    /// <param name="configuration">The configuration options associated with the provided instance.</param>
+
+    private static void ConfigureSslIfRequired(Instance instance, ConfigurationOptions configuration)
     {
-        if (!string.IsNullOrEmpty(this.options.PasswordCertificate))
-            return new X509Certificate2(this.options.Certificate, this.options.PasswordCertificate);
+        if (configuration.Ssl)
+        {
+            configuration.CertificateSelection += (_, _, _, _, _) => CertificateSelection(
+                instance.PasswordCertificate,
+                instance.Certificate
+            );
+
+            configuration.CertificateValidation += (_, _, chain, sslPolicyErrors) => CertificateValidation(
+                chain,
+                sslPolicyErrors,
+                instance.PasswordCertificate,
+                instance.Certificate
+            );
+        }
+    }
+
+    /// <summary>
+    /// Selects the appropriate certificate based on provided details.
+    /// </summary>
+    /// <param name="passwordCertificate">The password for the certificate.</param>
+    /// <param name="certificate">The certificate details.</param>
+    /// <returns>A <see cref="X509Certificate2"/> instance constructed based on provided details.</returns>   
+    private static X509Certificate2 CertificateSelection(string passwordCertificate, string certificate)
+    {
+        if (!string.IsNullOrEmpty(passwordCertificate))
+            return new X509Certificate2(certificate, passwordCertificate);
         else
-            return new X509Certificate2(this.options.Certificate);
+            return new X509Certificate2(certificate);
     }
 
     /// <summary>
@@ -105,25 +120,42 @@ public class RedisService : IRedisService
     /// certificate supplied by the remote party; note that this cannot be specified
     /// in the configuration-string.
     /// </summary>
-    /// <param name="sender">An object that contains state information for this validation.</param>
-    /// <param name="certificate">The certificate used to authenticate the remote party.</param>
     /// <param name="chain">The chain of certificate authorities associated with the remote certificate.</param>
-    /// <param name="sslPolicyErrors">One or more errors associated with the remote certificate.</param>
+    /// <param name="sslPolicyErrors">One or more errors associated with the remote certificate.</param>    
+    /// <param name="passwordCertificate">The password for the certificate.</param>
+    /// <param name="certificate">The certificate details.</param>
     /// <returns>A System.Boolean value that determines whether the specified certificate is accepted for authentication.</returns>
-    private bool Configuration_CertificateValidation(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+    private static bool CertificateValidation(X509Chain chain, SslPolicyErrors sslPolicyErrors, string passwordCertificate, string certificate)
     {
-        if (sslPolicyErrors == SslPolicyErrors.RemoteCertificateChainErrors)
+        if (sslPolicyErrors == SslPolicyErrors.None)
+            return true;
+
+        // Extraer el CA del certificado del servidor
+        var serverCACertThumbprint = chain.ChainElements[^1].Certificate.Thumbprint;
+
+        // Carga todos los certificados del archivo PFX
+        var clientCertCollection = new X509Certificate2Collection();
+        clientCertCollection.Import(certificate, passwordCertificate, X509KeyStorageFlags.DefaultKeySet);
+
+        // Encuentra el certificado principal (el que tiene la clave privada, por lo general es el certificado del cliente)
+        var clientCert = clientCertCollection.OfType<X509Certificate2>().FirstOrDefault(cert => cert.HasPrivateKey);
+
+        // Construye una cadena para el certificado del cliente utilizando un X509ChainPolicy para considerar todos los certificados en el archivo PFX
+        var clientCertChain = new X509Chain();
+        var chainPolicy = new X509ChainPolicy
         {
-            var root = chain.ChainElements[^1].Certificate;
+            RevocationMode = X509RevocationMode.NoCheck
+        };
+        chainPolicy.ExtraStore.AddRange(clientCertCollection);
+        
+        clientCertChain.ChainPolicy = chainPolicy;
+        clientCertChain.Build(clientCert);
 
-            var collection = new X509Certificate2Collection();
+        // Obten el thumbprint del CA del certificado del cliente
+        var clientCACertThumbprint = clientCertChain.ChainElements[^1].Certificate.Thumbprint;
 
-            collection.Import(this.options.Certificate, this.options.PasswordCertificate);
-
-            return collection.Contains(root);
-        }
-
-        return sslPolicyErrors == SslPolicyErrors.None;
+        // Compara ambos thumbprints de los CA
+        return serverCACertThumbprint == clientCACertThumbprint;
     }
 
     /// <summary>

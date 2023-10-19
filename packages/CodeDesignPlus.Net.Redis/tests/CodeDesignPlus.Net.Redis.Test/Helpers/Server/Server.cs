@@ -14,7 +14,7 @@ public class Server : DockerCompose
 
     protected override ICompositeService Build()
     {
-        var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "Server", (TemplateString)"docker-compose.yml");
+        var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "Server", (TemplateString)"docker-compose.standalone.yml");
 
         var compose = new DockerComposeCompositeService(
             base.DockerHost,

@@ -92,10 +92,12 @@ services:
   redis-cli:
     image: redis:6.2.0
     volumes:
+      - ./Scripts/start-cluster.sh:/start-cluster.sh
       - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
       - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
       - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
-    command: redis-cli --cluster create redis0:7379 redis1:7380 redis2:7381 redis3:7382 redis4:7383 redis5:7384 --cluster-replicas 1 --tls -a 12345678 --cert /usr/local/etc/redis/redis.crt --key /usr/local/etc/redis/redis.key --cacert /usr/local/etc/redis/ca.crt
+    #command: redis-cli --cluster create redis0:7379 redis1:7380 redis2:7381 redis3:7382 redis4:7383 redis5:7384 --cluster-replicas 1 --tls -a 12345678 --cert /usr/local/etc/redis/redis.crt --key /usr/local/etc/redis/redis.key --cacert /usr/local/etc/redis/ca.crt
+    command: ["/bin/bash", "/start-cluster.sh"]
     depends_on:
       - redis0
       - redis1

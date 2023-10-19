@@ -35,10 +35,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Helpers\Server\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="Helpers\Server\Certificates\ca.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -54,6 +50,9 @@
     <None Update="Helpers\Server\Certificates\client.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Helpers\Server\Certificates\client.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Helpers\Server\Certificates\openssl.cnf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -66,13 +65,25 @@
     <None Update="Helpers\Server\Certificates\redis.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Helpers\Server\Certificates\redis.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Helpers\Server\Certificates\server.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Helpers\Server\Certificates\server.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\Server\docker-compose.yml">
+    <None Update="Helpers\Server\Certificates\server.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\Server\docker-compose.cluster.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\Server\docker-compose.standalone.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\Server\Settings\redis-standalone.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Helpers\Server\Settings\redis0.conf">
@@ -93,6 +104,13 @@
     <None Update="Helpers\Server\Settings\redis5.conf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Helpers\Server\Scripts\start-cluster.sh">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
