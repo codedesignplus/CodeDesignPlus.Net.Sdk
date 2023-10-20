@@ -1,11 +1,11 @@
 ﻿using Ductus.FluentDocker.Services;
 
-namespace CodeDesignPlus.Net.Redis.Test.Helpers;
+namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 public abstract class DockerCompose : IDisposable
 {
     protected ICompositeService CompositeService;
-    protected IHostService? DockerHost;
+    protected IHostService DockerHost;
 
     public DockerCompose()
     {

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CodeDesignPlus.Net.Redis.Test.Helpers;
+namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 public static class DataAnnotationsExtensions
 {

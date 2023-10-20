@@ -4,6 +4,7 @@
         "net.efcore",
         "net.event.bus",
         "net.redis",
-        "net.redis.event.bus"
+        "net.redis.event.bus",
+        "net.xunit"
     ]
 }

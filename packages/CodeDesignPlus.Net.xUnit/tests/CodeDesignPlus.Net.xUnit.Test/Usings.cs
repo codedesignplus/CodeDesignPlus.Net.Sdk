@@ -1,10 +1,5 @@
 ﻿global using System.Text;
 global using System.Text.Json;
-global using CodeDesignPlus.Net.Redis.Abstractions;
-global using CodeDesignPlus.Net.Redis.Exceptions;
-global using CodeDesignPlus.Net.Redis.Options;
-global using CodeDesignPlus.Net.Redis.Services;
-global using CodeDesignPlus.Net.Redis.Test.Helpers;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Configuration.Json;
 global using Microsoft.Extensions.Configuration.Memory;

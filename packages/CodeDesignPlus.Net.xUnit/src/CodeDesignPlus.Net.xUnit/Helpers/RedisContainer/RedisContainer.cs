@@ -1,19 +1,22 @@
-﻿using Ductus.FluentDocker.Model.Common;
+﻿using CodeDesignPlus.Net.Redis.Abstractions;
+using CodeDesignPlus.Net.Redis.Options;
+using CodeDesignPlus.Net.Redis.Services;
+using Ductus.FluentDocker.Model.Common;
 using Ductus.FluentDocker.Model.Compose;
 using Ductus.FluentDocker.Services;
 using Ductus.FluentDocker.Services.Impl;
 using Moq;
 using O = Microsoft.Extensions.Options;
 
-namespace CodeDesignPlus.Net.Redis.Test.Helpers.Server;
+namespace CodeDesignPlus.Net.xUnit.Helpers.Server;
 
-public class Server : DockerCompose
+public class RedisContainer : DockerCompose
 {
     public Mock<ILogger<RedisService>> Logger { get; private set; } = new();
     public RedisService RedisServer { get; private set; }
     public RedisService RedisServerWithoutPfxPassword { get; private set; }
 
-    public Server()
+    public RedisContainer()
     {
         this.RedisServerWithoutPfxPassword = this.StartSecondRedisServer();
         this.RedisServer = this.StartFirtsRedisServer();
@@ -43,7 +46,7 @@ public class Server : DockerCompose
 
     protected override ICompositeService Build()
     {
-        var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "Server", (TemplateString)"docker-compose.standalone.yml");
+        var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "RedisContainer", (TemplateString)"docker-compose.standalone.yml");
 
         var compose = new DockerComposeCompositeService(
             base.DockerHost,
@@ -59,9 +62,9 @@ public class Server : DockerCompose
     }
 
 
-    private static IOptions<RedisOptions> CreateOptions(string certificate, string? password = null)
+    private static IOptions<RedisOptions> CreateOptions(string certificate, string password = null)
     {
-        var pfx = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "Server", "Certificates", certificate);
+        var pfx = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "RedisContainer", "Certificates", certificate);
 
         if (!File.Exists(pfx))
             throw new InvalidOperationException("Can't run unit test because certificate does not exist");

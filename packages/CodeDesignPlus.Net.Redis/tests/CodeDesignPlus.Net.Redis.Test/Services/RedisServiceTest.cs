@@ -1,19 +1,20 @@
 ﻿using System.Net.Security;
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
-using CodeDesignPlus.Net.Redis.Test.Helpers.Server;
+using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.Server;
 using Moq;
 using StackExchange.Redis;
 
 namespace CodeDesignPlus.Net.Redis.Test.Services;
 
-public class RedisServiceTest : IClassFixture<Server>
+public class RedisServiceTest : IClassFixture<RedisContainer>
 {
-    private readonly Server fixture;
+    private readonly RedisContainer fixture;
 
     private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
 
-    public RedisServiceTest(Server fixture)
+    public RedisServiceTest(RedisContainer fixture)
     {
         this.fixture = fixture;
     }
