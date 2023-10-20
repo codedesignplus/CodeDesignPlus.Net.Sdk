@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Redis.Test.Options;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
+
+namespace CodeDesignPlus.Net.Redis.Test.Options;
 
 /// <summary>
 /// Unit test to <see cref="RedisOptions"/>

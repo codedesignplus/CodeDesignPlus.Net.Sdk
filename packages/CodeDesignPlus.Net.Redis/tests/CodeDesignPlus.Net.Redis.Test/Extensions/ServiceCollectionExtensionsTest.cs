@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.Redis.Extensions;
 
@@ -49,7 +49,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedis_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
 
         var serviceCollection = new ServiceCollection();
 
@@ -73,7 +73,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedis_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
 
         var serviceCollection = new ServiceCollection();
 

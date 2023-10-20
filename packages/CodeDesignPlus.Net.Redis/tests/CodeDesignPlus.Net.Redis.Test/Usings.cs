@@ -5,7 +5,6 @@ global using CodeDesignPlus.Net.Redis.Exceptions;
 global using CodeDesignPlus.Net.Redis.Options;
 global using CodeDesignPlus.Net.Redis.Services;
 global using CodeDesignPlus.Net.Redis.Test.Helpers;
-global using CodeDesignPlus.Net.Redis.Test.Helpers.Models;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Configuration.Json;
 global using Microsoft.Extensions.Configuration.Memory;

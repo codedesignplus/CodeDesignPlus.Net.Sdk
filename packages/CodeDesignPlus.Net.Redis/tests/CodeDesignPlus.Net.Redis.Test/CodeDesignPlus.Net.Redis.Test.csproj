@@ -32,78 +32,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Redis\CodeDesignPlus.Net.Redis.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="Helpers\Server\Certificates\ca.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\ca.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\ca.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\client.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\client.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\client.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\client-without-pass.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\openssl.cnf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\redis.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\redis.dh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\redis.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\server.crt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\server.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\docker-compose.cluster.yml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\docker-compose.standalone.yml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Settings\redis-standalone.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Settings\redis0.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Settings\redis1.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Settings\redis2.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Settings\redis3.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Settings\redis4.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Settings\redis5.conf">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Scripts\start-cluster.sh">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.xUnit\src\CodeDesignPlus.Net.xUnit\CodeDesignPlus.Net.xUnit.csproj" />
   </ItemGroup>
 
 </Project>
