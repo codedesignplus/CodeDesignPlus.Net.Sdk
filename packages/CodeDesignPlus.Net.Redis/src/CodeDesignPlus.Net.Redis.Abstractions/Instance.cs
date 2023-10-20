@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CodeDesignPlus.Net.Redis;
+namespace CodeDesignPlus.Net.Redis.Abstractions;
 
 /// <summary>
 /// Represents the configuration for a Redis instance, allowing for customization of various settings related to the connection and operation of Redis within the context of a microservice.

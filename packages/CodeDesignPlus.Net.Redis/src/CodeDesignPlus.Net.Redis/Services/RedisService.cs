@@ -19,10 +19,6 @@ public class RedisService : IRedisService
     /// </summary>
     private readonly ILogger<RedisService> logger;
     /// <summary>
-    /// Options for the Redis service 
-    /// </summary>
-    private readonly RedisOptions options;
-    /// <summary>
     /// Represents the abstract multiplexer API
     /// </summary>
     public IConnectionMultiplexer Connection { get; private set; }
@@ -42,16 +38,11 @@ public class RedisService : IRedisService
     /// <summary>
     /// Initializes a new instance of the <see cref="RedisService"/>
     /// </summary>
-    /// <param name="options">Options for the Redis service </param>
     /// <param name="logger">A generic interface for logging</param>
     /// <exception cref="ArgumentNullException">options is null</exception>
     /// <exception cref="ArgumentNullException">logger is null</exception>
-    public RedisService(IOptions<RedisOptions> options, ILogger<RedisService> logger)
+    public RedisService(ILogger<RedisService> logger)
     {
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
-
-        this.options = options.Value;
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -147,7 +138,7 @@ public class RedisService : IRedisService
             RevocationMode = X509RevocationMode.NoCheck
         };
         chainPolicy.ExtraStore.AddRange(clientCertCollection);
-        
+
         clientCertChain.ChainPolicy = chainPolicy;
         clientCertChain.Build(clientCert);
 

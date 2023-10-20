@@ -4,7 +4,9 @@ public static class ConfigurationUtil
 {
     public static readonly RedisOptions RedisOptions = new()
     {
-        
+        Instances = new Dictionary<string, Instance>() {
+            { "test", new Instance() {ConnectionString = "localhost:6379,ssl=false"} }
+        }
     };
 
     public static IConfiguration GetConfiguration()

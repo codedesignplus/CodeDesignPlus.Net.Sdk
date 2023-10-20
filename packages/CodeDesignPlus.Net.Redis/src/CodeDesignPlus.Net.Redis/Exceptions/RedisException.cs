@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace CodeDesignPlus.Net.Redis.Exceptions;
+﻿namespace CodeDesignPlus.Net.Redis.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.Redis. 

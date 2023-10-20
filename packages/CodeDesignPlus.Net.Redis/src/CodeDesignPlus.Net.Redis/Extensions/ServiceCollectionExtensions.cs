@@ -36,7 +36,8 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IRedisService, RedisService>();
+        services.AddSingleton<IRedisService, RedisService>();    
+        services.AddSingleton<IRedisServiceFactory, RedisServiceFactory>();
 
         return services;
     }

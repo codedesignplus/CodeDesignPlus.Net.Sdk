@@ -57,11 +57,16 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddRedis(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisService));
+        var redisService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisService));
+        var redisFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisServiceFactory));
 
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(RedisService), libraryService.ImplementationType);
+        Assert.NotNull(redisService);
+        Assert.Equal(ServiceLifetime.Singleton, redisService.Lifetime);
+        Assert.Equal(typeof(RedisService), redisService.ImplementationType);
+
+        Assert.NotNull(redisFactory);
+        Assert.Equal(ServiceLifetime.Singleton, redisFactory.Lifetime);
+        Assert.Equal(typeof(RedisServiceFactory), redisFactory.ImplementationType);
     }
 
     [Fact]

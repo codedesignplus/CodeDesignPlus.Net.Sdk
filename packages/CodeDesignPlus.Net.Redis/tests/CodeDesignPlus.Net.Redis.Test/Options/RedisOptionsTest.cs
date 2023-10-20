@@ -5,7 +5,7 @@
 /// </summary>
 public class RedisOptionsTest
 {
-     [Fact]
+    [Fact]
     public void Validate_InstancesListIsEmpty_Failed()
     {
         // Arrange
@@ -27,10 +27,8 @@ public class RedisOptionsTest
             ConnectionString = "ssl=true",
         };
 
-        var options = new RedisOptions
-        {
-            Instances = new List<Instance> { instanceWithMissingCertificate }
-        };
+        var options = new RedisOptions();
+        options.Instances.Add("test", instanceWithMissingCertificate);
 
         // Act
         var results = options.Validate();

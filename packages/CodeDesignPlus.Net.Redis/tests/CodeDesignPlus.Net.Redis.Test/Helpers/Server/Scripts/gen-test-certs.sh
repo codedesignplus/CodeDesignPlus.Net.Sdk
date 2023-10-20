@@ -25,9 +25,11 @@ generate_cert() {
             -days 365 \
             $opts \
             -out $certfile
-    
-    openssl pkcs12 -export -out tests/tls/${name}.pfx -inkey ${keyfile} -in ${certfile} -certfile tests/tls/ca.crt -password pass:Temporal1
 
+    if [ "$name" == "client" ]; then
+        openssl pkcs12 -export -out tests/tls/${name}.pfx -inkey ${keyfile} -in ${certfile} -certfile tests/tls/ca.crt -password pass:Temporal1
+        openssl pkcs12 -export -out tests/tls/${name}-without-pass.pfx -inkey ${keyfile} -in ${certfile} -certfile tests/tls/ca.crt -password pass:
+    fi
 }
 
 mkdir -p tests/tls
@@ -116,8 +118,4 @@ generate_cert redis "Generic-cert" "" "req-redis.conf"
 
 mkdir ../Certificates
 cp -r tests/tls/* ../Certificates
-rm -rf tests req-ca.conf req-redis.conf
-
-
-
-openssl pkcs12 -export -out client.pfx -inkey client.key -in client.crt -certfile ca.crt
+rm -rf tests req-ca.conf req-redis*

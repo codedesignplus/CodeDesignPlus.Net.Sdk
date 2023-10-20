@@ -38,7 +38,7 @@
       },
       "configurations": {
         "coverage": {
-          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
         }
       }
     },

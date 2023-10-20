@@ -14,7 +14,7 @@ public class RedisOptions : IValidatableObject
     /// <summary>
     /// Gets or sets the Instances
     /// </summary>
-    public List<Instance> Instances { get; set; } = new();
+    public Dictionary<string, Instance> Instances { get; set; } = new();
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -29,7 +29,7 @@ public class RedisOptions : IValidatableObject
             result.Add(new ValidationResult("The Instances list must not be empty.", new string[] { nameof(this.Instances) }));
 
 
-        foreach (var instance in this.Instances.Where(x => x.CreateConfiguration().Ssl))
+        foreach (var instance in this.Instances.Select(x => x.Value).Where(x => x.CreateConfiguration().Ssl))
         {
             if (string.IsNullOrEmpty(instance.Certificate))
                 result.Add(new ValidationResult("The Certificate is required.", new string[] { nameof(Instance.Certificate) }));

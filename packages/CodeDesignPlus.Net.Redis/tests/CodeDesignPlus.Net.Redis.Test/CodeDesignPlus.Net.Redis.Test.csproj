@@ -53,6 +53,9 @@
     <None Update="Helpers\Server\Certificates\client.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Helpers\Server\Certificates\client-without-pass.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
     <None Update="Helpers\Server\Certificates\openssl.cnf">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
@@ -65,16 +68,10 @@
     <None Update="Helpers\Server\Certificates\redis.key">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\Server\Certificates\redis.pfx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
     <None Update="Helpers\Server\Certificates\server.crt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Helpers\Server\Certificates\server.key">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Helpers\Server\Certificates\server.pfx">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Helpers\Server\docker-compose.cluster.yml">
@@ -107,10 +104,6 @@
     <None Update="Helpers\Server\Scripts\start-cluster.sh">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

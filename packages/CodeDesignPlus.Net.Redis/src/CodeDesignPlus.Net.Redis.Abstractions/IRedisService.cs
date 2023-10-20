@@ -21,4 +21,9 @@ public interface IRedisService
     /// Indicates whether any servers are connected
     /// </summary>
     bool IsConnected { get; }
+    /// <summary>
+    /// Initiates a connection to the provided Redis instance.
+    /// </summary>
+    /// <param name="instance">Configuration details of the Redis instance to connect to.</param>
+    void Initialize(Instance instance);
 }
