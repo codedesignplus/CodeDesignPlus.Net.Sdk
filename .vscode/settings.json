@@ -3,6 +3,7 @@
         "net.core",
         "net.efcore",
         "net.event.bus",
-        "net.redis"
+        "net.redis",
+        "net.xunit"
     ]
 }
