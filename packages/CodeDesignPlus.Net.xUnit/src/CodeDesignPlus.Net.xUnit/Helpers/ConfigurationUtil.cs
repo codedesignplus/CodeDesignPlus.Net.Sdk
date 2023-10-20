@@ -1,21 +1,12 @@
 ﻿using System.Text;
 using System.Text.Json;
-using CodeDesignPlus.Net.xUnit.Helpers.Models;
 using Microsoft.Extensions.Configuration;
 
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
-public static class ConfigurationUtil<TOptions>
+public static class ConfigurationUtil
 {
-    public static IConfiguration GetConfiguration(TOptions options)
-    {
-        return GetConfiguration(new AppSettings<TOptions>()
-        {
-            Section = options
-        });
-    }
-
-    public static IConfiguration GetConfiguration(AppSettings<TOptions> appSettings = null)
+    public static IConfiguration GetConfiguration(object appSettings = null)
     {
         var json = JsonSerializer.Serialize(appSettings);
 
