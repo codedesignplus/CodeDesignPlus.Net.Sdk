@@ -2,6 +2,7 @@
     "conventionalCommits.scopes": [
         "net.core",
         "net.efcore",
-        "net.event.bus"
+        "net.event.bus",
+        "net.redis"
     ]
 }
