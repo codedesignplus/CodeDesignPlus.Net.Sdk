@@ -30,40 +30,4 @@ public class RedisEventBusOptionsTest
         // Assert
         Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
     }
-
-    [Fact]
-    public void RedisEventBusOptions_EmailIsRequired_FailedValidation()
-    {
-        // Arrange
-        var options = new RedisEventBusOptions()
-        {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = null
-        };
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
-    }
-
-    [Fact]
-    public void RedisEventBusOptions_EmailIsInvalid_FailedValidation()
-    {
-        // Arrange
-        var options = new RedisEventBusOptions()
-        {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = "asdfasdfsdfgs"
-        };
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
-    }
 }

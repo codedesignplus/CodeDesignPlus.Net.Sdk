@@ -49,7 +49,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisEventBus_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(new { RedisEventBus = new { Enable = false } });
 
         var serviceCollection = new ServiceCollection();
 
@@ -68,7 +68,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisEventBus_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(new { RedisEventBus = OptionsUtil.RedisEventBusOptions });
 
         var serviceCollection = new ServiceCollection();
 
@@ -84,9 +84,8 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.RedisEventBusOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.RedisEventBusOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.RedisEventBusOptions.Enable, value.Enable);
+        Assert.Equal(OptionsUtil.RedisEventBusOptions.Name, value.Name);
+        Assert.Equal(OptionsUtil.RedisEventBusOptions.Enable, value.Enable);
     }
 
 

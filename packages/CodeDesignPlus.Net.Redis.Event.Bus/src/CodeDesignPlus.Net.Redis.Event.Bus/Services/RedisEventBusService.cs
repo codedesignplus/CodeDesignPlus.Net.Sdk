@@ -1,7 +1,7 @@
-﻿using System.Text.Json;
-using CodeDesignPlus.Net.Event.Bus.Abstractions;
+﻿using CodeDesignPlus.Net.Event.Bus.Abstractions;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Event.Bus.Options;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace CodeDesignPlus.Net.Redis.Event.Bus.Services;
@@ -31,13 +31,20 @@ public class RedisEventBusService : IRedisEventBusService
     /// <summary>
     /// Initialize a new instance of the <see cref="RedisEventBusService"/>
     /// </summary>
-    /// <param name="redisService">Service that management connection with Redis Server</param>
+    /// <param name="redisServiceFactory">Service that management connection with Redis Server</param>
     /// <param name="subscriptionManager">Service that management the events and events handlers inside assembly</param>
     /// <param name="serviceProvider">Service provider</param>
     /// <param name="logger">Service logger</param>
-    public RedisEventBusService(IRedisService redisService, ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider, ILogger<RedisEventBusService> logger)
+    public RedisEventBusService(IRedisServiceFactory redisServiceFactory, ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider, ILogger<RedisEventBusService> logger, IOptions<RedisEventBusOptions> options)
     {
-        this.redisService = redisService ?? throw new ArgumentNullException(nameof(redisService));
+        if (redisServiceFactory == null)
+            throw new ArgumentNullException(nameof(redisServiceFactory));
+
+        if (options == null)
+            throw new ArgumentNullException(nameof(options));
+
+        this.redisService = redisServiceFactory.Create(options.Value.Name);
+
         this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -84,7 +91,7 @@ public class RedisEventBusService : IRedisEventBusService
     {
         var channel = @event.GetType().Name;
 
-        var message = JsonSerializer.Serialize(@event);
+        var message = JsonConvert.SerializeObject(@event);
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
@@ -137,7 +144,7 @@ public class RedisEventBusService : IRedisEventBusService
 
                 var queue = this.serviceProvider.GetService(queueType);
 
-                var @event = JsonSerializer.Deserialize<TEvent>(value);
+                var @event = JsonConvert.DeserializeObject<TEvent>(value);
 
                 queue.GetType().GetMethod(nameof(IQueueService<TEventHandler, TEvent>.Enqueue)).Invoke(queue, new object[] { @event });
 

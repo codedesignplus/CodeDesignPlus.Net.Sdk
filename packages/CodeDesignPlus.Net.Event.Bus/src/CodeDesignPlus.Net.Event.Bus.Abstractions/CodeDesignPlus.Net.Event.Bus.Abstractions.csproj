@@ -18,6 +18,10 @@
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Event.Bus.Abstractions.xml</DocumentationFile>
 	</PropertyGroup>

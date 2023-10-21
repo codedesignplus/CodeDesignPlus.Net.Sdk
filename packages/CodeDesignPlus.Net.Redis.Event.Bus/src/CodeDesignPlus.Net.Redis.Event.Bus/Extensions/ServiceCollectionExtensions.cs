@@ -1,5 +1,4 @@
-﻿using CodeDesignPlus.Net.Redis.Event.Bus.Abstractions;
-using CodeDesignPlus.Net.Redis.Event.Bus.Exceptions;
+﻿using CodeDesignPlus.Net.Redis.Event.Bus.Exceptions;
 using CodeDesignPlus.Net.Redis.Event.Bus.Options;
 using CodeDesignPlus.Net.Redis.Event.Bus.Services;
 using Microsoft.Extensions.Configuration;

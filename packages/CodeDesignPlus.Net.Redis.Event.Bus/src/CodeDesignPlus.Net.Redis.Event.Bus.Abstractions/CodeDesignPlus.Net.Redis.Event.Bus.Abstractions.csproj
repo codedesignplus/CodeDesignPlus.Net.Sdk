@@ -24,7 +24,7 @@
 
 	
   <ItemGroup>        
-  	<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Bus\src\CodeDesignPlus.Net.Event.Bus.Abstractions\CodeDesignPlus.Net.Event.Bus.Abstractions.csproj" />
+  	<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Bus\src\CodeDesignPlus.Net.Event.Bus\CodeDesignPlus.Net.Event.Bus.csproj" />
   </ItemGroup>
 
 

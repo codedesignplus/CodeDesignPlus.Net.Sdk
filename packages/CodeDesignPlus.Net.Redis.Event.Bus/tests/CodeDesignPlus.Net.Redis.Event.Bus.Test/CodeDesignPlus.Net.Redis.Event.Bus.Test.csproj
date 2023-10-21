@@ -15,6 +15,7 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
     <PackageReference Include="Moq" Version="4.20.69" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
@@ -31,6 +32,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Redis.Event.Bus\CodeDesignPlus.Net.Redis.Event.Bus.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.xUnit\src\CodeDesignPlus.Net.xUnit\CodeDesignPlus.Net.xUnit.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>

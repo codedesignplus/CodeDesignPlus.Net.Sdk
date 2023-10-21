@@ -61,8 +61,7 @@ public class RedisContainer : DockerCompose
         return compose;
     }
 
-
-    private static IOptions<RedisOptions> CreateOptions(string certificate, string password = null)
+    public static RedisOptions RedisOptions(string certificate, string password = null, string instanceName = "test")
     {
         var pfx = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "RedisContainer", "Certificates", certificate);
 
@@ -81,8 +80,13 @@ public class RedisContainer : DockerCompose
 
         var redisOptions = new RedisOptions();
 
-        redisOptions.Instances.Add("test", instance);
+        redisOptions.Instances.Add(instanceName, instance);
 
-        return O.Options.Create(redisOptions);
+        return redisOptions;
+    }
+
+    private static IOptions<RedisOptions> CreateOptions(string certificate, string password = null)
+    {
+        return O.Options.Create(RedisOptions(certificate, password));
     }
 }

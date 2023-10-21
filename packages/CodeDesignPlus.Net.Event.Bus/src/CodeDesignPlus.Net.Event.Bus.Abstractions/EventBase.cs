@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Text.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Event.Bus.Abstractions
 {
@@ -22,7 +22,6 @@ namespace CodeDesignPlus.Net.Event.Bus.Abstractions
         /// </summary>
         /// <param name="idEvent">Id Event</param>
         /// <param name="eventDate">Date the event was generated</param>
-        [JsonConstructor]
         protected EventBase(Guid idEvent, DateTime eventDate)
         {
             this.IdEvent = idEvent;

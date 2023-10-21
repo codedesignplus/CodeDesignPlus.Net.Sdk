@@ -38,7 +38,7 @@
       },
       "configurations": {
         "coverage": {
-          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.xUnit.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.xUnit.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
         }
       }
     },
@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.xUnit",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.xUnit.Key",
+        "projectKey": "CodeDesignPlus.Net.xUnit",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

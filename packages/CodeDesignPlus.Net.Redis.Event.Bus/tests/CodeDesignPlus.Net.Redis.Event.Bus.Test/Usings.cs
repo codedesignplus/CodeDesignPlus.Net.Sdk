@@ -5,7 +5,7 @@ global using CodeDesignPlus.Net.Redis.Event.Bus.Exceptions;
 global using CodeDesignPlus.Net.Redis.Event.Bus.Options;
 global using CodeDesignPlus.Net.Redis.Event.Bus.Services;
 global using CodeDesignPlus.Net.Redis.Event.Bus.Test.Helpers;
-global using CodeDesignPlus.Net.Redis.Event.Bus.Test.Helpers.Models;
+global using CodeDesignPlus.Net.xUnit.Helpers;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Configuration.Json;
 global using Microsoft.Extensions.Configuration.Memory;

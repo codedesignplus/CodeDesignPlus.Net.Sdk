@@ -38,7 +38,7 @@
       },
       "configurations": {
         "coverage": {
-          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
         }
       }
     },
