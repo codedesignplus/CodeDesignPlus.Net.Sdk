@@ -1,32 +1,32 @@
 {
-  "name": "CodeDesignPlus.Net.xUnit",
+  "name": "CodeDesignPlus.Net.Redis.Event.Bus",
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
-  "sourceRoot": "packages/CodeDesignPlus.Net.xUnit",
+  "sourceRoot": "packages/CodeDesignPlus.Net.Redis.Event.Bus",
   "targets": {
     "restore": {
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.xUnit.sln"
+        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln"
       }
     },
     "format": {
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.xUnit.sln"
+        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln"
       }
     },
     "build": {
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.xUnit.sln"
+        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln"
       },
       "configurations": {
         "production": {
-          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.xUnit.sln --configuration Release"
+          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln --configuration Release"
         }
       }
     },
@@ -34,20 +34,20 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.xUnit.sln"
+        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln"
       },
       "configurations": {
         "coverage": {
-          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.xUnit.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
         }
       }
     },
     "sonarqube": {
       "executor": "@koliveira15/nx-sonarqube:scan",
       "options": {
-        "name": "CodeDesignPlus.Net.xUnit",
+        "name": "CodeDesignPlus.Net.Redis.Event.Bus",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.xUnit",
+        "projectKey": "CodeDesignPlus.Net.Redis.Event.Bus.Key",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,
@@ -56,7 +56,7 @@
         "skipImplicitDeps": false,
         "exclusions": "**Tests*.cs",
         "extra": {
-          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.xUnit.Test/coverage.opencover.xml"
+          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Redis.Event.Bus.Test/coverage.opencover.xml"
         }
       }
     },
@@ -64,14 +64,14 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.xUnit.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.xUnit"
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Redis.Event.Bus.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.Redis.Event.Bus"
       }
     },
     "push": {
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet nuget push dist/CodeDesignPlus.Net.xUnit/*.nupkg --source {args.source} --api-key {args.token}"
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.Redis.Event.Bus/*.nupkg --source {args.source} --api-key {args.token}"
       }
     }
   }
