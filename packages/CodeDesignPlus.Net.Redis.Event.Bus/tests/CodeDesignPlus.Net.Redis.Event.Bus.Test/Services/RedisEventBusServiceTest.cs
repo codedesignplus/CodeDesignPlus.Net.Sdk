@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using StackExchange.Redis;
 using CodeDesignPlus.Net.xUnit.Helpers.Server;
-using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Redis.Event.Bus.Test.Services;
 
@@ -212,11 +211,11 @@ public class RedisEventBusServiceTest : IClassFixture<RedisContainer>
 
         serviceProvider.SubscribeEventsHandlers<StartupLogic>();
 
-        var memory = serviceProvider.GetService<IMemoryService>();
+        var memory = serviceProvider.GetRequiredService<IMemoryService>();
 
-        var evenBus = serviceProvider.GetService<IRedisEventBusService>();
+        var evenBus = serviceProvider.GetRequiredService<IRedisEventBusService>();
 
-        var queue = serviceProvider.GetService<IQueueService<UserCreatedEventHandler, UserCreatedEvent>>();
+        var queue = serviceProvider.GetRequiredService<IQueueService<UserCreatedEventHandler, UserCreatedEvent>>();
 
         var @event = new UserCreatedEvent()
         {
@@ -256,6 +255,7 @@ public class RedisEventBusServiceTest : IClassFixture<RedisContainer>
             var userEvent = memory.UserEventTrace.FirstOrDefault();
 
             Assert.NotEmpty(memory.UserEventTrace);
+            Assert.NotNull(userEvent);
             Assert.Equal(@event.Id, userEvent.Id);
             Assert.Equal(@event.UserName, userEvent.UserName);
             Assert.Equal(@event.Names, userEvent.Names);
@@ -309,35 +309,5 @@ public class RedisEventBusServiceTest : IClassFixture<RedisContainer>
         // Assert
         Assert.Equal(typeof(UserCreatedEvent).Name, channelUnsubscribe);
         Assert.True(isInvokedRemoveSubscription);
-    }
-
-    [Fact]
-    public void Temp()
-    {
-
-        var @event = new UserCreatedEvent()
-        {
-            Id = 1,
-            Names = "Code",
-            Lastnames = "Design Plus",
-            UserName = "coded",
-            Birthdate = new DateTime(2019, 11, 21)
-        };
-
-
-        var message = JsonConvert.SerializeObject(@event);
-
-        var userEvent = JsonConvert.DeserializeObject<UserCreatedEvent>(message);
-
-        Assert.NotNull(userEvent);
-        Assert.Equal(@event.Id, userEvent.Id);
-        Assert.Equal(@event.UserName, userEvent.UserName);
-        Assert.Equal(@event.Names, userEvent.Names);
-        Assert.Equal(@event.Birthdate, userEvent.Birthdate);
-        Assert.Equal(@event.Lastnames, userEvent.Lastnames);
-        Assert.Equal(@event.EventDate.Day, userEvent.EventDate.Day);
-        Assert.Equal(@event.EventDate.Month, userEvent.EventDate.Month);
-        Assert.Equal(@event.EventDate.Year, userEvent.EventDate.Year);
-        Assert.Equal(@event.IdEvent, userEvent.IdEvent);
     }
 }

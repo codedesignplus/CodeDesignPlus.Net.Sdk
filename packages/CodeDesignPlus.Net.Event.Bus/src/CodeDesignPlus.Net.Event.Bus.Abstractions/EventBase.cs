@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Event.Bus.Abstractions
 {
@@ -18,24 +17,13 @@ namespace CodeDesignPlus.Net.Event.Bus.Abstractions
         }
 
         /// <summary>
-        /// Initializes a new instance of the CodeDesignPlus.Event.Bus.Abstractions.EventBase class with a specified idEvent and createDate
-        /// </summary>
-        /// <param name="idEvent">Id Event</param>
-        /// <param name="eventDate">Date the event was generated</param>
-        protected EventBase(Guid idEvent, DateTime eventDate)
-        {
-            this.IdEvent = idEvent;
-            this.EventDate = eventDate;
-        }
-
-        /// <summary>
         /// Gets the id event
         /// </summary>
-        public Guid IdEvent { get; private set; }
+        public Guid IdEvent { get; set; }
         /// <summary>
         /// Gets the event date
         /// </summary>
-        public DateTime EventDate { get; private set; }
+        public DateTime EventDate { get; set; }
 
         /// <summary>
         /// Indicates whether the current object is equal to another object of the same type.

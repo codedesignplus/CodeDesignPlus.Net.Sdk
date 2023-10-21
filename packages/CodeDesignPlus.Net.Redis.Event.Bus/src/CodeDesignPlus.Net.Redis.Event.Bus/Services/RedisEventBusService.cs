@@ -1,7 +1,7 @@
-﻿using CodeDesignPlus.Net.Event.Bus.Abstractions;
+﻿using System.Text.Json;
+using CodeDesignPlus.Net.Event.Bus.Abstractions;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Event.Bus.Options;
-using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace CodeDesignPlus.Net.Redis.Event.Bus.Services;
@@ -87,11 +87,11 @@ public class RedisEventBusService : IRedisEventBusService
     /// <typeparam name="TResult">Type result (long)</typeparam>
     /// <param name="event">The event to publish.</param>
     /// <returns>The number of clients that received the message.</returns>
-    private async Task<TResult> PrivatePublishAsync<TResult>(EventBase @event)
+    private async Task<TResult> PrivatePublishAsync<TResult>(object @event)
     {
         var channel = @event.GetType().Name;
 
-        var message = JsonConvert.SerializeObject(@event);
+        var message = JsonSerializer.Serialize(@event);
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
@@ -144,7 +144,7 @@ public class RedisEventBusService : IRedisEventBusService
 
                 var queue = this.serviceProvider.GetService(queueType);
 
-                var @event = JsonConvert.DeserializeObject<TEvent>(value);
+                var @event = JsonSerializer.Deserialize<TEvent>(value);
 
                 queue.GetType().GetMethod(nameof(IQueueService<TEventHandler, TEvent>.Enqueue)).Invoke(queue, new object[] { @event });
 
