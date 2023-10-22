@@ -5,6 +5,7 @@
         "net.event.bus",
         "net.redis",
         "net.redis.event.bus",
-        "net.xunit"
+        "net.xunit",
+        "net.kafka"
     ]
 }
