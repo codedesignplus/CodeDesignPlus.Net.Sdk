@@ -68,9 +68,21 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         {
             while (!token.IsCancellationRequested)
             {
-                if (this.queueEvent.TryDequeue(out TEvent @event))
+                try
                 {
-                    await this.eventHandler.HandleAsync(@event, token);
+                    if (this.queueEvent.TryDequeue(out TEvent @event))
+                        await this.eventHandler.HandleAsync(@event, token);
+                    else
+                        await Task.Delay(TimeSpan.FromSeconds(5), token);
+                } catch(Exception ex) {
+                    // TODO: Enqueue @event to queue errors
+
+                    // Reintentos: Si decides implementar una lógica de reintentos para los mensajes que fallan, considera tener un límite en el número de reintentos para evitar un bucle infinito en un mensaje que siempre falla. Podrías usar un mecanismo de cola con soporte para retrasos entre reintentos, o simplemente registrar y descartar el mensaje después de un número específico de fallos.
+
+                    // Sincronización: Si hay múltiples consumidores tratando de desencolar mensajes al mismo tiempo, podrías encontrarte con problemas de concurrencia. Asegúrate de que tu cola (queueEvent) sea segura para operaciones concurrentes, o considera usar un bloqueo alrededor de las operaciones de la cola si es necesario.
+
+                    // Monitorizar: Considera agregar monitoreo o logging para saber cuántos mensajes se están procesando, cuántos errores estás teniendo, cuánto tiempo tarda cada mensaje en ser procesado, etc. Esto puede ser muy útil para diagnosticar problemas o para ajustar el rendimiento en el futuro.
+
                 }
             }
         }

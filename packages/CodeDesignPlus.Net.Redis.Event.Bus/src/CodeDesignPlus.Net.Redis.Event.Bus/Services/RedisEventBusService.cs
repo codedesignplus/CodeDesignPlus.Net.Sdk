@@ -107,7 +107,7 @@ public class RedisEventBusService : IRedisEventBusService
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
     /// <returns>Return a <see cref="Task"/></returns>
-    public Task SubscribeAsync<TEvent, TEventHandler>()
+    public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {

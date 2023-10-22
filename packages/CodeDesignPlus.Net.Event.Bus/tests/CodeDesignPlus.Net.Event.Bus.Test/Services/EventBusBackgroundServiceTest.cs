@@ -46,7 +46,7 @@ public class EventBusBackgroundServiceTest
     {
         // Arrange
         this.queueService.Enqueue(this.userCreatedEvent);
-        var backgroundService = new EventBusBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(this.queueService);
+        var backgroundService = new QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(this.queueService);
 
         // Act
         backgroundService.StartAsync(CancellationToken.None);

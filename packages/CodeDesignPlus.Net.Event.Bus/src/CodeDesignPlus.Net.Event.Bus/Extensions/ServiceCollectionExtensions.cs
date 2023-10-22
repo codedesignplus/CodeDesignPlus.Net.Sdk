@@ -38,6 +38,7 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
+        services.AddHostedService<SubscriberBackgroundService>();
 
         var eventBus = AppDomain.CurrentDomain
             .GetAssemblies()
@@ -52,7 +53,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-
     /// <summary>
     /// Adds the event handlers that implement the CodeDesignPlus.Event.Bus.Abstractions.IEventHandler interface
     /// </summary>
@@ -61,7 +61,7 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddEventsHandlers<TStartupLogic>(this IServiceCollection services)
         where TStartupLogic : IStartupServices
     {
-        var eventsHandlers = GetEventHandlers<TStartupLogic>();
+        var eventsHandlers = EventBusExtensions.GetEventHandlers();
 
         foreach (var eventHandler in eventsHandlers)
         {
@@ -77,7 +77,7 @@ public static class ServiceCollectionExtensions
                     var queueServiceImplementationType = typeof(QueueService<,>).MakeGenericType(eventHandler, eventType);
 
                     var hostServiceType = typeof(IEventBusBackgroundService<,>).MakeGenericType(eventHandler, eventType);
-                    var hostServiceImplementationType = typeof(EventBusBackgroundService<,>).MakeGenericType(eventHandler, eventType);
+                    var hostServiceImplementationType = typeof(QueueBackgroundService<,>).MakeGenericType(eventHandler, eventType);
 
                     services.AddSingleton(queueServiceType, queueServiceImplementationType);
                     services.AddTransient(hostServiceType, hostServiceImplementationType);
@@ -88,78 +88,4 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
-    /// <summary>
-    /// Subscribe all implementation of the type IEventHandler
-    /// </summary>
-    /// <typeparam name="TStartupLogic">Implementation of the IStartupServices type</typeparam>
-    /// <param name="provider">Provider of services</param>
-    /// <returns>The service provider</returns>
-    public static IServiceProvider SubscribeEventsHandlers<TStartupLogic>(this IServiceProvider provider)
-        where TStartupLogic : IStartupServices
-    {
-        var subscriptionManager = provider.GetRequiredService<ISubscriptionManager>();
-
-        var typeSubscriptionManager = subscriptionManager.GetType();
-
-        var methodAddSubscription = typeSubscriptionManager.GetMethods().FirstOrDefault(x => x.Name.Contains("AddSubscription"));
-
-        var eventBus = provider.GetRequiredService<IEventBus>();
-
-        var typeEventBus = eventBus.GetType();
-
-        var eventsHandlers = GetEventHandlers<TStartupLogic>();
-
-        foreach (var eventHandler in eventsHandlers)
-        {
-            var interfaceEventHandlerGeneric = eventHandler.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
-
-            if (interfaceEventHandlerGeneric != null)
-            {
-                var member = interfaceEventHandlerGeneric.GetGenericArguments().FirstOrDefault(x => x.IsSubclassOf(typeof(EventBase)));
-
-                if (!member.IsGenericParameter)
-                {
-                    var methodAdd = methodAddSubscription.MakeGenericMethod(member, eventHandler);
-
-                    methodAdd.Invoke(subscriptionManager, null);
-
-                    var methodSuscribe = typeEventBus.GetMethods().FirstOrDefault(x => x.Name == nameof(IEventBus.SubscribeAsync) && x.IsGenericMethod);
-
-                    var methodGeneric = methodSuscribe.MakeGenericMethod(member, eventHandler);
-
-                    (methodGeneric.Invoke(eventBus, null) as Task).ConfigureAwait(false);
-                }
-            }
-        }
-
-        return provider;
-    }
-
-    /// <summary>
-    /// Determines whether an instance of a specified type can be assigned to a variable of the current type.
-    /// </summary>
-    /// <param name="type">Current type.</param>
-    /// <param name="interface">The type to compare with the current type.</param>
-    /// <returns>Return true if type implemented <paramref name="interface"/></returns>
-    public static bool IsAssignableGenericFrom(this Type type, Type @interface)
-    {
-        return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == @interface);
-    }
-
-    /// <summary>
-    /// Escanea y retorna las clase que implementan la interfaz <see cref="IEventHandler{TEvent}"/>
-    /// </summary>
-    /// <typeparam name="TStartupLogic">Clase de inicio que implementa la interfaz <see cref="IStartupServices"/></typeparam>
-    /// <returns>Return a list of type</returns>
-    public static List<Type> GetEventHandlers<TStartupLogic>() where TStartupLogic : IStartupServices
-    {
-        return Assembly.GetAssembly(typeof(TStartupLogic))
-            .GetTypes()
-            .Where(x =>
-                x.IsClass &&
-                x.IsAssignableGenericFrom(typeof(IEventHandler<>))
-            ).ToList();
-    }
-
 }

@@ -24,8 +24,9 @@
         /// </summary>
         /// <typeparam name="TEvent">Evento de integración a escuchar</typeparam>
         /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
+        /// <param name="token">Cancellation Token</param>
         /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
-        Task SubscribeAsync<TEvent, TEventHandler>()
+        Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
             where TEvent : EventBase
             where TEventHandler : IEventHandler<TEvent>;
 

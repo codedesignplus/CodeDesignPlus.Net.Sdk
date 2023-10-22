@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Net.Event.Bus.Test;
 using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Moq;
 
 namespace CodeDesignPlus.Net.Event.Bus.Extensions;
@@ -124,7 +125,7 @@ public class ServiceCollectionExtensionsTest
         );
 
         var hostService = services.FirstOrDefault(x =>
-            x.ImplementationType == typeof(EventBusBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>)
+            x.ImplementationType == typeof(QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>)
         );
 
         Assert.NotNull(handler);
@@ -140,34 +141,8 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(ServiceLifetime.Singleton, queue.Lifetime);
 
         Assert.True(hostService.ImplementationType.IsAssignableGenericFrom(typeof(IEventBusBackgroundService<,>)));
-        Assert.Equal(typeof(EventBusBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), hostService.ImplementationType);
+        Assert.Equal(typeof(QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), hostService.ImplementationType);
         Assert.Equal(ServiceLifetime.Transient, hostService.Lifetime);
-    }
-
-    /// <summary>
-    /// Valida que se registre los event handler, ques and host service
-    /// </summary>
-    [Fact]
-    public void SubscribeEventsHandlers_EventsHandlers_Subscriptions()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        var configuration = ConfigurationUtil.GetConfiguration();
-        services.AddEventBus(configuration);
-        services.AddEventsHandlers<Startup>();
-
-        var serviceProvider = services.BuildServiceProvider();
-        var subscriptionManager = serviceProvider.GetRequiredService<ISubscriptionManager>();
-
-        // Act
-        serviceProvider.SubscribeEventsHandlers<Startup>();
-
-        // Assert
-        var subscription = subscriptionManager.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        Assert.NotNull(subscription);
-        Assert.Equal(typeof(UserRegisteredEvent), subscription.EventType);
-        Assert.Equal(typeof(UserRegisteredEventHandler), subscription.EventHandlerType);
     }
 
     /// <summary>
@@ -209,7 +184,7 @@ public class ServiceCollectionExtensionsTest
     public void GetEventHandlers_NotEmpty_EventsHandlers()
     {
         // Arrange & Act
-        var eventHandlers = ServiceCollectionExtensions.GetEventHandlers<Startup>();
+        var eventHandlers = EventBusExtensions.GetEventHandlers();
 
         // Assert
         Assert.NotEmpty(eventHandlers);

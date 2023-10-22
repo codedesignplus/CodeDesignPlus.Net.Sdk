@@ -46,7 +46,7 @@ public class EventBusService : IEventBus
     /// <typeparam name="TEvent">Evento de integración a escuchar</typeparam>
     /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
     /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
-    public Task SubscribeAsync<TEvent, TEventHandler>()
+    public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {

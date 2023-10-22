@@ -7,6 +7,7 @@ using CodeDesignPlus.Net.Redis.Event.Bus.Test.Helpers.Memory;
 using CodeDesignPlus.Net.Redis.Extensions;
 using CodeDesignPlus.Net.Event.Bus.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Hosting;
 using Moq;
 using StackExchange.Redis;
 using CodeDesignPlus.Net.xUnit.Helpers.Server;
@@ -190,7 +191,7 @@ public class RedisEventBusServiceTest : IClassFixture<RedisContainer>
     }
 
     [Fact]
-    public void PublishEvent_InvokeHandler_CheckEvent()
+    public async Task PublishEvent_InvokeHandler_CheckEvent()
     {
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
@@ -209,7 +210,9 @@ public class RedisEventBusServiceTest : IClassFixture<RedisContainer>
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        serviceProvider.SubscribeEventsHandlers<StartupLogic>();
+        // Register the all subscribes
+        var hostService = serviceProvider.GetRequiredService<IHostedService>();
+        await hostService.StartAsync(CancellationToken.None);
 
         var memory = serviceProvider.GetRequiredService<IMemoryService>();
 
