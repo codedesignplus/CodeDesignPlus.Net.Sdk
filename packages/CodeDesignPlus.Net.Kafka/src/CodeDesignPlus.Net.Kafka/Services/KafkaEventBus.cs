@@ -1,8 +1,12 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text;
+using System.Text.Json;
 using CodeDesignPlus.Net.Event.Bus.Abstractions;
+using CodeDesignPlus.Net.Kafka.Exceptions;
 using CodeDesignPlus.Net.Kafka.Options;
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
+using KafkaException = CodeDesignPlus.Net.Kafka.Exceptions.KafkaException;
 
 namespace CodeDesignPlus.Net.Kafka.Services;
 
@@ -50,9 +54,14 @@ public class KafkaEventBus : IKafkaEventBus
         return this.PublishAsync<DeliveryResult<string, object>>(@event, token);
     }
 
-    public Task<TResult> PublishAsync<TResult>(EventBase @event, CancellationToken token)
+    public async Task<TResult> PublishAsync<TResult>(EventBase @event, CancellationToken token)
     {
         var type = @event.GetType();
+
+        var topic = type.GetCustomAttribute<TopicAttribute>();
+
+        if (string.IsNullOrEmpty(topic?.Name))
+            throw new KafkaException("The topic is required");
 
         var producerType = typeof(IProducer<,>).MakeGenericType(typeof(string), type);
 
@@ -66,16 +75,36 @@ public class KafkaEventBus : IKafkaEventBus
 
         var message = Activator.CreateInstance(typeof(Message<,>).MakeGenericType(typeof(string), type));
 
-        return (Task<TResult>)method.Invoke(producer, new object[] { message });
+        message.GetType().GetProperty("Key").SetValue(message, @event.IdEvent.ToString());
+        message.GetType().GetProperty("Value").SetValue(message, @event);
+
+        var headers = new Headers
+        {
+            { "EventType", Encoding.UTF8.GetBytes(type.Name) },
+            { "Topic", Encoding.UTF8.GetBytes(topic.Name) }
+        };
+
+        message.GetType().GetProperty("Headers").SetValue(message, headers);
+
+        await (Task)method.Invoke(producer, new object[] { topic.Name, message, token });
+
+        return (TResult)default;
     }
 
-    public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
+    public async Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {
         var consumer = this.serviceProvider.GetRequiredService<IConsumer<string, TEvent>>();
 
         token.Register(() => consumer.Close());
+
+        var topic = typeof(TEventHandler).GetCustomAttribute<TopicAttribute>();
+
+        if (string.IsNullOrEmpty(topic?.Name))
+            throw new KafkaException("Topic name is required");
+
+        consumer.Subscribe(topic.Name);
 
         while (!token.IsCancellationRequested)
         {
@@ -91,9 +120,9 @@ public class KafkaEventBus : IKafkaEventBus
 
                 // TODO: CodeDesignPlus.Net.Event.Bus.Services.QueueService.DequeueAsync
             }
-        }
 
-        return Task.CompletedTask;
+            await Task.Delay(TimeSpan.FromSeconds(1), token);
+        }
     }
 
     public void ListenerEvent<TEvent, TEventHandler>(string key, TEvent @event)
@@ -114,7 +143,7 @@ public class KafkaEventBus : IKafkaEventBus
 
                 queueType = queueType.MakeGenericType(subscription.EventHandlerType, subscription.EventType);
 
-                var queue = this.serviceProvider.GetService(queueType);
+                var queue = this.serviceProvider.GetRequiredService(queueType);
 
                 queue.GetType().GetMethod(nameof(IQueueService<TEventHandler, TEvent>.Enqueue)).Invoke(queue, new object[] { @event });
 

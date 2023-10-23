@@ -2,6 +2,7 @@
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events
 {
+    [Topic("user-topic")]
     public class UserCreatedEvent : EventBase
     {
         public long Id { get; set; }

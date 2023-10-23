@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Event.Bus.Abstractions;
+using CodeDesignPlus.Net.Event.Bus.Extensions;
 using CodeDesignPlus.Net.Kafka.Abstractions;
 using CodeDesignPlus.Net.Kafka.Exceptions;
 using CodeDesignPlus.Net.Kafka.Options;
@@ -112,7 +113,7 @@ public static class ServiceCollectionExtensions
             AutoOffsetReset = AutoOffsetReset.Earliest,
         };
 
-        var eventsHandlers = Event.Bus.Extensions.ServiceCollectionExtensions.GetEventHandlers<TStartupLogic>();
+        var eventsHandlers = EventBusExtensions.GetEventHandlers();
 
         foreach (var eventHandler in eventsHandlers)
         {

@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events
 {
+    [Topic("user-topic")]
     public class UserCreatedEventHandler : IEventHandler<UserCreatedEvent>
     {
         private readonly ILogger logger;
