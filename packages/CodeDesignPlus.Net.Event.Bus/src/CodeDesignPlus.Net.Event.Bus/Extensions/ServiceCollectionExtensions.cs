@@ -67,12 +67,9 @@ public static class ServiceCollectionExtensions
 
         foreach (var eventHandler in eventsHandlers)
         {
-            var interfaceEventHandlerGeneric = eventHandler.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
+            var interfaceEventHandlerGeneric = eventHandler.GetInterfaceEventHandlerGeneric();
 
-            if (interfaceEventHandlerGeneric == null)
-                continue;
-
-            var eventType = interfaceEventHandlerGeneric.GetGenericArguments().FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
+            var eventType = interfaceEventHandlerGeneric.GetEventType();
 
             if (eventType == null)
                 continue;
@@ -93,4 +90,5 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
 }

@@ -46,27 +46,25 @@ public class SubscribeBackgroundService : BackgroundService
 
         foreach (var eventHandler in eventsHandlers)
         {
-            var interfaceEventHandlerGeneric = eventHandler.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
+            var interfaceEventHandlerGeneric = eventHandler.GetInterfaceEventHandlerGeneric();
 
-            if (interfaceEventHandlerGeneric == null)
-                continue;
+            var eventType = interfaceEventHandlerGeneric.GetEventType();
 
-            var member = interfaceEventHandlerGeneric.GetGenericArguments().FirstOrDefault(x => x.IsSubclassOf(typeof(EventBase)));
-
-            if (member == null && member.IsGenericParameter)
+            if (eventType == null)
                 continue;
 
             // Register the event handler with the subscription manager
-            var methodAdd = methodAddSubscription.MakeGenericMethod(member, eventHandler);
+            var methodAdd = methodAddSubscription.MakeGenericMethod(eventType, eventHandler);
             methodAdd.Invoke(subscriptionManager, null);
 
             // Subscribe to the event using the event bus
             var methodSuscribe = typeEventBus.GetMethods().FirstOrDefault(x => x.Name == nameof(IEventBus.SubscribeAsync) && x.IsGenericMethod);
-            var methodGeneric = methodSuscribe.MakeGenericMethod(member, eventHandler);
+            var methodGeneric = methodSuscribe.MakeGenericMethod(eventType, eventHandler);
 
             (methodGeneric.Invoke(eventBus, new object[] { stoppingToken }) as Task).ConfigureAwait(false);
         }
 
         return Task.CompletedTask;
     }
+
 }

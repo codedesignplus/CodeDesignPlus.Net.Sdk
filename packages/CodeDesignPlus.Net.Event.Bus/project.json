@@ -47,14 +47,14 @@
       "options": {
         "name": "CodeDesignPlus.Net.Event.Bus",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Event.Bus.Key",
+        "projectKey": "CodeDesignPlus.Net.Event.Bus",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,
         "qualityGate": false,
         "qualityGateTimeout": "600",
         "skipImplicitDeps": false,
-        "exclusions": "**CodeDesignPlus.Net.Core*,**Test*.cs",
+        "exclusions": "**CodeDesignPlus.Net.Core*,**tests/**",
         "extra": {
           "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/**/coverage.opencover.xml"
         }
