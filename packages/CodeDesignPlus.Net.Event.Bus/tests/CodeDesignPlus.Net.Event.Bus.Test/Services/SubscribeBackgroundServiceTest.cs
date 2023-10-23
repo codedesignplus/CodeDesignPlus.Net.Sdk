@@ -13,7 +13,6 @@ public class SubscribeBackgroundServiceTest
         var services = new ServiceCollection();
         var configuration = ConfigurationUtil.GetConfiguration();
         services.AddEventBus(configuration);
-        services.AddEventsHandlers<Startup>();
 
         var serviceProvider = services.BuildServiceProvider();
         var subscriptionManager = serviceProvider.GetRequiredService<ISubscriptionManager>();

@@ -10,9 +10,7 @@ public static class ConfigurationUtil
 {
     public static readonly EventBusOptions EventBusOptions = new()
     {
-        Enable = true,
-        Name = nameof(EventBusOptions.Name),
-        Email = $"{nameof(EventBusOptions.Name)}@codedesignplus.com"
+        EnableQueue = true,
     };
 
     public static IConfiguration GetConfiguration()

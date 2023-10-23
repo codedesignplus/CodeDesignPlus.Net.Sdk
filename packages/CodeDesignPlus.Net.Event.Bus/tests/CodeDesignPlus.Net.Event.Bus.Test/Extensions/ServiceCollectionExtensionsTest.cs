@@ -69,9 +69,7 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.EventBusOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.EventBusOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.EventBusOptions.Enable, value.Enable);
+        Assert.Equal(ConfigurationUtil.EventBusOptions.EnableQueue, value.EnableQueue);
     }
 
     /// <summary>
@@ -110,10 +108,9 @@ public class ServiceCollectionExtensionsTest
         // Arrange
         var services = new ServiceCollection();
         var configuration = ConfigurationUtil.GetConfiguration();
-        services.AddEventBus(configuration);
 
         // Act
-        services.AddEventsHandlers<Startup>();
+        services.AddEventBus(configuration);
 
         // Assert
         var handler = services.FirstOrDefault(x =>

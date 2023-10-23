@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
-        services.AddHostedService<SubscriberBackgroundService>();
+        services.AddHostedService<SubscribeBackgroundService>();
 
         var eventBus = AppDomain.CurrentDomain
             .GetAssemblies()
@@ -49,6 +49,8 @@ public static class ServiceCollectionExtensions
             throw new EventNotImplementedException();
 
         services.AddSingleton(typeof(IEventBus), eventBus);
+        
+        services.AddEventsHandlers(section.Get<EventBusOptions>());
 
         return services;
     }
@@ -56,10 +58,10 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds the event handlers that implement the CodeDesignPlus.Event.Bus.Abstractions.IEventHandler interface
     /// </summary>
-    /// <typeparam name="TStartupLogic">Implementation of the IStartupServices type</typeparam>
     /// <param name="services">A reference to this instance after the operation has completed.</param>
-    public static IServiceCollection AddEventsHandlers<TStartupLogic>(this IServiceCollection services)
-        where TStartupLogic : IStartupServices
+    /// <param name="eventBusOptions">The event bus options</param>
+    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, EventBusOptions eventBusOptions)        
     {
         var eventsHandlers = EventBusExtensions.GetEventHandlers();
 
@@ -67,23 +69,26 @@ public static class ServiceCollectionExtensions
         {
             var interfaceEventHandlerGeneric = eventHandler.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
 
-            if (interfaceEventHandlerGeneric != null)
+            if (interfaceEventHandlerGeneric == null)
+                continue;
+
+            var eventType = interfaceEventHandlerGeneric.GetGenericArguments().FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
+
+            if (eventType == null)
+                continue;
+
+            if (eventBusOptions.EnableQueue)
             {
-                var eventType = interfaceEventHandlerGeneric.GetGenericArguments().FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
+                var queueServiceType = typeof(IQueueService<,>).MakeGenericType(eventHandler, eventType);
+                var queueServiceImplementationType = typeof(QueueService<,>).MakeGenericType(eventHandler, eventType);
+                services.AddSingleton(queueServiceType, queueServiceImplementationType);
 
-                if (eventType != null)
-                {
-                    var queueServiceType = typeof(IQueueService<,>).MakeGenericType(eventHandler, eventType);
-                    var queueServiceImplementationType = typeof(QueueService<,>).MakeGenericType(eventHandler, eventType);
-
-                    var hostServiceType = typeof(IEventBusBackgroundService<,>).MakeGenericType(eventHandler, eventType);
-                    var hostServiceImplementationType = typeof(QueueBackgroundService<,>).MakeGenericType(eventHandler, eventType);
-
-                    services.AddSingleton(queueServiceType, queueServiceImplementationType);
-                    services.AddTransient(hostServiceType, hostServiceImplementationType);
-                    services.AddTransient(eventHandler);
-                }
+                var hostServiceImplementationType = typeof(QueueBackgroundService<,>).MakeGenericType(eventHandler, eventType);
+                var hostServiceType = typeof(IEventBusBackgroundService<,>).MakeGenericType(eventHandler, eventType);
+                services.AddTransient(hostServiceType, hostServiceImplementationType);
             }
+
+            services.AddTransient(eventHandler);
         }
 
         return services;

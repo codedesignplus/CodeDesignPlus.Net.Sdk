@@ -54,7 +54,7 @@
         "qualityGate": false,
         "qualityGateTimeout": "600",
         "skipImplicitDeps": false,
-        "exclusions": "**CodeDesignPlus.Net.Core*,**Tests*.cs",
+        "exclusions": "**CodeDesignPlus.Net.Core*,**Test*.cs",
         "extra": {
           "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/**/coverage.opencover.xml"
         }

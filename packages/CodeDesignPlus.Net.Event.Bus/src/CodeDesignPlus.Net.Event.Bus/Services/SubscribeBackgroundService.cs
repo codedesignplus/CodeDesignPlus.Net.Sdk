@@ -7,7 +7,7 @@ namespace CodeDesignPlus.Net.Event.Bus;
 /// <summary>
 /// Represents a background service responsible for subscribing to Kafka topics based on registered event handlers.
 /// </summary>
-public class SubscriberBackgroundService : BackgroundService
+public class SubscribeBackgroundService : BackgroundService
 {
     /// <summary>
     /// The manager responsible for handling event subscriptions.
@@ -23,7 +23,7 @@ public class SubscriberBackgroundService : BackgroundService
     /// </summary>
     /// <param name="subscriptionManager">The manager responsible for handling event subscriptions.</param>
     /// <param name="serviceProvider">The service provider to retrieve services from the container.</param>
-    public SubscriberBackgroundService(ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider)
+    public SubscribeBackgroundService(ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider)
     {
         this.subscriptionManager = subscriptionManager;
         this.serviceProvider = serviceProvider;
