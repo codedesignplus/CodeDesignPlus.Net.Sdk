@@ -12,9 +12,7 @@ public static class OptionsUtil
 
     public static readonly EventBusOptions EventBusOptions = new()
     {
-        Enable = true,
-        Name = nameof(CodeDesignPlus.Net.Event.Bus.Options.EventBusOptions.Name),
-        Email = "codedesignplus@outlook.com"
+        EnableQueue = true,
     };
 
 
