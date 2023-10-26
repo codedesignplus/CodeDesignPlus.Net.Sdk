@@ -2,9 +2,11 @@
 
 namespace CodeDesignPlus.Net.Event.Bus.Extensions;
 
+/// <summary>
+/// Provides extension methods related to the EventBus functionality.
+/// </summary>
 public static class EventBusExtensions
 {
-
     /// <summary>
     /// Determines whether an instance of a specified type can be assigned to a variable of the current type.
     /// </summary>
@@ -13,7 +15,9 @@ public static class EventBusExtensions
     /// <returns>Return true if type implemented <paramref name="interface"/></returns>
     public static bool IsAssignableGenericFrom(this Type type, Type @interface)
     {
-        return type.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == @interface);
+        return type
+            .GetInterfaces()
+            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == @interface);
     }
 
     /// <summary>
@@ -61,7 +65,9 @@ public static class EventBusExtensions
     /// </example>
     public static Type GetInterfaceEventHandlerGeneric(this Type eventHandler)
     {
-        return eventHandler.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
+        return eventHandler
+            .GetInterfaces()
+            .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
     }
 
     /// <summary>
@@ -84,6 +90,23 @@ public static class EventBusExtensions
     /// </example>
     public static Type GetEventType(this Type interfaceEventHandlerGeneric)
     {
-        return interfaceEventHandlerGeneric.GetGenericArguments().FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
+        return interfaceEventHandlerGeneric
+            .GetGenericArguments()
+            .FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
+    }
+
+    /// <summary>
+    /// Retrieves the type of the class that implements the <see cref="IEventBus"/> interface from the current AppDomain.
+    /// It excludes abstract classes and interfaces.
+    /// </summary>
+    /// <returns>
+    /// The type of the class implementing the <see cref="IEventBus"/> interface. If no such class is found, returns null.
+    /// </returns>
+    public static Type GetEventBus()
+    {
+        return AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .SelectMany(x => x.GetTypes())
+                    .FirstOrDefault(x => typeof(IEventBus).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && !x.IsInterface);
     }
 }

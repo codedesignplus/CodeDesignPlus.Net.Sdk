@@ -79,21 +79,14 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
             var eventName = GetEventKey<TEvent>();
             var suscription = this.FindSubscription<TEvent, TEventHandler>();
 
-            if (suscription != null)
-            {
-                this.handlers[eventName].Remove(suscription);
-                this.logger.LogInformation("Removed subscription for EventHandler {TEventHandler} from event {eventName}.", typeof(TEventHandler).Name, eventName);
+            this.handlers[eventName].Remove(suscription);
+            this.logger.LogInformation("Removed subscription for EventHandler {TEventHandler} from event {eventName}.", typeof(TEventHandler).Name, eventName);
 
-                if (!this.handlers[eventName].Any())
-                {
-                    this.handlers.Remove(eventName);
-                    this.OnEventRemoved?.Invoke(this, suscription);
-                    this.logger.LogInformation("Event {eventName} has no subscriptions and has been removed from handlers.", eventName);
-                }
-            }
-            else
+            if (!this.handlers[eventName].Any())
             {
-                this.logger.LogWarning("Attempted to remove non-existent subscription for EventHandler {TEventHandler} from event {eventName}.", typeof(TEventHandler).Name, eventName);
+                this.handlers.Remove(eventName);
+                this.OnEventRemoved?.Invoke(this, suscription);
+                this.logger.LogInformation("Event {eventName} has no subscriptions and has been removed from handlers.", eventName);
             }
         }
 

@@ -40,22 +40,17 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
-        //services.AddHostedService<SubscribeBackgroundService>();
 
-        var eventBus = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .FirstOrDefault(x => typeof(IEventBus).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && !x.IsInterface);
-
-        if (eventBus == null)
-            throw new EventNotImplementedException();
-
+        var eventBus = EventBusExtensions.GetEventBus() ?? throw new EventNotImplementedException();
+        
         services.AddSingleton(typeof(IEventBus), eventBus);
 
         services.AddEventsHandlers(section.Get<EventBusOptions>());
 
         return services;
     }
+
+   
 
     /// <summary>
     /// Adds the event handlers that implement the CodeDesignPlus.Event.Bus.Abstractions.IEventHandler interface
@@ -83,7 +78,6 @@ public static class ServiceCollectionExtensions
                 services.AddSingleton(queueServiceType, queueServiceImplementationType);
 
                 var hostServiceImplementationType = typeof(QueueBackgroundService<,>).MakeGenericType(eventHandler, eventType);
-                var hostServiceType = typeof(IEventBusBackgroundService<,>).MakeGenericType(eventHandler, eventType);
                 services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), hostServiceImplementationType));
             }
 

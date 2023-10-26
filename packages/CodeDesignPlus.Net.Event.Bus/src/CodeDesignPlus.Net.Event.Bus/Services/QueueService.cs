@@ -94,7 +94,7 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
                     else
                     {
                         this.logger.LogDebug("No events in the queue of type {TEvent}. Waiting...", typeof(TEvent).Name);
-                        await Task.Delay(TimeSpan.FromSeconds(this.options.SecondsWaitQueue), token);
+                        await Task.Delay(TimeSpan.FromSeconds(this.options.SecondsWaitQueue), CancellationToken.None);
                     }
                 }
                 catch (Exception ex)

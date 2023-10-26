@@ -87,9 +87,10 @@ public class QueueServiceTest
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User),
         };
-        mockEventHandler.Setup(eh => eh.HandleAsync(userRegisteredEvent, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
-        var service = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, mockOptions.Object);
+        var handler = new UserRegisteredEventHandler();
+
+        var service = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(handler, mockLogger.Object, mockOptions.Object);
         service.Enqueue(userRegisteredEvent);
 
         var cts = new CancellationTokenSource();
@@ -98,7 +99,33 @@ public class QueueServiceTest
         await service.DequeueAsync(cts.Token);
 
         mockLogger.VerifyLogging("Dequeueing event of type UserRegisteredEvent.", LogLevel.Information);
-        mockLogger.VerifyLogging("No events in the queue of type UserRegisteredEvent. Waiting...", LogLevel.Debug);
+        mockLogger.VerifyLogging("No events in the queue of type UserRegisteredEvent. Waiting...", LogLevel.Debug, Times.AtLeastOnce());
         mockLogger.VerifyLogging("DequeueAsync stopped due to cancellation token to type UserRegisteredEvent.", LogLevel.Information);
+    }
+
+
+    [Fact]
+    public async Task DequeueAsync_WhenHandleAsyncThrowsException_ErrorIsLogged()
+    {
+        // Arrange
+        var cancellationTokenSource = new CancellationTokenSource();
+
+        var loggerMock = new Mock<ILogger<QueueService<EventFailedHandler, EventFailed>>>();
+
+        var @event = new EventFailed();
+        var handler = new EventFailedHandler();
+
+        var service = new QueueService<EventFailedHandler, EventFailed>(handler, loggerMock.Object, mockOptions.Object);
+
+        service.Enqueue(@event);
+
+        // Act
+        var task = service.DequeueAsync(cancellationTokenSource.Token);
+        await Task.Delay(1500); // Wait a bit for the method to process
+        cancellationTokenSource.Cancel();
+        await task;  // Ensure the method has fully completed
+
+        // Assert
+        loggerMock.VerifyLogging($"Error processing event of type {typeof(EventFailed).Name}.", LogLevel.Error);
     }
 }

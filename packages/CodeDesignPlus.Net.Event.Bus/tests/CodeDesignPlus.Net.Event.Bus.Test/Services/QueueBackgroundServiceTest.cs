@@ -2,7 +2,7 @@
 using CodeDesignPlus.Net.xUnit.Helpers;
 using Moq;
 
-namespace CodeDesignPlus.Net.Event.Bus.Test;
+namespace CodeDesignPlus.Net.Event.Bus.Test.Services;
 
 public class QueueBackgroundServiceTest
 {

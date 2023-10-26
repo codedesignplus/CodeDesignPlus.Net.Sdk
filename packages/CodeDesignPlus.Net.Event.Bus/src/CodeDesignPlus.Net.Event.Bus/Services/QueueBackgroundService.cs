@@ -7,7 +7,7 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
     /// </summary>
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
     /// <typeparam name="TEvent">The type of the event.</typeparam>
-    public class QueueBackgroundService<TEventHandler, TEvent> : BackgroundService, IEventBusBackgroundService<TEventHandler, TEvent>
+    public class QueueBackgroundService<TEventHandler, TEvent> : BackgroundService
         where TEventHandler : IEventHandler<TEvent>
         where TEvent : EventBase
     {

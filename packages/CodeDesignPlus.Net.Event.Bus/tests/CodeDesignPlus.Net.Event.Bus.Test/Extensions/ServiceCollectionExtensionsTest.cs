@@ -1,10 +1,7 @@
-﻿using CodeDesignPlus.Net.Event.Bus.Test;
-using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Moq;
+﻿using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
+using CodeDesignPlus.Net.Event.Bus.Extensions;
 
-namespace CodeDesignPlus.Net.Event.Bus.Extensions;
+namespace CodeDesignPlus.Net.Event.Bus.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -121,25 +118,32 @@ public class ServiceCollectionExtensionsTest
             x.ImplementationType == typeof(QueueService<UserRegisteredEventHandler, UserRegisteredEvent>)
         );
 
-        var hostService = services.FirstOrDefault(x =>
+        var queueBackgroundService = services.FirstOrDefault(x =>
             x.ImplementationType == typeof(QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>)
+        );
+
+        var eventHandlerBackgroundService = services.FirstOrDefault(x =>
+            x.ImplementationType == typeof(EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>)
         );
 
         Assert.NotNull(handler);
         Assert.NotNull(queue);
-        Assert.NotNull(hostService);
+        Assert.NotNull(queueBackgroundService);
+        Assert.NotNull(eventHandlerBackgroundService);
 
         Assert.True(handler.ImplementationType.IsAssignableGenericFrom(typeof(IEventHandler<>)));
         Assert.Equal(typeof(UserRegisteredEventHandler), handler.ImplementationType);
-        Assert.Equal(ServiceLifetime.Transient, handler.Lifetime);
+        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
 
         Assert.True(queue.ImplementationType.IsAssignableGenericFrom(typeof(IQueueService<,>)));
         Assert.Equal(typeof(QueueService<UserRegisteredEventHandler, UserRegisteredEvent>), queue.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, queue.Lifetime);
 
-        Assert.True(hostService.ImplementationType.IsAssignableGenericFrom(typeof(IEventBusBackgroundService<,>)));
-        Assert.Equal(typeof(QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), hostService.ImplementationType);
-        Assert.Equal(ServiceLifetime.Transient, hostService.Lifetime);
+        Assert.Equal(typeof(QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), queueBackgroundService.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, queueBackgroundService.Lifetime);
+        
+        Assert.Equal(typeof(EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), eventHandlerBackgroundService.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, eventHandlerBackgroundService.Lifetime);
     }
 
     /// <summary>
