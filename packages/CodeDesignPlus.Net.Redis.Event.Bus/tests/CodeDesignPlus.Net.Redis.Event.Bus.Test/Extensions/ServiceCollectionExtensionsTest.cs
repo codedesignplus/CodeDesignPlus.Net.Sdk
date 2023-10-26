@@ -1,6 +1,13 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using O = Microsoft.Extensions.Options;
+using CodeDesignPlus.Net.Redis.Event.Bus.Extensions;
+using Moq;
+using CodeDesignPlus.Net.Redis.Abstractions;
+using CodeDesignPlus.Net.Event.Bus.Abstractions;
+using CodeDesignPlus.Net.Redis.Event.Bus.Test.Helpers.Events;
+using CodeDesignPlus.Net.Event.Bus.Options;
+using StackExchange.Redis;
 
-namespace CodeDesignPlus.Net.Redis.Event.Bus.Extensions;
+namespace CodeDesignPlus.Net.Redis.Event.Bus.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -88,5 +95,35 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(OptionsUtil.RedisEventBusOptions.Enable, value.Enable);
     }
 
+    [Fact]
+    public void ListenerEvent_NoSubscriptions_LogsWarning()
+    {
+        // Arrange
+        var mockLogger = new Mock<ILogger<RedisEventBusService>>();
+        var mockRedisServiceFactory = new Mock<IRedisServiceFactory>();
+        var mockRedisService = new Mock<IRedisService>();
+        var mockSubscriptionManager = new Mock<ISubscriptionManager>();
+        var mockServiceProvider = new Mock<IServiceProvider>();
 
+        mockRedisServiceFactory.Setup(x => x.Create(It.IsAny<string>())).Returns(mockRedisService.Object);
+
+        // Simular que no hay suscripciones para el evento
+        mockSubscriptionManager.Setup(x => x.HasSubscriptionsForEvent<UserCreatedEvent>()).Returns(false);
+
+        var eventBusService = new RedisEventBusService(
+            mockRedisServiceFactory.Object,
+            mockSubscriptionManager.Object,
+            mockServiceProvider.Object,
+            mockLogger.Object,
+            O.Options.Create(new RedisEventBusOptions { Name = "Test" }),
+            O.Options.Create(new EventBusOptions())
+        );
+
+        // Act
+        eventBusService.ListenerEvent<UserCreatedEvent, UserCreatedEventHandler>(new RedisValue(JsonSerializer.Serialize(new UserCreatedEvent())), new CancellationToken());
+
+        // Assert
+        mockLogger.VerifyLogging("No subscriptions found for event: UserCreatedEvent.", LogLevel.Warning);
+
+    }
 }

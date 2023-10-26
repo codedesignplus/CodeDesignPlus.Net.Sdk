@@ -65,6 +65,8 @@ public class RedisEventBusService : IRedisEventBusService
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.eventBusOptions = eventBusOptions.Value;
+
+        this.logger.LogInformation("RedisEventBusService initialized.");
     }
 
     /// <summary>
@@ -78,6 +80,8 @@ public class RedisEventBusService : IRedisEventBusService
     {
         if (@event == null)
             throw new ArgumentNullException(nameof(@event));
+
+        this.logger.LogInformation("Publishing event: {TEvent}.", @event.GetType().Name);
 
         return this.PrivatePublishAsync<long>(@event, token);
     }
@@ -97,7 +101,7 @@ public class RedisEventBusService : IRedisEventBusService
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
-        this.logger.LogDebug($"The number of clients notified {notified} in the channel {channel} with the next message {message}");
+        this.logger.LogInformation("Event {TEvent} published with {notified} notifications.", @event.GetType().Name, notified);
 
         return (TResult)Convert.ChangeType(notified, typeof(TResult));
     }
@@ -116,7 +120,7 @@ public class RedisEventBusService : IRedisEventBusService
     {
         var channel = typeof(TEvent).Name;
 
-        this.logger.LogDebug($"Register client in the channel {channel}");
+        this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
         return this.redisService.Subscriber.SubscribeAsync(RedisChannel.Literal(channel), (_, v) => this.ListenerEvent<TEvent, TEventHandler>(v, token));
     }
@@ -132,16 +136,14 @@ public class RedisEventBusService : IRedisEventBusService
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {
-        this.logger.LogDebug($"Message received on the channel {typeof(TEvent).Name} with message {value}");
-
         if (this.subscriptionManager.HasSubscriptionsForEvent<TEvent>())
         {
+            this.logger.LogInformation("Received event: {TEvent}.", typeof(TEvent).Name);
+
             var subscriptions = this.subscriptionManager.FindSubscriptions<TEvent>();
 
             foreach (var subscription in subscriptions)
             {
-                this.logger.LogDebug($"The message will add to the queue with event {subscription.EventType.Name} and the handler {subscription.EventHandlerType.Name}");
-
                 var @event = JsonSerializer.Deserialize<TEvent>(value);
 
                 if (this.eventBusOptions.EnableQueue)
@@ -160,9 +162,11 @@ public class RedisEventBusService : IRedisEventBusService
 
                     eventHandler.HandleAsync(@event, token);
                 }
-
-                this.logger.LogDebug($"The message was added successfully");
             }
+        }
+        else
+        {
+            this.logger.LogWarning("No subscriptions found for event: {TEvent}.", typeof(TEvent).Name);
         }
     }
 
@@ -177,10 +181,10 @@ public class RedisEventBusService : IRedisEventBusService
     {
         var channel = typeof(TEvent).Name;
 
-        this.logger.LogDebug($"Remove subscription of the channel {channel}");
-
         this.subscriptionManager.RemoveSubscription<TEvent, TEventHandler>();
 
         this.redisService.Subscriber.Unsubscribe(RedisChannel.Literal(channel));
+
+        this.logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);
     }
 }
