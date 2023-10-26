@@ -3,38 +3,48 @@
 namespace CodeDesignPlus.Net.Event.Bus.Services
 {
     /// <summary>
-    /// Implementación por defecto del servicio <see cref="ISubscriptionManager"/>
+    /// Default implementation for the <see cref="ISubscriptionManager"/> service.
     /// </summary>
     public class SubscriptionManager : ISubscriptionManager
     {
-        /// <summary>
-        /// Relationship between the event name and its multiple handlers
-        /// </summary>
         private readonly Dictionary<string, List<Subscription>> handlers = new();
+        private readonly ILogger<SubscriptionManager> logger;
 
         /// <summary>
-        /// Determines whether a sequence contains any elements.
+        /// Determines if there are any registered events.
         /// </summary>
         public bool Any() => this.handlers.Any();
 
         /// <summary>
-        /// An event fired if an event has removed
+        /// Event triggered when an event has been removed.
         /// </summary>
         public event EventHandler<Subscription> OnEventRemoved;
 
         /// <summary>
-        /// Gets the name of the event from TEvent
+        /// Gets the name of the event for a given event type.
         /// </summary>
-        /// <typeparam name="TEvent">Type Event from which the name must be obtained</typeparam>
-        /// <returns>Returns the name of the event</returns>
+        /// <typeparam name="TEvent">The event type.</typeparam>
+        /// <returns>The name of the event type.</returns>
         public string GetEventKey<TEvent>() where TEvent : EventBase => typeof(TEvent).Name;
 
         /// <summary>
-        /// Add the generic types in the Suscription Manager
+        /// Initializes a new instance of the <see cref="SubscriptionManager"/> class.
         /// </summary>
-        /// <typeparam name="TEvent">The type of the event</typeparam>
-        /// <typeparam name="TEventHandler">The type of the event handler</typeparam>
-        /// <exception cref="EventHandlerAlreadyRegisteredException{TEvent, TEventHandler}"></exception>
+        /// <param name="logger">The logger to manage the logs.</param>
+        /// <exception cref="ArgumentNullException">Thrown when the logger is null.</exception>
+        public SubscriptionManager(ILogger<SubscriptionManager> logger)
+        {
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            this.logger.LogInformation("SubscriptionManager initialized.");
+        }
+
+        /// <summary>
+        /// Adds a subscription to the Subscription Manager.
+        /// </summary>
+        /// <typeparam name="TEvent">The event type.</typeparam>
+        /// <typeparam name="TEventHandler">The event handler type.</typeparam>
+        /// <exception cref="EventHandlerAlreadyRegisteredException{TEvent, TEventHandler}">Thrown when the event handler is already registered.</exception>
         public void AddSubscription<TEvent, TEventHandler>()
             where TEvent : EventBase
             where TEventHandler : IEventHandler<TEvent>
@@ -42,22 +52,29 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
             var eventName = this.GetEventKey<TEvent>();
 
             if (!this.HasSubscriptionsForEvent<TEvent>())
+            {
                 this.handlers.Add(eventName, new List<Subscription>());
+                this.logger.LogInformation("Event {eventName} added to handlers.", eventName);
+            }
 
             if (this.handlers[eventName].Any(x => x.EventHandlerType == typeof(TEventHandler)))
+            {
+                this.logger.LogWarning("EventHandler {TEventHandler} for event {eventName} already registered.", typeof(TEventHandler).Name, eventName);
                 throw new EventHandlerAlreadyRegisteredException<TEvent, TEventHandler>();
+            }
 
             this.handlers[eventName].Add(Subscription.Create<TEvent, TEventHandler>());
+            this.logger.LogInformation("EventHandler {TEventHandler} for event {eventName} registered.", typeof(TEventHandler).Name, eventName);
         }
 
         /// <summary>
-        /// Metodo encargado de remover un manejador de eventos del administrador de suscripciones
+        /// Removes a subscription from the Subscription Manager.
         /// </summary>
-        /// <typeparam name="TEvent">Evento de integración a remover</typeparam>
-        /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
+        /// <typeparam name="TEvent">The event type.</typeparam>
+        /// <typeparam name="TEventHandler">The event handler type.</typeparam>
         public void RemoveSubscription<TEvent, TEventHandler>()
-            where TEvent : EventBase
-            where TEventHandler : IEventHandler<TEvent>
+           where TEvent : EventBase
+           where TEventHandler : IEventHandler<TEvent>
         {
             var eventName = GetEventKey<TEvent>();
             var suscription = this.FindSubscription<TEvent, TEventHandler>();
@@ -65,21 +82,26 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
             if (suscription != null)
             {
                 this.handlers[eventName].Remove(suscription);
+                this.logger.LogInformation("Removed subscription for EventHandler {TEventHandler} from event {eventName}.", typeof(TEventHandler).Name, eventName);
 
                 if (!this.handlers[eventName].Any())
                 {
                     this.handlers.Remove(eventName);
-
                     this.OnEventRemoved?.Invoke(this, suscription);
+                    this.logger.LogInformation("Event {eventName} has no subscriptions and has been removed from handlers.", eventName);
                 }
+            }
+            else
+            {
+                this.logger.LogWarning("Attempted to remove non-existent subscription for EventHandler {TEventHandler} from event {eventName}.", typeof(TEventHandler).Name, eventName);
             }
         }
 
         /// <summary>
-        /// Metodo encargado de validar si exiten manejadores de eventos registrados para un determinado evento de integración
+        /// Checks if there are registered event handlers for a specific integration event.
         /// </summary>
-        /// <typeparam name="TEvent">Evento de integración a validar si tiene un manejador de eventos asociado</typeparam>
-        /// <returns>Retorna true si el evento de integración tiene un manejador de evento asociado</returns>
+        /// <typeparam name="TEvent">Integration event to check if it has an associated event handler.</typeparam>
+        /// <returns>Returns true if the integration event has an associated event handler.</returns>
         public bool HasSubscriptionsForEvent<TEvent>() where TEvent : EventBase
         {
             var eventName = this.GetEventKey<TEvent>();
@@ -88,12 +110,11 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         }
 
         /// <summary>
-        /// Metodo encargado de obtener la inforamción de un evento de integración
+        /// Retrieves the subscription details for an integration event.
         /// </summary>
-        /// <typeparam name="TEvent">Evento de integración a consultar</typeparam>
-        /// <exception cref="ArgumentNullException">El nombre del evento no es valido </exception>
-        /// <exception cref="EventNotExistException">El evento especificado no se encuentra registrado</exception>
-        /// <returns>Retorna la información de la suscripción de un evento</returns>
+        /// <typeparam name="TEvent">Integration event to query.</typeparam>
+        /// <exception cref="EventIsNotRegisteredException">Thrown if the specified event is not registered.</exception>
+        /// <returns>Returns the subscription details for an event.</returns>
         public IEnumerable<Subscription> GetHandlers<TEvent>() where TEvent : EventBase
         {
             var eventName = this.GetEventKey<TEvent>();
@@ -105,30 +126,35 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         }
 
         /// <summary>
-        /// Metodo encargado de buscar y retornar la información de la suscripción a partir del nombre y tipo del evento
+        /// Searches and returns the subscription details based on the event's name and type.
         /// </summary>
-        /// <typeparam name="TEvent">Tipo del Evento a buscar</typeparam>
-        /// <typeparam name="TEventHandler">Tipo del manejador de eventos a buscar</typeparam>
-        /// <returns>Retorna la información con la que se suscribió el evento, en caso de no encontrar el evento, este retornara null</returns>
+        /// <typeparam name="TEvent">Type of the event to search for.</typeparam>
+        /// <typeparam name="TEventHandler">Type of the event handler to search for.</typeparam>
+        /// <exception cref="EventIsNotRegisteredException">Thrown if trying to find a subscription for an unregistered event.</exception>
+        /// <returns>Returns the subscription details for the provided event type. If the event is not found, returns null.</returns>
         public Subscription FindSubscription<TEvent, TEventHandler>()
-            where TEvent : EventBase
-            where TEventHandler : IEventHandler<TEvent>
+             where TEvent : EventBase
+             where TEventHandler : IEventHandler<TEvent>
         {
             var eventName = this.GetEventKey<TEvent>();
 
             if (!this.HasSubscriptionsForEvent<TEvent>())
+            {
+                this.logger.LogWarning("Attempted to find subscription for unregistered event {eventName}.", eventName);
                 throw new EventIsNotRegisteredException();
+            }
 
             return this.handlers[eventName].SingleOrDefault(s => s.EventHandlerType == typeof(TEventHandler));
         }
 
         /// <summary>
-        /// Metodo encargado de buscar y retornar la información de la suscripción a partir del nombre y tipo del evento
+        /// Searches and returns all subscription details based on the event's name and type.
         /// </summary>
-        /// <typeparam name="TEvent">Tipo del Evento a buscar</typeparam>
-        /// <returns>Retorna la información con la que se suscribió el evento, en caso de no encontrar el evento, este retornara null</returns>
+        /// <typeparam name="TEvent">Type of the event to search for.</typeparam>
+        /// <exception cref="EventIsNotRegisteredException">Thrown if the specified event is not registered.</exception>
+        /// <returns>Returns the list of subscription details for the provided event type. If none are found, returns null.</returns>
         public List<Subscription> FindSubscriptions<TEvent>()
-            where TEvent : EventBase
+             where TEvent : EventBase
         {
             var eventName = this.GetEventKey<TEvent>();
 
@@ -139,8 +165,12 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         }
 
         /// <summary>
-        /// Metodo encargado de limpiar el administrador de suscripciones
+        /// Clears all subscriptions from the manager.
         /// </summary>
-        public void Clear() => this.handlers.Clear();
+        public void Clear()
+        {
+            this.handlers.Clear();
+            this.logger.LogInformation("Subscription manager cleared all event handlers.");
+        }
     }
 }

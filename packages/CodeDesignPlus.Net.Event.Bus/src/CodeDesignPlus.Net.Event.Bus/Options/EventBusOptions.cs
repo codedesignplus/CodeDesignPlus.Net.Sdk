@@ -16,4 +16,9 @@ public class EventBusOptions
     /// Get or sets the Enable
     /// </summary>
     public bool EnableQueue { get; set; }
+    /// <summary>
+    /// Number of seconds to wait for the queue
+    /// </summary>
+    [Range(1, 10)]
+    public uint SecondsWaitQueue { get; set; } = 2;
 }

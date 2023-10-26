@@ -17,10 +17,23 @@ public static class EventBusExtensions
     }
 
     /// <summary>
-    /// Escanea y retorna las clase que implementan la interfaz <see cref="IEventHandler{TEvent}"/>
+    /// Retrieves all non-abstract classes that derive from <see cref="EventBase"/>.
     /// </summary>
-    /// <typeparam name="TStartupLogic">Clase de inicio que implementa la interfaz <see cref="IStartupServices"/></typeparam>
-    /// <returns>Return a list of type</returns>
+    /// <returns>A list of event types.</returns>
+    public static List<Type> GetEvents()
+    {
+        return AppDomain.CurrentDomain
+           .GetAssemblies()
+           .SelectMany(assembly => assembly.GetTypes())
+           .Where(t => t.IsSubclassOf(typeof(EventBase)) && !t.IsAbstract)
+           .ToList();
+    }
+
+    /// <summary>
+    /// Scans and returns classes that implement the <see cref="IEventHandler{TEvent}"/> interface.
+    /// </summary>
+    /// <typeparam name="TStartupLogic">Startup class that implements the <see cref="IStartupServices"/> interface.</typeparam>
+    /// <returns>A list of event handler types.</returns>
     public static List<Type> GetEventHandlers()
     {
         return AppDomain.CurrentDomain

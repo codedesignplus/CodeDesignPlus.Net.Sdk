@@ -5,6 +5,8 @@ using CodeDesignPlus.Net.Event.Bus.Options;
 using CodeDesignPlus.Net.Event.Bus.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Hosting;
 
 namespace CodeDesignPlus.Net.Event.Bus.Extensions;
 
@@ -38,7 +40,7 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
-        services.AddHostedService<SubscribeBackgroundService>();
+        //services.AddHostedService<SubscribeBackgroundService>();
 
         var eventBus = AppDomain.CurrentDomain
             .GetAssemblies()
@@ -49,7 +51,7 @@ public static class ServiceCollectionExtensions
             throw new EventNotImplementedException();
 
         services.AddSingleton(typeof(IEventBus), eventBus);
-        
+
         services.AddEventsHandlers(section.Get<EventBusOptions>());
 
         return services;
@@ -61,7 +63,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">A reference to this instance after the operation has completed.</param>
     /// <param name="eventBusOptions">The event bus options</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, EventBusOptions eventBusOptions)        
+    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, EventBusOptions eventBusOptions)
     {
         var eventsHandlers = EventBusExtensions.GetEventHandlers();
 
@@ -82,10 +84,13 @@ public static class ServiceCollectionExtensions
 
                 var hostServiceImplementationType = typeof(QueueBackgroundService<,>).MakeGenericType(eventHandler, eventType);
                 var hostServiceType = typeof(IEventBusBackgroundService<,>).MakeGenericType(eventHandler, eventType);
-                services.AddTransient(hostServiceType, hostServiceImplementationType);
+                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), hostServiceImplementationType));
             }
 
-            services.AddTransient(eventHandler);
+            var eventHandlerBackgroundType = typeof(EventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
+            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), eventHandlerBackgroundType));
+
+            services.AddSingleton(eventHandler);
         }
 
         return services;

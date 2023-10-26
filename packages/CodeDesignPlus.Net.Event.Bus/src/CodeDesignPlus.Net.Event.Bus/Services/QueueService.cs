@@ -1,8 +1,8 @@
 ﻿using System.Collections.Concurrent;
+using CodeDesignPlus.Net.Event.Bus.Options;
 
 namespace CodeDesignPlus.Net.Event.Bus.Services
 {
-
     /// <summary>
     /// Implementación por defecto para el servicio <see cref="IQueueService{TEventHandler, TEvent}"/>
     /// </summary>
@@ -12,23 +12,26 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         where TEventHandler : IEventHandler<TEvent>
         where TEvent : EventBase
     {
-        /// <summary>
-        /// Contiene los eventos notificados por el Event Bus
-        /// </summary>
-        private readonly ConcurrentQueue<TEvent> queueEvent = new ConcurrentQueue<TEvent>();
-
-        /// <summary>
-        /// Manejador de eventos
-        /// </summary>
+        private readonly ConcurrentQueue<TEvent> queueEvent = new();
         private readonly TEventHandler eventHandler;
+        private readonly ILogger<QueueService<TEventHandler, TEvent>> logger;
+        private readonly EventBusOptions options;
 
         /// <summary>
         /// Crea una nueva instancia de <see cref="QueueService{TEvent}"/>
         /// </summary>
         /// <param name="eventHandler">Event Handler</param>
-        public QueueService(TEventHandler eventHandler)
+        /// <param name="logger">The service logger</param>
+        public QueueService(TEventHandler eventHandler, ILogger<QueueService<TEventHandler, TEvent>> logger, IOptions<EventBusOptions> options)
         {
-            this.eventHandler = eventHandler;
+            if(options == null)
+                throw new ArgumentNullException(nameof(options));
+
+            this.eventHandler = eventHandler ?? throw new ArgumentNullException(nameof(eventHandler));;
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));;
+            this.options = options.Value;
+
+        this.logger.LogInformation("QueueService initialized.");
         }
 
         /// <summary>
@@ -51,12 +54,22 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         public void Enqueue(TEvent @event)
         {
             if (@event == null)
+            {
+                this.logger.LogError("Attempted to enqueue a null event.");
                 throw new ArgumentNullException(nameof(@event));
+            }
 
             var exist = this.queueEvent.Any(x => x.Equals(@event));
 
             if (!exist)
+            {
                 this.queueEvent.Enqueue(@event);
+                this.logger.LogInformation($"Event of type {typeof(TEvent).Name} enqueued.");
+            }
+            else
+            {
+                this.logger.LogWarning($"Event of type {typeof(TEvent).Name} was already in the queue. Skipping.");
+            }
         }
 
         /// <summary>
@@ -66,25 +79,31 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         /// <returns>Return Task that represents an asynchronous operation.</returns>
         public async Task DequeueAsync(CancellationToken token)
         {
+            this.logger.LogInformation("DequeueAsync started.");
+
             while (!token.IsCancellationRequested)
             {
                 try
                 {
                     if (this.queueEvent.TryDequeue(out TEvent @event))
+                    {
+                        this.logger.LogInformation("Dequeueing event of type {TEvent}.", typeof(TEvent).Name);
+
                         await this.eventHandler.HandleAsync(@event, token);
+                    }
                     else
-                        await Task.Delay(TimeSpan.FromSeconds(5), token);
-                } catch(Exception ex) {
-                    // TODO: Enqueue @event to queue errors
-
-                    // Reintentos: Si decides implementar una lógica de reintentos para los mensajes que fallan, considera tener un límite en el número de reintentos para evitar un bucle infinito en un mensaje que siempre falla. Podrías usar un mecanismo de cola con soporte para retrasos entre reintentos, o simplemente registrar y descartar el mensaje después de un número específico de fallos.
-
-                    // Sincronización: Si hay múltiples consumidores tratando de desencolar mensajes al mismo tiempo, podrías encontrarte con problemas de concurrencia. Asegúrate de que tu cola (queueEvent) sea segura para operaciones concurrentes, o considera usar un bloqueo alrededor de las operaciones de la cola si es necesario.
-
-                    // Monitorizar: Considera agregar monitoreo o logging para saber cuántos mensajes se están procesando, cuántos errores estás teniendo, cuánto tiempo tarda cada mensaje en ser procesado, etc. Esto puede ser muy útil para diagnosticar problemas o para ajustar el rendimiento en el futuro.
-
+                    {
+                        this.logger.LogDebug("No events in the queue of type {TEvent}. Waiting...", typeof(TEvent).Name);
+                        await Task.Delay(TimeSpan.FromSeconds(this.options.SecondsWaitQueue), token);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    this.logger.LogError(ex, "Error processing event of type {TEvent}.", typeof(TEvent).Name);
                 }
             }
+
+            this.logger.LogInformation("DequeueAsync stopped due to cancellation token to type {TEvent}.", typeof(TEvent).Name);
         }
     }
 }

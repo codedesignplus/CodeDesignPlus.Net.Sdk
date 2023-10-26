@@ -12,14 +12,19 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         where TEvent : EventBase
     {
         private readonly IQueueService<TEventHandler, TEvent> queueService;
+        private readonly ILogger<QueueBackgroundService<TEventHandler, TEvent>> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="QueueBackgroundService{TEventHandler, TEvent}"/> class.
         /// </summary>
         /// <param name="queueService">The queue service to manage the event handling.</param>
-        public QueueBackgroundService(IQueueService<TEventHandler, TEvent> queueService)
+        /// <param name="logger">The logger to manage the logs.</param>
+        public QueueBackgroundService(IQueueService<TEventHandler, TEvent> queueService, ILogger<QueueBackgroundService<TEventHandler, TEvent>> logger)
         {
-            this.queueService = queueService;
+            this.queueService = queueService ?? throw new ArgumentNullException(nameof(queueService));
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            this.logger.LogInformation("QueueBackgroundService for EventHandler: {TEventHandler} and Event: {TEvent} has been initialized.", typeof(TEventHandler).Name, typeof(TEvent).Name);
         }
 
         /// <summary>
@@ -29,7 +34,13 @@ namespace CodeDesignPlus.Net.Event.Bus.Services
         /// <returns>A task representing the asynchronous operation.</returns>
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            return this.queueService.DequeueAsync(stoppingToken);
+            logger.LogInformation("Background service for event handling started.");
+
+            stoppingToken.Register(() => logger.LogInformation("Background service for event handling is stopping."));
+
+            this.queueService.DequeueAsync(stoppingToken);
+
+            return Task.CompletedTask;
         }
     }
 }

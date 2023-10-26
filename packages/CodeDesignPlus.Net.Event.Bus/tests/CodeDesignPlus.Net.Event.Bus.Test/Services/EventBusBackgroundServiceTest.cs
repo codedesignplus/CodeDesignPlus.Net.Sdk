@@ -1,60 +1,80 @@
 ﻿using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
+using Moq;
+using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.Event.Bus.Test.Services;
 
-/// <summary>
-/// Pruebas unitarias a la clase <see cref="QueueService{TEventHandler, TEvent}"/>
-/// </summary>
 public class EventBusBackgroundServiceTest
 {
-    /// <summary>
-    /// Event Handler que procesa los eventos de tipo <see cref="UserRegisteredEvent"/>
-    /// </summary>
-    private readonly UserRegisteredEventHandler userEventHandler;
-    /// <summary>
-    /// Evento de integración usado cuando es creado un usuarios
-    /// </summary>
-    private readonly UserRegisteredEvent userCreatedEvent;
-    /// <summary>
-    /// ervicio que administra los eventos notificados por el event bus
-    /// </summary>
-    private readonly QueueService<UserRegisteredEventHandler, UserRegisteredEvent> queueService;
+    private readonly Mock<ILogger<EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>> _mockLogger;
+    private readonly Mock<ISubscriptionManager> _mockSubscriptionManager;
+    private readonly Mock<IEventBus> _mockEventBus;
 
-    /// <summary>
-    /// Crea una nueva instancia de <see cref="EventBusBackgroundServiceTest"/>
-    /// </summary>
     public EventBusBackgroundServiceTest()
     {
-        this.userCreatedEvent = new UserRegisteredEvent()
-        {
-            Id = new Random().Next(1, 1000),
-            Age = (ushort)new Random().Next(1, 100),
-            Name = nameof(UserRegisteredEvent.Name),
-            User = nameof(UserRegisteredEvent.User),
-        };
-
-        this.userEventHandler = new UserRegisteredEventHandler();
-
-        this.queueService = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(this.userEventHandler);
+        _mockLogger = new Mock<ILogger<EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>>();
+        _mockSubscriptionManager = new Mock<ISubscriptionManager>();
+        _mockEventBus = new Mock<IEventBus>();
     }
 
-    /// <summary>
-    /// Valida que se obtena el evento
-    /// </summary>
     [Fact]
-    public void ExecuteAsync_DequeueEvents_QueueEmpty()
+    public void Constructor_ThrowsArgumentNullException_WhenSubscriptionManagerIsNull()
+    {
+        // Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            // Act
+            var service = new EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(null, _mockEventBus.Object, _mockLogger.Object);
+        });
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenEventBusIsNull()
+    {
+        // Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            // Act
+            var service = new EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockSubscriptionManager.Object, null, _mockLogger.Object);
+        });
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_WhenLoggerIsNull()
+    {
+        // Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            // Act
+            var service = new EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockSubscriptionManager.Object, _mockEventBus.Object, null);
+        });
+    }
+
+    [Fact]
+    public void Constructor_Succeeds_WhenAllDependenciesAreProvided()
+    {
+        // Act
+        var service = new EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockSubscriptionManager.Object, _mockEventBus.Object, _mockLogger.Object);
+
+        // Assert 
+        Assert.NotNull(service);
+        _mockLogger.VerifyLogging($"EventHandlerBackgroundService for EventHandler: {typeof(UserRegisteredEventHandler).Name} and Event: {typeof(UserRegisteredEvent).Name} has been initialized.", LogLevel.Information);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_RegistersSubscriptionAndStartsListening()
     {
         // Arrange
-        this.queueService.Enqueue(this.userCreatedEvent);
-        var backgroundService = new QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(this.queueService);
+        var service = new EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockSubscriptionManager.Object, _mockEventBus.Object, _mockLogger.Object);
 
         // Act
-        backgroundService.StartAsync(CancellationToken.None);
-
-        Thread.Sleep(TimeSpan.FromSeconds(15));
+        await service.StartAsync(CancellationToken.None);
 
         // Assert
-        Assert.NotNull(this.userEventHandler.Events.FirstOrDefault(x => x.Value == this.userCreatedEvent).Value);
-        Assert.False(this.queueService.Any());
+        _mockSubscriptionManager.Verify(sm => sm.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>(), Times.Once);
+        _mockEventBus.Verify(eb => eb.SubscribeAsync<UserRegisteredEvent, UserRegisteredEventHandler>(It.IsAny<CancellationToken>()), Times.Once);
+
+        // Additional: Check if logs are written. This is an example for one of the log messages:
+        _mockLogger.VerifyLogging($"Starting execution of {typeof(UserRegisteredEventHandler).Name} for event type {typeof(UserRegisteredEvent).Name}.", LogLevel.Information);
     }
 }
