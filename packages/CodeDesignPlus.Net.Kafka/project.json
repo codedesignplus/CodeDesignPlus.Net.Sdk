@@ -38,7 +38,7 @@
       },
       "configurations": {
         "coverage": {
-          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Kafka.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Kafka.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
         }
       }
     },
@@ -47,14 +47,14 @@
       "options": {
         "name": "CodeDesignPlus.Net.Kafka",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Kafka.Key",
+        "projectKey": "CodeDesignPlus.Net.Kafka",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,
         "qualityGate": false,
         "qualityGateTimeout": "600",
         "skipImplicitDeps": false,
-        "exclusions": "**Tests*.cs",
+        "exclusions": "**tests/*",
         "extra": {
           "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Kafka.Test/coverage.opencover.xml"
         }

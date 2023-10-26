@@ -1,10 +1,8 @@
-﻿using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Event.Bus.Abstractions;
 using CodeDesignPlus.Net.Event.Bus.Extensions;
-using CodeDesignPlus.Net.Kafka.Abstractions;
-using CodeDesignPlus.Net.Kafka.Exceptions;
 using CodeDesignPlus.Net.Kafka.Options;
+using CodeDesignPlus.Net.Kafka.Serializer;
 using CodeDesignPlus.Net.Kafka.Services;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
@@ -69,11 +67,7 @@ public static class ServiceCollectionExtensions
             BootstrapServers = options.BootstrapServers
         };
 
-        var events = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes())
-            .Where(t => t.IsSubclassOf(typeof(EventBase)) && !t.IsAbstract)
-            .ToList();
+        var events = EventBusExtensions.GetEvents();
 
         foreach (var eventType in events)
         {
@@ -117,15 +111,9 @@ public static class ServiceCollectionExtensions
 
         foreach (var eventHandler in eventsHandlers)
         {
-            var interfaceEventHandlerGeneric = GetGenericInterface(eventHandler, typeof(IEventHandler<>));
+            var interfaceEventHandlerGeneric = eventHandler.GetInterfaceEventHandlerGeneric();
 
-            if (interfaceEventHandlerGeneric == null)
-                continue;
-
-            var eventType = GetEventTypeFromGenericInterface(interfaceEventHandlerGeneric);
-
-            if (eventType == null)
-                continue;
+            var eventType = interfaceEventHandlerGeneric.GetEventType();
 
             var consumerService = typeof(IConsumer<,>).MakeGenericType(typeof(string), eventType);
             var consumerBuilderType = typeof(ConsumerBuilder<,>).MakeGenericType(typeof(string), eventType);
@@ -143,58 +131,5 @@ public static class ServiceCollectionExtensions
         }
 
         return services;
-    }
-
-    /// <summary>
-    /// Gets the generic interface from a type that matches the specified generic interface type.
-    /// </summary>
-    /// <param name="type">The type to inspect.</param>
-    /// <param name="genericInterfaceType">The generic interface type to match against.</param>
-    /// <returns>The matched generic interface type, or null if not found.</returns>
-    private static Type GetGenericInterface(Type type, Type genericInterfaceType)
-    {
-        return type.GetInterfaces().FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == genericInterfaceType);
-    }
-
-    /// <summary>
-    /// Gets the event type from a generic interface that derives from <see cref="EventBase"/>.
-    /// </summary>
-    /// <param name="genericInterface">The generic interface to inspect.</param>
-    /// <returns>The event type, or null if not found.</returns>
-    private static Type GetEventTypeFromGenericInterface(Type genericInterface)
-    {
-        return genericInterface.GetGenericArguments().FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
-    }
-}
-
-/// <summary>
-/// Provides JSON serialization and deserialization using System.Text.Json for Kafka messages.
-/// </summary>
-/// /// <typeparam name="T">The type of the message to serialize or deserialize.</typeparam>
-public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
-{
-    /// <summary>
-    /// Serializes the specified data to a byte array using JSON.
-    /// </summary>
-    /// <param name="data">The data to serialize.</param>
-    /// <param name="context">The context for the serialization operation.</param>
-    /// <returns>The serialized byte array, or null if the data is null.</returns>
-    public byte[] Serialize(T data, SerializationContext context)
-    {
-        if (data == null) return null;
-        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data);
-    }
-
-    /// <summary>
-    /// Deserializes the specified byte array to an object using JSON.
-    /// </summary>
-    /// <param name="data">The byte array to deserialize.</param>
-    /// <param name="isNull">Indicates whether the data is null.</param>
-    /// <param name="context">The context for the deserialization operation.</param>
-    /// <returns>The deserialized object of type <typeparamref name="T"/>, or the default value if the data is null.</returns>
-    public T Deserialize(ReadOnlySpan<byte> data, bool isNull, SerializationContext context)
-    {
-        if (isNull) return default;
-        return System.Text.Json.JsonSerializer.Deserialize<T>(data);
     }
 }

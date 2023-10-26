@@ -1,9 +1,9 @@
 ﻿using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using Confluent.Kafka;
-using Microsoft.Extensions.DependencyInjection;
+using CodeDesignPlus.Net.Kafka.Extensions;
 
-namespace CodeDesignPlus.Net.Kafka.Extensions;
+namespace CodeDesignPlus.Net.Kafka.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -42,7 +42,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<Exceptions.KafkaException>(() => serviceCollection.AddKafka<StartupLogic>(configuration));
+        var exception = Assert.Throws<Net.Kafka.Exceptions.KafkaException>(() => serviceCollection.AddKafka<StartupLogic>(configuration));
 
         // Assert
         Assert.Equal($"The section {KafkaOptions.Section} is required.", exception.Message);
