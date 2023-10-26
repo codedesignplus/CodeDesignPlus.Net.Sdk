@@ -33,4 +33,19 @@ public static class LoggerExtensions
 
         return logger;
     }
+
+    /// <summary>
+    /// Verifica que el método Log del ILogger fue invocado al menos una vez.
+    /// </summary>
+    /// <typeparam name="T">El tipo usado para el nombre de categoría del logger.</typeparam>
+    /// <param name="logger">El mock del ILogger.</param>
+    public static void VerifyLoggerWasCalled<T>(this Mock<ILogger<T>> logger)
+    {
+        logger.Verify(l => l.Log(
+            It.IsAny<LogLevel>(),
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.AtLeastOnce());
+    }
 }
