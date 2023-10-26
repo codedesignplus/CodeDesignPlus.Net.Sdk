@@ -47,14 +47,14 @@
       "options": {
         "name": "CodeDesignPlus.Net.Redis.Event.Bus",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Redis.Event.Bus.Key",
+        "projectKey": "CodeDesignPlus.Net.Redis.Event.Bus",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,
         "qualityGate": false,
         "qualityGateTimeout": "600",
         "skipImplicitDeps": false,
-        "exclusions": "**Tests*.cs",
+        "exclusions": "**CodeDesignPlus.Net.Core*,**CodeDesignPlus.Net.Redis*,**Tests*.cs",
         "extra": {
           "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Redis.Event.Bus.Test/coverage.opencover.xml"
         }

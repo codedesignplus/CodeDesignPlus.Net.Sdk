@@ -1,9 +1,7 @@
-﻿using CodeDesignPlus.Net.Event.Bus.Test;
-using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
-using Microsoft.Extensions.DependencyInjection;
-using Moq;
+﻿using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
+using CodeDesignPlus.Net.Event.Bus.Extensions;
 
-namespace CodeDesignPlus.Net.Event.Bus.Extensions;
+namespace CodeDesignPlus.Net.Event.Bus.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -68,9 +66,7 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.EventBusOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.EventBusOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.EventBusOptions.Enable, value.Enable);
+        Assert.Equal(ConfigurationUtil.EventBusOptions.EnableQueue, value.EnableQueue);
     }
 
     /// <summary>
@@ -109,10 +105,9 @@ public class ServiceCollectionExtensionsTest
         // Arrange
         var services = new ServiceCollection();
         var configuration = ConfigurationUtil.GetConfiguration();
-        services.AddEventBus(configuration);
 
         // Act
-        services.AddEventsHandlers<Startup>();
+        services.AddEventBus(configuration);
 
         // Assert
         var handler = services.FirstOrDefault(x =>
@@ -123,51 +118,32 @@ public class ServiceCollectionExtensionsTest
             x.ImplementationType == typeof(QueueService<UserRegisteredEventHandler, UserRegisteredEvent>)
         );
 
-        var hostService = services.FirstOrDefault(x =>
-            x.ImplementationType == typeof(EventBusBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>)
+        var queueBackgroundService = services.FirstOrDefault(x =>
+            x.ImplementationType == typeof(QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>)
+        );
+
+        var eventHandlerBackgroundService = services.FirstOrDefault(x =>
+            x.ImplementationType == typeof(EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>)
         );
 
         Assert.NotNull(handler);
         Assert.NotNull(queue);
-        Assert.NotNull(hostService);
+        Assert.NotNull(queueBackgroundService);
+        Assert.NotNull(eventHandlerBackgroundService);
 
         Assert.True(handler.ImplementationType.IsAssignableGenericFrom(typeof(IEventHandler<>)));
         Assert.Equal(typeof(UserRegisteredEventHandler), handler.ImplementationType);
-        Assert.Equal(ServiceLifetime.Transient, handler.Lifetime);
+        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
 
         Assert.True(queue.ImplementationType.IsAssignableGenericFrom(typeof(IQueueService<,>)));
         Assert.Equal(typeof(QueueService<UserRegisteredEventHandler, UserRegisteredEvent>), queue.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, queue.Lifetime);
 
-        Assert.True(hostService.ImplementationType.IsAssignableGenericFrom(typeof(IEventBusBackgroundService<,>)));
-        Assert.Equal(typeof(EventBusBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), hostService.ImplementationType);
-        Assert.Equal(ServiceLifetime.Transient, hostService.Lifetime);
-    }
-
-    /// <summary>
-    /// Valida que se registre los event handler, ques and host service
-    /// </summary>
-    [Fact]
-    public void SubscribeEventsHandlers_EventsHandlers_Subscriptions()
-    {
-        // Arrange
-        var services = new ServiceCollection();
-        var configuration = ConfigurationUtil.GetConfiguration();
-        services.AddEventBus(configuration);
-        services.AddEventsHandlers<Startup>();
-
-        var serviceProvider = services.BuildServiceProvider();
-        var subscriptionManager = serviceProvider.GetRequiredService<ISubscriptionManager>();
-
-        // Act
-        serviceProvider.SubscribeEventsHandlers<Startup>();
-
-        // Assert
-        var subscription = subscriptionManager.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        Assert.NotNull(subscription);
-        Assert.Equal(typeof(UserRegisteredEvent), subscription.EventType);
-        Assert.Equal(typeof(UserRegisteredEventHandler), subscription.EventHandlerType);
+        Assert.Equal(typeof(QueueBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), queueBackgroundService.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, queueBackgroundService.Lifetime);
+        
+        Assert.Equal(typeof(EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), eventHandlerBackgroundService.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, eventHandlerBackgroundService.Lifetime);
     }
 
     /// <summary>
@@ -209,7 +185,7 @@ public class ServiceCollectionExtensionsTest
     public void GetEventHandlers_NotEmpty_EventsHandlers()
     {
         // Arrange & Act
-        var eventHandlers = ServiceCollectionExtensions.GetEventHandlers<Startup>();
+        var eventHandlers = EventBusExtensions.GetEventHandlers();
 
         // Assert
         Assert.NotEmpty(eventHandlers);

@@ -3,7 +3,7 @@ using CodeDesignPlus.Net.Event.Bus.Extensions;
 using CodeDesignPlus.Net.Event.Bus.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CodeDesignPlus.Event.Bus.Without.EventBusService.Test;
+namespace CodeDesignPlus.Net.Event.Bus.Without.EventBusService.Test;
 
 /// <summary>
 ///  Pruebas unitarias a la clase <see cref="EventBusExtensions"/>

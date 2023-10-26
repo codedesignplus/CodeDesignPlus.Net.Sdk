@@ -13,15 +13,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Event.Bu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Event.Bus.Abstractions", "src\CodeDesignPlus.Net.Event.Bus.Abstractions\CodeDesignPlus.Net.Event.Bus.Abstractions.csproj", "{69DD4FDE-8279-4E49-A335-13596B0A9D14}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Event.Bus.Without.EventBusService.Test", "tests\CodeDesignPlus.Event.Bus.Without.EventBusService.Test\CodeDesignPlus.Event.Bus.Without.EventBusService.Test.csproj", "{96FC06D8-CC1A-43A7-95F2-50475D357824}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Event.Bus.Without.EventBusService.Test", "tests\CodeDesignPlus.Event.Bus.Without.EventBusService.Test\CodeDesignPlus.Net.Event.Bus.Without.EventBusService.Test.csproj", "{96FC06D8-CC1A-43A7-95F2-50475D357824}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-	EndGlobalSection
-	GlobalSection(SolutionProperties) = preSolution
-		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{D7DA5CA5-140F-4125-91CE-CB0144513225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -40,6 +37,9 @@ Global
 		{96FC06D8-CC1A-43A7-95F2-50475D357824}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{96FC06D8-CC1A-43A7-95F2-50475D357824}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{96FC06D8-CC1A-43A7-95F2-50475D357824}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{D7DA5CA5-140F-4125-91CE-CB0144513225} = {47D286C2-7F5F-4A0A-9DD0-678742332AD8}

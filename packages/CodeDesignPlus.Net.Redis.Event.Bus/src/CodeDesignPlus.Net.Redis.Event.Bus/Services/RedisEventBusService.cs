@@ -1,7 +1,9 @@
 ﻿using System.Text.Json;
 using CodeDesignPlus.Net.Event.Bus.Abstractions;
+using CodeDesignPlus.Net.Event.Bus.Options;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Event.Bus.Options;
+using Microsoft.Extensions.DependencyInjection;
 using StackExchange.Redis;
 
 namespace CodeDesignPlus.Net.Redis.Event.Bus.Services;
@@ -27,6 +29,10 @@ public class RedisEventBusService : IRedisEventBusService
     /// Service provider
     /// </summary>
     private readonly IServiceProvider serviceProvider;
+    /// <summary>
+    /// The event bus options
+    /// </summary>
+    private readonly EventBusOptions eventBusOptions;
 
     /// <summary>
     /// Initialize a new instance of the <see cref="RedisEventBusService"/>
@@ -35,7 +41,14 @@ public class RedisEventBusService : IRedisEventBusService
     /// <param name="subscriptionManager">Service that management the events and events handlers inside assembly</param>
     /// <param name="serviceProvider">Service provider</param>
     /// <param name="logger">Service logger</param>
-    public RedisEventBusService(IRedisServiceFactory redisServiceFactory, ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider, ILogger<RedisEventBusService> logger, IOptions<RedisEventBusOptions> options)
+    /// <param name="eventBusOptions">The event bus options</param>
+    public RedisEventBusService(
+        IRedisServiceFactory redisServiceFactory,
+        ISubscriptionManager subscriptionManager,
+        IServiceProvider serviceProvider,
+        ILogger<RedisEventBusService> logger,
+        IOptions<RedisEventBusOptions> options,
+        IOptions<EventBusOptions> eventBusOptions)
     {
         if (redisServiceFactory == null)
             throw new ArgumentNullException(nameof(redisServiceFactory));
@@ -43,11 +56,17 @@ public class RedisEventBusService : IRedisEventBusService
         if (options == null)
             throw new ArgumentNullException(nameof(options));
 
+        if (eventBusOptions == null)
+            throw new ArgumentNullException(nameof(eventBusOptions));
+
         this.redisService = redisServiceFactory.Create(options.Value.Name);
 
         this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.eventBusOptions = eventBusOptions.Value;
+
+        this.logger.LogInformation("RedisEventBusService initialized.");
     }
 
     /// <summary>
@@ -62,7 +81,9 @@ public class RedisEventBusService : IRedisEventBusService
         if (@event == null)
             throw new ArgumentNullException(nameof(@event));
 
-        return this.PrivatePublishAsync<long>(@event);
+        this.logger.LogInformation("Publishing event: {TEvent}.", @event.GetType().Name);
+
+        return this.PrivatePublishAsync<long>(@event, token);
     }
 
     /// <summary>
@@ -72,22 +93,7 @@ public class RedisEventBusService : IRedisEventBusService
     /// <param name="event">The event to publish.</param>
     /// <param name="token">The cancellation token that will be assigned to the new task.</param>
     /// <returns>The number of clients that received the message.</returns>
-    /// <exception cref="ArgumentNullException">@event is null</exception>
-    public Task<TResult> PublishAsync<TResult>(EventBase @event, CancellationToken token)
-    {
-        if (@event == null)
-            throw new ArgumentNullException(nameof(@event));
-
-        return this.PrivatePublishAsync<TResult>(@event);
-    }
-
-    /// <summary>
-    /// Posts a message to the given channel.
-    /// </summary>
-    /// <typeparam name="TResult">Type result (long)</typeparam>
-    /// <param name="event">The event to publish.</param>
-    /// <returns>The number of clients that received the message.</returns>
-    private async Task<TResult> PrivatePublishAsync<TResult>(object @event)
+    private async Task<TResult> PrivatePublishAsync<TResult>(object @event, CancellationToken token)
     {
         var channel = @event.GetType().Name;
 
@@ -95,7 +101,7 @@ public class RedisEventBusService : IRedisEventBusService
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
-        this.logger.LogDebug($"The number of clients notified {notified} in the channel {channel} with the next message {message}");
+        this.logger.LogInformation("Event {TEvent} published with {notified} notifications.", @event.GetType().Name, notified);
 
         return (TResult)Convert.ChangeType(notified, typeof(TResult));
     }
@@ -106,16 +112,17 @@ public class RedisEventBusService : IRedisEventBusService
     /// </summary>
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
+    /// <param name="token">The cancellation token that will be assigned to the new task.</param>
     /// <returns>Return a <see cref="Task"/></returns>
-    public Task SubscribeAsync<TEvent, TEventHandler>()
+    public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {
         var channel = typeof(TEvent).Name;
 
-        this.logger.LogDebug($"Register client in the channel {channel}");
+        this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
-        return this.redisService.Subscriber.SubscribeAsync(RedisChannel.Literal(channel), (_, v) => this.ListenerEvent<TEvent, TEventHandler>(v));
+        return this.redisService.Subscriber.SubscribeAsync(RedisChannel.Literal(channel), (_, v) => this.ListenerEvent<TEvent, TEventHandler>(v, token));
     }
 
     /// <summary>
@@ -123,33 +130,43 @@ public class RedisEventBusService : IRedisEventBusService
     /// </summary>
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
-    /// <param name="value">The value received</param>
-    public void ListenerEvent<TEvent, TEventHandler>(RedisValue value)
+    /// <param name="value">The value received</param>    
+    /// <param name="token">The cancellation token that will be assigned to the new task.</param>
+    public void ListenerEvent<TEvent, TEventHandler>(RedisValue value, CancellationToken token)
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {
-        this.logger.LogDebug($"Message received on the channel {typeof(TEvent).Name} with message {value}");
-
         if (this.subscriptionManager.HasSubscriptionsForEvent<TEvent>())
         {
+            this.logger.LogInformation("Received event: {TEvent}.", typeof(TEvent).Name);
+
             var subscriptions = this.subscriptionManager.FindSubscriptions<TEvent>();
 
             foreach (var subscription in subscriptions)
             {
-                this.logger.LogDebug($"The message will add to the queue with event {subscription.EventType.Name} and the handler {subscription.EventHandlerType.Name}");
-
-                var queueType = typeof(IQueueService<,>);
-
-                queueType = queueType.MakeGenericType(subscription.EventHandlerType, subscription.EventType);
-
-                var queue = this.serviceProvider.GetService(queueType);
-
                 var @event = JsonSerializer.Deserialize<TEvent>(value);
 
-                queue.GetType().GetMethod(nameof(IQueueService<TEventHandler, TEvent>.Enqueue)).Invoke(queue, new object[] { @event });
+                if (this.eventBusOptions.EnableQueue)
+                {
+                    var queueType = typeof(IQueueService<,>);
 
-                this.logger.LogDebug($"The message was added successfully");
+                    queueType = queueType.MakeGenericType(subscription.EventHandlerType, subscription.EventType);
+
+                    var queue = this.serviceProvider.GetService(queueType);
+
+                    queue.GetType().GetMethod(nameof(IQueueService<TEventHandler, TEvent>.Enqueue)).Invoke(queue, new object[] { @event });
+                }
+                else
+                {
+                    var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+
+                    eventHandler.HandleAsync(@event, token);
+                }
             }
+        }
+        else
+        {
+            this.logger.LogWarning("No subscriptions found for event: {TEvent}.", typeof(TEvent).Name);
         }
     }
 
@@ -164,10 +181,10 @@ public class RedisEventBusService : IRedisEventBusService
     {
         var channel = typeof(TEvent).Name;
 
-        this.logger.LogDebug($"Remove subscription of the channel {channel}");
-
         this.subscriptionManager.RemoveSubscription<TEvent, TEventHandler>();
 
         this.redisService.Subscriber.Unsubscribe(RedisChannel.Literal(channel));
+
+        this.logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);
     }
 }

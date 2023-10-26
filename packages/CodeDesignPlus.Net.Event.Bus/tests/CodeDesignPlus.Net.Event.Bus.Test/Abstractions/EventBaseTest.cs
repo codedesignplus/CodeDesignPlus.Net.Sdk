@@ -45,9 +45,11 @@ public class EventBaseTest
         var guid = Guid.NewGuid();
 
         //Act
-        var eventBus = new UserRegisteredEvent(guid, date)
+        var eventBus = new UserRegisteredEvent()
         {
             Id = new Random().Next(1, 1000),
+            EventDate = date,
+            IdEvent = guid,
             Age = (ushort)new Random().Next(1, 100),
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User),
@@ -72,15 +74,19 @@ public class EventBaseTest
         var idEvent1 = Guid.NewGuid();
         var idEvent2 = idEvent1;
 
-        var event1 = new UserRegisteredEvent(idEvent1, DateTime.Now)
+        var event1 = new UserRegisteredEvent()
         {
+            IdEvent = idEvent1,
+            EventDate = DateTime.Now,
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User)
         };
 
 
-        var event2 = new UserRegisteredEvent(idEvent2, DateTime.Now)
+        var event2 = new UserRegisteredEvent()
         {
+            IdEvent = idEvent2,
+            EventDate = DateTime.Now,
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User)
         };
@@ -103,8 +109,10 @@ public class EventBaseTest
         var idEvent1 = Guid.NewGuid();
         var expected = HashCode.Combine(idEvent1);
 
-        var event1 = new UserRegisteredEvent(idEvent1, DateTime.Now)
+        var event1 = new UserRegisteredEvent()
         {
+            IdEvent = idEvent1,
+            EventDate = DateTime.Now,
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User)
         };

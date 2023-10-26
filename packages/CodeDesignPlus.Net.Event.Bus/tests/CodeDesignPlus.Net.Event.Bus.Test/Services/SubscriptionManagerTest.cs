@@ -1,307 +1,303 @@
 ﻿using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
+using CodeDesignPlus.Net.xUnit.Helpers;
+using Moq;
 
 namespace CodeDesignPlus.Net.Event.Bus.Test.Services;
 
-/// <summary>
-/// Pruebas unitarias a la clase <see cref="SubscriptionManager"/>
-/// </summary>
-public class SubscriptionManagerTest
+public class SubscriptionManagerTests
 {
-    /// <summary>
-    /// Valida que retorne false cuando no se tienen events handlers registrados
-    /// </summary>
     [Fact]
-    public void Any_Empty_False()
+    public void Constructor_NullLogger_ThrowsException()
     {
-        // Arrange
-        var subscription = new SubscriptionManager();
-
-        // Act & Assert
-        Assert.False(subscription.Any());
+        // Arrange & Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new SubscriptionManager(null));
     }
 
-
-    /// <summary>
-    /// Valida que retorne true cuando no se tienen events handlers registrados
-    /// </summary>
     [Fact]
-    public void Any_Empty_True()
+    public void Constructor_ValidLogger_LogsInitialization()
     {
         // Arrange
-        var subscription = new SubscriptionManager();
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
 
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+        _ = new SubscriptionManager(loggerMock.Object);
 
         // Act & Assert
-        Assert.True(subscription.Any());
+        loggerMock.VerifyLogging("SubscriptionManager initialized.", LogLevel.Information);
+
     }
 
-    /// <summary>
-    /// Valida que retorne el nombre del evento
-    /// </summary>
     [Fact]
-    public void GetEventKey_NameEvent_EventKey()
+    public void GetEventKey_ValidEvent_ReturnsCorrectEventName()
     {
         // Arrange
-        var subscription = new SubscriptionManager();
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var manager = new SubscriptionManager(loggerMock.Object);
 
         // Act
-        var eventName = subscription.GetEventKey<UserRegisteredEvent>();
+        var eventName = manager.GetEventKey<UserRegisteredEvent>();
 
         // Assert
-        Assert.Equal(typeof(UserRegisteredEvent).Name, eventName);
+        Assert.Equal("UserRegisteredEvent", eventName);
     }
 
-    /// <summary>
-    /// Valida que se registre el evento cuando no tiene una subscription asociada
-    /// </summary>
     [Fact]
-    public void AddSubscription_EventHasNotSubscription_HandlerNotEmpty()
+    public void AddSubscription_FirstTime_AddsEventAndHandler()
     {
-        // Arrange
-        var subscription = new SubscriptionManager();
+        // Arrange        
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
 
         // Act
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
 
         // Assert
-        var subscriptionEvent = subscription.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-        Assert.NotNull(subscriptionEvent);
+        loggerMock.VerifyLogging("Event UserRegisteredEvent added to handlers.", LogLevel.Information);
+        loggerMock.VerifyLogging("EventHandler UserRegisteredEventHandler for event UserRegisteredEvent registered.", LogLevel.Information);
+
     }
 
-
-    /// <summary>
-    /// Valida que se genere la excepción cuando se quiere asociar otra suscripción al mismo evento
-    /// </summary>
     [Fact]
-    public void AddSubscription_EventHasSubscription_EventHandlerAlreadyRegisteredException()
+    public void AddSubscription_AlreadyRegistered_ThrowsException()
     {
         // Arrange
-        var eventType = typeof(UserRegisteredEvent);
-        var eventHandlerType = typeof(UserRegisteredEventHandler);
-        var subscription = new SubscriptionManager();
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
 
         // Act & Assert
-        var exception = Assert.Throws<EventHandlerAlreadyRegisteredException<UserRegisteredEvent, UserRegisteredEventHandler>>(() => subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>());
-
-        // Assert
-        Assert.NotEmpty(exception.Message);
-        Assert.Equal(eventType, exception.EventType);
-        Assert.Equal(eventHandlerType, exception.EventHandlerType);
+        Assert.Throws<EventHandlerAlreadyRegisteredException<UserRegisteredEvent, UserRegisteredEventHandler>>(() => subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>());
+        loggerMock.VerifyLogging("EventHandler UserRegisteredEventHandler for event UserRegisteredEvent already registered.", LogLevel.Warning);
     }
 
-    /// <summary>
-    /// Valida que no se remueva la suscripción debido a que el evento no esta registrado
-    /// </summary>
     [Fact]
-    public void RemoveSubscription_EventNotRegistered_NotRemove()
+    public void RemoveSubscription_ExistingHandler_RemovesHandler()
     {
         // Arrange
-        var subscription = new SubscriptionManager();
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
 
-        // Act & Assert
-        var exception = Assert.Throws<EventIsNotRegisteredException>(() => subscription.RemoveSubscription<UserRegisteredEvent, UserRegisteredEventHandler>());
-
-        // Assert
-        Assert.NotEmpty(exception.Message);
-        Assert.False(subscription.Any());
-    }
-
-    /// <summary>
-    /// Valida que se remueva la suscripción cuando el evento esta registrado
-    /// </summary>
-    [Fact]
-    public void RemoveSubscription_EventRegistered_NotRemove()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
 
         // Act
-        subscription.RemoveSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+        subscriptionManager.RemoveSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
 
         // Assert
-        Assert.False(subscription.Any());
+        loggerMock.VerifyLogging("Removed subscription for EventHandler UserRegisteredEventHandler from event UserRegisteredEvent.", LogLevel.Information);
+        loggerMock.VerifyLogging("Event UserRegisteredEvent has no subscriptions and has been removed from handlers.", LogLevel.Information);
     }
 
-    /// <summary>
-    /// Valida que se invoke el evento cuando se remueve una suscripción
-    /// </summary>
     [Fact]
-    public void RemoveSubscription_OnEventRemoved_Invoked()
+    public void HasSubscriptionsForEvent_WithRegisteredHandler_ReturnsTrue()
     {
         // Arrange
-        var subscription = new SubscriptionManager();
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
 
-        subscription.OnEventRemoved += (sender, e) =>
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Act
+        var result = subscriptionManager.HasSubscriptionsForEvent<UserRegisteredEvent>();
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void HasSubscriptionsForEvent_WithNoRegisteredHandler_ReturnsFalse()
+    {
+        // Act
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+        var result = subscriptionManager.HasSubscriptionsForEvent<UserRegisteredEvent>();
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void GetHandlers_ForRegisteredEvent_ReturnsHandlers()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Act
+        var handlers = subscriptionManager.GetHandlers<UserRegisteredEvent>();
+
+        // Assert
+        Assert.Single(handlers);
+        Assert.IsType<Subscription>(handlers.First());
+    }
+
+    [Fact]
+    public void GetHandlers_ForUnregisteredEvent_ThrowsException()
+    {
+        // Arrange        
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        // Assert
+        Assert.Throws<EventIsNotRegisteredException>(() => subscriptionManager.GetHandlers<UserRegisteredEvent>());
+    }
+
+
+    [Fact]
+    public void FindSubscription_WithRegisteredHandler_ReturnsSubscription()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Act
+        var result = subscriptionManager.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(typeof(UserRegisteredEventHandler), result.EventHandlerType);
+    }
+
+    [Fact]
+    public void FindSubscription_WithNoRegisteredHandler_ReturnsNull()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Act
+        Assert.Throws<EventIsNotRegisteredException>(() => subscriptionManager.FindSubscription<FakeEvent, FakeEventHandler>());
+
+        // Assert
+        loggerMock.VerifyLogging($"Attempted to find subscription for unregistered event {typeof(FakeEvent).Name}.", LogLevel.Warning);
+    }
+
+    [Fact]
+    public void FindSubscription_ForUnregisteredEvent_ThrowsExceptionAndLogsWarning()
+    {
+        // Arrange        
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        // Act & Assert
+        var exception = Assert.Throws<EventIsNotRegisteredException>(() => subscriptionManager.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>());
+
+        loggerMock.VerifyLogging($"Attempted to find subscription for unregistered event {typeof(UserRegisteredEvent).Name}.", LogLevel.Warning);
+    }
+
+    [Fact]
+    public void FindSubscriptions_WithRegisteredHandler_ReturnsSubscriptionsList()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Act
+        var result = subscriptionManager.FindSubscriptions<UserRegisteredEvent>();
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Single(result);
+        Assert.Equal(typeof(UserRegisteredEventHandler), result.First().EventHandlerType);
+    }
+
+    [Fact]
+    public void FindSubscriptions_ForUnregisteredEvent_ThrowsException()
+    {
+        // Arrange         
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        // Act & Assert
+        var exception = Assert.Throws<EventIsNotRegisteredException>(() => subscriptionManager.FindSubscriptions<UserRegisteredEvent>());
+    }
+
+    [Fact]
+    public void Clear_WithSubscriptions_ClearsAllSubscriptionsAndLogsInformation()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Act
+        subscriptionManager.Clear();
+
+        // Assert
+        Assert.False(subscriptionManager.HasSubscriptionsForEvent<UserRegisteredEvent>());
+        loggerMock.VerifyLogging("Subscription manager cleared all event handlers.", LogLevel.Information);
+    }
+
+
+    [Fact]
+    public void Any_HandlersIsEmpty_ReturnsFalse()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        // Act
+        var result = subscriptionManager.Any();
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void Any_HandlersHasAtLeastOneEvent_ReturnsTrue()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+        // Act
+        var result = subscriptionManager.Any();
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void RemoveSubscription_WhenLastSubscriptionIsRemoved_RaisesOnEventRemovedEvent()
+    {
+        // Arrange
+        var loggerMock = new Mock<ILogger<SubscriptionManager>>();
+        var subscriptionManager = new SubscriptionManager(loggerMock.Object);
+
+        subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+        var eventRaised = false;
+        subscriptionManager.OnEventRemoved += (sender, args) =>
         {
-            Assert.Equal(nameof(UserRegisteredEvent), e.EventName);
+            eventRaised = true;
+            Assert.IsType<Subscription>(args);
         };
 
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
         // Act
-        subscription.RemoveSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
+        subscriptionManager.RemoveSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
 
         // Assert
-        Assert.False(subscription.Any());
-    }
-
-    /// <summary>
-    /// Valida que el evento no tenga suscripciones
-    /// </summary>
-    [Fact]
-    public void HasSubscriptionsForEvent_EventNotRegistered_False()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-
-        // Act
-        var hasSubscription = subscription.HasSubscriptionsForEvent<UserRegisteredEvent>();
-
-        // Assert
-        Assert.False(hasSubscription);
-    }
-
-    /// <summary>
-    /// Valida que el evento tenga suscripciones
-    /// </summary>
-    [Fact]
-    public void HasSubscriptionsForEvent_EventRegistered_True()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        // Act
-        var hasSubscription = subscription.HasSubscriptionsForEvent<UserRegisteredEvent>();
-
-        // Assert
-        Assert.True(hasSubscription);
-    }
-
-    /// <summary>
-    /// Valida que se genere la excepción cuando el evento no se encuentra registrado
-    /// </summary>
-    [Fact]
-    public void GetHandlers_EventNotRegistered_EventIsNotRegisteredException()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-
-        // Act & Assert
-        var exception = Assert.Throws<EventIsNotRegisteredException>(() => subscription.GetHandlers<UserRegisteredEvent>());
-
-        // Assert
-        Assert.NotEmpty(exception.Message);
-    }
-
-    /// <summary>
-    /// Valida que retorne los event handlers asociados al evento registrado
-    /// </summary>
-    [Fact]
-    public void GetHandlers_EventRegistered_EventHandlers()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        // Act
-        var handlers = subscription.GetHandlers<UserRegisteredEvent>();
-
-        // Assert
-        Assert.Contains(handlers, handler => handler.EventHandlerType == typeof(UserRegisteredEventHandler));
-    }
-
-    /// <summary>
-    /// Valida que se genere la excepción cuando el evento no tiene una suscripción asociada
-    /// </summary>
-    [Fact]
-    public void FindSubscription_EventHasNotSubscription_EventIsNotRegisteredException()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-
-        // Act
-        var exception = Assert.Throws<EventIsNotRegisteredException>(() => subscription.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>());
-
-        // Assert
-        Assert.NotEmpty(exception.Message);
-    }
-
-    /// <summary>
-    /// Valida que retorne la suscripción asociada al evento
-    /// </summary>
-    [Fact]
-    public void FindSubscription_EventHasSubscription_Subscription()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        // Act
-        var subscriptionEvent = subscription.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        // Assert
-        Assert.NotNull(subscriptionEvent);
-        Assert.Equal(typeof(UserRegisteredEvent), subscriptionEvent.EventType);
-        Assert.Equal(typeof(UserRegisteredEventHandler), subscriptionEvent.EventHandlerType);
-        Assert.Equal(typeof(UserRegisteredEvent).Name, subscriptionEvent.EventName);
-    }
-
-    /// <summary>
-    /// Valida que se genere la excepción cuando el evento no tiene una suscripción asociada
-    /// </summary>
-    [Fact]
-    public void FindSubscriptions_EventHasNotSubscription_EventIsNotRegisteredException()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-
-        // Act
-        var exception = Assert.Throws<EventIsNotRegisteredException>(() => subscription.FindSubscriptions<UserRegisteredEvent>());
-
-        // Assert
-        Assert.NotEmpty(exception.Message);
-    }
-
-    /// <summary>
-    /// Valida que retorne las suscripciones asociadas al evento
-    /// </summary>
-    [Fact]
-    public void FindSubscriptions_EventHasSubscription_Subscriptions()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        // Act
-        var subscriptionsEvents = subscription.FindSubscriptions<UserRegisteredEvent>();
-
-        // Assert
-        Assert.NotEmpty(subscriptionsEvents);
-        Assert.Contains(subscriptionsEvents, x =>
-            x.EventType == typeof(UserRegisteredEvent) &&
-            x.EventHandlerType == typeof(UserRegisteredEventHandler) &&
-            x.EventName == typeof(UserRegisteredEvent).Name
-        );
-    }
-
-    /// <summary>
-    /// Valida que no queden suscripciones registradas
-    /// </summary>
-    [Fact]
-    public void Clear_Subscriptions_Empty()
-    {
-        // Arrange
-        var subscription = new SubscriptionManager();
-        subscription.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
-
-        // Act
-        subscription.Clear();
-
-        // Assert
-        Assert.False(subscription.Any());
+        Assert.True(eventRaised, "OnEventRemoved event was not raised.");
     }
 }

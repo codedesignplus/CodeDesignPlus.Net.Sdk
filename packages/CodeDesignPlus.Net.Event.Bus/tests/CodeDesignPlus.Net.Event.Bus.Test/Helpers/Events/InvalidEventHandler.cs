@@ -64,3 +64,22 @@ public class FakeEventHandler : IEventHandler<FakeEvent>
         return Task.CompletedTask;
     }
 }
+
+public class EventFailed : EventBase
+{
+
+}
+
+public class EventFailedHandler : IEventHandler<EventFailed>
+{
+    /// <summary>
+    /// Invocado por el event bus cuando se detecta un evento al que se esta subscrito
+    /// </summary>
+    /// <param name="data">Información del evento</param>
+    /// <param name="token">Cancellation Token</param>
+    /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
+    public Task HandleAsync(EventFailed data, CancellationToken token)
+    {
+        throw new InvalidOperationException();
+    }
+}

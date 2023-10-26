@@ -1,127 +1,131 @@
 ﻿using CodeDesignPlus.Net.Event.Bus.Test.Helpers.Events;
+using CodeDesignPlus.Net.xUnit.Helpers;
+using Moq;
 
 namespace CodeDesignPlus.Net.Event.Bus.Test.Services;
 
-/// <summary>
-/// Pruebas unitarias a la clase <see cref="QueueService{TEventHandler, TEvent}"/>
-/// </summary>
 public class QueueServiceTest
 {
-    /// <summary>
-    /// Event Handler que procesa los eventos de tipo <see cref="UserRegisteredEvent"/>
-    /// </summary>
-    private readonly UserRegisteredEventHandler userEventHandler;
-    /// <summary>
-    /// Evento de integración usado cuando es creado un usuarios
-    /// </summary>
-    private readonly UserRegisteredEvent userCreatedEvent;
-    /// <summary>
-    /// ervicio que administra los eventos notificados por el event bus
-    /// </summary>
-    private readonly QueueService<UserRegisteredEventHandler, UserRegisteredEvent> queueService;
+    private readonly Mock<UserRegisteredEventHandler> mockEventHandler;
+    private readonly Mock<ILogger<QueueService<UserRegisteredEventHandler, UserRegisteredEvent>>> mockLogger;
+    private readonly Mock<IOptions<EventBusOptions>> mockOptions;
 
-    /// <summary>
-    /// Crea una nueva instancia de <see cref="QueueServiceTest"/>
-    /// </summary>
     public QueueServiceTest()
     {
-        this.userCreatedEvent = new UserRegisteredEvent()
+        mockEventHandler = new Mock<UserRegisteredEventHandler>();
+        mockLogger = new Mock<ILogger<QueueService<UserRegisteredEventHandler, UserRegisteredEvent>>>();
+        mockOptions = new Mock<IOptions<EventBusOptions>>();
+        mockOptions.Setup(o => o.Value).Returns(new EventBusOptions { SecondsWaitQueue = 1 });
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_When_EventHandlerIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(null!, mockLogger.Object, mockOptions.Object));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_When_LoggerIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, null!, mockOptions.Object));
+    }
+
+    [Fact]
+    public void Constructor_ThrowsArgumentNullException_When_OptionsIsNull()
+    {
+        Assert.Throws<ArgumentNullException>(() => new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, null!));
+    }
+
+    [Fact]
+    public void Constructor_LogsInitializationMessage()
+    {
+        var _ = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, mockOptions.Object);
+        mockLogger.VerifyLogging("QueueService initialized.", LogLevel.Information);
+    }
+
+    [Fact]
+    public void Enqueue_ThrowsArgumentNullException_When_EventIsNull()
+    {
+        var service = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, mockOptions.Object);
+        Assert.Throws<ArgumentNullException>(() => service.Enqueue(null!));
+        mockLogger.VerifyLogging("Attempted to enqueue a null event.", LogLevel.Error);
+    }
+
+    [Fact]
+    public void Enqueue_AddsEventToQueue_When_EventIsNew()
+    {
+        var service = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, mockOptions.Object);
+        service.Enqueue(new UserRegisteredEvent()
         {
-            Id = new Random().Next(1, 1000),
-            Age = (ushort)new Random().Next(1, 100),
+            Name = nameof(UserRegisteredEvent.Name),
+            User = nameof(UserRegisteredEvent.User),
+        });
+        Assert.True(service.Any());
+        mockLogger.VerifyLogging("Event of type UserRegisteredEvent enqueued.", LogLevel.Information);
+    }
+
+    [Fact]
+    public void Enqueue_SkipsEvent_When_EventAlreadyInQueue()
+    {
+        var userRegisteredEvent = new UserRegisteredEvent()
+        {
+            Name = nameof(UserRegisteredEvent.Name),
+            User = nameof(UserRegisteredEvent.User),
+        };
+        var service = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, mockOptions.Object);
+        service.Enqueue(userRegisteredEvent);
+        service.Enqueue(userRegisteredEvent);
+        Assert.Equal(1, service.Count);
+        mockLogger.VerifyLogging("Event of type UserRegisteredEvent was already in the queue. Skipping.", LogLevel.Warning);
+    }
+
+    [Fact]
+    public async Task DequeueAsync_ProcessesEventsInQueue()
+    {
+        var userRegisteredEvent = new UserRegisteredEvent()
+        {
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User),
         };
 
-        this.userEventHandler = new UserRegisteredEventHandler();
+        var handler = new UserRegisteredEventHandler();
 
-        this.queueService = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(this.userEventHandler);
+        var service = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(handler, mockLogger.Object, mockOptions.Object);
+        service.Enqueue(userRegisteredEvent);
+
+        var cts = new CancellationTokenSource();
+        cts.CancelAfter(TimeSpan.FromSeconds(2));  // Allow some time for processing before cancellation
+
+        await service.DequeueAsync(cts.Token);
+
+        mockLogger.VerifyLogging("Dequeueing event of type UserRegisteredEvent.", LogLevel.Information);
+        mockLogger.VerifyLogging("No events in the queue of type UserRegisteredEvent. Waiting...", LogLevel.Debug, Times.AtLeastOnce());
+        mockLogger.VerifyLogging("DequeueAsync stopped due to cancellation token to type UserRegisteredEvent.", LogLevel.Information);
     }
 
-    /// <summary>
-    /// Valida que se genere la excepción cuando el argumento es nulo
-    /// </summary>
+
     [Fact]
-    public void Enqueu_AddEventQueue_ArgumentNullException()
-    {
-        // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => this.queueService.Enqueue(null!));
-
-        // Assert
-        Assert.NotEmpty(exception.Message);
-    }
-
-    /// <summary>
-    /// Valida que la queue sea igual cuando el evento ya ha sido agregado
-    /// </summary>
-    [Fact]
-    public void Enqueu_EventAlreadyExist_TailRemainsTheSame()
-    {
-        // Arrange
-        this.queueService.Enqueue(this.userCreatedEvent);
-
-        // Act
-        this.queueService.Enqueue(this.userCreatedEvent);
-
-        // Assert
-        Assert.Equal(1, this.queueService.Count);
-    }
-
-    /// <summary>
-    /// Valida que se registre el evento en la Queue
-    /// </summary>
-    [Fact]
-    public void Enqueue_Add_QueueNotEmpty()
-    {
-        // Act
-        this.queueService.Enqueue(this.userCreatedEvent);
-
-        // Assert
-        Assert.True(this.queueService.Any());
-    }
-
-    /// <summary>
-    /// Valida que se obtena el evento
-    /// </summary>
-    [Fact]
-    public void DequeueAsync_Get_QueueEmpty()
-    {
-        // Arrange
-        this.queueService.Enqueue(this.userCreatedEvent);
-
-        // Act
-        Task.Run(() => this.queueService.DequeueAsync(CancellationToken.None));
-
-        Thread.Sleep(TimeSpan.FromSeconds(15));
-
-        // Assert
-        Assert.NotNull(this.userEventHandler.Events.FirstOrDefault(x => x.Value == this.userCreatedEvent).Value);
-        Assert.False(this.queueService.Any());
-    }
-
-    /// <summary>
-    /// Valida que se pueda detener el bucle while
-    /// </summary>
-    [Fact]
-    public void DequeueAsync_CancelToken_QueueEmpty()
+    public async Task DequeueAsync_WhenHandleAsyncThrowsException_ErrorIsLogged()
     {
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
-        var cancellationToken = cancellationTokenSource.Token;
 
-        this.queueService.Enqueue(this.userCreatedEvent);
+        var loggerMock = new Mock<ILogger<QueueService<EventFailedHandler, EventFailed>>>();
+
+        var @event = new EventFailed();
+        var handler = new EventFailedHandler();
+
+        var service = new QueueService<EventFailedHandler, EventFailed>(handler, loggerMock.Object, mockOptions.Object);
+
+        service.Enqueue(@event);
 
         // Act
-        Task.Run(() => this.queueService.DequeueAsync(cancellationToken));
-
-        Thread.Sleep(TimeSpan.FromSeconds(5));
-
+        var task = service.DequeueAsync(cancellationTokenSource.Token);
+        await Task.Delay(1500); // Wait a bit for the method to process
         cancellationTokenSource.Cancel();
-
-        Thread.Sleep(TimeSpan.FromSeconds(15));
+        await task;  // Ensure the method has fully completed
 
         // Assert
-        Assert.NotNull(this.userEventHandler.Events.FirstOrDefault(x => x.Value == this.userCreatedEvent).Value);
-        Assert.False(this.queueService.Any());
+        loggerMock.VerifyLogging($"Error processing event of type {typeof(EventFailed).Name}.", LogLevel.Error);
     }
 }

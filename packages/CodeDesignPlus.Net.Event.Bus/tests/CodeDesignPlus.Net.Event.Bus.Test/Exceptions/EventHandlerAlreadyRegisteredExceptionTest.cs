@@ -84,5 +84,31 @@ namespace CodeDesignPlus.Net.Event.Bus.Test.Exceptions
             Assert.Equal(innerException, exception.InnerException);
             Assert.Equal(message, exception.Message);
         }
+
+        [Fact]
+        public void EventType_ReturnsCorrectType()
+        {
+            // Arrange
+            var exception = new EventHandlerAlreadyRegisteredException<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+            // Act
+            var eventType = exception.EventType;
+
+            // Assert
+            Assert.Equal(typeof(UserRegisteredEvent), eventType);
+        }
+
+        [Fact]
+        public void EventHandlerType_ReturnsCorrectType()
+        {
+            // Arrange
+            var exception = new EventHandlerAlreadyRegisteredException<UserRegisteredEvent, UserRegisteredEventHandler>();
+
+            // Act
+            var eventHandlerType = exception.EventHandlerType;
+
+            // Assert
+            Assert.Equal(typeof(UserRegisteredEventHandler), eventHandlerType);
+        }
     }
 }

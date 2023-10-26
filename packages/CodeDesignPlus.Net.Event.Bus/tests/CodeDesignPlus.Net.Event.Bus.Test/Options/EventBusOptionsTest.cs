@@ -2,13 +2,15 @@
 
 public class EventBusOptionsTest
 {
-    [Fact]
-    public void EventBusOptions_DefaultValues_Valid()
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public void EventBusOptions_DefaultValues_Valid(bool value)
     {
         // Arrange
         var options = new EventBusOptions()
         {
-            Name = Guid.NewGuid().ToString()
+            EnableQueue = value
         };
 
         // Act
@@ -16,54 +18,46 @@ public class EventBusOptionsTest
 
         // Assert
         Assert.Empty(results);
+        Assert.Equal(value, options.EnableQueue);
+        Assert.Equal((uint)2, options.SecondsWaitQueue);
     }
 
     [Fact]
-    public void EventBusOptions_NameIsRequired_FailedValidation()
+    public void EventBusOptions_Seconds_Valid()
     {
         // Arrange
-        var options = new EventBusOptions();
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
-    }
-
-    [Fact]
-    public void EventBusOptions_EmailIsRequired_FailedValidation()
-    {
-        // Arrange
+        var secondsExpected = (uint)new Random().Next(1, 5);
         var options = new EventBusOptions()
         {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = null
+            EnableQueue = true,
+            SecondsWaitQueue = secondsExpected
         };
 
         // Act
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
+        Assert.Empty(results);
+        Assert.Equal(secondsExpected, options.SecondsWaitQueue);
     }
 
-    [Fact]
-    public void EventBusOptions_EmailIsInvalid_FailedValidation()
+    
+    [Theory]
+    [InlineData(0)]
+    [InlineData(11)]
+    public void EventBusOptions_Seconds_Invalid(uint seconds)
     {
         // Arrange
         var options = new EventBusOptions()
         {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = "asdfasdfsdfgs"
+            EnableQueue = true,
+            SecondsWaitQueue = seconds
         };
 
         // Act
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
+        Assert.NotEmpty(results);
     }
 }
