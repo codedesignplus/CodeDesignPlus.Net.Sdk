@@ -38,7 +38,7 @@
       },
       "configurations": {
         "coverage": {
-          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Event.Sourcing.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Event.Sourcing.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
         }
       }
     },
@@ -47,14 +47,14 @@
       "options": {
         "name": "CodeDesignPlus.Net.Event.Sourcing",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Event.Sourcing.Key",
+        "projectKey": "CodeDesignPlus.Net.Event.Sourcing",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,
         "qualityGate": false,
         "qualityGateTimeout": "600",
         "skipImplicitDeps": false,
-        "exclusions": "**Tests*.cs",
+        "exclusions": "**CodeDesignPlus.Net.Core*,**tests/**",
         "extra": {
           "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Event.Sourcing.Test/coverage.opencover.xml"
         }

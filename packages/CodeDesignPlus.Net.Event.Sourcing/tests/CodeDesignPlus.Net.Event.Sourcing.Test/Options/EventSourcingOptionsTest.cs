@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Event.Sourcing.Test.Options;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
+
+namespace CodeDesignPlus.Net.Event.Sourcing.Test.Options;
 
 public class EventSourcingOptionsTest
 {

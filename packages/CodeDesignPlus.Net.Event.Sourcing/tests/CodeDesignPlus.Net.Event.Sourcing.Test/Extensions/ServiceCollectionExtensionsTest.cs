@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using CodeDesignPlus.Net.Event.Sourcing.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Extensions;
 
@@ -50,7 +51,9 @@ public class ServiceCollectionExtensionsTest
     public void AddEventSourcing_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(new {
+            EventSourcing = OptionsUtil.Options
+        });
 
         var serviceCollection = new ServiceCollection();
 
@@ -62,14 +65,16 @@ public class ServiceCollectionExtensionsTest
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(EventSourcingService), libraryService.ImplementationType);
+        Assert.Equal(typeof(EventSourcingServiceFake), libraryService.ImplementationType);
     }
 
     [Fact]
     public void AddEventSourcing_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(new {
+            EventSourcing = OptionsUtil.Options
+        });
 
         var serviceCollection = new ServiceCollection();
 
@@ -85,9 +90,9 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.EventSourcingOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.EventSourcingOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.EventSourcingOptions.Enable, value.Enable);
+        Assert.Equal(OptionsUtil.Options.Name, value.Name);
+        Assert.Equal(OptionsUtil.Options.Email, value.Email);
+        Assert.Equal(OptionsUtil.Options.Enable, value.Enable);
     }
 
 
