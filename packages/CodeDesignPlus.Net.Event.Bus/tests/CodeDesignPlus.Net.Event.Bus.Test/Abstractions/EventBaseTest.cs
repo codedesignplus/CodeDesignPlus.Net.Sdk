@@ -14,7 +14,7 @@ public class EventBaseTest
     public void Constructor_Default_GetValues()
     {
         //Arrange
-        var date = DateTime.Now;
+        var date = DateTime.UtcNow;
 
         //Act
         var eventBus = new UserRegisteredEvent()
@@ -41,7 +41,7 @@ public class EventBaseTest
     public void Constructor_Overload_GetValues()
     {
         //Arrange
-        var date = DateTime.Now;
+        var date = DateTime.UtcNow;
         var guid = Guid.NewGuid();
 
         //Act
@@ -77,7 +77,7 @@ public class EventBaseTest
         var event1 = new UserRegisteredEvent()
         {
             IdEvent = idEvent1,
-            EventDate = DateTime.Now,
+            EventDate = DateTime.UtcNow,
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User)
         };
@@ -86,7 +86,7 @@ public class EventBaseTest
         var event2 = new UserRegisteredEvent()
         {
             IdEvent = idEvent2,
-            EventDate = DateTime.Now,
+            EventDate = DateTime.UtcNow,
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User)
         };
@@ -112,7 +112,7 @@ public class EventBaseTest
         var event1 = new UserRegisteredEvent()
         {
             IdEvent = idEvent1,
-            EventDate = DateTime.Now,
+            EventDate = DateTime.UtcNow,
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User)
         };

@@ -48,7 +48,7 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     public virtual async Task<TKey> CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         entity.IdUserCreator = this.AuthenticateUser.IdUser;
-        entity.DateCreated = DateTime.Now;
+        entity.DateCreated = DateTime.UtcNow;
 
         entity = await base.CreateAsync(entity, cancellationToken);
 

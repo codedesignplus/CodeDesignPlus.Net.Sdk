@@ -109,7 +109,7 @@ public class EFCoreExtensionsTest
                 Name = $"{nameof(Application.Name)}-{i}",
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = $"{nameof(Application.Description)}-{i}"
             });
         }

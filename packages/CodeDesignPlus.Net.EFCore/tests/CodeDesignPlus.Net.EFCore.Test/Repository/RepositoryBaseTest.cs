@@ -125,7 +125,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             State = true,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         };
 
@@ -190,7 +190,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             State = true,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         });
 
@@ -282,7 +282,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             State = true,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         });
 
@@ -331,7 +331,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
             new Application()
@@ -339,7 +339,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
         };
@@ -397,7 +397,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
 
@@ -406,7 +406,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
         };
@@ -486,7 +486,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
             new Application()
@@ -494,7 +494,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
         };
@@ -552,7 +552,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             State = true,
-            DateCreated = DateTime.Now,
+            DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         };
 
@@ -599,7 +599,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 State = true,
-                DateCreated = DateTime.Now,
+                DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             });
 
@@ -638,7 +638,7 @@ public class RepositoryBaseTest
                     Name = nameof(Application.Name),
                     IdUserCreator = new Random().Next(1, 15),
                     State = true,
-                    DateCreated = DateTime.Now,
+                    DateCreated = DateTime.UtcNow,
                     Description = nameof(Application.Description)
                 });
 
