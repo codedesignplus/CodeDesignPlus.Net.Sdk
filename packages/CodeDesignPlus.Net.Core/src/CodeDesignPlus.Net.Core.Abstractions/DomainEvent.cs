@@ -1,10 +1,6 @@
 ﻿namespace CodeDesignPlus.Net.Core.Abstractions;
-/// <summary>
-/// Provides a base implementation for domain events. 
-/// </summary>
-/// <typeparam name="TMetadata">The type of metadata associated with the event.</typeparam>
-public abstract class DomainEventBase<TMetadata> : IDomainEvent<TMetadata>
-    where TMetadata : class
+
+public abstract class DomainEventBase : IDomainEvent
 {
     /// <summary>
     /// Provides a unique identifier for the domain event.
@@ -19,12 +15,7 @@ public abstract class DomainEventBase<TMetadata> : IDomainEvent<TMetadata>
     /// <summary>
     /// Represents the version of the domain event. Useful for versioning events in scenarios where the event structure might change over time.
     /// </summary>
-    public int Version { get; protected set; }
-
-    /// <summary>
-    /// Contains metadata associated with the domain event, providing additional context or details.
-    /// </summary>
-    public TMetadata Metadata { get; private set; }
+    public long Version { get; set; }
 
     /// <summary>
     /// Represents the name of the event type, derived from the actual runtime type of the event instance.
@@ -40,11 +31,44 @@ public abstract class DomainEventBase<TMetadata> : IDomainEvent<TMetadata>
     /// Initializes a new instance of the <see cref="DomainEventBase{TMetadata}"/> class with the specified aggregate ID and metadata.
     /// </summary>
     /// <param name="aggregateId">The unique identifier of the aggregate root associated with this domain event.</param>
+    protected DomainEventBase(Guid aggregateId)
+    {
+        this.AggregateId = aggregateId;
+    }
+}
+
+/// <summary>
+/// Provides a base implementation for domain events. 
+/// </summary>
+/// <typeparam name="TMetadata">The type of metadata associated with the event.</typeparam>
+public abstract class DomainEventBase<TMetadata> : DomainEventBase, IDomainEvent<TMetadata>
+    where TMetadata : class
+{
+    /// <summary>
+    /// Contains metadata associated with the domain event, providing additional context or details.
+    /// </summary>
+    public TMetadata Metadata { get; private set; }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DomainEventBase{TMetadata}"/> class with the specified aggregate ID and metadata.
+    /// </summary>
+    /// <param name="aggregateId">The unique identifier of the aggregate root associated with this domain event.</param>
     /// <param name="metadata">The metadata associated with the domain event.</param>
     protected DomainEventBase(Guid aggregateId, TMetadata metadata)
+        : base(aggregateId)
     {
         this.AggregateId = aggregateId;
         this.Metadata = metadata;
+    }
+
+    /// <summary>
+    /// Sets or updates the metadata associated with a domain event.
+    /// </summary>
+    /// <param name="metadata">The metadata to be set or updated.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="metadata"/> is null.</exception>
+    public void SetMetadata(TMetadata metadata)
+    {
+        this.Metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
     }
 }
 
@@ -71,8 +95,8 @@ public abstract class ThinDomainEventBase<TMetadata> : DomainEventBase<TMetadata
 /// </summary>
 /// <typeparam name="TAggregate">The type of the aggregate root associated with this event.</typeparam>
 /// <typeparam name="TMetadata">The type of metadata associated with the event.</typeparam>
-public abstract class RichDomainEventBase<TAggregate, TMetadata> : DomainEventBase<TMetadata>, IRichDomainEvent<TAggregate, TMetadata>
-    where TAggregate : IAggregateRoot
+public abstract class RichDomainEventBase<TKey, TAggregate, TMetadata> : DomainEventBase<TMetadata>, IRichDomainEvent<TKey, TAggregate, TMetadata>
+    where TAggregate : IAggregateRoot<TKey>
     where TMetadata : class
 {
     /// <summary>
@@ -95,7 +119,7 @@ public abstract class RichDomainEventBase<TAggregate, TMetadata> : DomainEventBa
     /// <param name="metadata">The metadata associated with the rich domain event.</param>
     /// <param name="previousState">The state of the aggregate before the event occurred.</param>
     /// <param name="currentState">The state of the aggregate after the event occurred.</param>
-    protected RichDomainEventBase(Guid aggregateId, TMetadata metadata, TAggregate previousState, TAggregate currentState) 
+    protected RichDomainEventBase(Guid aggregateId, TMetadata metadata, TAggregate previousState, TAggregate currentState)
         : base(aggregateId, metadata)
     {
         this.PreviousState = previousState;

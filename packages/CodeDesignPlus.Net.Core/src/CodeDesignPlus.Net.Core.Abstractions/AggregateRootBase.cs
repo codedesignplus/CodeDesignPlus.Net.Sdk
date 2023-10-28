@@ -6,14 +6,22 @@ namespace CodeDesignPlus.Net.Core.Abstractions;
 /// Aggregate roots are the primary entry points to aggregates, a cluster of domain objects 
 /// that are treated as a single unit for data changes.
 /// </summary>
-public abstract class AggregateRootBase : IAggregateRoot
+public abstract class AggregateRootBase<TKey> : IAggregateRoot<TKey>
 {
     private readonly List<IDomainEvent> uncommittedEvents = new();
 
     /// <summary>
+    /// Gets or sets the id aggregate
+    /// </summary>
+    public TKey Id { get; set; }
+    /// <summary>
     /// Gets or sets the version of the aggregate root. Useful for optimistic concurrency control.
     /// </summary>
-    public int Version { get; set; }
+    public long Version { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether the record is active.
+    /// </summary>
+    public bool IsActive { get; set; }
 
     /// <summary>
     /// Adds the specified domain event to the list of uncommitted events.
@@ -21,6 +29,9 @@ public abstract class AggregateRootBase : IAggregateRoot
     /// <param name="event">The domain event to be added.</param>
     public void ApplyEvent(IDomainEvent @event)
     {
+        this.Version++;
+        @event.Version = this.Version;
+        
         this.uncommittedEvents.Add(@event);
     }
 
@@ -43,18 +54,8 @@ public abstract class AggregateRootBase : IAggregateRoot
 /// </summary>
 /// <typeparam name="TKey">The type of the primary key for this aggregate root.</typeparam>
 /// <typeparam name="TUserKey">The type of the user key for this aggregate root.</typeparam>
-public abstract class AggregateRootBase<TKey, TUserKey> : AggregateRootBase, IAggregateRoot<TKey, TUserKey>
+public abstract class AggregateRootBase<TKey, TUserKey> : AggregateRootBase<TKey>, IAggregateRoot<TKey, TUserKey>
 {
-    /// <summary>
-    /// Gets or sets the unique identifier for the aggregate root.
-    /// </summary>
-    public TKey Id { get; set; }
-
-    /// <summary>
-    /// Gets or sets a value indicating whether the aggregate root is active.
-    /// </summary>
-    public bool IsActive { get; set; }
-
     /// <summary>
     /// Gets or sets the identifier of the user who created the aggregate root.
     /// </summary>

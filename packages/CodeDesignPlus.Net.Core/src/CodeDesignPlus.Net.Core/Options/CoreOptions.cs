@@ -20,7 +20,7 @@ public class CoreOptions : IValidatableObject
     /// Gets or sets the name
     /// </summary>
     [Required]
-    public string Name { get; set; }
+    public string AppName { get; set; }
     /// <summary>
     /// Gets or sets the name
     /// </summary>

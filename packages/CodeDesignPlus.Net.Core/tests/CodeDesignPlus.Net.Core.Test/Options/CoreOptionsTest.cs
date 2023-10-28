@@ -8,7 +8,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
-            Name = Guid.NewGuid().ToString()
+            AppName = Guid.NewGuid().ToString()
         };
 
         // Act
@@ -38,7 +38,7 @@ public class CoreOptionsTest
         var options = new CoreOptions()
         {
             Enable = true,
-            Name = Guid.NewGuid().ToString(),
+            AppName = Guid.NewGuid().ToString(),
             Email = null
         };
 
@@ -56,7 +56,7 @@ public class CoreOptionsTest
         var options = new CoreOptions()
         {
             Enable = true,
-            Name = Guid.NewGuid().ToString(),
+            AppName = Guid.NewGuid().ToString(),
             Email = "asdfasdfsdfgs"
         };
 

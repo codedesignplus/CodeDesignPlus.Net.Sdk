@@ -21,7 +21,7 @@ public interface IDomainEvent
     /// Gets the specific version for the event.
     /// This is useful for handling changes in the event structure over time.
     /// </summary>
-    int Version { get; }
+    long Version { get; set; }
 
     /// <summary>
     /// Gets the name of the event type.
@@ -47,6 +47,12 @@ public interface IDomainEvent<TMetadata> : IDomainEvent
     /// additional context or details about the event.
     /// </summary>
     TMetadata Metadata { get; }
+    /// <summary>
+    /// Sets or updates the metadata associated with a domain event.
+    /// </summary>
+    /// <param name="metadata">The metadata to be set or updated.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="metadata"/> is null.</exception>
+    void SetMetadata(TMetadata metadata);
 }
 
 /// <summary>
@@ -79,8 +85,8 @@ public interface IThinDomainEvent<TMetadata> : IDomainEvent<TMetadata>, IThinDom
 /// </summary>
 /// <typeparam name="TAggregate">The type of the aggregate root associated with this event.</typeparam>
 /// <typeparam name="TMetadata">The type of metadata associated with the event.</typeparam>
-public interface IRichDomainEvent<TAggregate> : IDomainEvent
-    where TAggregate : IAggregateRoot
+public interface IRichDomainEvent<TKey, TAggregate> : IDomainEvent
+    where TAggregate : IAggregateRoot<TKey>
 {
     /// <summary>
     /// Gets the state of the aggregate before the event occurred.
@@ -100,9 +106,9 @@ public interface IRichDomainEvent<TAggregate> : IDomainEvent
 /// </summary>
 /// <typeparam name="TAggregate">The type of the aggregate root associated with this event.</typeparam>
 /// <typeparam name="TMetadata">The type of metadata associated with the event.</typeparam>
-public interface IRichDomainEvent<TAggregate, TMetadata> : IDomainEvent<TMetadata>, IRichDomainEvent<TAggregate>
-    where TAggregate : IAggregateRoot
+public interface IRichDomainEvent<TKey, TAggregate, TMetadata> : IDomainEvent<TMetadata>, IRichDomainEvent<TKey, TAggregate>
+    where TAggregate : IAggregateRoot<TKey>
     where TMetadata : class
 {
-    
+
 }
