@@ -90,9 +90,8 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(OptionsUtil.Options.Name, value.Name);
-        Assert.Equal(OptionsUtil.Options.Email, value.Email);
-        Assert.Equal(OptionsUtil.Options.Enable, value.Enable);
+        Assert.Equal(OptionsUtil.Options.MainName, value.MainName);
+        Assert.Equal(OptionsUtil.Options.SnapshotSuffix, value.SnapshotSuffix);
     }
 
 

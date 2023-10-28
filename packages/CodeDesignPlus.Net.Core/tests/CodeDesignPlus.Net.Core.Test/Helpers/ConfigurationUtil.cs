@@ -5,8 +5,8 @@ public static class ConfigurationUtil
     public static readonly CoreOptions CoreOptions = new()
     {
         Enable = true,
-        Name = nameof(Core.Options.CoreOptions.Name),
-        Email = $"{nameof(Core.Options.CoreOptions.Name)}@codedesignplus.com"
+        AppName = nameof(Core.Options.CoreOptions.AppName),
+        Email = $"{nameof(Core.Options.CoreOptions.AppName)}@codedesignplus.com"
     };
 
     public static IConfiguration GetConfiguration()

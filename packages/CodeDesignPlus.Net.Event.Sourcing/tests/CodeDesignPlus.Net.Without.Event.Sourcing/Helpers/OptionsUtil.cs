@@ -6,8 +6,5 @@ public class OptionsUtil
 {
     public static readonly EventSourcingOptions Options = new()
     {
-        Enable = true,
-        Name = nameof(EventSourcingOptions.Name),
-        Email = $"{nameof(EventSourcingOptions.Name)}@codedesignplus.com"
     };
 }

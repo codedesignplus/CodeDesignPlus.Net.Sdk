@@ -4,72 +4,83 @@ namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 
 public class EventSourcingServiceFake : IEventSourcingService
 {
-    public void AppendEvent(IDomainEvent @event)
+    public Task AppendEventAsync<TDomainEvent>(TDomainEvent @event) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public void AppendEvent<TMetadata>(IDomainEvent<TMetadata> @event) where TMetadata : class
+    public Task AppendEventAsync<TDomainEvent, TMetadata>(TDomainEvent @event)
+        where TDomainEvent : IDomainEvent<TMetadata>
+        where TMetadata : class
     {
         throw new NotImplementedException();
     }
 
-    public int GetAggregateVersion(Guid aggregateId)
+    public Task<int> GetAggregateVersionAsync(Guid aggregateId)
     {
         throw new NotImplementedException();
     }
 
-    public long GetEventStreamPosition()
+    public Task<long> GetEventStreamPositionAsync()
     {
         throw new NotImplementedException();
     }
 
-    public IEnumerable<IDomainEvent> LoadEventsForAggregate(Guid aggregateId)
+    public Task<IEnumerable<IDomainEvent>> LoadEventsForAggregateAsync(Guid aggregateId)
     {
         throw new NotImplementedException();
     }
 
-    public IEnumerable<IDomainEvent<TMetadata>> LoadEventsForAggregate<TMetadata>(Guid aggregateId) where TMetadata : class
+    public Task<IEnumerable<TDomainEvent>> LoadEventsForAggregateAsync<TDomainEvent, TMetadata>(Guid aggregateId)
+        where TDomainEvent : IDomainEvent<TMetadata>
+        where TMetadata : class
     {
         throw new NotImplementedException();
     }
 
-    public IEnumerable<IDomainEvent> LoadEventsFromPosition(long position)
+    public Task<IEnumerable<TDomainEvent>> LoadEventsFromPositionAsync<TDomainEvent>(long position) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public IEnumerable<IDomainEvent<TMetadata>> LoadEventsFromPosition<TMetadata>(long position) where TMetadata : class
+    public Task<IEnumerable<TDomainEvent>> LoadEventsFromPositionAsync<TDomainEvent, TMetadata>(long position)
+        where TDomainEvent : IDomainEvent<TMetadata>
+        where TMetadata : class
     {
         throw new NotImplementedException();
     }
 
-    public TAggregate LoadSnapshotForAggregate<TAggregate>(Guid aggregateId) where TAggregate : IAggregateRoot
+    public Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate, TKey>(Guid aggregateId) where TAggregate : IAggregateRoot<TKey>
     {
         throw new NotImplementedException();
     }
 
-    public TAggregate LoadSnapshotForAggregate<TAggregate, TKey, TUserKey>(Guid aggregateId) where TAggregate : IAggregateRoot<TKey, TUserKey>
+    public Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate, TKey, TUserKey>(Guid aggregateId) where TAggregate : IAggregateRoot<TKey, TUserKey>
     {
         throw new NotImplementedException();
     }
 
-    public void SaveSnapshot<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot
+    public Task SaveSnapshotAsync<TAggregate, TKey>(TAggregate aggregate) where TAggregate : IAggregateRoot<TKey>
     {
         throw new NotImplementedException();
     }
 
-    public void SaveSnapshot<TAggregate, TKey, TUserKey>(TAggregate aggregate) where TAggregate : IAggregateRoot<TKey, TUserKey>
+    public Task SaveSnapshotAsync<TAggregate, TKey, TUserKey>(TAggregate aggregate) where TAggregate : IAggregateRoot<TKey, TUserKey>
     {
         throw new NotImplementedException();
     }
 
-    public IEnumerable<IDomainEvent> SearchEvents(object criteria)
+    public Task<IEnumerable<TDomainEvent>> SearchEventsByCategoryAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public IEnumerable<IDomainEvent<TMetadata>> SearchEvents<TMetadata>(object criteria) where TMetadata : class
+    public Task<IEnumerable<TDomainEvent>> SearchEventsByEventTypeAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<IEnumerable<IDomainEvent>> SearchEventsByStreamAsync(string streamName)
     {
         throw new NotImplementedException();
     }

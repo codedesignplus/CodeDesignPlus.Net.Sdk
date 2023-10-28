@@ -8,11 +8,7 @@ public class EventSourcingOptionsTest
     public void EventSourcingOptions_DefaultValues_Valid()
     {
         // Arrange
-        var options = new EventSourcingOptions()
-        {
-            Name = Guid.NewGuid().ToString()
-        };
-
+        var options = new EventSourcingOptions();
         // Act
         var results = options.Validate();
 
@@ -21,51 +17,25 @@ public class EventSourcingOptionsTest
     }
 
     [Fact]
-    public void EventSourcingOptions_NameIsRequired_FailedValidation()
+    public void EventSourcingOptions_CustomValues_Valid()
     {
         // Arrange
-        var options = new EventSourcingOptions();
+        var aggregate = "ag";
+        var snapshot = "sp";
 
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
-    }
-
-    [Fact]
-    public void EventSourcingOptions_EmailIsRequired_FailedValidation()
-    {
-        // Arrange
         var options = new EventSourcingOptions()
         {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = null
+            MainName = aggregate,
+            SnapshotSuffix = snapshot
         };
 
         // Act
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
+        Assert.Empty(results);
+        Assert.Equal(aggregate, options.MainName);
+        Assert.Equal(snapshot, options.SnapshotSuffix);
     }
 
-    [Fact]
-    public void EventSourcingOptions_EmailIsInvalid_FailedValidation()
-    {
-        // Arrange
-        var options = new EventSourcingOptions()
-        {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = "asdfasdfsdfgs"
-        };
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
-    }
 }

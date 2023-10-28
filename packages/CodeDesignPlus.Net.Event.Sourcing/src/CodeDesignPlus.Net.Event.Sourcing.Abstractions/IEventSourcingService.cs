@@ -10,96 +10,145 @@ using System.Collections.Generic;
 public interface IEventSourcingService
 {
     /// <summary>
-    /// Appends a new event to the store.
+    /// Appends a domain event to the event store.
     /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <param name="event">The domain event to append.</param>
-    void AppendEvent(IDomainEvent @event);
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="event"/> is null.</exception>
+    Task AppendEventAsync<TDomainEvent>(TDomainEvent @event)
+        where TDomainEvent : IDomainEvent;
+
     /// <summary>
-    /// Appends a new event to the store.
+    /// Appends a domain event, with associated metadata, to the event store.
     /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TMetadata">The type of metadata associated with the domain event.</typeparam>
     /// <param name="event">The domain event to append.</param>
-    void AppendEvent<TMetadata>(IDomainEvent<TMetadata> @event) where TMetadata: class;
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="event"/> is null.</exception>
+    Task AppendEventAsync<TDomainEvent, TMetadata>(TDomainEvent @event)
+        where TDomainEvent : IDomainEvent<TMetadata>
+        where TMetadata : class;
 
     /// <summary>
-    /// Loads all events for a specific aggregate.
+    /// Gets the version number of an aggregate from the event store.
     /// </summary>
     /// <param name="aggregateId">The unique identifier of the aggregate.</param>
-    /// <returns>A sequence of domain events for the aggregate.</returns>
-    IEnumerable<IDomainEvent> LoadEventsForAggregate(Guid aggregateId);
+    /// <returns>The aggregate version number.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided <paramref name="aggregateId"/> is an empty GUID.</exception>
+    Task<int> GetAggregateVersionAsync(Guid aggregateId);
 
     /// <summary>
-    /// Loads all events for a specific aggregate.
+    /// Retrieves the position of the latest event in the global stream.
+    /// </summary>
+    /// <returns>The position of the last event in the global stream.</returns>
+    Task<long> GetEventStreamPositionAsync();
+
+    /// <summary>
+    /// Loads events for a specific aggregate from the event store.
     /// </summary>
     /// <param name="aggregateId">The unique identifier of the aggregate.</param>
-    /// <returns>A sequence of domain events for the aggregate.</returns>
-    IEnumerable<IDomainEvent<TMetadata>> LoadEventsForAggregate<TMetadata>(Guid aggregateId) where TMetadata: class;
+    /// <returns>A collection of domain events for the aggregate.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided <paramref name="aggregateId"/> is an empty GUID.</exception>
+    Task<IEnumerable<IDomainEvent>> LoadEventsForAggregateAsync(Guid aggregateId);
 
     /// <summary>
-    /// Saves a snapshot of the current state of an aggregate.
+    /// Loads events for a specific aggregate, with associated metadata, from the event store.
     /// </summary>
-    /// <param name="aggregate">The aggregate to create a snapshot for.</param>
-    void SaveSnapshot<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot;
-
-    /// <summary>
-    /// Saves a snapshot of the current state of an aggregate.
-    /// </summary>
-    /// <param name="aggregate">The aggregate to create a snapshot for.</param>
-    void SaveSnapshot<TAggregate, TKey, TUserKey>(TAggregate aggregate) where TAggregate : IAggregateRoot<TKey, TUserKey>;
-
-    /// <summary>
-    /// Loads the most recent snapshot for a specific aggregate.
-    /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TMetadata">The type of metadata associated with the domain event.</typeparam>
     /// <param name="aggregateId">The unique identifier of the aggregate.</param>
-    /// <returns>The most recent snapshot of the aggregate.</returns>
-    TAggregate LoadSnapshotForAggregate<TAggregate>(Guid aggregateId) where TAggregate : IAggregateRoot;
-    
+    /// <returns>A collection of domain events for the aggregate.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided <paramref name="aggregateId"/> is an empty GUID.</exception>
+    Task<IEnumerable<TDomainEvent>> LoadEventsForAggregateAsync<TDomainEvent, TMetadata>(Guid aggregateId)
+        where TDomainEvent : IDomainEvent<TMetadata>
+        where TMetadata : class;
     /// <summary>
-    /// Loads the most recent snapshot for a specific aggregate.
+    /// Loads events starting from a specified position in the global stream.
     /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+    /// <param name="position">The position to start reading from.</param>
+    /// <returns>A collection of domain events.</returns>
+    Task<IEnumerable<TDomainEvent>> LoadEventsFromPositionAsync<TDomainEvent>(long position)
+        where TDomainEvent : IDomainEvent;
+
+    /// <summary>
+    /// Loads events, with associated metadata, starting from a specified position in the global stream.
+    /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TMetadata">The type of metadata associated with the domain event.</typeparam>
+    /// <param name="position">The position to start reading from.</param>
+    /// <returns>A collection of domain events.</returns>
+    Task<IEnumerable<TDomainEvent>> LoadEventsFromPositionAsync<TDomainEvent, TMetadata>(long position)
+        where TDomainEvent : IDomainEvent<TMetadata>
+        where TMetadata : class;
+
+    /// <summary>
+    /// Loads a snapshot for a specific aggregate from the event store.
+    /// </summary>
+    /// <typeparam name="TAggregate">The type of the aggregate.</typeparam>
+    /// <typeparam name="TKey">The type of the aggregate's identifier.</typeparam>
     /// <param name="aggregateId">The unique identifier of the aggregate.</param>
-    /// <returns>The most recent snapshot of the aggregate.</returns>
-    TAggregate LoadSnapshotForAggregate<TAggregate, TKey, TUserKey>(Guid aggregateId) where TAggregate : IAggregateRoot<TKey, TUserKey>;
+    /// <returns>The latest snapshot of the aggregate, or default value if not found.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided <paramref name="aggregateId"/> is an empty GUID.</exception>
+    Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate, TKey>(Guid aggregateId)
+        where TAggregate : IAggregateRoot<TKey>;
 
     /// <summary>
-    /// Gets the current position in the event stream.
+    /// Loads a snapshot for a specific aggregate, with associated metadata, from the event store.
     /// </summary>
-    /// <returns>The current position in the event stream.</returns>
-    long GetEventStreamPosition();
-
-    /// <summary>
-    /// Loads events starting from a specific position in the event stream.
-    /// </summary>
-    /// <param name="position">The position in the event stream to start loading from.</param>
-    /// <returns>A sequence of domain events starting from the specified position.</returns>
-    IEnumerable<IDomainEvent> LoadEventsFromPosition(long position);
-    
-    /// <summary>
-    /// Loads events starting from a specific position in the event stream.
-    /// </summary>
-    /// <param name="position">The position in the event stream to start loading from.</param>
-    /// <returns>A sequence of domain events starting from the specified position.</returns>
-    IEnumerable<IDomainEvent<TMetadata>> LoadEventsFromPosition<TMetadata>(long position) where TMetadata : class;
-
-    /// <summary>
-    /// Searches for events based on specific criteria.
-    /// </summary>
-    /// <param name="criteria">The criteria to search for.</param>
-    /// <returns>A sequence of domain events that match the search criteria.</returns>
-    // Note: The type of 'criteria' can be modified based on your specific needs
-    IEnumerable<IDomainEvent> SearchEvents(object criteria);
-    
-    /// <summary>
-    /// Searches for events based on specific criteria.
-    /// </summary>
-    /// <param name="criteria">The criteria to search for.</param>
-    /// <returns>A sequence of domain events that match the search criteria.</returns>
-    // Note: The type of 'criteria' can be modified based on your specific needs
-    IEnumerable<IDomainEvent<TMetadata>> SearchEvents<TMetadata>(object criteria) where TMetadata : class;
-
-    /// <summary>
-    /// Gets the current version of a specific aggregate.
-    /// </summary>
+    /// <typeparam name="TAggregate">The type of the aggregate.</typeparam>
+    /// <typeparam name="TKey">The type of the aggregate's identifier.</typeparam>
+    /// <typeparam name="TUserKey">The type of the associated user's identifier.</typeparam>
     /// <param name="aggregateId">The unique identifier of the aggregate.</param>
-    /// <returns>The current version of the aggregate.</returns>
-    int GetAggregateVersion(Guid aggregateId);
+    /// <returns>The latest snapshot of the aggregate, or default value if not found.</returns>
+    /// <exception cref="ArgumentException">Thrown when the provided <paramref name="aggregateId"/> is an empty GUID.</exception>
+    Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate, TKey, TUserKey>(Guid aggregateId)
+        where TAggregate : IAggregateRoot<TKey, TUserKey>;
+
+    /// <summary>
+    /// Saves a snapshot of a specific aggregate to the event store.
+    /// </summary>
+    /// <typeparam name="TAggregate">The type of the aggregate.</typeparam>
+    /// <typeparam name="TKey">The type of the aggregate's identifier.</typeparam>
+    /// <param name="aggregate">The current state of the aggregate to be saved as a snapshot.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="aggregate"/> is null.</exception>
+    Task SaveSnapshotAsync<TAggregate, TKey>(TAggregate aggregate)
+        where TAggregate : IAggregateRoot<TKey>;
+
+    /// <summary>
+    /// Saves a snapshot of a specific aggregate, with associated metadata, to the event store.
+    /// </summary>
+    /// <typeparam name="TAggregate">The type of the aggregate.</typeparam>
+    /// <typeparam name="TKey">The type of the aggregate's identifier.</typeparam>
+    /// <typeparam name="TUserKey">The type of the associated user's identifier.</typeparam>
+    /// <param name="aggregate">The current state of the aggregate to be saved as a snapshot.</param>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="aggregate"/> is null.</exception>
+    Task SaveSnapshotAsync<TAggregate, TKey, TUserKey>(TAggregate aggregate)
+        where TAggregate : IAggregateRoot<TKey, TUserKey>;
+
+    /// <summary>
+    /// Searches for events in the event store by the specified stream name.
+    /// </summary>
+    /// <param name="streamName">The name of the stream to search in.</param>
+    /// <returns>A collection of domain events that match the search criteria.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="streamName"/> is null or empty.</exception>
+    Task<IEnumerable<IDomainEvent>> SearchEventsByStreamAsync(string streamName);
+
+    /// <summary>
+    /// Searches for events in the event store by the type of the domain event.
+    /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the domain event to search for.</typeparam>
+    /// <returns>A collection of domain events that match the specified type.</returns>
+    Task<IEnumerable<TDomainEvent>> SearchEventsByEventTypeAsync<TDomainEvent>()
+        where TDomainEvent : IDomainEvent;
+
+    /// <summary>
+    /// Searches for events in the event store by the specified category.
+    /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the domain event to search for.</typeparam>
+    /// <param name="category">The category to search in.</param>
+    /// <returns>A collection of domain events that match the search criteria.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="category"/> is null or empty.</exception>
+    Task<IEnumerable<TDomainEvent>> SearchEventsByCategoryAsync<TDomainEvent>(string category)
+        where TDomainEvent : IDomainEvent;
 }

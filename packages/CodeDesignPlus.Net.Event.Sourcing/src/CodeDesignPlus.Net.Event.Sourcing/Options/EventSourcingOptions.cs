@@ -1,11 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Event.Sourcing.Options;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Options;
 
 /// <summary>
 /// Options to setting of the Event.Sourcing
 /// </summary>
-public class EventSourcingOptions : IValidatableObject
+public class EventSourcingOptions
 {
     /// <summary>
     /// Name of the setions used in the appsettings
@@ -13,41 +11,16 @@ public class EventSourcingOptions : IValidatableObject
     public static readonly string Section = "EventSourcing";
 
     /// <summary>
-    /// Get or sets the Enable
+    /// Gets or sets the main name for the aggregate. 
+    /// This is used as the central part of the naming pattern for aggregates in the event store.
     /// </summary>
-    public bool Enable { get; set; }
-    /// <summary>
-    /// Gets or sets the name
-    /// </summary>
-    [Required]
-    public string Name { get; set; }
-    /// <summary>
-    /// Gets or sets the name
-    /// </summary>
-    [EmailAddress]
-    public string Email { get; set; }
+    /// <value>The main name for the aggregate.</value>
+    public string MainName { get; set; } = "aggregate";
 
     /// <summary>
-    /// Determines whether the specified object is valid.
+    /// Gets or sets the suffix used to denote snapshots in the naming pattern for aggregates in the event store.
+    /// When an aggregate's state is persisted as a snapshot, this suffix is appended to the aggregate's name.
     /// </summary>
-    /// <param name="validationContext">The validation context.</param>
-    /// <returns>A collection that holds failed-validation information.</returns>
-    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-    {
-        var results = new List<ValidationResult>();
-
-        if (this.Enable)
-        {
-            if (string.IsNullOrEmpty(Email))
-                results.Add(new ValidationResult($"The {nameof(this.Email)} field is required."));
-
-            Validator.TryValidateProperty(
-                this.Email,
-                new ValidationContext(this, null, null) { MemberName = nameof(this.Email) },
-                results
-            );
-        }
-
-        return results;
-    }
+    /// <value>The snapshot suffix for the aggregate.</value>
+    public string SnapshotSuffix { get; set; } = "snapshot";
 }
