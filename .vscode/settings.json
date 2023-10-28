@@ -7,6 +7,7 @@
         "net.redis.event.bus",
         "net.xunit",
         "net.kafka",
-        "net.event.sourcing"
+        "net.event.sourcing",
+        "net.event.store"
     ]
 }
