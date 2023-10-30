@@ -148,13 +148,9 @@ public class RedisEventBusService : IRedisEventBusService
 
                 if (this.eventBusOptions.EnableQueue)
                 {
-                    var queueType = typeof(IQueueService<,>);
+                    var queue = this.serviceProvider.GetService<IQueueService<TEventHandler, TEvent>>();
 
-                    queueType = queueType.MakeGenericType(subscription.EventHandlerType, subscription.EventType);
-
-                    var queue = this.serviceProvider.GetService(queueType);
-
-                    queue.GetType().GetMethod(nameof(IQueueService<TEventHandler, TEvent>.Enqueue)).Invoke(queue, new object[] { @event });
+                    queue.Enqueue(@event);
                 }
                 else
                 {
