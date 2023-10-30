@@ -1,68 +1,70 @@
-﻿
+﻿using System.Linq.Expressions;
+using System.Reflection;
+
 namespace CodeDesignPlus.Net.Core.Abstractions;
 
-/// <summary>
-/// Represents a base implementation of an aggregate root in a domain-driven design context.
-/// Aggregate roots are the primary entry points to aggregates, a cluster of domain objects 
-/// that are treated as a single unit for data changes.
-/// </summary>
-public abstract class AggregateRootBase<TKey> : IAggregateRoot<TKey>
+public abstract class AggregateRootBase<TUserKey> : IAggregateRoot<TUserKey>
 {
-    private readonly List<IDomainEvent> uncommittedEvents = new();
+    private static readonly Dictionary<Type, Delegate> instanceDelegatesCache = new();
 
-    /// <summary>
-    /// Gets or sets the id aggregate
-    /// </summary>
-    public TKey Id { get; set; }
-    /// <summary>
-    /// Gets or sets the version of the aggregate root. Useful for optimistic concurrency control.
-    /// </summary>
-    public long Version { get; set; }
-    /// <summary>
-    /// Gets or sets a value indicating whether the record is active.
-    /// </summary>
-    public bool IsActive { get; set; }
+    private static readonly Dictionary<Type, MethodInfo> applyMethodsCache = new();
 
-    /// <summary>
-    /// Adds the specified domain event to the list of uncommitted events.
-    /// </summary>
-    /// <param name="event">The domain event to be added.</param>
-    public void ApplyEvent(IDomainEvent @event)
+    private readonly List<(IDomainEvent Event, Metadata<TUserKey> Metadata)> uncommittedEvents = new();
+
+    public Guid Id { get; set; }
+    public long Version { get; set; } = -1;
+
+    private long Sequence = -1;
+
+    public virtual void ApplyChange(IDomainEvent @event, TUserKey idUser)
     {
-        this.Version++;
-        @event.Version = this.Version;
-        
-        this.uncommittedEvents.Add(@event);
+        this.Sequence++;
+        var metadata = new Metadata<TUserKey>(Guid.NewGuid(), @event.AggregateId, this.Sequence, DateTime.UtcNow, idUser);
+        this.uncommittedEvents.Add((@event, metadata));
+        ApplyEvent(@event, metadata);
     }
 
-    /// <summary>
-    /// Retrieves a read-only list of uncommitted events.
-    /// </summary>
-    /// <returns>A sequence of uncommitted domain events.</returns>
-    public IEnumerable<IDomainEvent> GetUncommittedEvents() => this.uncommittedEvents.AsReadOnly();
+    public virtual void ApplyEvent(IDomainEvent @event, Metadata<TUserKey> metadata)
+    {
+        var eventType = @event.GetType();
+        if (!applyMethodsCache.TryGetValue(eventType, out var applyMethod))
+        {
+            applyMethod = GetType().GetMethod("Apply", BindingFlags.NonPublic | BindingFlags.Instance, null, new Type[] { eventType, typeof(Metadata<TUserKey>) }, null);
+            if (applyMethod != null)
+            {
+                applyMethodsCache[eventType] = applyMethod;
+            }
+        }
 
-    /// <summary>
-    /// Clears all uncommitted events, typically called after these events have been persisted.
-    /// </summary>
+        applyMethod?.Invoke(this, new object[] { @event, metadata });
+    }
+
+    public static TAggregate Rehydrate<TAggregate>(IEnumerable<(IDomainEvent, Metadata<TUserKey>)> events)
+       where TAggregate : IAggregateRoot<TUserKey>
+    {
+        var aggregate = CreateOrGetDelegate<TAggregate>()();
+
+        foreach (var (@event, metadata) in events)
+        {
+            aggregate.ApplyEvent(@event, metadata);
+            aggregate.Version = metadata.Version;
+        }
+
+        return aggregate;
+    }
+
+    public static Func<T> CreateOrGetDelegate<T>()
+    {
+        if (!instanceDelegatesCache.TryGetValue(typeof(T), out var instanceDelegate))
+        {
+            instanceDelegate = Expression.Lambda<Func<T>>(Expression.New(typeof(T))).Compile();
+            instanceDelegatesCache[typeof(T)] = instanceDelegate;
+        }
+
+        return (Func<T>)instanceDelegate;
+    }
+
+    public IReadOnlyList<(IDomainEvent Event, Metadata<TUserKey> Metadata)> UncommittedEvents => this.uncommittedEvents.AsReadOnly();
+
     public void ClearUncommittedEvents() => this.uncommittedEvents.Clear();
-}
-
-/// <summary>
-/// Represents a base implementation of an aggregate root in a domain-driven design context.
-/// Aggregate roots are the primary entry points to aggregates, a cluster of domain objects 
-/// that are treated as a single unit for data changes.
-/// </summary>
-/// <typeparam name="TKey">The type of the primary key for this aggregate root.</typeparam>
-/// <typeparam name="TUserKey">The type of the user key for this aggregate root.</typeparam>
-public abstract class AggregateRootBase<TKey, TUserKey> : AggregateRootBase<TKey>, IAggregateRoot<TKey, TUserKey>
-{
-    /// <summary>
-    /// Gets or sets the identifier of the user who created the aggregate root.
-    /// </summary>
-    public TUserKey IdUserCreator { get; set; }
-
-    /// <summary>
-    /// Gets or sets the creation date of the aggregate root.
-    /// </summary>
-    public DateTime DateCreated { get; set; }
 }
