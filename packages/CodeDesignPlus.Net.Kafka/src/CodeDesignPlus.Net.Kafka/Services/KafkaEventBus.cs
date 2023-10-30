@@ -164,13 +164,9 @@ public class KafkaEventBus : IKafkaEventBus
 
                 if (this.eventBusOptions.EnableQueue)
                 {
-                    var queueType = typeof(IQueueService<,>);
+                    var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
 
-                    queueType = queueType.MakeGenericType(subscription.EventHandlerType, subscription.EventType);
-
-                    var queue = this.serviceProvider.GetRequiredService(queueType);
-
-                    queue.GetType().GetMethod(nameof(IQueueService<TEventHandler, TEvent>.Enqueue)).Invoke(queue, new object[] { @event });
+                    queue.Enqueue(@event);
                 }
                 else
                 {
