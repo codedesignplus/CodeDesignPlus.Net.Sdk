@@ -2,21 +2,14 @@
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 
-public class EventSourcingServiceFake : IEventSourcingService
+public class EventSourcingServiceFake : IEventSourcingService<Guid>
 {
-    public Task AppendEventAsync<TDomainEvent>(TDomainEvent @event) where TDomainEvent : IDomainEvent
+    public Task AppendEventAsync<TDomainEvent>(TDomainEvent @event, Metadata<Guid> metadata) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public Task AppendEventAsync<TDomainEvent, TMetadata>(TDomainEvent @event)
-        where TDomainEvent : IDomainEvent<TMetadata>
-        where TMetadata : class
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<int> GetAggregateVersionAsync(Guid aggregateId)
+    public Task<long> GetAggregateVersionAsync(Guid aggregateId)
     {
         throw new NotImplementedException();
     }
@@ -26,61 +19,37 @@ public class EventSourcingServiceFake : IEventSourcingService
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<IDomainEvent>> LoadEventsForAggregateAsync(Guid aggregateId)
+    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> LoadEventsForAggregateAsync(Guid aggregateId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<TDomainEvent>> LoadEventsForAggregateAsync<TDomainEvent, TMetadata>(Guid aggregateId)
-        where TDomainEvent : IDomainEvent<TMetadata>
-        where TMetadata : class
+    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> LoadEventsFromPositionAsync(long position)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<TDomainEvent>> LoadEventsFromPositionAsync<TDomainEvent>(long position) where TDomainEvent : IDomainEvent
+    public Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate>(Guid aggregateId) where TAggregate : IAggregateRoot<Guid>
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<TDomainEvent>> LoadEventsFromPositionAsync<TDomainEvent, TMetadata>(long position)
-        where TDomainEvent : IDomainEvent<TMetadata>
-        where TMetadata : class
+    public Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot<Guid>
     {
         throw new NotImplementedException();
     }
 
-    public Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate, TKey>(Guid aggregateId) where TAggregate : IAggregateRoot<TKey>
+    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsByCategoryAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate, TKey, TUserKey>(Guid aggregateId) where TAggregate : IAggregateRoot<TKey, TUserKey>
+    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsByEventTypeAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public Task SaveSnapshotAsync<TAggregate, TKey>(TAggregate aggregate) where TAggregate : IAggregateRoot<TKey>
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task SaveSnapshotAsync<TAggregate, TKey, TUserKey>(TAggregate aggregate) where TAggregate : IAggregateRoot<TKey, TUserKey>
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<TDomainEvent>> SearchEventsByCategoryAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<TDomainEvent>> SearchEventsByEventTypeAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<IDomainEvent>> SearchEventsByStreamAsync(string streamName)
+    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> SearchEventsByStreamAsync(string streamName)
     {
         throw new NotImplementedException();
     }
