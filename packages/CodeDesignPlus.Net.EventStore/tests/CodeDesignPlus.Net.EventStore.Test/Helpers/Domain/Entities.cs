@@ -10,32 +10,12 @@ public class OrderProduct
 public class Client
 {
     public Guid Id { get; set; }
-    public string Name { get; private set; }
-    // Otras propiedades, como dirección, teléfono, etc.
-
-    // Constructor
-    public Client(string name)
-    {
-        Id = Guid.NewGuid();
-        Name = name;
-    }
-
-    // Métodos relacionados con el cliente (como actualizar información, etc.)
+    public string? Name { get; set; }
 }
 
 public class Product
 {
     public Guid Id { get; set; }
-    public string Name { get; private set; }
-    public decimal Price { get; private set; }
-
-    // Constructor para cuando se crea un nuevo producto
-    public Product(string name, decimal price)
-    {
-        Id = Guid.NewGuid();
-        Name = name;
-        Price = price;
-    }
-
-    // Métodos relacionados con el producto (como actualizar precio, nombre, etc.)
+    public string? Name { get; set; }
+    public decimal Price { get; set; }
 }

@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.Event.Sourcing.Extensions;
 using CodeDesignPlus.Net.Event.Sourcing.Options;
 using CodeDesignPlus.Net.EventStore.Extensions;
@@ -19,7 +20,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     }
 
     [Fact]
-    public async Task AppendEventAsync_CheckAppend_SameEvent()
+    public async Task AppendEventAsync_CheckAppend_SameAggregate()
     {
         // Arrange
         var configuration = ConfigurationUtil.GetConfiguration(new
@@ -40,36 +41,93 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var eventSourcing = serviceProvider.GetRequiredService<IEventSourcingService>();
+        var eventSourcing = serviceProvider.GetRequiredService<IEventSourcingService<Guid>>();
 
-        try
+        var idAggregator = Guid.NewGuid();
+        var idUserCreator = Guid.NewGuid();
+        var idUserEvent = Guid.NewGuid();
+        var idProductUpdate = Guid.NewGuid();
+        var idProductRemove = Guid.NewGuid();
+
+        var client = new Client()
         {
+            Name = "CodeDesignPlus",
+            Id = Guid.NewGuid()
+        };
 
-            var order = new OrderAggregateRoot(DateTime.UtcNow, new Client("CodeDesignPlus"), Guid.NewGuid());
-
-            order.Version = await eventSourcing.GetAggregateVersionAsync(order.Id);
-
-            order.AddProduct(new Product("TV", 10000), 1);
-            order.AddProduct(new Product("Phone", 20000), 1);
-            order.AddProduct(new Product("Xbox X", 30000), 1);
-
-            order.CompleteOrder();
-
-            foreach (var @event in order.GetUncommittedEvents())
-            {
-                await eventSourcing.AppendEventAsync(@event);
-            }
-
-            var allEvents = await eventSourcing.LoadEventsForAggregateAsync(order.Id);
-
-            Assert.NotEmpty(allEvents);
-        }
-        catch (System.Exception ex)
+        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        
+        orderExpected.AddProduct(new Product()
         {
+            Id = Guid.NewGuid(),
+            Name = "TV",
+            Price = 10000
+        }, 1, idUserEvent);
+        
+        orderExpected.AddProduct(new Product()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Phone",
+            Price = 10000
+        }, 3, idUserEvent);
 
-            throw;
+        orderExpected.AddProduct(new Product()
+        {
+            Id = idProductRemove,
+            Name = "Monitor",
+            Price = 10000
+        }, 7, idUserEvent);
+
+        orderExpected.AddProduct(new Product()
+        {
+            Id = idProductUpdate,
+            Name = "Mouse",
+            Price = 10000
+        }, 10, idUserEvent);
+
+        orderExpected.UpdateProductQuantity(idProductUpdate, 20, idUserEvent);
+
+        orderExpected.RemoveProduct(idProductRemove, idUserEvent);
+
+        orderExpected.CompleteOrder(idUserEvent);
+
+        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        {
+            await eventSourcing.AppendEventAsync(@event, metadata);
         }
 
+
+        //----------------------------------------------------------------------
+
+        var allEvents = await eventSourcing.LoadEventsForAggregateAsync(orderExpected.Id);
+
+        var order = OrderAggregateRoot.Rehydrate<OrderAggregateRoot>(allEvents);
+
+        Assert.Equal(orderExpected.Id, order.Id);
+        Assert.Equal(orderExpected.Status, order.Status);
+        Assert.Equal(orderExpected.CancellationDate, order.CancellationDate);
+        Assert.Equal(orderExpected.DateCreated, order.DateCreated);
+        Assert.NotNull(orderExpected.Client);
+        Assert.NotNull(order.Client);
+        Assert.Equal(orderExpected.Client.Id, order.Client.Id);
+        Assert.Equal(orderExpected.Client.Name, order.Client.Name);
+        Assert.Equal(orderExpected.UncommittedEvents.Count() - 1, order.Version);
+        Assert.Equal(orderExpected.CompletionDate, order.CompletionDate);
+        Assert.Equal(orderExpected.IdUserCreator, order.IdUserCreator);
+        Assert.Contains(
+            orderExpected.Products, 
+            x => order.Products
+                .Any(o => 
+                    o.Quantity == x.Quantity 
+                    && o.Product.Id == x.Product.Id 
+                    && o.Product.Name == x.Product.Name 
+                    && o.Product.Price == o.Product.Price
+                )
+        );
+
+        
+        orderExpected.ClearUncommittedEvents();
+        
     }
 }
 

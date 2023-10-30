@@ -1,39 +1,34 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
+﻿using Newtonsoft.Json;
+using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 
-public class OrderCreatedEvent : ThinDomainEventBase<OrderMetadata>
+public class OrderCreatedEvent : DomainEventBase
 {
+    public OrderCreatedEvent(Guid aggregateId, Guid idUserCreator, OrderStatus orderStatus, Domain.Client client, DateTime dateCreated)
+        : base(aggregateId)
+    {
+        this.DateCreated = dateCreated;
+        this.Client = client;
+        this.OrderStatus = orderStatus;
+        this.IdUserCreator = idUserCreator;
+    }
+
+    public Domain.Client Client { get; }
+    public OrderStatus OrderStatus { get; }
+    public Guid IdUserCreator { get; }
     public DateTime DateCreated { get; }
-    public Guid ClientId { get; }
-
-    public OrderCreatedEvent(Guid orderId, DateTime dateCreated, Guid clientId, OrderMetadata metadata)
-        : base(orderId, metadata)
-    {
-        DateCreated = dateCreated;
-        ClientId = clientId;
-    }
 }
 
-public class OrderUpdatedEvent : ThinDomainEventBase<OrderMetadata>
-{
-    public DateTime UpdatedDate { get; }
-
-    public OrderUpdatedEvent(Guid orderId, DateTime updatedDate, OrderMetadata metadata)
-        : base(orderId, metadata)
-    {
-        UpdatedDate = updatedDate;
-    }
-}
-
-public class OrderCompletedEvent : ThinDomainEventBase<OrderMetadata>
+public class OrderCompletedEvent : DomainEventBase
 {
     public DateTime CompletionDate { get; }
 
-    public OrderCompletedEvent(Guid orderId, DateTime completionDate, OrderMetadata metadata)
-        : base(orderId, metadata)
+    public OrderCompletedEvent(Guid aggregateId, DateTime completionDate)
+      : base(aggregateId)
     {
-        CompletionDate = completionDate;
+        this.CompletionDate = completionDate;
     }
 }
 
@@ -42,10 +37,10 @@ public class OrderCancelledEvent : DomainEventBase
     public DateTime CancellationDate { get; }
     public string Reason { get; }
 
-    public OrderCancelledEvent(Guid orderId, DateTime cancellationDate, string reason)
-        : base(orderId)
+    public OrderCancelledEvent(Guid aggregateId,  DateTime cancellationDate, string reason)
+        : base(aggregateId)
     {
-        CancellationDate = cancellationDate;
-        Reason = reason;
+        this.CancellationDate = cancellationDate;
+        this.Reason = reason;
     }
 }

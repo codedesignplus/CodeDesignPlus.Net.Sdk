@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IEventStoreConnection, EventStoreConnection>();
         services.AddSingleton<IEventStoreFactory, EventStoreFactory>();
-        services.AddSingleton<IEventStoreService, EventStoreService>();
+        services.AddSingleton(typeof(IEventStoreService<>), typeof(EventStoreService<>));
 
         return services;
     }
