@@ -4,5 +4,7 @@ public static class OptionsUtil
 {
     public static readonly EventSourcingOptions Options = new()
     {
+        MainName = "",
+        SnapshotSuffix = ""
     };
 }

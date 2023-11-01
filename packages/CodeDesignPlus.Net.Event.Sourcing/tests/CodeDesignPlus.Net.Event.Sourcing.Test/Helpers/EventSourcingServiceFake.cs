@@ -1,8 +1,9 @@
-﻿namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
+﻿
+namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 
-public class EventSourcingServiceFake : IEventSourcingService<Guid>
+public class EventSourcingServiceFake<TUserKey> : IEventSourcingService<TUserKey>
 {
-    public Task AppendEventAsync<TDomainEvent>(TDomainEvent @event, Metadata<Guid> metadata) where TDomainEvent : IDomainEvent
+    public Task AppendEventAsync<TDomainEvent>(TDomainEvent @event, Metadata<TUserKey> metadata) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
@@ -12,32 +13,32 @@ public class EventSourcingServiceFake : IEventSourcingService<Guid>
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> LoadEventsAsync(string category, Guid aggregateId)
+    public Task<IEnumerable<(IDomainEvent, Metadata<TUserKey>)>> LoadEventsAsync(string category, Guid aggregateId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId) where TAggregate : IAggregateRoot<Guid>
+    public Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId) where TAggregate : IAggregateRoot<TUserKey>
     {
         throw new NotImplementedException();
     }
 
-    public Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot<Guid>
+    public Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot<TUserKey>
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> SearchEventsAsync(string streamName)
+    public Task<IEnumerable<(IDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync(string streamName)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
+    public Task<IEnumerable<(TDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
+    public Task<IEnumerable<(TDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }

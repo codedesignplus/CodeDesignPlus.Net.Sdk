@@ -2,7 +2,7 @@
 global using System.Text.Json;
 global using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 global using CodeDesignPlus.Net.Event.Sourcing.Exceptions;
-global using CodeDesignPlus.Net.Event.Sourcing.Options;
+global using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 global using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Configuration.Json;

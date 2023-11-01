@@ -11,12 +11,12 @@ public abstract class AggregateRootBase<TUserKey> : IAggregateRoot<TUserKey>
     public abstract string Category {get; protected set;}
     public Guid Id { get; set; }
     public long Version { get; set; } = -1;
-    private long Sequence = -1;
+    private long sequence = -1;
 
     public virtual void ApplyChange(IDomainEvent @event, TUserKey idUser)
     {
-        this.Sequence++;
-        var metadata = new Metadata<TUserKey>(@event.AggregateId, this.Sequence, idUser, Category);
+        this.sequence++;
+        var metadata = new Metadata<TUserKey>(@event.AggregateId, this.sequence, idUser, Category);
         this.uncommittedEvents.Add((@event, metadata));
         ApplyEvent(@event, metadata);
     }

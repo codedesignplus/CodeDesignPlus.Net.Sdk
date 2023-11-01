@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Options;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Without.Event.Sourcing.Test;
 

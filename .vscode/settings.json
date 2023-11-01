@@ -11,6 +11,7 @@
         "net.event.store",
         "net.eventstore.pubsub",
         "net.pubsub",
-        "net.redis.pubsub"
+        "net.redis.pubsub",
+        "net.security"
     ]
 }

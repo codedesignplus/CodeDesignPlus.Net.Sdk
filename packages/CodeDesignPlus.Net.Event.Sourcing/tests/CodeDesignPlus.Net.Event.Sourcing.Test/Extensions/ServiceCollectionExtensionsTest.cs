@@ -66,7 +66,7 @@ public class ServiceCollectionExtensionsTest
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(EventSourcingServiceFake), libraryService.ImplementationType);
+        Assert.Equal(typeof(EventSourcingServiceFake<>), libraryService.ImplementationType);
     }
 
     [Fact]
@@ -94,6 +94,4 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(OptionsUtil.Options.MainName, value.MainName);
         Assert.Equal(OptionsUtil.Options.SnapshotSuffix, value.SnapshotSuffix);
     }
-
-
 }
