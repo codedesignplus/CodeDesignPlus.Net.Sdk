@@ -32,6 +32,9 @@ namespace CodeDesignPlus.Net.Event.Bus.Abstractions
         /// <returns> true if the current object is equal to the other parameter; otherwise, false.</returns>
         public virtual bool Equals([AllowNull] EventBase other)
         {
+            if (other == null)
+                return false;
+                
             return this.IdEvent == other.IdEvent;
         }
 
