@@ -124,7 +124,7 @@ public class RepositoryBaseTest
         {
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
-            State = true,
+            IsActive = true,
             DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         };
@@ -145,7 +145,7 @@ public class RepositoryBaseTest
         Assert.Equal(nameof(Application.Name), result.Name);
         Assert.Equal(nameof(Application.Description), result.Description);
         Assert.Equal(entity.IdUserCreator, result.IdUserCreator);
-        Assert.Equal(entity.State, result.State);
+        Assert.Equal(entity.IsActive, result.IsActive);
         Assert.Equal(entity.DateCreated, result.DateCreated);
     }
 
@@ -189,7 +189,7 @@ public class RepositoryBaseTest
         {
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
-            State = true,
+            IsActive = true,
             DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         });
@@ -202,7 +202,7 @@ public class RepositoryBaseTest
         applicationUpdate.Description = "New Description";
         applicationUpdate.Name = "New Name";
         applicationUpdate.DateCreated = DateTime.MaxValue;
-        applicationUpdate.State = false;
+        applicationUpdate.IsActive = false;
         applicationUpdate.IdUserCreator = 100;
 
         var success = await repository.UpdateAsync(applicationUpdate);
@@ -214,7 +214,7 @@ public class RepositoryBaseTest
         Assert.NotNull(result);
         Assert.Equal("New Name", result.Name);
         Assert.Equal("New Description", result.Description);
-        Assert.False(result.State);
+        Assert.False(result.IsActive);
         Assert.Equal(applicationCreated.IdUserCreator, result.IdUserCreator);
         Assert.Equal(applicationCreated.DateCreated, result.DateCreated);
     }
@@ -281,7 +281,7 @@ public class RepositoryBaseTest
         {
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
-            State = true,
+            IsActive = true,
             DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         });
@@ -330,7 +330,7 @@ public class RepositoryBaseTest
             {
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
@@ -338,7 +338,7 @@ public class RepositoryBaseTest
             {
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
@@ -396,7 +396,7 @@ public class RepositoryBaseTest
             {
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
@@ -405,7 +405,7 @@ public class RepositoryBaseTest
             {
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
@@ -422,21 +422,21 @@ public class RepositoryBaseTest
         var entitiesCreated = await repository.CreateRangeAsync(entities);
 
         // Act
-        var entitiesUpdate = await repository.GetEntity<Application>().Where(x => x.State).ToListAsync();
+        var entitiesUpdate = await repository.GetEntity<Application>().Where(x => x.IsActive).ToListAsync();
 
         entitiesUpdate.ForEach(x =>
         {
             x.Description = "New Description";
             x.Name = "New Name";
             x.DateCreated = DateTime.MaxValue;
-            x.State = false;
+            x.IsActive = false;
             x.IdUserCreator = 100;
         });
 
         var success = await repository.UpdateRangeAsync(entitiesUpdate);
 
         // Assert
-        var result = await repository.GetEntity<Application>().Where(x => !x.State).ToListAsync();
+        var result = await repository.GetEntity<Application>().Where(x => !x.IsActive).ToListAsync();
 
         Assert.True(success);
 
@@ -444,7 +444,7 @@ public class RepositoryBaseTest
         {
             Assert.Equal("New Name", item.Name);
             Assert.Equal("New Description", item.Description);
-            Assert.False(item.State);
+            Assert.False(item.IsActive);
         }
     }
 
@@ -485,7 +485,7 @@ public class RepositoryBaseTest
             {
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
@@ -493,7 +493,7 @@ public class RepositoryBaseTest
             {
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
@@ -510,7 +510,7 @@ public class RepositoryBaseTest
         var entitiesCreated = await repository.CreateRangeAsync(entities);
 
         // Act
-        var entitiesDelete = await repository.GetEntity<Application>().Where(x => x.State).ToListAsync();
+        var entitiesDelete = await repository.GetEntity<Application>().Where(x => x.IsActive).ToListAsync();
 
         var success = await repository.DeleteRangeAsync(entitiesDelete);
 
@@ -551,7 +551,7 @@ public class RepositoryBaseTest
         {
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
-            State = true,
+            IsActive = true,
             DateCreated = DateTime.UtcNow,
             Description = nameof(Application.Description)
         };
@@ -567,7 +567,7 @@ public class RepositoryBaseTest
         var entityCreate = await repository.CreateAsync(entity);
 
         // Act 
-        var success = await repository.ChangeStateAsync<Application>(entityCreate.Id, !entityCreate.State);
+        var success = await repository.ChangeStateAsync<Application>(entityCreate.Id, !entityCreate.IsActive);
 
         // Assert
         Assert.True(success);
@@ -598,7 +598,7 @@ public class RepositoryBaseTest
             {
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             });
@@ -637,7 +637,7 @@ public class RepositoryBaseTest
                 {
                     Name = nameof(Application.Name),
                     IdUserCreator = new Random().Next(1, 15),
-                    State = true,
+                    IsActive = true,
                     DateCreated = DateTime.UtcNow,
                     Description = nameof(Application.Description)
                 });

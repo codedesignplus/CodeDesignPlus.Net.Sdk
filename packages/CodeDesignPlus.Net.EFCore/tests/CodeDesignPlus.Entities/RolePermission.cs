@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Entities
         public long IdApplication { get; set; }
         public long IdPermission { get; set; }
         public string NameRole { get; set; }
-        public bool State { get; set; }
+        public bool IsActive { get; set; }
         public int IdUserCreator { get; set; }
         public DateTime DateCreated { get; set; }
 

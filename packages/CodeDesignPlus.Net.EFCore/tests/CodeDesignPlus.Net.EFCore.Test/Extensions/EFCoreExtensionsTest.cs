@@ -38,20 +38,20 @@ public class EFCoreExtensionsTest
         // Act
         var idProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.Id));
         var idUserCreatorProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.IdUserCreator));
-        var stateProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.State));
+        var IsActiveProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.IsActive));
         var dateCreatedProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.DateCreated));
 
         // Assert
         Assert.NotNull(idProperty);
         Assert.NotNull(idUserCreatorProperty);
-        Assert.NotNull(stateProperty);
+        Assert.NotNull(IsActiveProperty);
         Assert.NotNull(dateCreatedProperty);
 
         Assert.True(idProperty.IsPrimaryKey());
         Assert.False(idProperty.IsNullable);
         Assert.Equal(ValueGenerated.OnAdd, idProperty.ValueGenerated);
         Assert.False(idUserCreatorProperty.IsNullable);
-        Assert.False(stateProperty.IsNullable);
+        Assert.False(IsActiveProperty.IsNullable);
         Assert.False(dateCreatedProperty.IsNullable);
     }
 
@@ -108,7 +108,7 @@ public class EFCoreExtensionsTest
             {
                 Name = $"{nameof(Application.Name)}-{i}",
                 IdUserCreator = new Random().Next(1, 15),
-                State = true,
+                IsActive = true,
                 DateCreated = DateTime.UtcNow,
                 Description = $"{nameof(Application.Description)}-{i}"
             });

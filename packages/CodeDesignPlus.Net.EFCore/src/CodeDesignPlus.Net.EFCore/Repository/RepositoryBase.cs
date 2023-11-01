@@ -219,7 +219,7 @@ namespace CodeDesignPlus.Net.EFCore.Repository;
 
          if (entity != null)
          {
-             entity.State = state;
+             entity.IsActive = state;
 
              return await this.Context.SaveChangesAsync(cancellationToken) > 0;
          }

@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CodeDesignPlus.Net.EFCore.Options;
+namespace CodeDesignPlus.Net.EFCore.Abstractions.Options;
 
 /// <summary>
 /// Claims available to obtain user information

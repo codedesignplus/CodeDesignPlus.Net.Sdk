@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using CodeDesignPlus.Net.EFCore.Exceptions;
-using CodeDesignPlus.Net.EFCore.Options;
+using CodeDesignPlus.Net.EFCore.Abstractions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
