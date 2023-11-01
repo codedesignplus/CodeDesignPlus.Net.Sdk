@@ -9,6 +9,7 @@
         "net.kafka",
         "net.event.sourcing",
         "net.event.store",
-        "net.eventstore.pubsub"
+        "net.eventstore.pubsub",
+        "net.pubsub"
     ]
 }
