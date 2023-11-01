@@ -24,6 +24,7 @@
 
   <ItemGroup>	
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
+	<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Bus\src\CodeDesignPlus.Net.Event.Bus\CodeDesignPlus.Net.Event.Bus.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -9,27 +9,17 @@ public class EventSourcingServiceFake : IEventSourcingService<Guid>
         throw new NotImplementedException();
     }
 
-    public Task<long> GetAggregateVersionAsync(Guid aggregateId)
+    public Task<long> GetVersionAsync(string category, Guid aggregateId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<long> GetEventStreamPositionAsync()
+    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> LoadEventsAsync(string category, Guid aggregateId)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> LoadEventsForAggregateAsync(Guid aggregateId)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> LoadEventsFromPositionAsync(long position)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<TAggregate> LoadSnapshotForAggregateAsync<TAggregate>(Guid aggregateId) where TAggregate : IAggregateRoot<Guid>
+    public Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId) where TAggregate : IAggregateRoot<Guid>
     {
         throw new NotImplementedException();
     }
@@ -39,17 +29,17 @@ public class EventSourcingServiceFake : IEventSourcingService<Guid>
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsByCategoryAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
+    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> SearchEventsAsync(string streamName)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsByEventTypeAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
+    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(IDomainEvent, Metadata<Guid>)>> SearchEventsByStreamAsync(string streamName)
+    public Task<IEnumerable<(TDomainEvent, Metadata<Guid>)>> SearchEventsAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
