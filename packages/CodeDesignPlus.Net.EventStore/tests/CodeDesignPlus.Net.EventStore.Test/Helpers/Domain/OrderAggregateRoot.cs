@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 using StackExchange.Redis;
 
@@ -14,6 +14,8 @@ public enum OrderStatus
 
 public class OrderAggregateRoot : AggregateRootBase<Guid>
 {
+    public override string Category { get; protected set; } = "Order";
+    
     public DateTime CompletionDate { get; private set; }
     public DateTime CancellationDate { get; private set; }
     public Client? Client { get; private set; }

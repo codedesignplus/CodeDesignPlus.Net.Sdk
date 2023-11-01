@@ -1,5 +1,5 @@
 ﻿using Newtonsoft.Json;
-using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Events;

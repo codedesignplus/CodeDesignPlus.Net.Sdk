@@ -1,7 +1,5 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.Event.Sourcing.Extensions;
-using CodeDesignPlus.Net.Event.Sourcing.Options;
 using CodeDesignPlus.Net.EventStore.Extensions;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
@@ -99,7 +97,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         //----------------------------------------------------------------------
 
-        var allEvents = await eventSourcing.LoadEventsForAggregateAsync(orderExpected.Id);
+        var allEvents = await eventSourcing.LoadEventsAsync(orderExpected.Category, orderExpected.Id);
 
         var order = OrderAggregateRoot.Rehydrate<OrderAggregateRoot>(allEvents);
 
@@ -126,9 +124,21 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         );
 
         
-        orderExpected.ClearUncommittedEvents();
-        
+        orderExpected.ClearUncommittedEvents();    
+
+        // Snapshot    
+
+        await eventSourcing.SaveSnapshotAsync(order);
+
+        var orderSnapshot = await eventSourcing.LoadSnapshotAsync<OrderAggregateRoot>(orderExpected.Category, order.Id);
+
+        var productAddedToOrderEvent = await eventSourcing.SearchEventsAsync<ProductAddedToOrderEvent>();
+
+        var productAddedToOrderEvent2 = await eventSourcing.SearchEventsAsync<ProductAddedToOrderEvent>(order.Category);
+
+        EventStoreService<Guid> eventStore = (EventStoreService<Guid>)eventSourcing;
     }
+    
 }
 
 
