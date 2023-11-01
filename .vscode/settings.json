@@ -8,6 +8,7 @@
         "net.xunit",
         "net.kafka",
         "net.event.sourcing",
-        "net.event.store"
+        "net.event.store",
+        "net.eventstore.pubsub"
     ]
 }

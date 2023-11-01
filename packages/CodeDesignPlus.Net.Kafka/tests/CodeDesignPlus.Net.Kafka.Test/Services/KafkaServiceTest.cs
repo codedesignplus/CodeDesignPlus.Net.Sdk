@@ -102,9 +102,9 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
 
         var testServer = BuildTestServer(enableQueue, this.testOutput, gorup);
 
-        var eventBus = testServer.Host.Services.GetRequiredService<IEventBus>();
+        var pubSub = testServer.Host.Services.GetRequiredService<IEventBus>();
 
-        await eventBus.PublishAsync(@event, CancellationToken.None);
+        await pubSub.PublishAsync(@event, CancellationToken.None);
 
         UserCreatedEvent? userEvent;
 

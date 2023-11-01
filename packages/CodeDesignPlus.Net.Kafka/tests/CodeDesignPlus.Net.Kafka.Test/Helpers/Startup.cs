@@ -41,8 +41,8 @@ public class Startup
         // {
         //     endpoints.MapPost("/publish", async context =>
         //     {
-        //         var eventBus = context.RequestServices.GetRequiredService<IEventBus>();
-        //         await eventBus.PublishAsync(new StartupLogic.StartupMessage()); // Ejemplo de publicación
+        //         var pubSub = context.RequestServices.GetRequiredService<IEventBus>();
+        //         await pubSub.PublishAsync(new StartupLogic.StartupMessage()); // Ejemplo de publicación
 
                 
 

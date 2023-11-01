@@ -18,7 +18,7 @@ public class KafkaEventBus : IKafkaEventBus
     private readonly KafkaOptions options;
     private readonly IServiceProvider serviceProvider;
     private readonly ISubscriptionManager subscriptionManager;
-    private readonly EventBusOptions eventBusOptions;
+    private readonly EventBusOptions pubSubOptions;
 
 
     /// <summary>
@@ -28,20 +28,20 @@ public class KafkaEventBus : IKafkaEventBus
     /// <param name="options">Configuration options for Kafka.</param>
     /// <param name="serviceProvider">Provides an instance of a service.</param>
     /// <param name="subscriptionManager">Manages event subscriptions.</param>	
-    /// <param name="eventBusOptions">Configuration options for the event bus.</param>
-    public KafkaEventBus(ILogger<KafkaEventBus> logger, IOptions<KafkaOptions> options, ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider, IOptions<EventBusOptions> eventBusOptions)
+    /// <param name="pubSubOptions">Configuration options for the event bus.</param>
+    public KafkaEventBus(ILogger<KafkaEventBus> logger, IOptions<KafkaOptions> options, ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider, IOptions<EventBusOptions> pubSubOptions)
     {
         if (options == null)
             throw new ArgumentNullException(nameof(options));
 
-        if (eventBusOptions == null)
-            throw new ArgumentNullException(nameof(eventBusOptions));
+        if (pubSubOptions == null)
+            throw new ArgumentNullException(nameof(pubSubOptions));
 
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.options = options.Value;
-        this.eventBusOptions = eventBusOptions.Value;
+        this.pubSubOptions = pubSubOptions.Value;
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ public class KafkaEventBus : IKafkaEventBus
             {
                 this.logger.LogDebug("Event {EventType} is being handled by {EventHandlerType}", subscription.EventType.Name, subscription.EventHandlerType.Name);
 
-                if (this.eventBusOptions.EnableQueue)
+                if (this.pubSubOptions.EnableQueue)
                 {
                     var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
 
