@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Core.Services;
 
@@ -34,7 +34,7 @@ public class CoreService : ICoreService
     /// <returns>A task that represents the asynchronous echo operation. The result of the task is the echoed value as a</returns>
     public Task<string> EchoAsync(string value)
     {
-        this.logger.LogDebug("{section}, Echo {enable}", options.Enable);
+        this.logger.LogDebug("{section}, Echo {enable}", options.AppName);
 
         return Task.FromResult(value);
     }
