@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Security.Abstractions;
 using CodeDesignPlus.Net.Security.Exceptions;
-using CodeDesignPlus.Net.Security.Options;
+using CodeDesignPlus.Net.Security.Abstractions.Options;
 using CodeDesignPlus.Net.Security.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

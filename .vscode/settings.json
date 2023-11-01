@@ -10,6 +10,7 @@
         "net.event.sourcing",
         "net.event.store",
         "net.eventstore.pubsub",
-        "net.pubsub"
+        "net.pubsub",
+        "net.redis.pubsub"
     ]
 }
