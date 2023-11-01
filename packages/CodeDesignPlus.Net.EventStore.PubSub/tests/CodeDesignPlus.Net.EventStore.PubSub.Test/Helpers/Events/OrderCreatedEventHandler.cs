@@ -1,8 +1,8 @@
-﻿using CodeDesignPlus.Net.Event.Bus.Abstractions;
-using CodeDesignPlus.Net.EventStore.Test.Helpers.Memory;
+﻿using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Memory;
 using Newtonsoft.Json;
 
-namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
 
 public class OrderCreatedEventHandler : IEventHandler<OrderCreatedEvent>
 {

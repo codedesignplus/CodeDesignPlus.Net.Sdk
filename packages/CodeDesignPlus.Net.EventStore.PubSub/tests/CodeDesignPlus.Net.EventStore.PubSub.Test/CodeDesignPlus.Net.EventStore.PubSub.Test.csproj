@@ -13,6 +13,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="7.0.12" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="7.0.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
@@ -30,9 +31,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CodeDesignPlus.Net.EventStore\CodeDesignPlus.Net.EventStore.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Sourcing\src\CodeDesignPlus.Net.Event.Sourcing\CodeDesignPlus.Net.Event.Sourcing.csproj" />
+    <ProjectReference Include="..\..\src\CodeDesignPlus.Net.EventStore.PubSub\CodeDesignPlus.Net.EventStore.PubSub.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.EventStore\src\CodeDesignPlus.Net.EventStore\CodeDesignPlus.Net.EventStore.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.xUnit\src\CodeDesignPlus.Net.xUnit\CodeDesignPlus.Net.xUnit.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Sourcing\src\CodeDesignPlus.Net.Event.Sourcing\CodeDesignPlus.Net.Event.Sourcing.csproj" />
   </ItemGroup>
 
 </Project>

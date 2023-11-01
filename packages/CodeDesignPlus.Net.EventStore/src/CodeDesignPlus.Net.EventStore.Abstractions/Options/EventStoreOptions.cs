@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CodeDesignPlus.Net.EventStore.Options;
+namespace CodeDesignPlus.Net.EventStore.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the EventStore

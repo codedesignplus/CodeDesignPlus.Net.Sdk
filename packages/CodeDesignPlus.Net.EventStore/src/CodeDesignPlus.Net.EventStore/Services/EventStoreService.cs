@@ -2,7 +2,7 @@
 using System.Text;
 using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using EventStore.ClientAPI;
-using CodeDesignPlus.Net.Event.Sourcing.Options;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using System.Reflection;

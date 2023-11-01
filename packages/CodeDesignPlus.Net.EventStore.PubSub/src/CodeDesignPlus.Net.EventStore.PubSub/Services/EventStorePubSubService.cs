@@ -1,28 +1,29 @@
 ﻿using System.Text;
-using CodeDesignPlus.Net.Event.Bus.Abstractions;
-using CodeDesignPlus.Net.Event.Bus.Options;
-using CodeDesignPlus.Net.EventStore.Options;
+using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using CodeDesignPlus.Net.EventStore.Abstractions;
+using CodeDesignPlus.Net.EventStore.Abstractions.Options;
 using EventStore.ClientAPI;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 
-namespace CodeDesignPlus.Net.EventStore;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
 
-public class EventStorePublishSubscribe : IEventBus
+public class EventStorePubSubService : IEventStorePubSubService, IPubSub
 {
     private IEventStoreFactory eventStoreFactory;
     private ISubscriptionManager subscriptionManager;
     private IServiceProvider serviceProvider;
-    private ILogger<EventStorePublishSubscribe> logger;
-    private EventBusOptions eventBusOptions;
+    private ILogger<EventStorePubSubService> logger;
+    private PubSubOptions pubSubOptions;
 
-    public EventStorePublishSubscribe(
+    public EventStorePubSubService(
         IEventStoreFactory eventStoreFactory,
         ISubscriptionManager subscriptionManager,
         IServiceProvider serviceProvider,
-        ILogger<EventStorePublishSubscribe> logger,
+        ILogger<EventStorePubSubService> logger,
         IOptions<EventStoreOptions> options,
-        IOptions<EventBusOptions> eventBusOptions)
+        IOptions<PubSubOptions> pubSubOptions)
     {
         if (eventStoreFactory == null)
             throw new ArgumentNullException(nameof(eventStoreFactory));
@@ -30,17 +31,17 @@ public class EventStorePublishSubscribe : IEventBus
         if (options == null)
             throw new ArgumentNullException(nameof(options));
 
-        if (eventBusOptions == null)
-            throw new ArgumentNullException(nameof(eventBusOptions));
+        if (pubSubOptions == null)
+            throw new ArgumentNullException(nameof(pubSubOptions));
 
         this.eventStoreFactory = eventStoreFactory;
 
         this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.eventBusOptions = eventBusOptions.Value;
+        this.pubSubOptions = pubSubOptions.Value;
 
-        this.logger.LogInformation("RedisEventBusService initialized.");
+        this.logger.LogInformation("RedisPubSubService initialized.");
     }
 
 

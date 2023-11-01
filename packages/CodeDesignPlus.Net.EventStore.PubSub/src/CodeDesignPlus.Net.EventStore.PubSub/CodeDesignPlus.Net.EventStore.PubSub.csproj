@@ -8,10 +8,10 @@
 		<Description>{Description}</Description>
 		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <PackageId>CodeDesignPlus.Net.EventStore</PackageId>
+    <PackageId>CodeDesignPlus.Net.EventStore.PubSub</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EventStore.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EventStore.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EventStore.PubSub.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EventStore.PubSub.git</PackageProjectUrl>
 		<PackageTags>{tags}</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
@@ -19,7 +19,7 @@
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.EventStore.xml</DocumentationFile>
+		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.EventStore.PubSub.xml</DocumentationFile>
 	</PropertyGroup>
 
   <ItemGroup>
@@ -30,9 +30,9 @@
   </ItemGroup>
 
   <ItemGroup>
-  
-    <ProjectReference Include="..\CodeDesignPlus.Net.EventStore.Abstractions\CodeDesignPlus.Net.EventStore.Abstractions.csproj" />
+    <ProjectReference Include="..\CodeDesignPlus.Net.EventStore.PubSub.Abstractions\CodeDesignPlus.Net.EventStore.PubSub.Abstractions.csproj" />
   </ItemGroup>
+  
 
   <ItemGroup>
 		<None Include="..\..\LICENSE.md">

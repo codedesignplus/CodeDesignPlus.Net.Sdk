@@ -1,10 +1,10 @@
 ﻿global using System.Text;
 global using System.Text.Json;
-global using CodeDesignPlus.Net.EventStore.Abstractions;
-global using CodeDesignPlus.Net.EventStore.Exceptions;
-global using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-global using CodeDesignPlus.Net.EventStore.Services;
-global using CodeDesignPlus.Net.EventStore.Test.Helpers;
+global using CodeDesignPlus.Net.EventStore.PubSub.Abstractions;
+global using CodeDesignPlus.Net.EventStore.PubSub.Exceptions;
+global using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
+global using CodeDesignPlus.Net.EventStore.PubSub.Services;
+global using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.Configuration.Json;
 global using Microsoft.Extensions.Configuration.Memory;

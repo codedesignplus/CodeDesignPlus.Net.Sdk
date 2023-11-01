@@ -1,6 +1,6 @@
-﻿using CodeDesignPlus.Net.Event.Bus.Abstractions;
-using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
-using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
+﻿using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
+using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
 using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 using Microsoft.AspNetCore.Hosting;
@@ -9,12 +9,12 @@ using Xunit.Abstractions;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Services;
 
-public class EventStorePublishSubscribeTest : IClassFixture<EventStoreContainer>
+public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
 {
     private readonly EventStoreContainer container;
     private readonly ITestOutputHelper testOutput;
 
-    public EventStorePublishSubscribeTest(ITestOutputHelper output, EventStoreContainer container)
+    public EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreContainer container)
     {
         this.container = container;
         this.testOutput = output;
@@ -26,15 +26,15 @@ public class EventStorePublishSubscribeTest : IClassFixture<EventStoreContainer>
     {
         var testServer = BuildTestServer(true, this.testOutput);
 
-        var eventBus = testServer.Host.Services.GetRequiredService<IEventBus>();
+        var pubSub = testServer.Host.Services.GetRequiredService<IPubSub>();
 
-        var @event = new OrderCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), Helpers.Domain.OrderStatus.Pending, new Client()
+        var @event = new OrderCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), OrderStatus.Pending, new Client()
         {
             Id = Guid.NewGuid(),
             Name = "Test",
         }, DateTime.UtcNow);
 
-        await eventBus.PublishAsync(@event, CancellationToken.None);
+        await pubSub.PublishAsync(@event, CancellationToken.None);
 
 
         OrderCreatedEvent? userEvent;
@@ -85,7 +85,7 @@ public class EventStorePublishSubscribeTest : IClassFixture<EventStoreContainer>
     {
         var json = JsonSerializer.Serialize(new
         {
-            EventBus = new
+            PubSub = new
             {
                 EnableQueue = enableQueue,
             },
@@ -94,7 +94,10 @@ public class EventStorePublishSubscribeTest : IClassFixture<EventStoreContainer>
                 MainName = "aggregate",
                 SnapshotSuffix = "snapshot"
             },
-            EventStore = OptionsUtil.EventStoreOptions
+            EventStore = OptionsUtil.EventStoreOptions,
+            EventStorePubSub = new {
+                Enable = true
+            }
         });
 
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json));

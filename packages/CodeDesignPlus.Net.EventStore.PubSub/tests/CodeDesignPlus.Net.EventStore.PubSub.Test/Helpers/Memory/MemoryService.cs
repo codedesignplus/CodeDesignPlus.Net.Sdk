@@ -1,6 +1,6 @@
-﻿using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
+﻿using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
 
-namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Memory;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Memory;
 
 public class MemoryService : IMemoryService
 {

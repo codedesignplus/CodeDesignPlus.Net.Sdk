@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 
-namespace CodeDesignPlus.Net.EventStore.Test;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Test;
 
  public class StartupLogic : IStartupServices
     {

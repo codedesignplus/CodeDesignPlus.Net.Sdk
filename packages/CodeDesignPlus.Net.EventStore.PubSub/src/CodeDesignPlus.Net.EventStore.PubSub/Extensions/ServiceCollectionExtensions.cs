@@ -1,10 +1,11 @@
-﻿using CodeDesignPlus.Net.EventStore.Exceptions;
-using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.Services;
+﻿using CodeDesignPlus.Net.EventStore.PubSub.Abstractions;
+using CodeDesignPlus.Net.EventStore.PubSub.Exceptions;
+using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
+using CodeDesignPlus.Net.EventStore.PubSub.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace CodeDesignPlus.Net.EventStore.Extensions;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -17,7 +18,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
     /// <param name="configuration">The configuration being bound.</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    public static IServiceCollection AddEventStore(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEventStorePubSub(this IServiceCollection services, IConfiguration configuration)
     {
         if (services == null)
             throw new ArgumentNullException(nameof(services));
@@ -25,19 +26,17 @@ public static class ServiceCollectionExtensions
         if (configuration == null)
             throw new ArgumentNullException(nameof(configuration));
 
-        var section = configuration.GetSection(EventStoreOptions.Section);
+        var section = configuration.GetSection(EventStorePubSubOptions.Section);
 
         if (!section.Exists())
-            throw new EventStoreException($"The section {EventStoreOptions.Section} is required.");
+            throw new EventStorePubSubException($"The section {EventStorePubSubOptions.Section} is required.");
 
         services
-            .AddOptions<EventStoreOptions>()
+            .AddOptions<EventStorePubSubOptions>()
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IEventStoreConnection, EventStoreConnection>();
-        services.AddSingleton<IEventStoreFactory, EventStoreFactory>();
-        services.AddSingleton(typeof(IEventStoreService<>), typeof(EventStoreService<>));
+        services.AddSingleton<IEventStorePubSubService, EventStorePubSubService>();
 
         return services;
     }
