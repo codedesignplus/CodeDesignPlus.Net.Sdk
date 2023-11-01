@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Event.Sourcing.Options;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Event.Sourcing

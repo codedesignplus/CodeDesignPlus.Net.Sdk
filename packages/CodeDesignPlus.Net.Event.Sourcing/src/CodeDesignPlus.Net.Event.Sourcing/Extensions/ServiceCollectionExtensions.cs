@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.Event.Sourcing.Exceptions;
-using CodeDesignPlus.Net.Event.Sourcing.Options;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using CodeDesignPlus.Net.Event.Sourcing.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Extensions;
 

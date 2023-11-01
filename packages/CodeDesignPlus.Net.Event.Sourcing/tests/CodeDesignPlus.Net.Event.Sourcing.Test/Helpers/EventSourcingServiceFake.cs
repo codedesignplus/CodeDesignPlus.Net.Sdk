@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 
 public class EventSourcingServiceFake : IEventSourcingService<Guid>
 {

@@ -15,7 +15,7 @@ public class EventSourcingNotImplementedException : Exception
     }
 
     /// <summary>
-    /// Crea una nueva instancia de <see cref="EventBusException"/>
+    /// Crea una nueva instancia de <see cref="PubSubException"/>
     /// </summary>
     /// <param name="message">Mensaje del error</param>
     public EventSourcingNotImplementedException(string message) : base(message)
