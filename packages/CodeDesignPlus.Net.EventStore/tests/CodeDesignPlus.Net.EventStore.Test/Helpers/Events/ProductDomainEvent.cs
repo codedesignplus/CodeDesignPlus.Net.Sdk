@@ -10,8 +10,8 @@ public class ProductAddedToOrderEvent : DomainEventBase
     public int Quantity { get; }
     public Product Product { get; set; }
 
-    public ProductAddedToOrderEvent(Guid idAggregate, int quantity, Product product)
-        : base(idAggregate)
+    public ProductAddedToOrderEvent(Guid aggregateId, int quantity, Product product)
+        : base(aggregateId)
     {
         this.Product = product;
         this.Quantity = quantity;
@@ -22,8 +22,8 @@ public class ProductRemovedFromOrderEvent : DomainEventBase
 {
     public Guid ProductId { get; }
 
-    public ProductRemovedFromOrderEvent(Guid idAggregate, Guid productId)
-        : base(idAggregate)
+    public ProductRemovedFromOrderEvent(Guid aggregateId, Guid productId)
+        : base(aggregateId)
     {
         this.ProductId = productId;
     }
@@ -34,8 +34,8 @@ public class ProductQuantityUpdatedEvent : DomainEventBase
     public Guid ProductId { get; }
     public int NewQuantity { get; }
 
-    public ProductQuantityUpdatedEvent(Guid idAggregate, Guid productId, int newQuantity)
-        : base(idAggregate)
+    public ProductQuantityUpdatedEvent(Guid aggregateId, Guid productId, int newQuantity)
+        : base(aggregateId)
     {
         this.ProductId = productId;
         this.NewQuantity = newQuantity;

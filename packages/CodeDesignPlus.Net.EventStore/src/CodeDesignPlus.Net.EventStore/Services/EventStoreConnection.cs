@@ -39,24 +39,55 @@ public class EventStoreConnection : IEventStoreConnection
             throw new ArgumentNullException(nameof(server));
 
         var settings = ES.ConnectionSettings.Create()
-            .DisableTls() // Utilizado porque en el docker-compose deshabilitamos la seguridad
+            .SetClusterGossipPort(server.ConnectionString.Port)
+            .DisableTls()
             .UseConsoleLogger()
             .KeepReconnecting()
             .KeepRetrying();
 
         var connection = ES.EventStoreConnection.Create(settings, server.ConnectionString, this.coreOptions.AppName);
 
-        try
-        {
-            await connection.ConnectAsync();
-            this.logger.LogInformation("Successfully connected to EventStore.");
-        }
-        catch (Exception ex)
-        {
-            this.logger.LogError(ex, "Error while connecting to EventStore.");
-            throw;
-        }
+        connection.Connected += Connected;
+        connection.Disconnected += Disconnected;
+        connection.Reconnecting += Reconnecting;
+        connection.Closed += Closed;
+        connection.ErrorOccurred += ErrorOccurred;
+        connection.AuthenticationFailed += AuthenticationFailed;
+
+        await connection.ConnectAsync();
+
+        this.logger.LogInformation("Successfully connected to EventStore.");
 
         return connection;
+    }
+
+    private void AuthenticationFailed(object sender, ES.ClientAuthenticationFailedEventArgs e)
+    {
+        this.logger.LogError("Authentication failed in EventStore: {reason}", e.Reason);
+    }
+
+    private void ErrorOccurred(object sender, ES.ClientErrorEventArgs e)
+    {
+        this.logger.LogError(e.Exception, "Error occurred in EventStore: {exception}", e.Exception.Message);
+    }
+
+    private void Closed(object sender, ES.ClientClosedEventArgs e)
+    {
+        this.logger.LogInformation("EventStore connection closed: {reason}", e.Reason);
+    }
+
+    private void Reconnecting(object sender, ES.ClientReconnectingEventArgs e)
+    {
+        this.logger.LogInformation("Reconnecting to EventStore");
+    }
+
+    private void Disconnected(object sender, ES.ClientConnectionEventArgs e)
+    {
+        this.logger.LogInformation("EventStore connection disconnected.");
+    }
+
+    private void Connected(object sender, ES.ClientConnectionEventArgs e)
+    {
+        this.logger.LogInformation("EventStore connection established.");
     }
 }

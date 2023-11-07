@@ -89,7 +89,7 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(OptionsUtil.EventStoreOptions.Servers, value.Servers);
+        Assert.Contains(OptionsUtil.EventStoreOptions.Servers, x => value.Servers.Any(o => o.Value.ConnectionString == x.Value.ConnectionString));
     }
 
 

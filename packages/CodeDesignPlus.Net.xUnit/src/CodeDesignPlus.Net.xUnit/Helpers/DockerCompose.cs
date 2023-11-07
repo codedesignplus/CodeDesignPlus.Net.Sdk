@@ -1,11 +1,18 @@
 ﻿using Ductus.FluentDocker.Services;
+using Ductus.FluentDocker.Services.Extensions;
 
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 public abstract class DockerCompose : IDisposable
 {
+
+    protected string ContainerName;
     protected ICompositeService CompositeService;
     protected IHostService DockerHost;
+    protected bool EnableGetPort = false;
+
+    public string Ip { get; private set; }
+    public int Port { get; private set; }
 
     public DockerCompose()
     {
@@ -16,6 +23,16 @@ public abstract class DockerCompose : IDisposable
         try
         {
             this.CompositeService.Start();
+
+            if (EnableGetPort && !string.IsNullOrEmpty(this.ContainerName))
+            {
+                var container = this.CompositeService.Containers.FirstOrDefault(x => x.Name.StartsWith(this.ContainerName));
+
+                var endpoint = container.ToHostExposedEndpoint("1113/tcp");
+
+                this.Ip = endpoint.Address.ToString();
+                this.Port = endpoint.Port;
+            }
         }
         catch
         {

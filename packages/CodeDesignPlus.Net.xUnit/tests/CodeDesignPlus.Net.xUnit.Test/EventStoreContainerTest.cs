@@ -16,8 +16,8 @@ public class EventStoreContainerTest : IClassFixture<EventStoreContainer>
     public async Task CheckConnectionServer()
     {
         var connectionSettings = ConnectionSettings.Create()
-           .DisableTls() // Utilizado porque en el docker-compose deshabilitamos la seguridad
-           .UseConsoleLogger(); // Esto es útil para la depuración
+           .DisableTls()
+           .UseConsoleLogger();
 
         var connection = EventStoreConnection.Create(connectionSettings, new Uri("tcp://localhost:1113"));
         await connection.ConnectAsync();

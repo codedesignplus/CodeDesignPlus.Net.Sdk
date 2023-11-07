@@ -65,14 +65,11 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
 
         var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
 
-        // Leer los últimos eventos del stream para obtener la versión del agregado.
         var slice = await connection.ReadStreamEventsBackwardAsync(this.GetAggregateName(category, aggregateId), StreamPosition.End, 1, false);
 
-        // Si no hay eventos, la versión es -1 (no existe).
         if (slice.Status == SliceReadStatus.StreamNotFound || slice.Events.Length == 0)
             return -1;
 
-        // Devolver el número de secuencia del último evento.
         return slice.Events[0].OriginalEventNumber;
     }
 
@@ -108,7 +105,7 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
         var streamEvents = await connection.ReadStreamEventsBackwardAsync(this.GetSnapshotName(category, aggregateId), StreamPosition.End, 1, false);
 
         if (streamEvents.Status == SliceReadStatus.StreamNotFound || streamEvents.Events.Length == 0)
-            return default; // Or throw an exception if a missing snapshot is considered an error.
+            return default;
 
         return JsonConvert.DeserializeObject<TAggregate>(Encoding.UTF8.GetString(streamEvents.Events[0].Event.Data), new JsonSerializerSettings()
         {
@@ -149,8 +146,10 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
             nextSliceStart = currentSlice.NextEventNumber;
 
             var items = currentSlice.Events.Select(e =>
-            {
-                var @event = JsonConvert.DeserializeObject<IDomainEvent>(Encoding.UTF8.GetString(e.Event.Data));
+            {                
+                var type = this.types.FirstOrDefault(t => t.Name == e.Event.EventType);
+
+                var @event = (IDomainEvent)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Event.Data), type);
 
                 var metadata = JsonConvert.DeserializeObject<Metadata<TUserKey>>(Encoding.UTF8.GetString(e.Event.Metadata));
 
