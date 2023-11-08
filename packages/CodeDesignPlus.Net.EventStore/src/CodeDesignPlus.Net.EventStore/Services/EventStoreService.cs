@@ -24,7 +24,7 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
         if (options == null)
             throw new ArgumentNullException(nameof(options));
 
-        this.eventStoreFactory = eventStoreFactory;
+        this.eventStoreFactory = eventStoreFactory ?? throw new ArgumentNullException(nameof(eventStoreFactory));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.options = options.Value;
 
@@ -60,6 +60,9 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
 
     public async Task<long> GetVersionAsync(string category, Guid aggregateId)
     {
+        if(string.IsNullOrEmpty(category))
+            throw new ArgumentNullException(nameof(category));
+
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
@@ -75,6 +78,9 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
 
     public async Task<IEnumerable<(IDomainEvent, Metadata<TUserKey>)>> LoadEventsAsync(string category, Guid aggregateId)
     {
+        if(string.IsNullOrEmpty(category))
+            throw new ArgumentNullException(nameof(category));
+
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
@@ -97,6 +103,9 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     public async Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId)
         where TAggregate : IAggregateRoot<TUserKey>
     {
+        if(string.IsNullOrEmpty(category))
+            throw new ArgumentNullException(nameof(category));
+
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
@@ -198,6 +207,10 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     public async Task<IEnumerable<(TDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync<TDomainEvent>(string category)
        where TDomainEvent : IDomainEvent
     {
+        
+        if(string.IsNullOrEmpty(category))
+            throw new ArgumentNullException(nameof(category));
+            
         var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
 
         var events = new List<(TDomainEvent, Metadata<TUserKey>)>();
