@@ -8,6 +8,7 @@ using System.Collections.Generic;
 /// </summary>
 public interface IEventSourcingService<TUserKey>
 {
+    Task<long> CountEventsAsync(string category, Guid aggregateId);
     Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId) where TAggregate : IAggregateRoot<TUserKey>;
     Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot<TUserKey>;
     Task<long> GetVersionAsync(string category, Guid aggregateId);

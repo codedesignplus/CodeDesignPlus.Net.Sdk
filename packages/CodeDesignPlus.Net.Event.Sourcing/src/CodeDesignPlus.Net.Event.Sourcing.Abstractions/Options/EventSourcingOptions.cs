@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Event.Sourcing
@@ -23,4 +25,9 @@ public class EventSourcingOptions
     /// </summary>
     /// <value>The snapshot suffix for the aggregate.</value>
     public string SnapshotSuffix { get; set; } = "snapshot";
+    /// <summary>
+    /// Gets or sets the frequency at which snapshots are taken for Event Sourcing.
+    /// </summary>
+    [Range(1, 500)]
+    public int FrequencySnapshot { get; set; } = 20;
 }

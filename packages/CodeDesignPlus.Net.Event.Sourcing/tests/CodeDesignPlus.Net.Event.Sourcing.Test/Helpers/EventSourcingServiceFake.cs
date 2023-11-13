@@ -8,6 +8,11 @@ public class EventSourcingServiceFake<TUserKey> : IEventSourcingService<TUserKey
         throw new NotImplementedException();
     }
 
+    public Task<long> CountEventsAsync(string category, Guid aggregateId)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<long> GetVersionAsync(string category, Guid aggregateId)
     {
         throw new NotImplementedException();

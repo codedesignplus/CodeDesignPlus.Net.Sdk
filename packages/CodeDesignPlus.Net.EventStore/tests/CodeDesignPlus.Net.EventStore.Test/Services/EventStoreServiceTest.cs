@@ -67,6 +67,72 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         Assert.NotNull(eventStoreService);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData(null)]
+    public void CountEventsAsync_CategoryIsNull_ThrowArgumentNullException(string category)
+    {
+        // Arrange
+        var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
+        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+
+        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+
+        // Act and Assert
+        Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.CountEventsAsync(category, Guid.NewGuid()));
+    }
+
+    [Fact]
+    public async Task CountEventsAsync_GuidInvalid_ThrowArgumentException()
+    {
+        // Arrange
+        var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
+        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+
+        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+
+        // Act and Assert
+        var exception = await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.CountEventsAsync("YourCategory", Guid.Empty));
+
+        Assert.Equal("The provided aggregate ID cannot be an empty GUID. (Parameter 'aggregateId')", exception.Message);
+    }
+
+    [Fact]
+    public async Task CountEventsAsync_CheckEvents_ReturnEvents()
+    {
+        // Arrange        
+        var idAggregator = Guid.NewGuid();
+        var idUserCreator = Guid.NewGuid();
+        var idUserEvent = Guid.NewGuid();
+        var idProductUpdate = Guid.NewGuid();
+        var idProductRemove = Guid.NewGuid();
+
+        var client = new Client()
+        {
+            Name = "CodeDesignPlus",
+            Id = Guid.NewGuid()
+        };
+
+        var eventSourcing = GetService();
+
+        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+
+        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+
+        // Act
+        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        {
+            await eventSourcing.AppendEventAsync(@event, metadata);
+        }
+
+        var numberEvents = await eventSourcing.CountEventsAsync(orderExpected.Category, orderExpected.Id);
+
+        // Assert
+        Assert.Equal(orderExpected.UncommittedEvents.Count, numberEvents);
+    }
+
     [Fact]
     public void AppendEventAsync_NullEvent_ThrowsArgumentNullException()
     {
@@ -142,7 +208,31 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         Assert.Empty(orderExpected.UncommittedEvents);
     }
 
-    
+
+    [Fact]
+    public async Task GetVersionAsync_CheckVersion_NotExist()
+    {
+        // Arrange        
+        var idAggregator = Guid.NewGuid();
+        var idUserCreator = Guid.NewGuid();
+        var idUserEvent = Guid.NewGuid();
+
+        var client = new Client()
+        {
+            Name = "CodeDesignPlus",
+            Id = Guid.NewGuid()
+        };
+
+        var eventSourcing = GetService();
+
+        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+
+        var version = await eventSourcing.GetVersionAsync(orderExpected.Category, orderExpected.Id);
+
+        // Assert
+        Assert.Equal(-1, version);
+    }
+
     [Fact]
     public async Task GetVersionAsync_CheckVersion_Same()
     {
