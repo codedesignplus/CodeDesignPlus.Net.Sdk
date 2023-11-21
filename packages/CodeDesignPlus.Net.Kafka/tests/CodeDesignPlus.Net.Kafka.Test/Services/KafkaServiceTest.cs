@@ -1,7 +1,6 @@
 ﻿using System.Reflection;
-using CodeDesignPlus.Net.Event.Bus.Abstractions;
-using CodeDesignPlus.Net.Event.Bus.Extensions;
-using CodeDesignPlus.Net.Event.Bus.Options;
+using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.Kafka.Extensions;
 using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
@@ -17,6 +16,7 @@ using Moq;
 using Xunit.Abstractions;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using O = Microsoft.Extensions.Options;
+using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Services;
 
@@ -29,7 +29,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
     private readonly Mock<IOptions<KafkaOptions>> _mockKafkaOptions = new();
     private readonly Mock<ISubscriptionManager> _mockSubscriptionManager = new();
     private readonly Mock<IServiceProvider> _mockServiceProvider = new();
-    private readonly Mock<IOptions<EventBusOptions>> _mockEventBusOptions = new();
+    private readonly Mock<IOptions<PubSubOptions>> _mockPubSubOptions = new();
 
 
     public KafkaServiceTest(ITestOutputHelper output, KafkaContainer kafkaContainer)
@@ -41,29 +41,29 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenLoggerIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(null, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockEventBusOptions.Object));
+        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(null, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockPubSubOptions.Object));
     }
 
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenOptionsIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(_mockLogger.Object, null, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockEventBusOptions.Object));
+        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(_mockLogger.Object, null, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockPubSubOptions.Object));
     }
 
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenSubscriptionManagerIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, null, _mockServiceProvider.Object, _mockEventBusOptions.Object));
+        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, null, _mockServiceProvider.Object, _mockPubSubOptions.Object));
     }
 
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenServiceProviderIsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, null, _mockEventBusOptions.Object));
+        Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, null, _mockPubSubOptions.Object));
     }
 
     [Fact]
-    public void Constructor_ThrowsArgumentNullException_WhenEventBusOptionsIsNull()
+    public void Constructor_ThrowsArgumentNullException_WhenPubSubOptionsIsNull()
     {
         Assert.Throws<ArgumentNullException>(() => new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, null));
     }
@@ -71,7 +71,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
     [Fact]
     public void Constructor_Succeeds_WhenAllArgumentsAreValid()
     {
-        var instance = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockEventBusOptions.Object);
+        var instance = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockPubSubOptions.Object);
         Assert.NotNull(instance);
     }
 
@@ -80,7 +80,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
     {
         // Arrange
         var eventWithoutTopic = new DummyEventWithoutTopic();
-        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockEventBusOptions.Object);
+        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockPubSubOptions.Object);
 
         // Act and Assert
         await Assert.ThrowsAsync<Kafka.Exceptions.KafkaException>(() => kafkaEventBus.PublishAsync(eventWithoutTopic, new CancellationToken()));
@@ -102,7 +102,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
 
         var testServer = BuildTestServer(enableQueue, this.testOutput, gorup);
 
-        var pubSub = testServer.Host.Services.GetRequiredService<IEventBus>();
+        var pubSub = testServer.Host.Services.GetRequiredService<IPubSub>();
 
         await pubSub.PublishAsync(@event, CancellationToken.None);
 
@@ -137,7 +137,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
         var serviceCollection = new ServiceCollection().AddSingleton(x => new Mock<IConsumer<string, DummyEventWithoutTopic>>().Object);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, serviceProvider, _mockEventBusOptions.Object);
+        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, serviceProvider, _mockPubSubOptions.Object);
 
         // Act and Assert
         await Assert.ThrowsAsync<Kafka.Exceptions.KafkaException>(() => kafkaEventBus.SubscribeAsync<DummyEventWithoutTopic, DummyEventHandler>(new CancellationToken()));
@@ -151,7 +151,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
         var mockOptions = O.Options.Create(new KafkaOptions());
         var mockServiceProvider = new Mock<IServiceProvider>();
         var mockSubscriptionManager = new Mock<ISubscriptionManager>();
-        var mockEventBusOptions = O.Options.Create(new EventBusOptions());
+        var mockPubSubOptions = O.Options.Create(new PubSubOptions());
         var mockConsume = new Mock<IConsumer<string, UserCreatedEvent>>();
 
         mockConsume.Setup(x => x.Consume(It.IsAny<CancellationToken>())).Returns(new ConsumeResult<string, UserCreatedEvent>()
@@ -166,7 +166,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
         var serviceCollection = new ServiceCollection().AddSingleton(x => mockConsume.Object);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var kafkaEventBus = new KafkaEventBus(mockLogger.Object, mockOptions, mockSubscriptionManager.Object, serviceProvider, mockEventBusOptions);
+        var kafkaEventBus = new KafkaEventBus(mockLogger.Object, mockOptions, mockSubscriptionManager.Object, serviceProvider, mockPubSubOptions);
 
         var cancellationTokenSource = new CancellationTokenSource();
         cancellationTokenSource.CancelAfter(TimeSpan.FromMilliseconds(100));  // Cancela después de 100 ms
@@ -184,7 +184,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
         // Arrange
         _mockSubscriptionManager.Setup(sm => sm.HasSubscriptionsForEvent<UserCreatedEvent>()).Returns(false);
 
-        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockEventBusOptions.Object);
+        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, _mockServiceProvider.Object, _mockPubSubOptions.Object);
 
         var method = kafkaEventBus.GetType().GetMethod("ProcessEventAsync", BindingFlags.NonPublic | BindingFlags.Instance);
         var genericMethod = method!.MakeGenericMethod(typeof(UserCreatedEvent), typeof(UserCreatedEventHandler));
@@ -197,17 +197,17 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
     }
 
     [Fact]
-    public void Unsubscribe_InvokesConsumerUnsubscribeAndLogsInformation()
+    public async Task Unsubscribe_InvokesConsumerUnsubscribeAndLogsInformation()
     {
         // Arrange
         var mockConsumer = new Mock<IConsumer<string, UserCreatedEvent>>();
         var serviceCollection = new ServiceCollection().AddSingleton(x => mockConsumer.Object);
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, serviceProvider, _mockEventBusOptions.Object);
+        var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockKafkaOptions.Object, _mockSubscriptionManager.Object, serviceProvider, _mockPubSubOptions.Object);
 
         // Act
-        kafkaEventBus.Unsubscribe<UserCreatedEvent, UserCreatedEventHandler>();
+        await kafkaEventBus.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>();
 
         // Assert
         mockConsumer.Verify(x => x.Unsubscribe(), Times.Once);
@@ -240,7 +240,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
     {
         var json = JsonSerializer.Serialize(new
         {
-            EventBus = new
+            PubSub = new
             {
                 EnableQueue = enableQueue,
             },

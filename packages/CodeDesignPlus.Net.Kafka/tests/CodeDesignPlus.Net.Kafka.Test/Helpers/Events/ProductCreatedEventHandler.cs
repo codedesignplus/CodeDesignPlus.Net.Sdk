@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Event.Bus.Abstractions;
+﻿using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
 using Newtonsoft.Json;
