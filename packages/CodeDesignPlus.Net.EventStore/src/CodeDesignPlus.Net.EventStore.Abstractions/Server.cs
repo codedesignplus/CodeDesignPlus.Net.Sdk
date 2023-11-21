@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.EventStore.Abstractions;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace CodeDesignPlus.Net.EventStore.Abstractions;
 
 /// <summary>
 /// Represents the details required to connect to an EventStore server or node.
@@ -11,6 +13,17 @@ public class Server
     /// </summary>
     /// <value>
     /// The URI representing the connection string to the EventStore server.
-    /// </value>
+    /// </value>    
+    [Required]
     public Uri ConnectionString { get; set; }
+    /// <summary>
+    /// Gets or sets the user name to use when connecting to the EventStore server.
+    /// </summary>
+    [Required]
+    public string User { get; set; }
+    /// <summary>
+    /// Gets or sets the password to use when connecting to the EventStore server.
+    /// </summary>
+    [Required]
+    public string Password { get; set; }
 }

@@ -20,4 +20,13 @@ public interface IEventStoreFactory
     /// <param name="key">The unique identifier for the connection to be removed.</param>
     /// <returns><c>true</c> if the connection was successfully removed; otherwise, <c>false</c>.</returns>
     bool RemoveConnection(string key);
+
+    /// <summary>
+    /// Gets the credentials for the specified connection key.
+    /// </summary>
+    /// <param name="key">The key connection</param>
+    /// <returns>A tuple containing the username and password for the specified connection key.</returns>
+    /// <exception cref="ArgumentNullException">The <paramref name="key"/> is null or empty.</exception>
+    /// <exception cref="EventStoreException">The <paramref name="key"/> is not registered in the settings.</exception>
+    (string, string) GetCredentials(string key);
 }

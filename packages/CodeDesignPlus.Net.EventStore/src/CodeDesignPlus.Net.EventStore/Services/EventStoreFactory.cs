@@ -72,4 +72,22 @@ public class EventStoreFactory: IEventStoreFactory
 
         return result;
     }
+
+    /// <summary>
+    /// Gets the credentials for the specified connection key.
+    /// </summary>
+    /// <param name="key">The key connection</param>
+    /// <returns>A tuple containing the username and password for the specified connection key.</returns>
+    /// <exception cref="ArgumentNullException">The <paramref name="key"/> is null or empty.</exception>
+    /// <exception cref="EventStoreException">The <paramref name="key"/> is not registered in the settings.</exception>
+    public (string, string) GetCredentials(string key)
+    {
+        if (string.IsNullOrEmpty(key))
+            throw new ArgumentNullException(nameof(key));
+
+        if (!this.options.Servers.ContainsKey(key))
+            throw new EventStoreException("The connection is not registered in the settings.");
+
+        return (this.options.Servers[key].User, this.options.Servers[key].Password);
+    }
 }
