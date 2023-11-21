@@ -23,7 +23,7 @@
 	</PropertyGroup>
 	
   <ItemGroup>        
-  	<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Bus\src\CodeDesignPlus.Net.Event.Bus\CodeDesignPlus.Net.Event.Bus.csproj" />
+  	<ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub\CodeDesignPlus.Net.PubSub.csproj" />
   </ItemGroup>
 
   <ItemGroup>

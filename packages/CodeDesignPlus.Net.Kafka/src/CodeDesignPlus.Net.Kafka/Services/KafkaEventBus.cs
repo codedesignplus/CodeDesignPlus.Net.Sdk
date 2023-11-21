@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using System.Text;
-using CodeDesignPlus.Net.Event.Bus.Abstractions;
-using CodeDesignPlus.Net.Event.Bus.Options;
+using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.Kafka.Options;
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,7 +18,7 @@ public class KafkaEventBus : IKafkaEventBus
     private readonly KafkaOptions options;
     private readonly IServiceProvider serviceProvider;
     private readonly ISubscriptionManager subscriptionManager;
-    private readonly EventBusOptions pubSubOptions;
+    private readonly PubSubOptions pubSubOptions;
 
 
     /// <summary>
@@ -29,7 +29,7 @@ public class KafkaEventBus : IKafkaEventBus
     /// <param name="serviceProvider">Provides an instance of a service.</param>
     /// <param name="subscriptionManager">Manages event subscriptions.</param>	
     /// <param name="pubSubOptions">Configuration options for the event bus.</param>
-    public KafkaEventBus(ILogger<KafkaEventBus> logger, IOptions<KafkaOptions> options, ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider, IOptions<EventBusOptions> pubSubOptions)
+    public KafkaEventBus(ILogger<KafkaEventBus> logger, IOptions<KafkaOptions> options, ISubscriptionManager subscriptionManager, IServiceProvider serviceProvider, IOptions<PubSubOptions> pubSubOptions)
     {
         if (options == null)
             throw new ArgumentNullException(nameof(options));
@@ -189,7 +189,7 @@ public class KafkaEventBus : IKafkaEventBus
     /// </summary>
     /// <typeparam name="TEvent">The type of event.</typeparam>
     /// <typeparam name="TEventHandler">The type of event handler.</typeparam>
-    public void Unsubscribe<TEvent, TEventHandler>()
+    public Task UnsubscribeAsync<TEvent, TEventHandler>()
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -197,6 +197,8 @@ public class KafkaEventBus : IKafkaEventBus
 
         var consumer = this.serviceProvider.GetRequiredService<IConsumer<string, TEvent>>();
         consumer.Unsubscribe();
+
+        return Task.CompletedTask;
     }
 
 }

@@ -1,6 +1,5 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Event.Bus.Abstractions;
-using CodeDesignPlus.Net.Event.Bus.Extensions;
+﻿using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.Kafka.Options;
 using CodeDesignPlus.Net.Kafka.Serializer;
 using CodeDesignPlus.Net.Kafka.Services;
@@ -21,8 +20,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
     /// <param name="configuration">The configuration being bound.</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    public static IServiceCollection AddKafka<TStartupLogic>(this IServiceCollection services, IConfiguration configuration)
-        where TStartupLogic : IStartupServices
+    public static IServiceCollection AddKafka(this IServiceCollection services, IConfiguration configuration)
     {
         if (services == null)
             throw new ArgumentNullException(nameof(services));
@@ -43,8 +41,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IKafkaEventBus, KafkaEventBus>();
 
         var kafkaOptions = section.Get<KafkaOptions>();
-        services.RegisterProducers<TStartupLogic>(kafkaOptions);
-        services.RegisterConsumers<TStartupLogic>(kafkaOptions);
+        services.RegisterProducers(kafkaOptions);
+        services.RegisterConsumers(kafkaOptions);
 
         return services;
     }
@@ -59,15 +57,14 @@ public static class ServiceCollectionExtensions
     /// Este método busca todas las clases que heredan de <see cref="EventBase"/> en el ensamblado en ejecución y
     /// registra un productor Kafka para cada una de ellas en la colección de servicios proporcionada.
     /// </remarks>
-    public static IServiceCollection RegisterProducers<TStartupLogic>(this IServiceCollection services, KafkaOptions options)
-        where TStartupLogic : IStartupServices
+    public static IServiceCollection RegisterProducers(this IServiceCollection services, KafkaOptions options)
     {
         var config = new ProducerConfig
         {
             BootstrapServers = options.BootstrapServers
         };
 
-        var events = EventBusExtensions.GetEvents();
+        var events = PubSubExtensions.GetEvents();
 
         foreach (var eventType in events)
         {
@@ -93,12 +90,10 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Registers Kafka consumers in the service collection based on the specified Kafka options.
     /// </summary>
-    /// <typeparam name="TStartupLogic">The type representing the startup logic.</typeparam>
     /// <param name="services">The service collection to add the services to.</param>
     /// <param name="options">The Kafka options to use for configuration.</param>
     /// <returns>The same service collection so that multiple calls can be chained.</returns>
-    public static IServiceCollection RegisterConsumers<TStartupLogic>(this IServiceCollection services, KafkaOptions options)
-        where TStartupLogic : IStartupServices
+    public static IServiceCollection RegisterConsumers(this IServiceCollection services, KafkaOptions options)
     {
         var config = new ConsumerConfig
         {
@@ -107,7 +102,7 @@ public static class ServiceCollectionExtensions
             AutoOffsetReset = AutoOffsetReset.Earliest,
         };
 
-        var eventsHandlers = EventBusExtensions.GetEventHandlers();
+        var eventsHandlers = PubSubExtensions.GetEventHandlers();
 
         foreach (var eventHandler in eventsHandlers)
         {
