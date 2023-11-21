@@ -38,7 +38,7 @@
       },
       "configurations": {
         "coverage": {
-          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.EventStore.PubSub.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.EventStore.PubSub.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
         }
       }
     },
@@ -54,7 +54,7 @@
         "qualityGate": false,
         "qualityGateTimeout": "600",
         "skipImplicitDeps": false,
-        "exclusions": "**Tests*.cs",
+        "exclusions": "**tests/**",
         "extra": {
           "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.EventStore.PubSub.Test/coverage.opencover.xml"
         }

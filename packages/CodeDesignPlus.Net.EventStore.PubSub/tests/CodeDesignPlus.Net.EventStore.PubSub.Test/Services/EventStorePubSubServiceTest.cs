@@ -6,6 +6,13 @@ using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Xunit.Abstractions;
+using CodeDesignPlus.Net.EventStore.Abstractions;
+using Moq;
+using CodeDesignPlus.Net.EventStore.Abstractions.Options;
+using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using System.Reflection;
+using EventStore.ClientAPI;
+using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Services;
 
@@ -18,13 +25,54 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
     {
         this.container = container;
         this.testOutput = output;
+    }
 
+    [Fact]
+    public void Constructor_NullEventStoreFactory_ThrowsArgumentNullException()
+    {
+        // Arrange
+        IEventStoreFactory eventStoreFactory = null!;
+        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var serviceProvider = Mock.Of<IServiceProvider>();
+        var logger = Mock.Of<ILogger<EventStorePubSubService>>();
+        var pubSubOptions = Options.Create(new EventStorePubSubOptions());
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, subscriptionManager, serviceProvider, logger, pubSubOptions));
+    }
+
+    [Fact]
+    public void Constructor_NullSubscriptionManager_ThrowsArgumentNullException()
+    {
+        // Arrange
+        ISubscriptionManager subscriptionManager = null;
+        var eventStoreFactory = Mock.Of<IEventStoreFactory>();
+        var serviceProvider = Mock.Of<IServiceProvider>();
+        var logger = Mock.Of<ILogger<EventStorePubSubService>>();
+        var pubSubOptions = Options.Create(new EventStorePubSubOptions());
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, subscriptionManager, serviceProvider, logger, pubSubOptions));
+    }
+
+    [Fact]
+    public void Constructor_NullServiceProvider_ThrowsArgumentNullException()
+    {
+        // Arrange
+        IServiceProvider serviceProvider = null;
+        var eventStoreFactory = Mock.Of<IEventStoreFactory>();
+        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var logger = Mock.Of<ILogger<EventStorePubSubService>>();
+        var pubSubOptions = Options.Create(new EventStorePubSubOptions());
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, subscriptionManager, serviceProvider, logger, pubSubOptions));
     }
 
     [Fact]
     public async Task PublishAndSubscribe()
     {
-        var testServer = BuildTestServer(true, this.testOutput);
+        var testServer = this.BuildTestServer(true, this.testOutput);
 
         var pubSub = testServer.Host.Services.GetRequiredService<IPubSub>();
 
@@ -59,8 +107,28 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
         Assert.Equal(@event.IdEvent, userEvent.IdEvent);
     }
 
+    [Fact]
+    public async Task UnsubscribeAsync_UnsubscribesSuccessfully()
+    {
+        // Arrange
+        var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
+        var subscriptionManagerMock = new Mock<ISubscriptionManager>();
+        var serviceProviderMock = new Mock<IServiceProvider>();
+        var loggerMock = new Mock<ILogger<EventStorePubSubService>>();
+        var pubSubOptions = Options.Create(new EventStorePubSubOptions());
 
-    private static TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output)
+        var service = new EventStorePubSubService(eventStoreFactoryMock.Object, subscriptionManagerMock.Object, serviceProviderMock.Object, loggerMock.Object, pubSubOptions);
+
+        // Act
+        var task = service.UnsubscribeAsync<EventBase, IEventHandler<EventBase>>();
+
+        await task;
+
+        // Assert
+        Assert.True(task.IsCompleted);
+    }
+
+    private TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output)
     {
         var webHostBuilder = new WebHostBuilder()
                     .ConfigureLogging(logging =>
@@ -73,15 +141,14 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
                     })
                     .ConfigureAppConfiguration((hostingContext, config) =>
                     {
-                        AddJsonStream(config, enableQueue);
+                        this.AddJsonStream(config, enableQueue);
                     }).UseStartup<Startup>();
 
         var testServer = new TestServer(webHostBuilder);
         return testServer;
     }
 
-
-    private static void AddJsonStream(IConfigurationBuilder config, bool enableQueue)
+    private void AddJsonStream(IConfigurationBuilder config, bool enableQueue)
     {
         var json = JsonSerializer.Serialize(new
         {
@@ -94,9 +161,24 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
                 MainName = "aggregate",
                 SnapshotSuffix = "snapshot"
             },
-            EventStore = OptionsUtil.EventStoreOptions,
-            EventStorePubSub = new {
-                Enable = true
+            EventStore = new
+            {
+                Servers = new Dictionary<string, Server>()
+                {
+                    {
+                        EventStoreFactoryConst.Core, new Server()
+                        {
+                            ConnectionString = new Uri($"tcp://admin:112345678@localhost:{this.container.Port}"),
+                            User = "admin",
+                            Password = "112345678"
+                        }
+                    }
+                }
+            },
+            EventStorePubSub = new
+            {
+                Enable = true,
+                Group = "testGroup",
             }
         });
 

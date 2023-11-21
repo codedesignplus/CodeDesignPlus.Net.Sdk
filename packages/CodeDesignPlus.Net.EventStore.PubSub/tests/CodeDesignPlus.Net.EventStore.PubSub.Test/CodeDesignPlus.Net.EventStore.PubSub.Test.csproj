@@ -37,4 +37,8 @@
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Sourcing\src\CodeDesignPlus.Net.Event.Sourcing\CodeDesignPlus.Net.Event.Sourcing.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Abstractions\" />
+  </ItemGroup>
+
 </Project>

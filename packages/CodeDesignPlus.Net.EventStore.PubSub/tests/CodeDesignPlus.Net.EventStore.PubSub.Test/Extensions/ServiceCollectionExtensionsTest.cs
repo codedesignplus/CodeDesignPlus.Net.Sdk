@@ -51,7 +51,7 @@ public class ServiceCollectionExtensionsTest
     public void AddEventStorePubSub_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(new { EventStorePubSub = OptionsUtil.EventStoreOptions });
 
         var serviceCollection = new ServiceCollection();
 
@@ -70,7 +70,7 @@ public class ServiceCollectionExtensionsTest
     public void AddEventStorePubSub_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+        var configuration = ConfigurationUtil.GetConfiguration(new { EventStorePubSub = OptionsUtil.EventStoreOptions });
 
         var serviceCollection = new ServiceCollection();
 
@@ -88,6 +88,4 @@ public class ServiceCollectionExtensionsTest
 
         //Assert.Equal(OptionsUtil.Options.Name, value.Name);
     }
-
-
 }
