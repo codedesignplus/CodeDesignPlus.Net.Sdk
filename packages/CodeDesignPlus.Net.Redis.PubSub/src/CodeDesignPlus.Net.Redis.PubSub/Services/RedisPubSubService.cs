@@ -171,7 +171,7 @@ public class RedisPubSubService : IRedisPubSubService
     /// </summary>
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
-    public void Unsubscribe<TEvent, TEventHandler>()
+    public Task UnsubscribeAsync<TEvent, TEventHandler>()
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -182,5 +182,7 @@ public class RedisPubSubService : IRedisPubSubService
         this.redisService.Subscriber.Unsubscribe(RedisChannel.Literal(channel));
 
         this.logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);
+
+        return Task.CompletedTask;
     }
 }

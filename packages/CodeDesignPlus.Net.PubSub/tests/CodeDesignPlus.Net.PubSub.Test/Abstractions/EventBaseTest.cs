@@ -124,4 +124,25 @@ public class EventBaseTest
         //Assert
         Assert.Equal(expected, result);
     }
+
+    [Fact]
+    public void Equals_OtherIsNull_ReturnFalse()
+    {
+        //Arrange
+        var idEvent1 = Guid.NewGuid();
+
+        var event1 = new UserRegisteredEvent()
+        {
+            IdEvent = idEvent1,
+            EventDate = DateTime.UtcNow,
+            Name = nameof(UserRegisteredEvent.Name),
+            User = nameof(UserRegisteredEvent.User)
+        };
+
+        //Act
+        var result = event1.Equals(null);
+
+        //Assert
+        Assert.False(result);
+    }
 }

@@ -356,7 +356,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     }
 
     [Fact]
-    public void Unsubscribe_InvokeUnsubscribeRedis_NotListenerChannel()
+    public async Task Unsubscribe_InvokeUnsubscribeRedis_NotListenerChannel()
     {
         // Arrange
         var channelUnsubscribe = string.Empty;
@@ -392,7 +392,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         var redisPubSubService = new RedisPubSubService(factory.Object, subscriptionManager.Object, serviceProvider, logger, options, PubSubOptions);
 
         // Act
-        redisPubSubService.Unsubscribe<UserCreatedEvent, UserCreatedEventHandler>();
+        await redisPubSubService.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>();
 
         // Assert
         Assert.Equal(typeof(UserCreatedEvent).Name, channelUnsubscribe);

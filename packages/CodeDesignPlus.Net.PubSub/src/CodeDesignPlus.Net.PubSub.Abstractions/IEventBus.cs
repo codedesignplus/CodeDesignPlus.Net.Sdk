@@ -28,7 +28,7 @@
         /// </summary>
         /// <typeparam name="TEvent">Evento de integración a escuchar</typeparam>
         /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
-        void Unsubscribe<TEvent, TEventHandler>()
+        Task UnsubscribeAsync<TEvent, TEventHandler>()
             where TEvent : EventBase
             where TEventHandler : IEventHandler<TEvent>;
     }

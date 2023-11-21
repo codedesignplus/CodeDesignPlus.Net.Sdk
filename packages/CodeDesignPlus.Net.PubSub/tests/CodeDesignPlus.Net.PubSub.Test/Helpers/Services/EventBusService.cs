@@ -58,10 +58,10 @@ public class PubSubService : IPubSub
     /// </summary>
     /// <typeparam name="TEvent">Evento de integración a escuchar</typeparam>
     /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
-    public void Unsubscribe<TEvent, TEventHandler>()
+    public Task UnsubscribeAsync<TEvent, TEventHandler>()
         where TEvent : EventBase
         where TEventHandler : IEventHandler<TEvent>
     {
-
+        return Task.CompletedTask;
     }
 }
