@@ -8,7 +8,7 @@ public static class OptionsUtil
 {
     public static readonly EventStorePubSubOptions Options = new()
     {
-
+        Group = "Test",
     };
 
     public static readonly EventStoreOptions EventStoreOptions = new()

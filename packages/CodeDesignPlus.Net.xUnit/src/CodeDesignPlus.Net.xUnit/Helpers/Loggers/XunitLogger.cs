@@ -85,7 +85,12 @@ public sealed class XunitLogger : ILogger
         }
 
         var message = sb.ToString();
-        _output.WriteLine(message);
+        
+        try
+        {
+            _output.WriteLine(message);
+        }
+        catch (Exception) { }
     }
 
     private bool TryAppendScopes(StringBuilder sb)

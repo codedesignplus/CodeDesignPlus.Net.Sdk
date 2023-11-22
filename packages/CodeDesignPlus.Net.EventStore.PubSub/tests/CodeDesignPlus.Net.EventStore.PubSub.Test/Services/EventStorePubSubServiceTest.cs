@@ -8,11 +8,6 @@ using Microsoft.AspNetCore.TestHost;
 using Xunit.Abstractions;
 using CodeDesignPlus.Net.EventStore.Abstractions;
 using Moq;
-using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using System.Reflection;
-using EventStore.ClientAPI;
-using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Services;
 
@@ -45,7 +40,7 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
     public void Constructor_NullSubscriptionManager_ThrowsArgumentNullException()
     {
         // Arrange
-        ISubscriptionManager subscriptionManager = null;
+        ISubscriptionManager subscriptionManager = null!;
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
@@ -59,7 +54,7 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
     public void Constructor_NullServiceProvider_ThrowsArgumentNullException()
     {
         // Arrange
-        IServiceProvider serviceProvider = null;
+        IServiceProvider serviceProvider = null!;
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
         var subscriptionManager = Mock.Of<ISubscriptionManager>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
@@ -67,6 +62,32 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, subscriptionManager, serviceProvider, logger, pubSubOptions));
+    }
+
+    [Fact]
+    public void Constructor_NullOptions_ThrowsArgumentNullException()
+    {
+        // Arrange
+        IServiceProvider serviceProvider = null!;
+        var eventStoreFactory = Mock.Of<IEventStoreFactory>();
+        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var logger = Mock.Of<ILogger<EventStorePubSubService>>();
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, subscriptionManager, serviceProvider, logger, null!));
+    }
+    
+    [Fact]
+    public void Constructor_NullLogger_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var serviceProvider = Mock.Of<IServiceProvider>();
+        var eventStoreFactory = Mock.Of<IEventStoreFactory>();
+        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var pubSubOptions = Options.Create(new EventStorePubSubOptions());
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, subscriptionManager, serviceProvider, null!, pubSubOptions));
     }
 
     [Fact]
