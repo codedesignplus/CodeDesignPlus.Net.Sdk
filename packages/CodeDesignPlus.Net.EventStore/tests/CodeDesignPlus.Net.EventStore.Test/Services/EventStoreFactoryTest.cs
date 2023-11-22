@@ -134,4 +134,53 @@ public class EventStoreFactoryTest
         // Assert
         Assert.False(result);
     }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    public void GetCredentials_keyIsNullOrEmpty(string key)
+    {
+        // Arrange
+        var eventStoreConnection = new Mock<IEventStoreConnection>();
+        var options = O.Options.Create(OptionsUtil.EventStoreOptions);
+        var factory = new EventStoreFactory(eventStoreConnection.Object, loggerMock.Object, options);
+
+        // Act and Assert
+        Assert.Throws<ArgumentNullException>(() => factory.GetCredentials(key));
+    }
+
+    [Fact]
+    public void GetCredentials_ServerNotContainsKey_EventStoreException()
+    {
+        // Arrange
+        var eventStoreConnection = new Mock<IEventStoreConnection>();
+        var options = O.Options.Create(OptionsUtil.EventStoreOptions);
+        var factory = new EventStoreFactory(eventStoreConnection.Object, loggerMock.Object, options);
+        var key = "invalidKey";
+
+        // Act and Assert
+        var exception = Assert.Throws<EventStoreException>(() => factory.GetCredentials(key));
+
+        Assert.Equal("The connection is not registered in the settings.", exception.Message);
+    }
+
+    [Fact]
+    public void GetCredentials_ValidKey_ReturnsCredentials()
+    
+    {
+        // Arrange
+        var eventStoreConnection = new Mock<IEventStoreConnection>();
+        var options = O.Options.Create(OptionsUtil.EventStoreOptions);
+        var expected = OptionsUtil.EventStoreOptions.Servers[EventStoreFactoryConst.Core];
+        var factory = new EventStoreFactory(eventStoreConnection.Object, loggerMock.Object, options);
+
+        // Act
+        var (user, pass) = factory.GetCredentials(EventStoreFactoryConst.Core);
+
+        // Assert
+        Assert.NotNull(user);
+        Assert.NotNull(pass);
+        Assert.Equal(expected.User, user);
+        Assert.Equal(expected.Password, pass);
+    }
 }

@@ -6,7 +6,14 @@ public static class OptionsUtil
     {
         Servers = new Dictionary<string, Server>()
         {
-            { EventStoreFactoryConst.Core, new Server() {  ConnectionString = new Uri("tcp://localhost:1113") } }
+            { 
+                EventStoreFactoryConst.Core, new Server() 
+                {  
+                    ConnectionString = new Uri("tcp://localhost:1113"),
+                    User = "admin",
+                    Password = "12345678"
+                } 
+            }
         }
     };
 
@@ -16,7 +23,14 @@ public static class OptionsUtil
         {
             Servers = new Dictionary<string, Server>()
             {
-                { EventStoreFactoryConst.Core, new Server() {  ConnectionString = new Uri($"tcp://{ip}:{port}") } }
+                { 
+                    EventStoreFactoryConst.Core, new Server() 
+                    {  
+                        ConnectionString = new Uri($"tcp://{ip}:{port}") ,
+                        User = "admin",
+                        Password = "12345678"
+                    } 
+                }
             }
         };
     }
