@@ -37,4 +37,15 @@
 		</None>
 	</ItemGroup>
 
+	
+    <ItemGroup>
+        <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
+        <!-- <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" /> -->
+    </ItemGroup>
+
+	
+    <ItemGroup>
+      <PackageReference Include="MongoDB.Driver" Version="2.22.0" />
+    </ItemGroup>
+
 </Project>
