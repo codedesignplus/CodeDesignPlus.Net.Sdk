@@ -1,17 +1,16 @@
 {
     "conventionalCommits.scopes": [
         "net.core",
-        "net.efcore",
-        "net.event.bus",
-        "net.redis",
-        "net.redis.event.bus",
-        "net.xunit",
-        "net.kafka",
+        "net.pubsub",
         "net.event.sourcing",
+        "net.redis",
+        "net.redis.pubsub",
+        "net.kafka",
         "net.event.store",
         "net.eventstore.pubsub",
-        "net.pubsub",
-        "net.redis.pubsub",
-        "net.security"
+        "net.efcore",
+        "net.mongo",
+        "net.security",
+        "net.xunit"
     ]
 }
