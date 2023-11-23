@@ -20,12 +20,12 @@ public class MongoOptions : IValidatableObject
     /// Gets or sets the name
     /// </summary>
     [Required]
-    public string Name { get; set; }
+    public string ConnectionString { get; set; }
     /// <summary>
     /// Gets or sets the name
     /// </summary>
-    [EmailAddress]
-    public string Email { get; set; }
+    [Required]
+    public string Database { get; set; }
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -38,12 +38,12 @@ public class MongoOptions : IValidatableObject
 
         if (this.Enable)
         {
-            if (string.IsNullOrEmpty(Email))
-                results.Add(new ValidationResult($"The {nameof(this.Email)} field is required."));
+            if (string.IsNullOrEmpty(Database))
+                results.Add(new ValidationResult($"The {nameof(this.Database)} field is required."));
 
             Validator.TryValidateProperty(
-                this.Email,
-                new ValidationContext(this, null, null) { MemberName = nameof(this.Email) },
+                this.Database,
+                new ValidationContext(this, null, null) { MemberName = nameof(this.Database) },
                 results
             );
         }

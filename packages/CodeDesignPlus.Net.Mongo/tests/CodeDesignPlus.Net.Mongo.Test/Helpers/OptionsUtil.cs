@@ -4,10 +4,17 @@ namespace CodeDesignPlus.Net.Mongo.Test.Helpers;
 
 public static class OptionsUtil
 {
-    public static readonly MongoOptions MongoOptions = new()
+    public static MongoOptions MongoOptions => new()
     {
         Enable = true,
-        Name = nameof(MongoOptions.Name),
-        Email = $"{nameof(MongoOptions.Email)}@codedesignplus.com"
+        ConnectionString = "mongodb://localhost:27017",
+        Database = "dbtestmongo"
+    };
+
+    public static MongoOptions GetOptions(int port) => new()
+    {
+        Enable = true,
+        ConnectionString = $"mongodb://localhost:{port}",
+        Database = "dbtestmongo"
     };
 }

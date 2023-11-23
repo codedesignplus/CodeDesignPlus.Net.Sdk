@@ -91,6 +91,6 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="process">Process to execute in the transaction flow</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<TResult> TransactionAsync<TResult>(Func<IMongoDatabase, Task<TResult>> process, CancellationToken cancellationToken = default);
+    Task<TResult> TransactionAsync<TResult>(Func<IMongoDatabase, IClientSessionHandle, Task<TResult>> process, CancellationToken cancellationToken = default);
 
 }

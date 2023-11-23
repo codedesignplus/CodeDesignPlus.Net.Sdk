@@ -1,4 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Mongo.Abstractions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -6,18 +8,23 @@ namespace CodeDesignPlus.Net.Mongo;
 
 public class RepositoryBase<TKey, TUserKey> : IRepositoryBase<TKey, TUserKey>
 {
-    private readonly MongoClient mongoClient;
-    private readonly IMongoDatabase database;
-    public RepositoryBase(MongoClient mongoClient, string databaseName)
+    private readonly IServiceProvider serviceProvider;
+
+    private readonly ILogger<RepositoryBase<TKey, TUserKey>> logger;
+
+    private readonly MongoOptions mongoOptions;
+
+    public RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger<RepositoryBase<TKey, TUserKey>> logger)
     {
-        this.mongoClient = mongoClient;
-        this.database = this.mongoClient.GetDatabase(databaseName);
+        this.serviceProvider = serviceProvider;
+        this.logger = logger;
+        this.mongoOptions = mongoOptions.Value;
     }
 
     public IMongoCollection<TEntity> GetCollection<TEntity>()
         where TEntity : class, IEntityBase<TKey, TUserKey>
     {
-        return this.database.GetCollection<TEntity>(typeof(TEntity).Name);
+        return serviceProvider.GetRequiredService<IMongoCollection<TEntity>>();
     }
 
     public async Task<bool> ChangeStateAsync<TEntity>(TKey id, bool state, CancellationToken cancellationToken)
@@ -63,17 +70,19 @@ public class RepositoryBase<TKey, TUserKey> : IRepositoryBase<TKey, TUserKey>
         return result.IsAcknowledged && result.DeletedCount > 0; ;
     }
 
-    public Task<bool> DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
+    public async Task<bool> DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase<TKey, TUserKey>
     {
+        var result = new List<bool>();
+
         foreach (var entity in entities)
         {
             var filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
 
-            return this.DeleteAsync(filter, cancellationToken);
+            result.Add(await this.DeleteAsync(filter, cancellationToken));
         }
 
-        return Task.FromResult(false);
+        return result.All(x => x);
     }
 
     public async Task<bool> UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
@@ -81,43 +90,51 @@ public class RepositoryBase<TKey, TUserKey> : IRepositoryBase<TKey, TUserKey>
     {
         var collection = this.GetCollection<TEntity>();
 
-        var filter = Builders<TEntity>.Filter.Eq("_id", new ObjectId(entity.Id.ToString()));
+        FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
 
-        var result = await collection.UpdateOneAsync(filter, new ObjectUpdateDefinition<TEntity>(entity), cancellationToken: cancellationToken);
+        var result = await collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
 
         return result.IsAcknowledged && result.ModifiedCount > 0; ;
     }
 
-    public Task<bool> UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
+    public async Task<bool> UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase<TKey, TUserKey>
     {
+        var result = new List<bool>();
+
         foreach (var entity in entities)
         {
-            return this.UpdateAsync(entity, cancellationToken);
+            result.Add(await this.UpdateAsync(entity, cancellationToken));
         }
 
-        return Task.FromResult(false);
+        return result.All(x => x);
     }
 
-    public async Task<TResult> TransactionAsync<TResult>(Func<IMongoDatabase, Task<TResult>> process, CancellationToken cancellationToken = default)
+    public async Task<TResult> TransactionAsync<TResult>(Func<IMongoDatabase, IClientSessionHandle, Task<TResult>> process, CancellationToken cancellationToken = default)
     {
-        using var session = await this.mongoClient.StartSessionAsync(cancellationToken: cancellationToken);
+        var client = this.serviceProvider.GetRequiredService<IMongoClient>();
+
+        var database = client.GetDatabase(this.mongoOptions.Database);
+
+        using var session = await client.StartSessionAsync(cancellationToken: cancellationToken);
 
         session.StartTransaction();
 
         try
         {
-            var result = await process(this.database);
+            var result = await process(database, session);
 
             await session.CommitTransactionAsync(cancellationToken);
 
             return result;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             await session.AbortTransactionAsync(cancellationToken);
 
-            throw;
+            this.logger.LogError(ex, "Failed to execute transaction");
         }
+
+        return default;
     }
 }

@@ -85,10 +85,8 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(OptionsUtil.MongoOptions.Name, value.Name);
-        Assert.Equal(OptionsUtil.MongoOptions.Email, value.Email);
+        Assert.Equal(OptionsUtil.MongoOptions.ConnectionString, value.ConnectionString);
+        Assert.Equal(OptionsUtil.MongoOptions.Database, value.Database);
         Assert.Equal(OptionsUtil.MongoOptions.Enable, value.Enable);
     }
-
-
 }

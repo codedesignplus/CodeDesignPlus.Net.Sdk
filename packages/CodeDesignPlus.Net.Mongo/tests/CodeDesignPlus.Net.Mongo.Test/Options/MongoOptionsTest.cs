@@ -10,7 +10,7 @@ public class MongoOptionsTest
         // Arrange
         var options = new MongoOptions()
         {
-            Name = Guid.NewGuid().ToString()
+            ConnectionString = Guid.NewGuid().ToString()
         };
 
         // Act
@@ -40,8 +40,8 @@ public class MongoOptionsTest
         var options = new MongoOptions()
         {
             Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = null
+            ConnectionString = Guid.NewGuid().ToString(),
+            Database = null
         };
 
         // Act
@@ -58,8 +58,8 @@ public class MongoOptionsTest
         var options = new MongoOptions()
         {
             Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = "asdfasdfsdfgs"
+            ConnectionString = Guid.NewGuid().ToString(),
+            Database = "asdfasdfsdfgs"
         };
 
         // Act
