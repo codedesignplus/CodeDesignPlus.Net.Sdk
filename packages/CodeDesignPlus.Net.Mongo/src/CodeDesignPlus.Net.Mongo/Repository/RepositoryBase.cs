@@ -4,9 +4,9 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace CodeDesignPlus.Net.Mongo;
+namespace CodeDesignPlus.Net.Mongo.Repository;
 
-public class RepositoryBase<TKey, TUserKey> : IRepositoryBase<TKey, TUserKey>
+public abstract class RepositoryBase<TKey, TUserKey> : IRepositoryBase<TKey, TUserKey>
 {
     private readonly IServiceProvider serviceProvider;
 
@@ -67,7 +67,7 @@ public class RepositoryBase<TKey, TUserKey> : IRepositoryBase<TKey, TUserKey>
 
         var result = await collection.DeleteOneAsync(filter, cancellationToken);
 
-        return result.IsAcknowledged && result.DeletedCount > 0; ;
+        return result.IsAcknowledged && result.DeletedCount > 0;
     }
 
     public async Task<bool> DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
