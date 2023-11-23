@@ -73,6 +73,9 @@
     <None Update="Helpers\EventStoreContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Helpers\MongoContainer\*.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 

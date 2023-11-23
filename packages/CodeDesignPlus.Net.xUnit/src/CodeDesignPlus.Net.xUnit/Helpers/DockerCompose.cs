@@ -28,7 +28,7 @@ public abstract class DockerCompose : IDisposable
             {
                 var container = this.CompositeService.Containers.FirstOrDefault(x => x.Name.StartsWith(this.ContainerName));
 
-                var endpoint = container.ToHostExposedEndpoint("1113/tcp");
+                var endpoint = container.ToHostExposedEndpoint("27017/tcp");
 
                 this.Ip = endpoint.Address.ToString();
                 this.Port = endpoint.Port;
