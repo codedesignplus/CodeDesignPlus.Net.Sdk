@@ -24,6 +24,6 @@
         /// <summary>
         /// Fecha de creación del registro
         /// </summary>
-        public DateTime DateCreated { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

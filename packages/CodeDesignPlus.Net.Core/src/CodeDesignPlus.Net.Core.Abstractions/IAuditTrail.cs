@@ -13,5 +13,5 @@ public interface IAuditTrail<TUserKey>
     /// <summary>
     /// Gets or sets the date when the record was created.
     /// </summary>
-    DateTime DateCreated { get; set; }
+    DateTime CreatedAt { get; set; }
 }

@@ -160,7 +160,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
                     Name = $"Fake - {i}",
                     IsActive = true,
                     IdUserCreator = Guid.NewGuid().ToString("D"),
-                    DateCreated = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                 });
             }
             await fakeContext.FakeEntity.AddRangeAsync(entities);
