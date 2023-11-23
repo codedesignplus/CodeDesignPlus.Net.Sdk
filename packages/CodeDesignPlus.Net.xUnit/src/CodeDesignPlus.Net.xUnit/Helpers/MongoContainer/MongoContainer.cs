@@ -5,10 +5,11 @@ using Ductus.FluentDocker.Services.Impl;
 
 namespace CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
 
-public class MongoContainer: DockerCompose
+public class MongoContainer : DockerCompose
 {
-   protected override ICompositeService Build()
+    protected override ICompositeService Build()
     {
+
         var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "MongoContainer", (TemplateString)"docker-compose.yml");
 
         var dockerCompose = new DockerComposeConfig
@@ -21,6 +22,7 @@ public class MongoContainer: DockerCompose
         };
 
         this.EnableGetPort = true;
+        this.InternalPort = 27017;
         this.ContainerName = $"{dockerCompose.AlternativeServiceName}-mongo";
 
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);

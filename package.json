@@ -6,11 +6,21 @@
     "affected": "npx nx show projects --affected --head=HEAD --base=remotes/origin/main",
     "affected:restore": "npx nx affected --target restore",
     "affected:format": "npx nx affected --target format",
-    "affected:build": "npx nx affected --target build:production",
+    "affected:build": "npx nx affected --target build",
     "affected:test": "npx nx affected --target test",
     "affected:sonarqube": "npx nx affected --target sonarqube",
     "affected:pack": "npx nx affected --target pack --args=\"--version=\"2.0.0\"\"",
-    "affected:push": "npx nx affected --target push"
+    "affected:push": "npx nx affected --target push",    
+    "all:restore": "npx nx run-many --all --skip-nx-cache --target restore",
+    "all:format": "npx nx run-many --all --skip-nx-cache --target format",
+    "all:build": "npx nx run-many --all --skip-nx-cache --target build",
+    "all:test": "npx nx run-many --all --skip-nx-cache --target test",
+    "all:sonarqube": "npx nx run-many --all --skip-nx-cache --target sonarqube",
+    "all-cache:restore": "npx nx run-many --all --target restore",
+    "all-cache:format": "npx nx run-many --all --target format",
+    "all-cache:build": "npx nx run-many --all --target build",
+    "all-cache:test": "npx nx run-many --all --target test",
+    "all-cache:sonarqube": "npx nx run-many --all --target sonarqube"
   },
   "private": true,
   "dependencies": {

@@ -10,6 +10,6 @@ namespace CodeDesignPlus.Entities
         public string Description { get; set; }
         public bool IsActive { get; set; }
         public int IdUserCreator { get; set; }
-        public DateTime DateCreated { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

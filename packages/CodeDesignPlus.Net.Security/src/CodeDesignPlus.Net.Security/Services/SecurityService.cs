@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Options;
+﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Security.Services;
 
@@ -34,8 +34,6 @@ public class SecurityService : ISecurityService
     /// <returns>A task that represents the asynchronous echo operation. The result of the task is the echoed value as a</returns>
     public Task<string> EchoAsync(string value)
     {
-        this.logger.LogDebug("{section}, Echo {enable}", options.Enable);
-
         return Task.FromResult(value);
     }
 }

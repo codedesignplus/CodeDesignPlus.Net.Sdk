@@ -48,20 +48,25 @@ public class RedisContainer : DockerCompose
     {
         var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "RedisContainer", (TemplateString)"docker-compose.standalone.yml");
 
-        var compose = new DockerComposeCompositeService(
-            base.DockerHost,
-            new DockerComposeConfig
-            {
-                ComposeFilePath = new List<string> { file },
-                ForceRecreate = true,
-                RemoveOrphans = true,
-                StopOnDispose = true
-            });
+        var dockerCompose = new DockerComposeConfig
+        {
+            ComposeFilePath = new List<string> { file },
+            ForceRecreate = true,
+            RemoveOrphans = true,
+            StopOnDispose = true,
+            AlternativeServiceName = "redis_" + Guid.NewGuid().ToString("N"),
+        };
+
+        this.EnableGetPort = true;
+        this.InternalPort = 6380;
+        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-redis";
+
+        var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
 
         return compose;
     }
 
-    public static RedisOptions RedisOptions(string certificate, string password = null, string instanceName = "test")
+    public RedisOptions RedisOptions(string certificate, string password = null, string instanceName = "test")
     {
         var pfx = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "RedisContainer", "Certificates", certificate);
 
@@ -70,7 +75,7 @@ public class RedisContainer : DockerCompose
 
         var instance = new Instance()
         {
-            ConnectionString = "localhost:6380,ssl=true,password=12345678,resolveDns=false,sslprotocols=tls12|tls13",
+            ConnectionString = $"localhost:{base.Port},ssl=true,password=12345678,resolveDns=false,sslprotocols=tls12|tls13",
             Certificate = pfx,
             PasswordCertificate = password,
         };
@@ -85,7 +90,7 @@ public class RedisContainer : DockerCompose
         return redisOptions;
     }
 
-    private static IOptions<RedisOptions> CreateOptions(string certificate, string password = null)
+    private IOptions<RedisOptions> CreateOptions(string certificate, string password = null)
     {
         return O.Options.Create(RedisOptions(certificate, password));
     }

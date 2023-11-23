@@ -54,7 +54,7 @@ public class OperationBaseTest
         Assert.Equal("Post", permission.Action);
         Assert.True(permission.IsActive);
         Assert.Equal(userContext.IdUser, permission.IdUserCreator);
-        Assert.True(permission.DateCreated > DateTime.MinValue);
+        Assert.True(permission.CreatedAt > DateTime.MinValue);
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public class OperationBaseTest
         Assert.Equal("Put", entity.Action);
         Assert.False(entity.IsActive);
         Assert.Equal(userContext.IdUser, entity.IdUserCreator);
-        Assert.Equal(permission.DateCreated, entity.DateCreated);
+        Assert.Equal(permission.CreatedAt, entity.CreatedAt);
     }
 
     /// <summary>

@@ -83,11 +83,5 @@ public class ServiceCollectionExtensionsTest
 
         Assert.NotNull(options);
         Assert.NotNull(value);
-
-        Assert.Equal(ConfigurationUtil.SecurityOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.SecurityOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.SecurityOptions.Enable, value.Enable);
     }
-
-
 }

@@ -11,5 +11,5 @@ public class SecurityOptions
     /// Name of the setions used in the appsettings
     /// </summary>
     public static readonly string Section = "Security";
-
+    public Uri Authority { get; set; }
 }

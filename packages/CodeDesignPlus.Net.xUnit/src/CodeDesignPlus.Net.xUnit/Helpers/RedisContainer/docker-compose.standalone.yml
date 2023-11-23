@@ -10,4 +10,4 @@ services:
       - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
       - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
     ports:
-      - "6380:6380"
+      - "0:6380"

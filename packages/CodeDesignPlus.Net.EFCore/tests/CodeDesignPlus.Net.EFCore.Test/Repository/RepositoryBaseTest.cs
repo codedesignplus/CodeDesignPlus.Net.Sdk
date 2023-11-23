@@ -125,7 +125,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             IsActive = true,
-            DateCreated = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
         };
 
@@ -146,7 +146,7 @@ public class RepositoryBaseTest
         Assert.Equal(nameof(Application.Description), result.Description);
         Assert.Equal(entity.IdUserCreator, result.IdUserCreator);
         Assert.Equal(entity.IsActive, result.IsActive);
-        Assert.Equal(entity.DateCreated, result.DateCreated);
+        Assert.Equal(entity.CreatedAt, result.CreatedAt);
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             IsActive = true,
-            DateCreated = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
         });
 
@@ -201,7 +201,7 @@ public class RepositoryBaseTest
 
         applicationUpdate.Description = "New Description";
         applicationUpdate.Name = "New Name";
-        applicationUpdate.DateCreated = DateTime.MaxValue;
+        applicationUpdate.CreatedAt = DateTime.MaxValue;
         applicationUpdate.IsActive = false;
         applicationUpdate.IdUserCreator = 100;
 
@@ -216,7 +216,7 @@ public class RepositoryBaseTest
         Assert.Equal("New Description", result.Description);
         Assert.False(result.IsActive);
         Assert.Equal(applicationCreated.IdUserCreator, result.IdUserCreator);
-        Assert.Equal(applicationCreated.DateCreated, result.DateCreated);
+        Assert.Equal(applicationCreated.CreatedAt, result.CreatedAt);
     }
 
     /// <summary>
@@ -282,7 +282,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             IsActive = true,
-            DateCreated = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
         });
 
@@ -331,7 +331,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 IsActive = true,
-                DateCreated = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
             new Application()
@@ -339,7 +339,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 IsActive = true,
-                DateCreated = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
         };
@@ -397,7 +397,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 IsActive = true,
-                DateCreated = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
 
@@ -406,7 +406,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 IsActive = true,
-                DateCreated = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
         };
@@ -428,7 +428,7 @@ public class RepositoryBaseTest
         {
             x.Description = "New Description";
             x.Name = "New Name";
-            x.DateCreated = DateTime.MaxValue;
+            x.CreatedAt = DateTime.MaxValue;
             x.IsActive = false;
             x.IdUserCreator = 100;
         });
@@ -486,7 +486,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 IsActive = true,
-                DateCreated = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
             new Application()
@@ -494,7 +494,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 IsActive = true,
-                DateCreated = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             }
         };
@@ -552,7 +552,7 @@ public class RepositoryBaseTest
             Name = nameof(Application.Name),
             IdUserCreator = new Random().Next(1, 15),
             IsActive = true,
-            DateCreated = DateTime.UtcNow,
+            CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
         };
 
@@ -599,7 +599,7 @@ public class RepositoryBaseTest
                 Name = nameof(Application.Name),
                 IdUserCreator = new Random().Next(1, 15),
                 IsActive = true,
-                DateCreated = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             });
 
@@ -638,7 +638,7 @@ public class RepositoryBaseTest
                     Name = nameof(Application.Name),
                     IdUserCreator = new Random().Next(1, 15),
                     IsActive = true,
-                    DateCreated = DateTime.UtcNow,
+                    CreatedAt = DateTime.UtcNow,
                     Description = nameof(Application.Description)
                 });
 

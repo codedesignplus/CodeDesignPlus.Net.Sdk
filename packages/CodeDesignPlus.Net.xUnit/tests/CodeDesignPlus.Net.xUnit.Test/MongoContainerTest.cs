@@ -16,14 +16,11 @@ public class MongoContainerTest : IClassFixture<MongoContainer>
     [Fact]
     public async Task CheckConnectionServer()
     {
-        var user = "admin";
-        var password = "12345678";
         var host = "localhost";
         var port = this.mongoContainer.Port;
         var databaseName = "dbtestmongo";
 
-        var connectionString = $"mongodb://{user}:{password}@{host}:{port}";
-
+        var connectionString = $"mongodb://{host}:{port}";
 
         var client = new MongoClient(connectionString);
         var database = client.GetDatabase(databaseName);

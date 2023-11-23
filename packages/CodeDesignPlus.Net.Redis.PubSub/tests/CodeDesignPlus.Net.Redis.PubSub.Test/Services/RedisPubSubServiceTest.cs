@@ -189,7 +189,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
             PubSub = new {
                 EnableQueue = true
             },
-            Redis = RedisContainer.RedisOptions("client.pfx", "Temporal1"),
+            Redis = redisContainer.RedisOptions("client.pfx", "Temporal1"),
             RedisPubSub = OptionsUtil.RedisPubSubOptions
         });
 
@@ -279,7 +279,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
             PubSub = new {
                 EnableQueue = false
             },
-            Redis = RedisContainer.RedisOptions("client.pfx", "Temporal1"),
+            Redis = redisContainer.RedisOptions("client.pfx", "Temporal1"),
             RedisPubSub = OptionsUtil.RedisPubSubOptions
         });
 

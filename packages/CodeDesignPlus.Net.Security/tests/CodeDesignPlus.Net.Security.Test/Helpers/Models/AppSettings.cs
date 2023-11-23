@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Options;
+﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Security.Test.Helpers.Models;
 

@@ -10,9 +10,10 @@ namespace CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
 
 public class EventStoreContainer : DockerCompose
 {
-
     protected override ICompositeService Build()
     {
+        this.InternalPort = 1113;
+
         var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "EventStoreContainer", (TemplateString)"docker-compose.yml");
 
         var dockerCompose = new DockerComposeConfig

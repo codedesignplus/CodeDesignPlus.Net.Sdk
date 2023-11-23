@@ -11,6 +11,8 @@ public abstract class DockerCompose : IDisposable
     protected IHostService DockerHost;
     protected bool EnableGetPort = false;
 
+    protected int InternalPort { get; set; }
+
     public string Ip { get; private set; }
     public int Port { get; private set; }
 
@@ -28,7 +30,7 @@ public abstract class DockerCompose : IDisposable
             {
                 var container = this.CompositeService.Containers.FirstOrDefault(x => x.Name.StartsWith(this.ContainerName));
 
-                var endpoint = container.ToHostExposedEndpoint("27017/tcp");
+                var endpoint = container.ToHostExposedEndpoint($"{this.InternalPort}/tcp");
 
                 this.Ip = endpoint.Address.ToString();
                 this.Port = endpoint.Port;

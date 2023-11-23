@@ -19,7 +19,7 @@ public class EventStoreContainerTest : IClassFixture<EventStoreContainer>
            .DisableTls()
            .UseConsoleLogger();
 
-        var connection = EventStoreConnection.Create(connectionSettings, new Uri("tcp://localhost:1113"));
+        var connection = EventStoreConnection.Create(connectionSettings, new Uri($"tcp://localhost:{this.eventStoreContainer.Port}"));
         await connection.ConnectAsync();
 
         // Escribir un evento
