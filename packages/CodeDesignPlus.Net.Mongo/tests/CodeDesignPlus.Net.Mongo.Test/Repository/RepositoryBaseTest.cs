@@ -19,6 +19,22 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         this.loggerMock = new Mock<ILogger<ClientRepository>>();
         this.options = Microsoft.Extensions.Options.Options.Create(OptionsUtil.GetOptions(this.mongoContainer.Port));
     }
+    [Fact]
+    public async Task ChangeStateAsync_WhenEntityIsInvalid_ReturnFalse()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        // Act
+        var isSuccess = await repository.ChangeStateAsync<Client>(Guid.NewGuid(), false, cancellationToken);
+
+        // Assert
+        Assert.False(isSuccess);
+    }
 
     [Fact]
     public async Task ChangeStateAsync_WhenEntityIsValid_ReturnTrue()

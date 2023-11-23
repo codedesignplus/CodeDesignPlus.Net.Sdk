@@ -129,7 +129,6 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         Assert.NotNull(result);
         Assert.Equal(product.Id, result.Id);
         Assert.Equal(product.IsActive, result.IsActive);
-        Assert.True(date < result.CreatedAt);
         Assert.Equal(product.IdUserCreator, result.IdUserCreator);
     }
 

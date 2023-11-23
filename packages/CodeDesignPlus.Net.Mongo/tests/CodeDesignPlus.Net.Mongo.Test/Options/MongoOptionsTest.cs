@@ -10,7 +10,8 @@ public class MongoOptionsTest
         // Arrange
         var options = new MongoOptions()
         {
-            ConnectionString = Guid.NewGuid().ToString()
+            ConnectionString = Guid.NewGuid().ToString(),
+            Database = Guid.NewGuid().ToString()
         };
 
         // Act
@@ -21,7 +22,7 @@ public class MongoOptionsTest
     }
 
     [Fact]
-    public void MongoOptions_NameIsRequired_FailedValidation()
+    public void MongoOptions_ConnectionStringIsRequired_FailedValidation()
     {
         // Arrange
         var options = new MongoOptions();
@@ -30,11 +31,11 @@ public class MongoOptionsTest
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The ConnectionString field is required.");
     }
 
     [Fact]
-    public void MongoOptions_EmailIsRequired_FailedValidation()
+    public void MongoOptions_DatabaseIsRequired_FailedValidation()
     {
         // Arrange
         var options = new MongoOptions()
@@ -48,24 +49,6 @@ public class MongoOptionsTest
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
-    }
-
-    [Fact]
-    public void MongoOptions_EmailIsInvalid_FailedValidation()
-    {
-        // Arrange
-        var options = new MongoOptions()
-        {
-            Enable = true,
-            ConnectionString = Guid.NewGuid().ToString(),
-            Database = "asdfasdfsdfgs"
-        };
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
+        Assert.Contains(results, x => x.ErrorMessage == "The Database field is required.");
     }
 }

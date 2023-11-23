@@ -8,7 +8,7 @@ using MongoDB.Driver;
 namespace CodeDesignPlus.Net.Mongo;
 
 /// <summary>
-/// Implementación de las operaciones CRUD estandarizadas en el SDK
+/// Base class that provides the basic operations to perform on a database
 /// </summary>
 /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
 /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
@@ -41,7 +41,7 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     }
 
     /// <summary>
-    /// Method to create a record in the database
+    /// Method that creates a record in the database
     /// </summary>
     /// <param name="entity">Entity to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>

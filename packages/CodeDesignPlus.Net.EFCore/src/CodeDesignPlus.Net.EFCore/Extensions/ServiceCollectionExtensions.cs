@@ -39,7 +39,6 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-
     /// <summary>
     /// Gets all repositories and registers them in the.net core dependency container
     /// </summary>

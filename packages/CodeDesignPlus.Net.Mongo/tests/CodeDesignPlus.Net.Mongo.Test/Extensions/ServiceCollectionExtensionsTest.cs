@@ -1,7 +1,8 @@
 ﻿using CodeDesignPlus.Net.xUnit.Helpers;
-using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+using CodeDesignPlus.Net.Mongo.Extensions;
 
-namespace CodeDesignPlus.Net.Mongo.Extensions;
+namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -40,7 +41,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<MongoException>(() => serviceCollection.AddMongo(configuration));
+        var exception = Assert.Throws<Mongo.Exceptions.MongoException>(() => serviceCollection.AddMongo(configuration));
 
         // Assert
         Assert.Equal($"The section {MongoOptions.Section} is required.", exception.Message);
@@ -58,11 +59,11 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddMongo(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IMongoService));
+        var mongoClient = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IMongoClient));
 
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(MongoService), libraryService.ImplementationType);
+        Assert.NotNull(mongoClient);
+        Assert.Equal(ServiceLifetime.Singleton, mongoClient.Lifetime);
+        Assert.NotNull(mongoClient.ImplementationFactory);
     }
 
     [Fact]
@@ -88,5 +89,24 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(OptionsUtil.MongoOptions.ConnectionString, value.ConnectionString);
         Assert.Equal(OptionsUtil.MongoOptions.Database, value.Database);
         Assert.Equal(OptionsUtil.MongoOptions.Enable, value.Enable);
+    }
+
+    [Fact]
+    public void AddRepositories_RepositoriesNotExist_Success()
+    {
+        // Arrange
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddRepositories<Guid, Guid>();
+
+        // Assert
+        var clientRepository = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IClientRepository) && x.ImplementationType == typeof(ClientRepository));
+        var productRepository = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IProductRepository) && x.ImplementationType == typeof(ProductRepository));
+
+        Assert.NotNull(clientRepository);
+        Assert.NotNull(productRepository);
+        Assert.Equal(ServiceLifetime.Singleton, clientRepository.Lifetime);
+        Assert.Equal(ServiceLifetime.Singleton, productRepository.Lifetime);
     }
 }

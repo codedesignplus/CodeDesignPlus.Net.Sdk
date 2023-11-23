@@ -4,10 +4,14 @@ using CodeDesignPlus.Net.Security.Abstractions;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers;
 
-public class ProductRepository : OperationBase<Guid, Guid, Product>
+public class ProductRepository : OperationBase<Guid, Guid, Product>, IProductRepository
 {
     public ProductRepository(IUserContext<Guid> authenticatetUser, IServiceProvider serviceProvider, IOptions<MongoOptions> options, ILogger<RepositoryBase<Guid, Guid>> logger) 
         : base(authenticatetUser, serviceProvider, options, logger)
     {
     }
+}
+
+public interface IProductRepository: IRepositoryBase<Guid, Guid>
+{
 }
