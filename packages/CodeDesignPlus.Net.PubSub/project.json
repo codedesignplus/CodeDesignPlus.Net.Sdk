@@ -1,0 +1,78 @@
+{
+  "name": "CodeDesignPlus.Net.PubSub",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/CodeDesignPlus.Net.PubSub",
+  "targets": {
+    "restore": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.PubSub.sln"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.PubSub.sln"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.PubSub.sln"
+      },
+      "configurations": {
+        "production": {
+          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.PubSub.sln --configuration Release"
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.PubSub.sln"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.PubSub.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+        }
+      }
+    },
+    "sonarqube": {
+      "executor": "@koliveira15/nx-sonarqube:scan",
+      "options": {
+        "name": "CodeDesignPlus.Net.PubSub",
+        "hostUrl": "https://sonarcloud.io/",
+        "projectKey": "CodeDesignPlus.Net.PubSub",
+        "organization": "codedesignplus",
+        "skipTargetDefaults": false,
+        "branches": false,
+        "qualityGate": false,
+        "qualityGateTimeout": "600",
+        "skipImplicitDeps": false,
+        "exclusions": "**CodeDesignPlus.Net.Core*,**tests/**",
+        "extra": {
+          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/**/coverage.opencover.xml"
+        }
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.PubSub.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.PubSub"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.PubSub/*.nupkg --source {args.source} --api-key {args.token}"
+      }
+    }
+  }
+}

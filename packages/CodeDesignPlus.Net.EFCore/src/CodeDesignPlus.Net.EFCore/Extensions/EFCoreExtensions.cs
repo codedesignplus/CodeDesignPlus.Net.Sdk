@@ -24,8 +24,8 @@ public static class EFCoreExtensions
     {
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.IdUserCreator).HasMaxLength(maxLenghtUser).IsRequired(userRequired);
-        builder.Property(x => x.State).IsRequired();
-        builder.Property(x => x.DateCreated).IsRequired();
+        builder.Property(x => x.IsActive).IsRequired();
+        builder.Property(x => x.CreatedAt).IsRequired();
     }
 
     /// <summary>

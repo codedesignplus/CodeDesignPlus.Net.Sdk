@@ -8,7 +8,7 @@ public class ClaimsOptionTest
     /// <summary>
     /// Claims available to obtain user information
     /// </summary>
-    private readonly ClaimsOption claimsOption = new ClaimsOption()
+    private readonly ClaimsOption claimsOption = new()
     {
         Email = nameof(ClaimsOption.Email),
         IdUser = nameof(ClaimsOption.IdUser),

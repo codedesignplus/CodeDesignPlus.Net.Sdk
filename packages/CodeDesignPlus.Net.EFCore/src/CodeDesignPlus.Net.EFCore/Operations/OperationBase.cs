@@ -20,7 +20,7 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     /// </summary>
     private readonly List<string> blacklist = new () {
          nameof(IEntityBase<TKey, TUserKey>.Id),
-         nameof(IEntityBase<TKey, TUserKey>.DateCreated),
+         nameof(IEntityBase<TKey, TUserKey>.CreatedAt),
          nameof(IEntityBase<TKey, TUserKey>.IdUserCreator)
      };
 
@@ -48,7 +48,7 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     public virtual async Task<TKey> CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
         entity.IdUserCreator = this.AuthenticateUser.IdUser;
-        entity.DateCreated = DateTime.Now;
+        entity.CreatedAt = DateTime.UtcNow;
 
         entity = await base.CreateAsync(entity, cancellationToken);
 

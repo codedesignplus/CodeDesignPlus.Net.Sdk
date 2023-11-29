@@ -1,0 +1,78 @@
+{
+  "name": "CodeDesignPlus.Net.Mongo",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/CodeDesignPlus.Net.Mongo",
+  "targets": {
+    "restore": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.Mongo.sln"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.Mongo.sln"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Mongo.sln"
+      },
+      "configurations": {
+        "production": {
+          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Mongo.sln --configuration Release"
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Mongo.sln"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Mongo.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+        }
+      }
+    },
+    "sonarqube": {
+      "executor": "@koliveira15/nx-sonarqube:scan",
+      "options": {
+        "name": "CodeDesignPlus.Net.Mongo",
+        "hostUrl": "https://sonarcloud.io/",
+        "projectKey": "CodeDesignPlus.Net.Mongo.Key",
+        "organization": "codedesignplus",
+        "skipTargetDefaults": false,
+        "branches": false,
+        "qualityGate": false,
+        "qualityGateTimeout": "600",
+        "skipImplicitDeps": false,
+        "exclusions": "**tests/**",
+        "extra": {
+          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Mongo.Test/coverage.opencover.xml"
+        }
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Mongo.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.Mongo"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.Mongo/*.nupkg --source {args.source} --api-key {args.token}"
+      }
+    }
+  }
+}

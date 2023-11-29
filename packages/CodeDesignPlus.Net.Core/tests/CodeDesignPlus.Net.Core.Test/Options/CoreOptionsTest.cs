@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Core.Test.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+
+namespace CodeDesignPlus.Net.Core.Test.Options;
 
 public class CoreOptionsTest
 {
@@ -8,7 +10,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
-            Name = Guid.NewGuid().ToString()
+            AppName = Guid.NewGuid().ToString()
         };
 
         // Act
@@ -28,42 +30,6 @@ public class CoreOptionsTest
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
-    }
-
-    [Fact]
-    public void CoreOptions_EmailIsRequired_FailedValidation()
-    {
-        // Arrange
-        var options = new CoreOptions()
-        {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = null
-        };
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
-    }
-
-    [Fact]
-    public void CoreOptions_EmailIsInvalid_FailedValidation()
-    {
-        // Arrange
-        var options = new CoreOptions()
-        {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = "asdfasdfsdfgs"
-        };
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
+        Assert.Contains(results, x => x.ErrorMessage == "The AppName field is required.");
     }
 }

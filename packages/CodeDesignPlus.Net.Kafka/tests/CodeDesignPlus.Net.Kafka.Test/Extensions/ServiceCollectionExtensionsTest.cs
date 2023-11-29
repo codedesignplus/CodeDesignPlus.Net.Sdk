@@ -14,7 +14,7 @@ public class ServiceCollectionExtensionsTest
         ServiceCollection? serviceCollection = null;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddKafka<StartupLogic>(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddKafka(null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
@@ -27,7 +27,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddKafka<StartupLogic>(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddKafka(null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
@@ -42,7 +42,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<Net.Kafka.Exceptions.KafkaException>(() => serviceCollection.AddKafka<StartupLogic>(configuration));
+        var exception = Assert.Throws<Net.Kafka.Exceptions.KafkaException>(() => serviceCollection.AddKafka(configuration));
 
         // Assert
         Assert.Equal($"The section {KafkaOptions.Section} is required.", exception.Message);
@@ -57,7 +57,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddKafka<StartupLogic>(configuration);
+        serviceCollection.AddKafka(configuration);
 
         // Assert
         var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IKafkaEventBus));
@@ -76,7 +76,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddKafka<StartupLogic>(configuration);
+        serviceCollection.AddKafka(configuration);
 
         // Assert
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -98,7 +98,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddKafka<StartupLogic>(configuration);
+        serviceCollection.AddKafka(configuration);
 
         // Assert
         var producer = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IProducer<string, UserCreatedEvent>));
@@ -118,7 +118,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddKafka<StartupLogic>(configuration);
+        serviceCollection.AddKafka(configuration);
 
         // Assert
         var consumer = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IConsumer<string, UserCreatedEvent>));

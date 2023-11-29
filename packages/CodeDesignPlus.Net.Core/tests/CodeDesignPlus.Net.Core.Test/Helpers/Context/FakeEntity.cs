@@ -16,7 +16,7 @@
         /// <summary>
         /// Estado del registro
         /// </summary>
-        public bool State { get; set; }
+        public bool IsActive { get; set; }
         /// <summary>
         /// Id del usuario que creo el registro
         /// </summary>
@@ -24,6 +24,6 @@
         /// <summary>
         /// Fecha de creación del registro
         /// </summary>
-        public DateTime DateCreated { get; set; }
+        public DateTime CreatedAt { get; set; }
     }
 }

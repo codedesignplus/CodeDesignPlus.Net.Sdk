@@ -1,10 +1,10 @@
-﻿using CodeDesignPlus.Net.Event.Bus.Extensions;
+﻿using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
 using Microsoft.AspNetCore.Builder;
 using CodeDesignPlus.Net.Kafka.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 using Microsoft.AspNetCore.Http;
-using CodeDesignPlus.Net.Event.Bus.Abstractions;
+using CodeDesignPlus.Net.PubSub.Abstractions;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers;
 
@@ -28,9 +28,9 @@ public class Startup
                     .SetMinimumLevel(LogLevel.Trace)
                     .UsesScopes();
             })
-            .AddEventBus(this.Configuration)
+            .AddPubSub(this.Configuration)
             .AddSingleton<IMemoryService>(x => MemoryService)
-            .AddKafka<StartupLogic>(this.Configuration);
+            .AddKafka(this.Configuration);
     }
 
     public void Configure(IApplicationBuilder app)
@@ -41,8 +41,8 @@ public class Startup
         // {
         //     endpoints.MapPost("/publish", async context =>
         //     {
-        //         var eventBus = context.RequestServices.GetRequiredService<IEventBus>();
-        //         await eventBus.PublishAsync(new StartupLogic.StartupMessage()); // Ejemplo de publicación
+        //         var pubSub = context.RequestServices.GetRequiredService<IEventBus>();
+        //         await pubSub.PublishAsync(new StartupLogic.StartupMessage()); // Ejemplo de publicación
 
                 
 

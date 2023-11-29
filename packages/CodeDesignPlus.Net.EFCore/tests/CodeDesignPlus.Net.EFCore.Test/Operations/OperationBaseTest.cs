@@ -23,7 +23,7 @@ public class OperationBaseTest
             Description = "Can create to permissions",
             Controller = "Permission",
             Action = "Post",
-            State = true
+            IsActive = true
         };
 
         var userContext = new UserContext<int>()
@@ -52,9 +52,9 @@ public class OperationBaseTest
         Assert.Equal("Can create to permissions", permission.Description);
         Assert.Equal("Permission", permission.Controller);
         Assert.Equal("Post", permission.Action);
-        Assert.True(permission.State);
+        Assert.True(permission.IsActive);
         Assert.Equal(userContext.IdUser, permission.IdUserCreator);
-        Assert.True(permission.DateCreated > DateTime.MinValue);
+        Assert.True(permission.CreatedAt > DateTime.MinValue);
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class OperationBaseTest
             Description = "Can create to permissions",
             Controller = "Permission",
             Action = "Post",
-            State = true
+            IsActive = true
         };
 
         var userContext = new UserContext<int>()
@@ -99,7 +99,7 @@ public class OperationBaseTest
             Description = "Can update to permissions",
             Controller = "Permission",
             Action = "Put",
-            State = false
+            IsActive = false
         };
 
         var success = await repository.UpdateAsync(id, entityUpdate);
@@ -114,9 +114,9 @@ public class OperationBaseTest
         Assert.Equal("Can update to permissions", entity.Description);
         Assert.Equal("Permission", entity.Controller);
         Assert.Equal("Put", entity.Action);
-        Assert.False(entity.State);
+        Assert.False(entity.IsActive);
         Assert.Equal(userContext.IdUser, entity.IdUserCreator);
-        Assert.Equal(permission.DateCreated, entity.DateCreated);
+        Assert.Equal(permission.CreatedAt, entity.CreatedAt);
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ public class OperationBaseTest
             Description = "Can update to permissions",
             Controller = "Permission",
             Action = "Put",
-            State = false
+            IsActive = false
         };
 
         var success = await repository.UpdateAsync(new Random().Next(1, int.MaxValue), entityUpdate);
@@ -172,7 +172,7 @@ public class OperationBaseTest
             Description = "Can create to permissions",
             Controller = "Permission",
             Action = "Post",
-            State = true
+            IsActive = true
         };
 
         var userContext = new UserContext<int>()

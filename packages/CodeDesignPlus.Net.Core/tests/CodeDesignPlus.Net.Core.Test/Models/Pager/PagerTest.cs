@@ -158,16 +158,16 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
                 entities.Add(new FakeEntity()
                 {
                     Name = $"Fake - {i}",
-                    State = true,
+                    IsActive = true,
                     IdUserCreator = Guid.NewGuid().ToString("D"),
-                    DateCreated = DateTime.Now,
+                    CreatedAt = DateTime.UtcNow,
                 });
             }
             await fakeContext.FakeEntity.AddRangeAsync(entities);
             await fakeContext.SaveChangesAsync();
 
             // Act
-            var pager = await fakeContext.FakeEntity.Where(x => x.State).ToPageAsync(CURRENT_PAGE, PAGE_SIZE);
+            var pager = await fakeContext.FakeEntity.Where(x => x.IsActive).ToPageAsync(CURRENT_PAGE, PAGE_SIZE);
 
             // Assert
             this.AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, entities);

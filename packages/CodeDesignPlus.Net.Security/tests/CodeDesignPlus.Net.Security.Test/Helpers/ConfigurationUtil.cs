@@ -4,9 +4,7 @@ public static class ConfigurationUtil
 {
     public static readonly SecurityOptions SecurityOptions = new()
     {
-        Enable = true,
-        Name = nameof(Security.Options.SecurityOptions.Name),
-        Email = $"{nameof(Security.Options.SecurityOptions.Name)}@codedesignplus.com"
+        Authority = new Uri("https://localhost:5001")
     };
 
     public static IConfiguration GetConfiguration()

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using CodeDesignPlus.Net.EFCore.Exceptions;
-using CodeDesignPlus.Net.EFCore.Options;
+using CodeDesignPlus.Net.EFCore.Abstractions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,7 +38,6 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
 
     /// <summary>
     /// Gets all repositories and registers them in the.net core dependency container

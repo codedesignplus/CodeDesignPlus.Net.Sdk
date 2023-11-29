@@ -2,7 +2,7 @@
 global using System.Text.Json;
 global using CodeDesignPlus.Net.Security.Abstractions;
 global using CodeDesignPlus.Net.Security.Exceptions;
-global using CodeDesignPlus.Net.Security.Options;
+global using CodeDesignPlus.Net.Security.Abstractions.Options;
 global using CodeDesignPlus.Net.Security.Services;
 global using CodeDesignPlus.Net.Security.Test.Helpers;
 global using CodeDesignPlus.Net.Security.Test.Helpers.Models;

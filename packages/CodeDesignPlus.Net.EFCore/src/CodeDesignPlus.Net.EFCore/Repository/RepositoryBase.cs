@@ -97,7 +97,7 @@ namespace CodeDesignPlus.Net.EFCore.Repository;
          this.Context.Set<TEntity>().Update(entity);
 
          this.Context.Entry(entity).Property(nameof(IEntityBase<TKey, TUserKey>.IdUserCreator)).IsModified = false;
-         this.Context.Entry(entity).Property(nameof(IEntityBase<TKey, TUserKey>.DateCreated)).IsModified = false;
+         this.Context.Entry(entity).Property(nameof(IEntityBase<TKey, TUserKey>.CreatedAt)).IsModified = false;
 
          var success = await this.Context.SaveChangesAsync(cancellationToken) > 0;
 
@@ -219,7 +219,7 @@ namespace CodeDesignPlus.Net.EFCore.Repository;
 
          if (entity != null)
          {
-             entity.State = state;
+             entity.IsActive = state;
 
              return await this.Context.SaveChangesAsync(cancellationToken) > 0;
          }
