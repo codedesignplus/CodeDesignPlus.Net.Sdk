@@ -1,14 +1,10 @@
-﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions;
+﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 
-/// <summary>
-/// This services is the example
-/// </summary>
-public interface IFileStorageService
+namespace CodeDesignPlus.Net.File.Storage.Abstractions;
+
+public interface IFileStorageService<TTenant>
 {
-    /// <summary>
-    /// Asynchronously echoes the specified.
-    /// </summary>
-    /// <param name="value">The value to echo. This value will be echoed to the output stream.</param>
-    /// <returns>A that represents the asynchronous echo operation. The value of the TResult parameter contains the echoed value</returns>
-    Task<string> EchoAsync(string value);
+    Task<IList<Response>> UploadFileAsync(TTenant tenant, Stream stream, string uri, string target, Models.File file, TypeProviders typeProvider);
+    Task<Response> DownloadFileAsync(TTenant tenant, string file, string target, TypeProviders typeProvider);
 }

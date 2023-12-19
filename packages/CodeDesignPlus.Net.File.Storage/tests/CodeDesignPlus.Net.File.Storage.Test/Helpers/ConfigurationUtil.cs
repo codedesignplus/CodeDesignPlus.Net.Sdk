@@ -6,9 +6,26 @@ public static class OptionsUtil
 {
     public static readonly FileStorageOptions FileStorageOptions = new()
     {
-        Enable = true,
-        Name = nameof(Abstractions.Options.FileStorageOptions.Name),
-        Email = $"{nameof(Abstractions.Options.FileStorageOptions.Name)}@codedesignplus.com"
+        AzureBlob = new() {
+            AccountKey = "AccountKey",
+            AccountName = "AccountName",
+            DefaultEndpointsProtocol = "https",
+            Enable = true,
+            Uri = new Uri("https://localhost:44300"),
+            UsePasswordLess = true
+        },
+        AzureFile = new () {
+            AccountKey = "AccountKey",
+            AccountName = "AccountName",
+            DefaultEndpointsProtocol = "https",
+            Enable = true,
+            Folder = "docs/images",
+        },
+        Local = new()
+        {
+            Enable = true,
+            Folder = "docs/images"
+        }
     };
 
 }

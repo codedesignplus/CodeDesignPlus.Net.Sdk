@@ -59,11 +59,11 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddFileStorage(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorageService));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorageService<>));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(FileStorageService), libraryService.ImplementationType);
+        Assert.Equal(typeof(FileStorageService<>), libraryService.ImplementationType);
     }
 
     [Fact]
@@ -85,10 +85,6 @@ public class ServiceCollectionExtensionsTest
 
         Assert.NotNull(options);
         Assert.NotNull(value);
-
-        Assert.Equal(OptionsUtil.FileStorageOptions.Name, value.Name);
-        Assert.Equal(OptionsUtil.FileStorageOptions.Email, value.Email);
-        Assert.Equal(OptionsUtil.FileStorageOptions.Enable, value.Enable);
     }
 
 

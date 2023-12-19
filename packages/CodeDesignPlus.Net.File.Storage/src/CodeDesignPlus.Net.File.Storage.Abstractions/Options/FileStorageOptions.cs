@@ -13,42 +13,25 @@ public class FileStorageOptions : IValidatableObject
     /// </summary>
     public static readonly string Section = "FileStorage";
 
-    /// <summary>
-    /// Get or sets the Enable
-    /// </summary>
-    public bool Enable { get; set; }
-    /// <summary>
-    /// Gets or sets the name
-    /// </summary>
-    [Required]
-    public string Name { get; set; }
-    /// <summary>
-    /// Gets or sets the name
-    /// </summary>
-    [EmailAddress]
-    public string Email { get; set; }
+    public AzureBlobOptions AzureBlob { get; set; }
+    public AzureFileOptions AzureFile { get; set; }
+    public LocalOptions Local { get; set; }
 
-    /// <summary>
-    /// Determines whether the specified object is valid.
-    /// </summary>
-    /// <param name="validationContext">The validation context.</param>
-    /// <returns>A collection that holds failed-validation information.</returns>
+    public Uri UriDownload { get; set; }
+
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        var results = new List<ValidationResult>();
+        var validations = new List<ValidationResult>();
 
-        if (this.Enable)
-        {
-            if (string.IsNullOrEmpty(Email))
-                results.Add(new ValidationResult($"The {nameof(this.Email)} field is required."));
+        if (this.AzureBlob != null)
+            validations.AddRange(this.AzureBlob.Validate(validationContext));
 
-            Validator.TryValidateProperty(
-                this.Email,
-                new ValidationContext(this, null, null) { MemberName = nameof(this.Email) },
-                results
-            );
-        }
+        if (this.AzureFile != null)
+            validations.AddRange(this.AzureFile.Validate(validationContext));
 
-        return results;
+        if (this.Local != null)
+            validations.AddRange(this.Local.Validate(validationContext));
+
+        return validations;
     }
 }

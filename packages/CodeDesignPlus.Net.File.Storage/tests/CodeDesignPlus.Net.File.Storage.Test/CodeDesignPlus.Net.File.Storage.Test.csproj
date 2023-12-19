@@ -29,4 +29,9 @@
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.File.Storage\CodeDesignPlus.Net.File.Storage.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.xUnit\src\CodeDesignPlus.Net.xUnit\CodeDesignPlus.Net.xUnit.csproj" />
   </ItemGroup>
+  <ItemGroup>
+     <None Update="Helpers\Files\*.*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

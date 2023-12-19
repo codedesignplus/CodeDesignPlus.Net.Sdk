@@ -36,7 +36,7 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IFileStorageService, FileStorageService>();
+        services.AddSingleton(typeof(IFileStorageService<>), typeof(FileStorageService<>));
 
         return services;
     }
