@@ -32,9 +32,9 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
                 return response;
             }
 
-            using var stream = new MemoryStream();
+            var stream = new MemoryStream();
 
-            var download = await blobClient.DownloadToAsync(stream, cancellationToken: cancellationToken);
+            await blobClient.DownloadToAsync(stream, cancellationToken: cancellationToken);
 
             response.Stream = stream;
             response.Stream.Position = 0;
@@ -62,14 +62,13 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
 
                 while (await blobClient.ExistsAsync(cancellationToken))
                 {
-                    file.Renowned = true;
+                    count += 1;
+
                     file.Version = SemVersion.ParsedFrom(count, 0, 0);
 
                     name = GetName(target, $"{file.Name} ({count}){file.Extension}");
 
                     blobClient = container.GetBlobClient(name);
-
-                    count += 1;
                 }
             }
 
@@ -103,16 +102,15 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
 
             var blobClient = container.GetBlobClient(name);
 
-            var download = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+            var deleted = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
 
-            response.Success = download;
+            response.Success = deleted;
 
-            if (!download)
+            if (!deleted)
                 response.Message = $"The file {file} not exist in the container {this.factory.UserContext.Tenant}";
 
             return response;
         });
-
     }
 
     protected string GetName(string target, string name)
