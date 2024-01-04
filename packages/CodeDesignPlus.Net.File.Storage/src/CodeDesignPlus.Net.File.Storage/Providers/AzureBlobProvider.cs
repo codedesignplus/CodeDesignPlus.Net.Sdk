@@ -1,104 +1,125 @@
-﻿using Azure.Identity;
-using Azure.Storage.Blobs;
-using Azure.Storage.Blobs.Models;
-using Azure.Storage.Blobs.Specialized;
+﻿using Azure.Storage.Blobs.Models;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using CodeDesignPlus.Net.File.Storage.Factories;
 using Microsoft.Extensions.Hosting;
+using Semver;
 
 namespace CodeDesignPlus.Net.File.Storage.Providers;
 
-public class AzureBlobProvider<TTenant> : IAzureBlobProvider<TTenant>
+public class AzureBlobProvider<TKeyUser, TTenant>(
+    IAzureBlobFactory<TKeyUser, TTenant> factory,
+    ILogger<AzureBlobProvider<TKeyUser, TTenant>> logger,
+    IHostEnvironment environment
+    ) : BaseProvider(logger, environment), IAzureBlobProvider
 {
-    private readonly FileStorageOptions fileOptions;
-    private readonly IHostEnvironment environment;
-    private readonly ILogger<AzureBlobProvider<TTenant>> logger;
+    private readonly IAzureBlobFactory<TKeyUser, TTenant> factory  = factory.Create();
 
-    public AzureBlobProvider(IOptions<FileStorageOptions> options, ILogger<AzureBlobProvider<TTenant>> logger, IHostEnvironment environment)
+    public Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
     {
-        if (environment is null)
-            throw new ArgumentNullException(nameof(environment));
-
-        if (options is null)
-            throw new ArgumentNullException(nameof(options));
-
-        this.fileOptions = options.Value;
-        this.environment = environment;
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-    public Task<Response> ReadFileAsync(TTenant tenant, string file, string target)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task<IList<Response>> WriteFileAsync(TTenant tenant, Stream stream, string target, Abstractions.Models.File file)
-    {
-        var response = new Response(file, TypeProviders.AzureBlobProvider);
-
-        var container = this.fileOptions.AzureBlob.BlobServiceClient.GetBlobContainerClient(tenant.ToString());
-
-        await container.CreateIfNotExistsAsync(); //PublicAccessType.BlobContainer
-
-        var name = GetName(target, file);
-
-        var blobClient = container.GetBlobClient(name);
-
-        await blobClient.UploadAsync(stream, new BlobUploadOptions
+        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.AzureBlobProvider, async response =>
         {
-            AccessTier = AccessTier.Hot,
-            Metadata = file.GetMetadata(this.fileOptions.UriDownload),
-            Tags = file.GetTags(tenant),
-            HttpHeaders = new BlobHttpHeaders
+            var name = GetName(target, file);
+
+            var blobClient = this.factory.GetContainerClient().GetBlobClient(name);
+
+            if (!await blobClient.ExistsAsync(cancellationToken))
             {
-                ContentType = file.Mime.MimeType
-            },
+                response.Success = false;
+                response.Message = $"The file {file} not exist in the container {this.factory.UserContext.Tenant}";
+
+                return response;
+            }
+
+            using var stream = new MemoryStream();
+
+            var download = await blobClient.DownloadToAsync(stream, cancellationToken: cancellationToken);
+
+            response.Stream = stream;
+            response.Stream.Position = 0;
+            response.Success = true;
+
+            return response;
+        });
+    }
+
+    public Task<Response> UploadAsync(Stream stream, Abstractions.Models.File file, string target, CancellationToken cancellationToken = default)
+    {
+        return base.ProcessAsync(file, TypeProviders.AzureBlobProvider, async response =>
+        {
+            var container = this.factory.GetContainerClient();
+
+            await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+
+            var name = GetName(target, System.IO.Path.GetFileName(file.FullName));
+
+            var blobClient = container.GetBlobClient(name);
+
+            if (file.Renowned)
+            {
+                var count = 1;
+
+                while (await blobClient.ExistsAsync(cancellationToken))
+                {
+                    file.Renowned = true;
+                    file.Version = SemVersion.ParsedFrom(count, 0, 0);
+
+                    name = GetName(target, $"{file.Name} ({count}){file.Extension}");
+
+                    blobClient = container.GetBlobClient(name);
+
+                    count += 1;
+                }
+            }
+
+            await blobClient.UploadAsync(stream, new BlobUploadOptions
+            {
+                AccessTier = AccessTier.Hot,
+                Metadata = file.GetMetadata(this.factory.Options.UriDownload),
+                Tags = file.GetTags(this.factory.UserContext.Tenant),
+                HttpHeaders = new BlobHttpHeaders
+                {
+                    ContentType = file.Mime.MimeType
+                },
+            }, cancellationToken: cancellationToken);
+
+            file.Size = stream.Length;
+            file.Path = new Abstractions.Models.Path(this.factory.Options.UriDownload, target, name, TypeProviders.AzureBlobProvider);
+
+            response.Success = true;
+
+            return response;
+        });
+    }
+
+    public Task<Response> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
+    {
+        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.AzureBlobProvider, async response =>
+        {
+            var container = this.factory.GetContainerClient();
+
+            var name = GetName(target, file);
+
+            var blobClient = container.GetBlobClient(name);
+
+            var download = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+
+            response.Success = download;
+
+            if (!download)
+                response.Message = $"The file {file} not exist in the container {this.factory.UserContext.Tenant}";
+
+            return response;
         });
 
-        return null;
     }
 
-    private static string GetName(string target, Abstractions.Models.File file)
+    protected string GetName(string target, string name)
     {
         if (string.IsNullOrEmpty(target))
-            return file.Name;
+            return name;
 
-        return $"{target}/{file.Name}";
+        return $"{target}/{name}";
     }
-
-    // private async Task<CloudBlockBlob> GetNameAsync(IUpload data)
-    // {
-    //     if (data.Overwrite)
-    //     {
-    //         return await this.storage.GetBlobAsync(data.IdClient, data.IdCampaign, data.Target, data.FileInfo.Name);
-    //     }
-    //     else
-    //     {
-    //         return await this.GetNextNameAsync(data);
-    //     }
-    // }
-
-
-    // private async Task<string> GetNextNameAsync(TTenant tenant, Abstractions.Models.File file)
-    // {
-    //     var fileName = file.Name;
-
-    //     var container = this.fileOptions.AzureBlob.BlobServiceClient.GetBlobContainerClient(tenant.ToString());
-
-    //     var count = 1;
-
-    //     while (await container.ExistsAsync())
-    //     {
-    //         file.Renowned = true;
-
-    //         fileName = $"{file.Name} ({count}){file.Extension}";
-
-    //         file = //await container.GetBlobClient(fileName);
-
-    //         count += 1;
-    //     }
-
-    //     return file;
-    // }
 }

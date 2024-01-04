@@ -1,43 +1,33 @@
 ﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 
 namespace CodeDesignPlus.Net.File.Storage;
 
-public class LocalProvider<TTenant> : ILocalProvider<TTenant>
+public class LocalProvider<TKeyUser, TTenant>(
+    IOptions<FileStorageOptions> options,
+    ILogger<LocalProvider<TKeyUser, TTenant>> logger,
+    IHostEnvironment environment,
+    IUserContext<TKeyUser, TTenant> userContext
+) : BaseProvider(logger, environment), ILocalProvider
 {
-    private readonly FileStorageOptions fileOptions;
-    private readonly IHostEnvironment environment;
-    private readonly ILogger<LocalProvider<TTenant>> logger;
+    private readonly IUserContext<TKeyUser, TTenant> UserContext = userContext;
+    private readonly FileStorageOptions Options = options.Value;
 
-    public LocalProvider(IOptions<FileStorageOptions> options, ILogger<LocalProvider<TTenant>> logger, IHostEnvironment environment)
+    public Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
     {
-        if (environment is null)
-            throw new ArgumentNullException(nameof(environment));
-
-        if (options is null)
-            throw new ArgumentNullException(nameof(options));
-
-        this.fileOptions = options.Value;
-        this.environment = environment;
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-    }
-
-    public async Task<Response> ReadFileAsync(TTenant tenant, string file, string target)
-    {
-        var response = new Response(new Abstractions.Models.File(file), TypeProviders.LocalProvider);
-
-        try
+        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.LocalProvider, async response =>
         {
-            var path = System.IO.Path.Combine(this.fileOptions.Local.Folder, target, file);
+            var path = System.IO.Path.Combine(this.Options.Local.Folder, this.UserContext.Tenant.ToString(), target, file);
 
             if (System.IO.File.Exists(path))
             {
                 var memoryStream = new MemoryStream();
                 var str = new FileStream(path, FileMode.Open);
 
-                await str.CopyToAsync(memoryStream);
+                await str.CopyToAsync(memoryStream, cancellationToken: cancellationToken);
 
                 str.Close();
 
@@ -49,55 +39,53 @@ public class LocalProvider<TTenant> : ILocalProvider<TTenant>
                 response.Success = false;
                 response.Message = "The system cannot find the file specified";
             }
-        }
-        catch (Exception e_ex)
-        {
-            response.Success = false;
-            response.Message = e_ex.Message;
 
-            if (environment.IsDevelopment())
-                response.Exception = e_ex;
-
-            this.logger.LogError(e_ex, "The file could not be read");
-        }
-
-        return response;
+            return response;
+        });
     }
 
-    public async Task<IList<Response>> WriteFileAsync(TTenant tenant, Stream stream, string target, Abstractions.Models.File file)
+    public Task<Response> UploadAsync(Stream stream, Abstractions.Models.File file, string target, CancellationToken cancellationToken = default)
     {
-        var result = new Response(file, TypeProviders.LocalProvider);
-
-        try
+        return base.ProcessAsync(file, TypeProviders.LocalProvider, async response =>
         {
             var path = this.GetFullPath(file, target);
 
             using var fileStream = new FileStream(path, FileMode.Create);
 
-            await stream.CopyToAsync(fileStream);
+            await stream.CopyToAsync(fileStream, cancellationToken: cancellationToken);
 
 
-            file.Path = new Abstractions.Models.Path(this.fileOptions.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
+            file.Path = new Abstractions.Models.Path(this.Options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
 
-            result.Success = System.IO.File.Exists(path);
-        }
-        catch (Exception e_ex)
+            response.Success = System.IO.File.Exists(path);
+
+            return response;
+        });
+    }
+
+    public Task<Response> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
+    {
+        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.LocalProvider, response =>
         {
-            result.Success = false;
-            result.Message = e_ex.Message;
+            var path = System.IO.Path.Combine(this.Options.Local.Folder, target, file);
 
-            if (environment.IsDevelopment())
-                result.Exception = e_ex;
+            if (!System.IO.File.Exists(path))
+            {
+                response.Success = false;
+                response.Message = "The system cannot find the file specified";
+            }
 
-            this.logger.LogError(e_ex, "The file could not be written");
-        }
+            System.IO.File.Delete(path);
 
-        return new List<Response>() { result };
+            response.Success = true;
+
+            return Task.FromResult(response);
+        });
     }
 
     private string GetPath(string target)
     {
-        var path = System.IO.Path.Combine(this.fileOptions.Local.Folder, target);
+        var path = System.IO.Path.Combine(this.Options.Local.Folder, this.UserContext.Tenant.ToString(), target);
 
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
@@ -109,14 +97,10 @@ public class LocalProvider<TTenant> : ILocalProvider<TTenant>
     {
         var path = this.GetPath(target);
 
-        if (file.Overwrite)
-        {
+        if (!file.Renowned)
             return System.IO.Path.Combine(path, file.FullName);
-        }
-        else
-        {
-            return GetNextName(file, path);
-        }
+
+        return GetNextName(file, path);
     }
 
     private static string GetNextName(Abstractions.Models.File file, string path)

@@ -2,8 +2,9 @@
 
 namespace CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 
-public interface IProvider<TTenant>
+public interface IProvider
 {
-    Task<IList<Response>> WriteFileAsync(TTenant tenant, Stream stream, string target, Models.File file);
-    Task<Response> ReadFileAsync(TTenant tenant, string file, string target);
+    Task<Response> UploadAsync(Stream stream, Models.File file, string target, CancellationToken cancellationToken = default);
+    Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default);
+    Task<Response> DeleteAsync(string file, string target, CancellationToken cancellationToken = default);
 }

@@ -4,7 +4,8 @@ namespace CodeDesignPlus.Net.Security.Abstractions;
 /// Provide the information of the authenticated user during the request
 /// </summary>
 /// <typeparam name="TKeyUser">Type of data that the user will identify</typeparam>
-public interface IUserContext<TKeyUser>
+/// <typeparam name="TTenant">Type of data that the tenant will identify</typeparam>
+public interface IUserContext<TKeyUser, TTenant>
 {
     /// <summary>
     /// Gets a value boolean that indicates whether is a application
@@ -26,4 +27,8 @@ public interface IUserContext<TKeyUser>
     /// Gets the name of the current user.
     /// </summary>
     string Email { get; set; }
+    /// <summary>
+    /// Get or set the tenant user
+    /// </summary>
+    TTenant Tenant { get; set; }
 }

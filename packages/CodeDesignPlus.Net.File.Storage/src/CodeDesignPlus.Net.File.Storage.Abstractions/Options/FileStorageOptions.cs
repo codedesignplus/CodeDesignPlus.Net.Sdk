@@ -16,7 +16,7 @@ public class FileStorageOptions : IValidatableObject
     public AzureBlobOptions AzureBlob { get; set; }
     public AzureFileOptions AzureFile { get; set; }
     public LocalOptions Local { get; set; }
-
+    [Required]
     public Uri UriDownload { get; set; }
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

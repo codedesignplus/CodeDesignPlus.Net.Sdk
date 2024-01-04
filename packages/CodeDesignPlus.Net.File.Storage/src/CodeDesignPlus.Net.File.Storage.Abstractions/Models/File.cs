@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+﻿using Semver;
+
+namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 public class File
 {
@@ -7,9 +9,8 @@ public class File
     public string Name { get => System.IO.Path.GetFileNameWithoutExtension(this.FullName); }
     public Path Path { get; set; }
     public long Size { get; set; }
-    public string Version { get; set; }
+    public SemVersion Version { get; set; } = new SemVersion(1, 0, 0);
     public bool Renowned { get; set; }
-    public bool Overwrite { get; set; }
     public ApacheMime Mime { get => ApacheMime.ApacheMimes.FirstOrDefault(x => x.Extension.Contains(this.Extension)); }
 
     public File(string fullName)
@@ -22,22 +23,29 @@ public class File
 
     public Dictionary<string, string> GetMetadata(Uri uri)
     {
+        if(uri is null)
+            throw new ArgumentNullException(nameof(uri));
+
         return new Dictionary<string, string>
         {
             { "FullName", this.FullName },
             { "Name", this.Name },
             { "Extension", this.Extension },
             { "Size", this.Size.ToString() },
-            { "Version", this.Version },
+            { "Version", this.Version.ToString() },
             { "Renowned", this.Renowned.ToString() },
-            { "Overwrite", this.Overwrite.ToString() },
             { "Mime", this.Mime.ToString() },
-            { "Uri", uri.ToString()}
+            { "Uri", uri.ToString()},
+            { "CreatedAt", DateTime.UtcNow.ToString() }
         };
     }
 
     public Dictionary<string, string> GetTags<TTenant>(TTenant tenant)
     {
+        
+        if(tenant is null)
+            throw new ArgumentNullException(nameof(tenant));
+
         return new Dictionary<string, string>
         {
             { "Name", this.Name },

@@ -5,16 +5,12 @@ namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 public class Path
 {
     public string File { get; }
-
     public Uri Uri { get; }
-
     public string Target { get; }
-
     public string UriDownload { get; }
-
     public string UriViewInBrowser { get; }
     public string Provider { get; private set; }
-
+    
     public Path(Uri uri, string target, string file, TypeProviders provider)
     {
         if (provider == TypeProviders.None)

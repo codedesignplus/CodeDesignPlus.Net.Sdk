@@ -12,7 +12,7 @@ public class AzureBlobOptions : IValidatableObject
     public string DefaultEndpointsProtocol { get; set; }
     public string AccountName { get; set; }
     public string AccountKey { get; set; }
-    public bool UsePasswordLess { get; set; } = true;
+    public bool UsePasswordLess { get; set; }
     public string EndpointSuffix { get; set; }
     public Uri Uri { get; set; }
 
@@ -39,25 +39,11 @@ public class AzureBlobOptions : IValidatableObject
             yield return new ValidationResult("The Uri is required", new[] { nameof(this.Uri) });
     }
 
-    public override string ToString()
-    {
-        if (!this.Enable)
-            return default;
-
-        return $"DefaultEndpointsProtocol={this.DefaultEndpointsProtocol};AccountName={this.AccountName};AccountKey={this.AccountKey};EndpointSuffix={this.EndpointSuffix}";
-    }
-
-    public BlobServiceClient BlobServiceClient
+    public string ConnectionString
     {
         get
         {
-            if (!this.Enable)
-                return default;
-
-            if (this.UsePasswordLess)
-                return new BlobServiceClient(this.Uri, new DefaultAzureCredential());
-
-            return new BlobServiceClient(this.ToString());
+            return $"DefaultEndpointsProtocol={this.DefaultEndpointsProtocol};AccountName={this.AccountName};AccountKey={this.AccountKey};EndpointSuffix={this.EndpointSuffix}";
         }
     }
 }
