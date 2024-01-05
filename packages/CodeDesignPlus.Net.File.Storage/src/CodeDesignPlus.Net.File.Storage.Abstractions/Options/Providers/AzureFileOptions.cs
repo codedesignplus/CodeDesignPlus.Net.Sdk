@@ -12,7 +12,6 @@ public class AzureFileOptions : IValidatableObject
     public string DefaultEndpointsProtocol { get; set; }
     public string AccountName { get; set; }
     public string AccountKey { get; set; }
-    public string Folder { get; set; }
     public string EndpointSuffix { get; set; }
     public bool UsePasswordLess { get; set; }
     public Uri Uri { get; set; }
@@ -32,9 +31,6 @@ public class AzureFileOptions : IValidatableObject
 
             if (string.IsNullOrEmpty(this.AccountKey))
                 yield return new ValidationResult("The AccountKey is required", new[] { nameof(this.AccountKey) });
-
-            if (string.IsNullOrEmpty(this.Folder))
-                yield return new ValidationResult("The Folder is required", new[] { nameof(this.Folder) });
 
             if (string.IsNullOrEmpty(this.EndpointSuffix))
                 yield return new ValidationResult("The EndpointSuffix is required", new[] { nameof(this.EndpointSuffix) });

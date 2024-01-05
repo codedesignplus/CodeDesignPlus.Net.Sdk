@@ -21,6 +21,4 @@ public class Response
         this.Provider = typeProvider.ToString();
     }
 
-    public static Response Create(File file, TypeProviders typeProvider)
-        => new(file, typeProvider);
 }

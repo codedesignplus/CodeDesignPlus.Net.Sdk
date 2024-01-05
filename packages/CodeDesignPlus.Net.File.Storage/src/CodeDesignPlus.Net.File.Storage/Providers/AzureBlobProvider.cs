@@ -84,7 +84,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
             }, cancellationToken: cancellationToken);
 
             file.Size = stream.Length;
-            file.Path = new Abstractions.Models.Path(this.factory.Options.UriDownload, target, name, TypeProviders.AzureBlobProvider);
+            file.Path = new Abstractions.Models.Path(this.factory.Options.UriDownload, target, System.IO.Path.GetFileName(name), TypeProviders.AzureBlobProvider);
 
             response.Success = true;
 

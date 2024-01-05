@@ -3,19 +3,20 @@ using CodeDesignPlus.Net.File.Storage.Providers;
 using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Moq;
+using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
-namespace CodeDesignPlus.Net.File.Storage.Test;
+namespace CodeDesignPlus.Net.File.Storage.Test.Integration;
 
-public class AzureBlobProviderTest
+public class AzureBlobProviderIntegrationTest
 {
 
-    [Fact]
+    [Fact(Skip = "This unit test is for integration test")]
     public async Task WriteFile()
     {
         // Arrange
         var path = AppDomain.CurrentDomain.BaseDirectory;
 
-        var file = new Abstractions.Models.File(Path.Join(path, "Helpers", "Files", "FakeDocument.txt"))
+        var file = new M.File(Path.Join(path, "Helpers", "Files", "FakeDocument.txt"))
         {
             Renowned = true
         };
@@ -56,13 +57,13 @@ public class AzureBlobProviderTest
     }
 
 
-    [Fact]
+    [Fact(Skip = "This unit test is for integration test")]
     public async Task ReadFile()
     {
         // Arrange
         var path = AppDomain.CurrentDomain.BaseDirectory;
 
-        var file = new Abstractions.Models.File(Path.Join(path, "Helpers", "Files", "FakeDocument.txt"))
+        var file = new M.File(Path.Join(path, "Helpers", "Files", "FakeDocument.txt"))
         {
             Renowned = true
         };
@@ -103,13 +104,13 @@ public class AzureBlobProviderTest
     }
 
     
-    [Fact]
+    [Fact(Skip = "This unit test is for integration test")]
     public async Task DeleteFile()
     {
         // Arrange
         var path = AppDomain.CurrentDomain.BaseDirectory;
 
-        var file = new Abstractions.Models.File(Path.Join(path, "Helpers", "Files", "FakeDocument.txt"))
+        var file = new M.File(Path.Join(path, "Helpers", "Files", "FakeDocument.txt"))
         {
             Renowned = true
         };

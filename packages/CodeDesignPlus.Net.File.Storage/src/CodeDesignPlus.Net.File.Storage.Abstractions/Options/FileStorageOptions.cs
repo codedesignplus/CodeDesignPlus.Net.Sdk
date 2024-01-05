@@ -12,13 +12,29 @@ public class FileStorageOptions : IValidatableObject
     /// Name of the setions used in the appsettings
     /// </summary>
     public static readonly string Section = "FileStorage";
-
+    /// <summary>
+    /// Gets or sets the Azure Blob options
+    /// </summary>
     public AzureBlobOptions AzureBlob { get; set; }
+    /// <summary>
+    /// Gets or sets the Azure File options
+    /// </summary>
     public AzureFileOptions AzureFile { get; set; }
+    /// <summary>
+    /// Gets or sets the Local options
+    /// </summary>
     public LocalOptions Local { get; set; }
+    /// <summary>
+    /// Gets or sets the Uri to download the file
+    /// </summary>
     [Required]
     public Uri UriDownload { get; set; }
 
+    /// <summary>
+    /// Validate the options
+    /// </summary>
+    /// <param name="validationContext">Context of the validation</param>
+    /// <returns>A collection that holds failed-validation information.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var validations = new List<ValidationResult>();

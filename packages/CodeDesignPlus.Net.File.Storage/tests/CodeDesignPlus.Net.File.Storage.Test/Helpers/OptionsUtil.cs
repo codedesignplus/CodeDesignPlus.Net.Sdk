@@ -21,7 +21,6 @@ public static class OptionsUtil
             AccountKey = "4/e5AP+hRQ46e6oQwO9LgEq/ylB1bO3fyf2lAnb7BMFU5Mt8IH9eh/iziyqvnw0UD7sRh7NKVA+1+AStkJ7+6w==",
             DefaultEndpointsProtocol = "https",
             Enable = true,
-            Folder = "docs/images",
             EndpointSuffix = "core.windows.net",
         },
         Local = new()

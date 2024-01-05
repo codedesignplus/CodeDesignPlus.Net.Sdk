@@ -35,11 +35,7 @@ public class AzureFileProvider<TKeyUser, TTenant>(
 
             var download = await fileClient.DownloadAsync(cancellationToken: cancellationToken);
 
-            using var stream = new MemoryStream();
-
-            download.Value.Content.CopyTo(stream);
-
-            response.Stream = stream;
+            response.Stream = download.Value.Content;
             response.Stream.Position = 0;
             response.Success = true;
 
@@ -82,14 +78,12 @@ public class AzureFileProvider<TKeyUser, TTenant>(
 
                 while (await fileClient.ExistsAsync(cancellationToken))
                 {
-                    file.Renowned = true;
+                    count += 1;
                     file.Version = SemVersion.ParsedFrom(count, 0, 0);
 
                     name = $"{file.Name} ({count}){file.Extension}";
 
                     fileClient = directory.GetFileClient(name);
-
-                    count += 1;
                 }
             }
 
@@ -98,7 +92,7 @@ public class AzureFileProvider<TKeyUser, TTenant>(
             await fileClient.UploadAsync(stream, cancellationToken: cancellationToken);
 
             file.Size = stream.Length;
-            file.Path = new M.Path(this.factory.Options.UriDownload, target, name, TypeProviders.AzureBlobProvider);
+            file.Path = new M.Path(this.factory.Options.UriDownload, target, name, TypeProviders.AzureFileProvider);
 
             response.Success = true;
 

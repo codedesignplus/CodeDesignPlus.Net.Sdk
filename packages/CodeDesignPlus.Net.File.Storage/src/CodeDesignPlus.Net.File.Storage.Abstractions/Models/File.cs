@@ -41,8 +41,7 @@ public class File
     }
 
     public Dictionary<string, string> GetTags<TTenant>(TTenant tenant)
-    {
-        
+    {        
         if(tenant is null)
             throw new ArgumentNullException(nameof(tenant));
 
