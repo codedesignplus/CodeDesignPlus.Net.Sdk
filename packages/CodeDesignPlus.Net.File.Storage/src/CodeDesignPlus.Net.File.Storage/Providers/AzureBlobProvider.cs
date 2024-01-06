@@ -2,7 +2,6 @@
 using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-using CodeDesignPlus.Net.File.Storage.Factories;
 using Microsoft.Extensions.Hosting;
 using Semver;
 
@@ -12,7 +11,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
     IAzureBlobFactory<TKeyUser, TTenant> factory,
     ILogger<AzureBlobProvider<TKeyUser, TTenant>> logger,
     IHostEnvironment environment
-    ) : BaseProvider(logger, environment), IAzureBlobProvider
+    ) : BaseProvider(logger, environment), IAzureBlobProvider<TKeyUser, TTenant>
 {
     private readonly IAzureBlobFactory<TKeyUser, TTenant> factory = factory.Create();
 

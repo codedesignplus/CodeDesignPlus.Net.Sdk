@@ -4,6 +4,20 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Abstractions.Models;
 
 public class FileTest
 {
+
+    [Fact]
+    public void Constructor_FileNameIsNull_ThrowArgumentNullException()
+    {
+        // Arrange
+        var fullName = string.Empty;
+
+        // Act
+        var exception = Assert.Throws<ArgumentNullException>(() => new M.File(fullName));
+
+        // Assert
+        Assert.Equal("fullName", exception.ParamName);
+    }
+
     [Fact]
     public void Constructor_Default_Values()
     {

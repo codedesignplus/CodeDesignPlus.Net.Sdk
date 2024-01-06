@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Options;
@@ -52,6 +53,7 @@ public class FileStorageOptionsTest
         var results = options.Validate();
 
         // Assert
+        Assert.Equal(TypeProviders.AzureBlobProvider, AzureBlobOptions.TypeProvider);
         Assert.NotEmpty(results);
         Assert.Contains(results, x => x.ErrorMessage == "The DefaultEndpointsProtocol is required");
         Assert.Contains(results, x => x.ErrorMessage == "The AccountName is required");
@@ -107,6 +109,26 @@ public class FileStorageOptionsTest
     }
 
     [Fact]
+    public void AzureBlobOptions_Disable_Valid()
+    {
+        // Arrange
+        var options = new FileStorageOptions()
+        {
+            AzureBlob = new AzureBlobOptions()
+            {
+                Enable = false,
+            },
+            UriDownload = new Uri("https://localhost:5001/api/v1/file-storage/download")
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Empty(results);
+    }
+
+    [Fact]
     public void AzureFileOptions_Enable_Required()
     {
         // Arrange
@@ -123,6 +145,7 @@ public class FileStorageOptionsTest
         var results = options.Validate();
 
         // Assert
+        Assert.Equal(TypeProviders.AzureFileProvider, AzureFileOptions.TypeProvider);
         Assert.NotEmpty(results);
         Assert.Contains(results, x => x.ErrorMessage == "The DefaultEndpointsProtocol is required");
         Assert.Contains(results, x => x.ErrorMessage == "The AccountName is required");
@@ -178,6 +201,26 @@ public class FileStorageOptionsTest
     }
 
     [Fact]
+    public void AzureFileOptions_Disable_Valid()
+    {
+        // Arrange
+        var options = new FileStorageOptions()
+        {
+            AzureFile = new AzureFileOptions()
+            {
+                Enable = false,
+            },
+            UriDownload = new Uri("https://localhost:5001/api/v1/file-storage/download")
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Empty(results);
+    }
+
+    [Fact]
     public void LocalOptions_Enable_Required()
     {
         // Arrange
@@ -195,6 +238,7 @@ public class FileStorageOptionsTest
 
         // Assert
         Assert.NotEmpty(results);
+        Assert.Equal(TypeProviders.LocalProvider, LocalOptions.TypeProvider);
         Assert.Equal("The Folder property is required.", results.First().ErrorMessage);
     }
 
@@ -208,6 +252,26 @@ public class FileStorageOptionsTest
             {
                 Enable = true,
                 Folder = "C:\\Temp"
+            },
+            UriDownload = new Uri("https://localhost:5001/api/v1/file-storage/download")
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Empty(results);
+    }
+
+    [Fact]
+    public void LocalOptions_Disable_Valid()
+    {
+        // Arrange
+        var options = new FileStorageOptions()
+        {
+            Local = new LocalOptions()
+            {
+                Enable = false
             },
             UriDownload = new Uri("https://localhost:5001/api/v1/file-storage/download")
         };

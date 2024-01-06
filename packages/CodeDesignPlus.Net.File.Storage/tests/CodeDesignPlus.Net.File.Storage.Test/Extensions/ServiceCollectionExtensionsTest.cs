@@ -1,4 +1,8 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
+﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using CodeDesignPlus.Net.File.Storage.Factories;
+using CodeDesignPlus.Net.File.Storage.Providers;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -59,11 +63,44 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddFileStorage(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorageService));
+        var fileService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorageService<,>));
+        var azureBlobProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureBlobProvider<,>));
+        var azureFileProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureFileProvider<,>));
+        var localProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(ILocalProvider<,>));
 
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(FileStorageService), libraryService.ImplementationType);
+        var azureBlobFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureBlobFactory<,>));
+        var azureFileFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureFlieFactory<,>));
+
+        var providers = serviceCollection.Where(x => x.ServiceType == typeof(IProvider<,>));
+
+        Assert.NotNull(fileService);
+        Assert.Equal(ServiceLifetime.Singleton, fileService.Lifetime);
+        Assert.Equal(typeof(FileStorageService<,>), fileService.ImplementationType);
+
+        Assert.NotNull(azureBlobProvider);
+        Assert.Equal(ServiceLifetime.Singleton, azureBlobProvider.Lifetime);
+        Assert.Equal(typeof(AzureBlobProvider<,>), azureBlobProvider.ImplementationType);
+
+        Assert.NotNull(azureFileProvider);
+        Assert.Equal(ServiceLifetime.Singleton, azureFileProvider.Lifetime);
+        Assert.Equal(typeof(AzureFileProvider<,>), azureFileProvider.ImplementationType);
+
+        Assert.NotNull(localProvider);
+        Assert.Equal(ServiceLifetime.Singleton, localProvider.Lifetime);
+        Assert.Equal(typeof(LocalProvider<,>), localProvider.ImplementationType);
+
+        Assert.NotNull(azureBlobFactory);
+        Assert.Equal(ServiceLifetime.Singleton, azureBlobFactory.Lifetime);
+        Assert.Equal(typeof(AzureBlobFactory<,>), azureBlobFactory.ImplementationType);
+
+        Assert.NotNull(azureFileFactory);
+        Assert.Equal(ServiceLifetime.Singleton, azureFileFactory.Lifetime);
+        Assert.Equal(typeof(AzureFileFactory<,>), azureFileFactory.ImplementationType);
+
+        Assert.NotNull(providers);
+        Assert.Contains(providers, x => x.ImplementationType == typeof(AzureBlobProvider<,>));
+        Assert.Contains(providers, x => x.ImplementationType == typeof(AzureFileProvider<,>));
+        Assert.Contains(providers, x => x.ImplementationType == typeof(LocalProvider<,>));
     }
 
     [Fact]

@@ -55,6 +55,21 @@ public class FileDetailTest
         // Assert
         Assert.Equal("file", exception.ParamName);
     }
-    
 
+
+    [Fact]
+    public void Constructor_TypeProviderIsNone_ThrowArgumentException()
+    {
+        // Arrange
+        var uri = new Uri("http://localhost");
+        var target = "test";
+        var file = "test.txt";
+        var provider = TypeProviders.None;
+
+        // Act
+        var exception = Assert.Throws<ArgumentException>(() => new M.FileDetail(uri, target, file, provider));
+
+        // Assert
+        Assert.Equal("provider", exception.ParamName);
+    }
 }

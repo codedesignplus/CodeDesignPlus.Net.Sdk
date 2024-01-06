@@ -4,7 +4,6 @@ namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 public class Response 
 {
-    public decimal Id { get; set; }
     public bool Success { get; set; }
     public string Message { get; set; }
     public Exception Exception { get; set; }

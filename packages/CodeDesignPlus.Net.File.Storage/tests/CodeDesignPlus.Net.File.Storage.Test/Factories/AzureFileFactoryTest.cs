@@ -49,9 +49,6 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
             Assert.Throws<ArgumentNullException>(() => new AzureFileFactory<Guid, Guid>(optionsMock.Object, userContext));
         }
 
-
-
-
         [Fact]
         public void Create_WhenAzureFileIsNotEnabled_ThrowsFileStorageException()
         {
@@ -125,6 +122,28 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
             Assert.IsType<ShareServiceClient>(factory.Client);
             Assert.Equal(OptionsUtil.FileStorageOptions.AzureFile.AccountName, factory.Client.AccountName);
             Assert.True(factory.Client.CanGenerateAccountSasUri);
+        }
+
+        
+        [Fact]
+        public void GetContainerClient_Called_Success()
+        {
+            // Arrange
+            var tenant = Guid.NewGuid();
+            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            userContextMock.Setup(x => x.Tenant).Returns(tenant);
+
+            var options = O.Options.Create(OptionsUtil.FileStorageOptions);
+            var factory = new AzureFileFactory<Guid, Guid>(options, userContextMock.Object);
+            factory.Create();
+
+            // Act
+            var result = factory.GetContainerClient();
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.IsType<ShareClient>(result);
+            Assert.Equal(tenant.ToString(), result.Name);
         }
     }
 }

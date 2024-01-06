@@ -13,7 +13,7 @@ public class AzureFileProvider<TKeyUser, TTenant>(
     IAzureFlieFactory<TKeyUser, TTenant> factory,
     ILogger<AzureFileProvider<TKeyUser, TTenant>> logger,
     IHostEnvironment environment
-) : BaseProvider(logger, environment), IAzureFileProvider
+) : BaseProvider(logger, environment), IAzureFileProvider<TKeyUser, TTenant>
 {
     private readonly IAzureFlieFactory<TKeyUser, TTenant> factory = factory.Create();
 

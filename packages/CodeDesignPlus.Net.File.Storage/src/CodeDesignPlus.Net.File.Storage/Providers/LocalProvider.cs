@@ -11,7 +11,7 @@ public class LocalProvider<TKeyUser, TTenant>(
     ILogger<LocalProvider<TKeyUser, TTenant>> logger,
     IHostEnvironment environment,
     IUserContext<TKeyUser, TTenant> userContext
-) : BaseProvider(logger, environment), ILocalProvider
+) : BaseProvider(logger, environment), ILocalProvider<TKeyUser, TTenant>
 {
     private readonly IUserContext<TKeyUser, TTenant> UserContext = userContext;
     private readonly FileStorageOptions options = options.Value;
@@ -32,6 +32,7 @@ public class LocalProvider<TKeyUser, TTenant>(
                 str.Close();
 
                 response.Stream = memoryStream;
+                response.Stream.Position = 0;
                 response.Success = true;
             }
             else
@@ -66,12 +67,14 @@ public class LocalProvider<TKeyUser, TTenant>(
     {
         return base.ProcessAsync(this.options.Local.Enable, filename, TypeProviders.LocalProvider, (file, response) =>
         {
-            var path = System.IO.Path.Combine(this.options.Local.Folder, target, filename);
+            var path = System.IO.Path.Combine(this.GetPath(target), filename);
 
             if (!System.IO.File.Exists(path))
             {
                 response.Success = false;
                 response.Message = "The system cannot find the file specified";
+
+                return Task.FromResult(response);
             }
 
             System.IO.File.Delete(path);
@@ -110,13 +113,13 @@ public class LocalProvider<TKeyUser, TTenant>(
 
         while (System.IO.File.Exists(fullPath))
         {
+            count += 1;
+
             file.Renowned = true;
 
             fileName = $@"{file.Name} ({count}){file.Extension}";
 
             fullPath = System.IO.Path.Combine(path, fileName);
-
-            count += 1;
         }
 
         file.FullName = fileName;

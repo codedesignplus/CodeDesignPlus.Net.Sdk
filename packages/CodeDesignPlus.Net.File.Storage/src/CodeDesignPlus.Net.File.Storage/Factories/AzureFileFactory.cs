@@ -22,11 +22,6 @@ public class AzureFileFactory<TKeyUser, TTenant> : IAzureFlieFactory<TKeyUser, T
         UserContext = userContext;
     }
 
-    public ShareClient GetContainerClient()
-    {
-        return this.Client.GetShareClient(this.UserContext.Tenant.ToString());
-    }
-
     public IAzureFlieFactory<TKeyUser, TTenant> Create()
     {
         if (!this.Options.AzureFile.Enable)
@@ -41,6 +36,11 @@ public class AzureFileFactory<TKeyUser, TTenant> : IAzureFlieFactory<TKeyUser, T
             this.Client = new ShareServiceClient(this.Options.AzureFile.ConnectionString);
 
         return this;
+    }
+
+    public ShareClient GetContainerClient()
+    {
+        return this.Client.GetShareClient(this.UserContext.Tenant.ToString());
     }
 }
 
