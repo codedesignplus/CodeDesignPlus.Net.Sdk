@@ -3,7 +3,7 @@ using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Abstractions.Models;
 
-public class PathTest
+public class FileDetailTest
 {
     [Fact]
     public void Constructor_Default_Values()
@@ -15,7 +15,7 @@ public class PathTest
         var provider = TypeProviders.AzureBlobProvider;
 
         // Act
-        var path = new M.Path(uri, target, file, provider);
+        var path = new M.FileDetail(uri, target, file, provider);
 
         // Assert
         Assert.Equal(uri, path.Uri);
@@ -35,7 +35,7 @@ public class PathTest
         var provider = TypeProviders.AzureBlobProvider;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => new M.Path(null!, target, file, provider));
+        var exception = Assert.Throws<ArgumentNullException>(() => new M.FileDetail(null!, target, file, provider));
 
         // Assert
         Assert.Equal("uri", exception.ParamName);
@@ -50,7 +50,7 @@ public class PathTest
         var provider = TypeProviders.AzureBlobProvider;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => new M.Path(uri, target, null!, provider));
+        var exception = Assert.Throws<ArgumentNullException>(() => new M.FileDetail(uri, target, null!, provider));
 
         // Assert
         Assert.Equal("file", exception.ParamName);

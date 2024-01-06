@@ -4,6 +4,10 @@ using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
 using CodeDesignPlus.Net.File.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using CodeDesignPlus.Net.File.Storage.Providers;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
+using CodeDesignPlus.Net.File.Storage.Factories;
 
 namespace CodeDesignPlus.Net.File.Storage.Extensions;
 
@@ -36,7 +40,18 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton(typeof(IFileStorageService<>), typeof(FileStorageService<>));
+        services.AddSingleton<IFileStorageService, FileStorageService>();
+
+        services.AddSingleton(typeof(IAzureBlobFactory<,>), typeof(AzureBlobFactory<,>));
+        services.AddSingleton(typeof(IAzureFlieFactory<,>), typeof(AzureFileFactory<,>));
+
+        services.AddSingleton(typeof(IAzureBlobProvider), typeof(AzureBlobProvider<,>));
+        services.AddSingleton(typeof(IAzureFileProvider), typeof(AzureFileProvider<,>));
+        services.AddSingleton(typeof(ILocalProvider), typeof(LocalProvider<,>));
+
+        services.AddSingleton(typeof(IProvider), typeof(AzureBlobProvider<,>));
+        services.AddSingleton(typeof(IProvider), typeof(AzureFileProvider<,>));
+        services.AddSingleton(typeof(IProvider), typeof(LocalProvider<,>));
 
         return services;
     }

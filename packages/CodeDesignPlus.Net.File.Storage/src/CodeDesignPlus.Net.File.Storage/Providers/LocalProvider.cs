@@ -14,13 +14,13 @@ public class LocalProvider<TKeyUser, TTenant>(
 ) : BaseProvider(logger, environment), ILocalProvider
 {
     private readonly IUserContext<TKeyUser, TTenant> UserContext = userContext;
-    private readonly FileStorageOptions Options = options.Value;
+    private readonly FileStorageOptions options = options.Value;
 
-    public Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
+    public Task<Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
-        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.LocalProvider, async response =>
+        return base.ProcessAsync(this.options.Local.Enable, filename, TypeProviders.LocalProvider, async (file, response) =>
         {
-            var path = System.IO.Path.Combine(this.Options.Local.Folder, this.UserContext.Tenant.ToString(), target, file);
+            var path = System.IO.Path.Combine(this.options.Local.Folder, this.UserContext.Tenant.ToString(), target, filename);
 
             if (System.IO.File.Exists(path))
             {
@@ -44,18 +44,17 @@ public class LocalProvider<TKeyUser, TTenant>(
         });
     }
 
-    public Task<Response> UploadAsync(Stream stream, Abstractions.Models.File file, string target, CancellationToken cancellationToken = default)
+    public Task<Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
     {
-        return base.ProcessAsync(file, TypeProviders.LocalProvider, async response =>
+        return base.ProcessAsync(this.options.Local.Enable, filename, TypeProviders.LocalProvider, async (file, response) =>
         {
-            var path = this.GetFullPath(file, target);
+            var path = this.GetFullPath(file, target, renowned);
 
             using var fileStream = new FileStream(path, FileMode.Create);
 
             await stream.CopyToAsync(fileStream, cancellationToken: cancellationToken);
 
-
-            file.Path = new Abstractions.Models.Path(this.Options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
+            file.Detail = new Abstractions.Models.FileDetail(this.options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
 
             response.Success = System.IO.File.Exists(path);
 
@@ -63,11 +62,11 @@ public class LocalProvider<TKeyUser, TTenant>(
         });
     }
 
-    public Task<Response> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
+    public Task<Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
-        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.LocalProvider, response =>
+        return base.ProcessAsync(this.options.Local.Enable, filename, TypeProviders.LocalProvider, (file, response) =>
         {
-            var path = System.IO.Path.Combine(this.Options.Local.Folder, target, file);
+            var path = System.IO.Path.Combine(this.options.Local.Folder, target, filename);
 
             if (!System.IO.File.Exists(path))
             {
@@ -85,7 +84,7 @@ public class LocalProvider<TKeyUser, TTenant>(
 
     private string GetPath(string target)
     {
-        var path = System.IO.Path.Combine(this.Options.Local.Folder, this.UserContext.Tenant.ToString(), target);
+        var path = System.IO.Path.Combine(this.options.Local.Folder, this.UserContext.Tenant.ToString(), target);
 
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
@@ -93,11 +92,11 @@ public class LocalProvider<TKeyUser, TTenant>(
         return path;
     }
 
-    private string GetFullPath(Abstractions.Models.File file, string target)
+    private string GetFullPath(Abstractions.Models.File file, string target, bool renowned)
     {
         var path = this.GetPath(target);
 
-        if (!file.Renowned)
+        if (!renowned)
             return System.IO.Path.Combine(path, file.FullName);
 
         return GetNextName(file, path);

@@ -14,20 +14,20 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
     IHostEnvironment environment
     ) : BaseProvider(logger, environment), IAzureBlobProvider
 {
-    private readonly IAzureBlobFactory<TKeyUser, TTenant> factory  = factory.Create();
+    private readonly IAzureBlobFactory<TKeyUser, TTenant> factory = factory.Create();
 
-    public Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
+    public Task<Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
-        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.AzureBlobProvider, async response =>
+        return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
-            var name = GetName(target, file);
+            var name = GetName(target, filename);
 
             var blobClient = this.factory.GetContainerClient().GetBlobClient(name);
 
             if (!await blobClient.ExistsAsync(cancellationToken))
             {
                 response.Success = false;
-                response.Message = $"The file {file} not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
 
                 return response;
             }
@@ -44,9 +44,9 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
         });
     }
 
-    public Task<Response> UploadAsync(Stream stream, Abstractions.Models.File file, string target, CancellationToken cancellationToken = default)
+    public Task<Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
     {
-        return base.ProcessAsync(file, TypeProviders.AzureBlobProvider, async response =>
+        return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
             var container = this.factory.GetContainerClient();
 
@@ -56,7 +56,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
 
             var blobClient = container.GetBlobClient(name);
 
-            if (file.Renowned)
+            if (renowned)
             {
                 var count = 1;
 
@@ -64,6 +64,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
                 {
                     count += 1;
 
+                    file.Renowned = true;
                     file.Version = SemVersion.ParsedFrom(count, 0, 0);
 
                     name = GetName(target, $"{file.Name} ({count}){file.Extension}");
@@ -84,7 +85,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
             }, cancellationToken: cancellationToken);
 
             file.Size = stream.Length;
-            file.Path = new Abstractions.Models.Path(this.factory.Options.UriDownload, target, System.IO.Path.GetFileName(name), TypeProviders.AzureBlobProvider);
+            file.Detail = new Abstractions.Models.FileDetail(this.factory.Options.UriDownload, target, System.IO.Path.GetFileName(name), TypeProviders.AzureBlobProvider);
 
             response.Success = true;
 
@@ -92,13 +93,13 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
         });
     }
 
-    public Task<Response> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
+    public Task<Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
-        return base.ProcessAsync(new Abstractions.Models.File(file), TypeProviders.AzureBlobProvider, async response =>
+        return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
             var container = this.factory.GetContainerClient();
 
-            var name = GetName(target, file);
+            var name = GetName(target, filename);
 
             var blobClient = container.GetBlobClient(name);
 
@@ -107,7 +108,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
             response.Success = deleted;
 
             if (!deleted)
-                response.Message = $"The file {file} not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
 
             return response;
         });

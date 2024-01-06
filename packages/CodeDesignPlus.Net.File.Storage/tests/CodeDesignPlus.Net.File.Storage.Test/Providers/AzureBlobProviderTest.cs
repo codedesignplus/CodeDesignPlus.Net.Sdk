@@ -21,7 +21,7 @@ public class AzureBlobProviderTest
     private readonly FileStream stream;
     private string target;
     private string blobname;
-    private M.Path pathDetail;
+    private M.FileDetail pathDetail;
     private readonly M.File file;
     private readonly Mock<ILogger<AzureBlobProvider<Guid, Guid>>> loggerMock;
     private readonly Mock<IHostEnvironment> environmentMock;
@@ -41,7 +41,7 @@ public class AzureBlobProviderTest
         this.stream = System.IO.File.OpenRead(path);
         this.target = "docs/general";
         this.blobname = $"{target}/{filename}";
-        this.pathDetail = new M.Path(OptionsUtil.FileStorageOptions.UriDownload, target, this.filename, TypeProviders.AzureBlobProvider);
+        this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, this.filename, TypeProviders.AzureBlobProvider);
         this.file = new M.File(filename);
         this.options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
@@ -101,7 +101,7 @@ public class AzureBlobProviderTest
         var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, file, target, cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
 
         // Assert
         this.AssertsUpload(result);
@@ -113,12 +113,12 @@ public class AzureBlobProviderTest
         // Arrange     
         this.target = null!;
         this.blobname = $"{filename}";
-        this.pathDetail = new M.Path(OptionsUtil.FileStorageOptions.UriDownload, target, this.blobname, TypeProviders.AzureBlobProvider);
+        this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, this.blobname, TypeProviders.AzureBlobProvider);
 
         var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, file, target, cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
 
         // Assert
         this.AssertsUpload(result);
@@ -131,7 +131,7 @@ public class AzureBlobProviderTest
         // Arrange    
         file.Renowned = true;
         this.blobname = $"{target}/{file.Name} ({2}){file.Extension}";
-        this.pathDetail = new M.Path(OptionsUtil.FileStorageOptions.UriDownload, target, System.IO.Path.GetFileName(this.blobname), TypeProviders.AzureBlobProvider);
+        this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, System.IO.Path.GetFileName(this.blobname), TypeProviders.AzureBlobProvider);
 
         var existContainer = true;
         blobClientMock
@@ -153,7 +153,7 @@ public class AzureBlobProviderTest
         var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, file, target, cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, true, cancellationToken);
 
         // Assert
         this.AssertsUpload(result, 2);
@@ -171,12 +171,12 @@ public class AzureBlobProviderTest
         Assert.Equal(file.Renowned, result.File.Renowned);
         Assert.Equal(major, result.File.Version.Major);
 
-        Assert.Equal(pathDetail.Target, result.File.Path.Target);
-        Assert.Equal(pathDetail.File, result.File.Path.File);
-        Assert.Equal(pathDetail.Provider, result.File.Path.Provider);
-        Assert.Equal(pathDetail.UriDownload, result.File.Path.UriDownload);
-        Assert.Equal(pathDetail.UriViewInBrowser, result.File.Path.UriViewInBrowser);
-        Assert.Equal(pathDetail.Uri, result.File.Path.Uri);
+        Assert.Equal(pathDetail.Target, result.File.Detail.Target);
+        Assert.Equal(pathDetail.File, result.File.Detail.File);
+        Assert.Equal(pathDetail.Provider, result.File.Detail.Provider);
+        Assert.Equal(pathDetail.UriDownload, result.File.Detail.UriDownload);
+        Assert.Equal(pathDetail.UriViewInBrowser, result.File.Detail.UriViewInBrowser);
+        Assert.Equal(pathDetail.Uri, result.File.Detail.Uri);
     }
 
     [Fact]

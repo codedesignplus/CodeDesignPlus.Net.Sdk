@@ -50,7 +50,7 @@ public class AzureFileProviderIntegrationTest
         var provider = new AzureFileProvider<string, string>(azureFileFactory, logger.Object, environment.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, file, null);
+        var result = await provider.UploadAsync(stream, "FakeDocument.txt", null);
 
         // Assert
     }

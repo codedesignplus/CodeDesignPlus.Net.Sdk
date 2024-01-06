@@ -10,13 +10,17 @@ public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
     protected readonly IHostEnvironment Environment = environment;
     protected readonly ILogger Logger = logger;
 
-    protected async Task<Response> ProcessAsync(M.File file, TypeProviders typeProviders, Func<Response, Task<Response>> process)
+    protected async Task<Response> ProcessAsync(bool isEnable, string filename, TypeProviders typeProviders, Func<M.File, Response, Task<Response>> process)
     {
+        if (!isEnable)
+            return null;
+
+        var file = new M.File(filename);
         var response = new Response(file, typeProviders);
 
         try
         {
-            response = await process(response);
+            response = await process(file, response);
         }
         catch (Exception ex)
         {

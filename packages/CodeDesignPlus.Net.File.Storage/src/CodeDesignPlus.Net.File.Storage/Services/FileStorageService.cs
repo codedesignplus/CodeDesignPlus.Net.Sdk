@@ -4,33 +4,52 @@ using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 
 namespace CodeDesignPlus.Net.File.Storage.Services;
 
-/// <summary>
-/// Default implementation of the <see cref="IFileStorageService"/>
-/// </summary>
-/// <remarks>
-/// Initialize a new instance of the <see cref="FileStorageService"/>
-/// </remarks>
-/// <param name="logger">Logger Service</param>
-/// <param name="options">File.Storage Options</param>
-public class FileStorageService<TTenant>(ILogger<FileStorageService<TTenant>> logger, IOptions<FileStorageOptions> options) : IFileStorageService<TTenant>
+public class FileStorageService(ILogger<FileStorageService> logger, IOptions<FileStorageOptions> options, IEnumerable<IProvider> providers) : IFileStorageService
 {
-    /// <summary>
-    /// Logger Service
-    /// </summary>
-    private readonly ILogger<FileStorageService<TTenant>> logger = logger;
-    /// <summary>
-    /// File.Storage Options
-    /// </summary>
+    private readonly ILogger<FileStorageService> logger = logger;
     private readonly FileStorageOptions options = options.Value;
+    private readonly IEnumerable<IProvider> providers = providers;
 
-    public Task<Response> DownloadFileAsync(TTenant tenant, string file, string target, TypeProviders typeProvider)
-    {
-        throw new NotImplementedException();
+
+    public Task<Response[]> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
+    {        
+        var tasks = new List<Task<Response>>();
+
+        foreach (var provider in this.providers)
+        {
+            var task = provider.DeleteAsync(file, target, cancellationToken);
+
+            tasks.Add(task);
+        }
+
+        return Task.WhenAll(tasks);
     }
 
-    public Task<IList<Response>> UploadFileAsync(TTenant tenant, Stream stream, string uri, string target, Abstractions.Models.File file, TypeProviders typeProvider)
+    public Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
     {
-        throw new NotImplementedException();
+        foreach (var provider in this.providers)
+        {
+            var response = provider.DownloadAsync(file, target, cancellationToken);
+
+            if (response.Result.Success)
+                return response;
+        }
+
+        return Task.FromResult((Response)null);
+    }
+
+    public Task<Response[]> UploadAsync(Stream stream, string filename, string target, bool renowned, CancellationToken cancellationToken = default)
+    {
+        var tasks = new List<Task<Response>>();
+
+        foreach (var provider in this.providers)
+        {
+            var task = provider.UploadAsync(stream, filename, target, renowned, cancellationToken);
+
+            tasks.Add(task);
+        }
+
+        return Task.WhenAll(tasks);
     }
 
 }

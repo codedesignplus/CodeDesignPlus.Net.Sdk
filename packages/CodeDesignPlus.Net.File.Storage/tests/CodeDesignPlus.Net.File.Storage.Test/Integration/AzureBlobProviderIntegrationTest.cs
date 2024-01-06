@@ -51,7 +51,7 @@ public class AzureBlobProviderIntegrationTest
         var provider = new AzureBlobProvider<string, string>(azureBlobFactory, logger.Object, environment.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, file, "docs/temp/info");
+        var result = await provider.UploadAsync(stream, "FakeDocument.txt", "docs/temp/info");
 
         // Assert
     }

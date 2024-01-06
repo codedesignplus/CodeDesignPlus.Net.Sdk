@@ -7,7 +7,7 @@ public class File
     public string Extension { get => System.IO.Path.GetExtension(this.FullName); }
     public string FullName { get; set; }
     public string Name { get => System.IO.Path.GetFileNameWithoutExtension(this.FullName); }
-    public Path Path { get; set; }
+    public FileDetail Detail { get; set; }
     public long Size { get; set; }
     public SemVersion Version { get; set; } = new SemVersion(1, 0, 0);
     public bool Renowned { get; set; }
