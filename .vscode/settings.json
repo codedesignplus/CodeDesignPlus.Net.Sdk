@@ -12,6 +12,7 @@
         "net.mongo",
         "net.security",
         "net.file.storage",
-        "net.xunit"
+        "net.xunit",
+        "net.logger"
     ]
 }
