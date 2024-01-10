@@ -1,9 +1,12 @@
-﻿using CodeDesignPlus.Net.Security.Abstractions;
-using CodeDesignPlus.Net.Security.Exceptions;
+﻿using CodeDesignPlus.Net.Security.Exceptions;
 using CodeDesignPlus.Net.Security.Abstractions.Options;
-using CodeDesignPlus.Net.Security.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Builder;
+using CodeDesignPlus.Net.Security.Services;
 
 namespace CodeDesignPlus.Net.Security.Extensions;
 
@@ -17,8 +20,9 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
     /// <param name="configuration">The configuration being bound.</param>
+    /// <param name="options">Configure the JwtBearerOptions</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration, Action<JwtBearerOptions> options = null)
     {
         if (services == null)
             throw new ArgumentNullException(nameof(services));
@@ -36,9 +40,80 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<ISecurityService, SecurityService>();
+        services
+            .AddSingleton(typeof(IUserContext<,>), typeof(UserContext<,>))
+            .AddHttpContextAccessor()
+            .AddAuthorization()
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(configuration);
 
         return services;
     }
 
+    /// <summary>
+    /// Add JwtBearer authentication
+    /// </summary>
+    /// <param name="app">The Microsoft.AspNetCore.Builder.IApplicationBuilder to add the middleware to.</param>
+    /// <returns>The Microsoft.AspNetCore.Builder.IApplicationBuilder so that additional calls can be chained.</returns>
+    public static IApplicationBuilder UseAuth(this IApplicationBuilder app)
+    {
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        return app;
+    }
+
+    /// <summary>
+    /// Add JwtBearer authentication
+    /// </summary>
+    /// <param name="authenticationBuilder">The Microsoft.AspNetCore.Authentication.AuthenticationBuilder to add the authentication to.</param>
+    /// <param name="configuration">The configuration being bound.</param>
+    /// <param name="options">Configure the JwtBearerOptions</param>
+    /// <returns>The Microsoft.AspNetCore.Authentication.AuthenticationBuilder so that additional calls can be chained.</returns>
+    public static AuthenticationBuilder AddJwtBearer(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration, Action<JwtBearerOptions> options = null)
+    {
+        var securityOptions = configuration.GetSection(SecurityOptions.Section).Get<SecurityOptions>();
+
+        authenticationBuilder
+            .AddJwtBearer(
+                JwtBearerDefaults.AuthenticationScheme,
+                x =>
+                {
+                    if (!string.IsNullOrEmpty(securityOptions.Authority))
+                        x.Authority = securityOptions.Authority;
+
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        RequireSignedTokens = securityOptions.RequireSignedTokens,
+                        ValidateAudience = securityOptions.ValidateAudience,
+                        ValidateIssuer = securityOptions.ValidateIssuer,
+                        ValidateLifetime = securityOptions.ValidateLifetime,
+                        ValidateIssuerSigningKey = securityOptions.ValidateIssuerSigningKey,
+                        ValidIssuer = securityOptions.ValidIssuer,
+                        ValidAudiences = securityOptions.ValidAudiences
+                    };
+
+                    if (securityOptions.Certificate != null)
+                        x.TokenValidationParameters.IssuerSigningKey = new X509SecurityKey(securityOptions.Certificate);
+
+                    x.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            // Log the error
+                            Console.WriteLine(context.Exception);
+
+                            return Task.CompletedTask;
+                        }
+                    };
+
+                    x.IncludeErrorDetails = securityOptions.IncludeErrorDetails;
+                    x.RequireHttpsMetadata = securityOptions.RequireHttpsMetadata;
+
+                    options?.Invoke(x);
+                }
+            );
+
+        return authenticationBuilder;
+    }
 }
