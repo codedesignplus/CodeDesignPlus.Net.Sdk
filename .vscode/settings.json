@@ -11,6 +11,8 @@
         "net.efcore",
         "net.mongo",
         "net.security",
-        "net.xunit"
+        "net.file.storage",
+        "net.xunit",
+        "net.logger"
     ]
 }
