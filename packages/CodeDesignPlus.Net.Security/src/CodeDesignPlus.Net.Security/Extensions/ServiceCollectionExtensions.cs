@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
             .AddHttpContextAccessor()
             .AddAuthorization()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-            .AddJwtBearer(configuration);
+            .AddJwtBearer(configuration, options);
 
         return services;
     }
@@ -95,17 +95,6 @@ public static class ServiceCollectionExtensions
 
                     if (securityOptions.Certificate != null)
                         x.TokenValidationParameters.IssuerSigningKey = new X509SecurityKey(securityOptions.Certificate);
-
-                    x.Events = new JwtBearerEvents
-                    {
-                        OnAuthenticationFailed = context =>
-                        {
-                            // Log the error
-                            Console.WriteLine(context.Exception);
-
-                            return Task.CompletedTask;
-                        }
-                    };
 
                     x.IncludeErrorDetails = securityOptions.IncludeErrorDetails;
                     x.RequireHttpsMetadata = securityOptions.RequireHttpsMetadata;

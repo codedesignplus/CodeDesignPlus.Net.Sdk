@@ -48,7 +48,7 @@ public class UserContext<TKeyUser, TTenant>(IHttpContextAccessor httpContextAcce
     /// <summary>
     /// Gets the first name of the current user.
     /// </summary>
-    public string FirstName => this.GetClaim<string>(ClaimTypes.GivenName);
+    public string FirstName => this.GetClaim<string>(ClaimTypes.FirstName);
     /// <summary>
     /// Gets the last name of the current user.
     /// </summary>

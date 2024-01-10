@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
@@ -93,7 +94,7 @@ public class ServiceCollectionExtensionsTest
     }
 
     [Fact]
-    public async Task TestHost()
+    public async Task Middleware_Authentication_JwtBearer()
     {
         // Arrange
         var configuration = ConfigurationUtil.GetConfiguration(new { Security = OptionsUtil.SecurityOptionsAzure });
@@ -102,7 +103,18 @@ public class ServiceCollectionExtensionsTest
             .UseConfiguration(configuration)
             .ConfigureServices(x =>
             {
-                x.AddSecurity(configuration);
+                x.AddSecurity(configuration, x =>
+                {
+                    x.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = context =>
+                        {
+                            // Log the error
+                            Console.WriteLine(context.Exception);
+                            return Task.CompletedTask;
+                        }
+                    };
+                });
                 x.AddRouting();
             })
             .Configure(x =>
@@ -159,11 +171,6 @@ public class ServiceCollectionExtensionsTest
 
         // Act
         var client = server.CreateClient();
-
-        // var response = await client.GetAsync("/insecure");
-
-        // var response2 = await client.GetAsync("/");
-
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsiLCJ0eXAiOiJKV1QifQ.eyJ2ZXIiOiIxLjAiLCJpc3MiOiJodHRwczovL2NvZGVkZXNpZ25wbHVzLmIyY2xvZ2luLmNvbS8zNDYxZTMxMS1hNjZlLTQ2YWItYWZkZi0yYmJmYjcyYTVjYjAvdjIuMC8iLCJzdWIiOiI4MDJiMWU1Yy02ZTQwLTRlMDEtODA5NS1jNzM1YjRjOTk1OWUiLCJhdWQiOiI3ZjJhZWExMC1iNjNjLTQ0Y2UtODU4MC03OGFiM2U1MTg5YWEiLCJleHAiOjE3MDQ4NTU3NTcsIm5vbmNlIjoiZGVmYXVsdE5vbmNlIiwiaWF0IjoxNzA0ODUyMTU3LCJhdXRoX3RpbWUiOjE3MDQ4NTIxNTcsIm9pZCI6IjgwMmIxZTVjLTZlNDAtNGUwMS04MDk1LWM3MzViNGM5OTU5ZSIsImNpdHkiOiJCb2dvdMOhIiwiY291bnRyeSI6IkNvbG9tYmlhIiwiZ2l2ZW5fbmFtZSI6IldpbHpvbiBDYW1pbG8iLCJmYW1pbHlfbmFtZSI6Ikxpc2Nhbm8gR2FsaW5kbyIsIm5hbWUiOiJXaWx6b24gQ2FtaWxvIExpc2Nhbm8gR2FsaW5kbyIsInBvc3RhbENvZGUiOiIxMTE2MTEiLCJzdHJlZXRBZGRyZXNzIjoiQ2FsbGUgM2EgIyA1M2MtMTMiLCJzdGF0ZSI6IkJvZ290w6EgRC5DIiwiam9iVGl0bGUiOiJBcnF1aXRlY3RvIiwiZW1haWxzIjpbImNvZGVkZXNpZ25wbHVzQG91dGxvb2suY29tIl0sInRmcCI6IkIyQ18xX3NpZ25pbiIsIm5iZiI6MTcwNDg1MjE1N30.JOktTfq1VIqxzgAKyAd8mI_46GLhnm20XFyDWOU1fIJGSlHJSKPcg1vCsircLBwfgrtU4vXmUfqz2tg5UTGxNc6LTwuKTkFWbjwN-qq5TQnkjpPudW6EoYkOb7ilij-y9qPMA_9fa7mWdn3vv_LqDyJAvqXwrFUXh-uSHtU4kl1U7IcWzPQHTqE6klGmFYvcbc0Dh_p-I1B714styX8a8DgjPe_HGEwNVR9kEf_CDc4eUk0O7P3ayvUUNw99SmyAQuwOo7fsHLAED8D6Sqg5Wc3rfSPKhsJWHUpMFKUl-B40HQtYSz9pRd6KFoOzGgpJqkUnywyPaB5gxINrtiob2Q");

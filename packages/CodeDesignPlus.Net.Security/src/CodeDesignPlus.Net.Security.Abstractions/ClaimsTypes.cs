@@ -52,7 +52,7 @@ public static class ClaimTypes
     /// <summary>
     /// The user's given name (also known as first name).
     /// </summary>
-    public const string GivenName = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
+    public const string FirstName = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
     /// <summary>
     /// The user's surname (also known as last name).
     /// </summary>
