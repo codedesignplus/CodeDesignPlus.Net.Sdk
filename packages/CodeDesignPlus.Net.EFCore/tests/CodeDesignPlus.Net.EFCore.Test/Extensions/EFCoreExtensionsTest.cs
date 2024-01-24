@@ -107,7 +107,7 @@ public class EFCoreExtensionsTest
             applications.Add(new Application()
             {
                 Name = $"{nameof(Application.Name)}-{i}",
-                IdUserCreator = new Random().Next(1, 15),
+                IdUserCreator = Guid.NewGuid(),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Description = $"{nameof(Application.Description)}-{i}"

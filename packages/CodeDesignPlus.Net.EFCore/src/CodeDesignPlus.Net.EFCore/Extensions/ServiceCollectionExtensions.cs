@@ -51,7 +51,7 @@ public static class ServiceCollectionExtensions
     {
         var assembly = typeof(TContext).GetTypeInfo().Assembly;
 
-        var @types = assembly.GetTypes().Where(x => !x.IsNested && !x.IsInterface && typeof(IRepositoryBase<TKey, TUserKey>).IsAssignableFrom(x));
+        var @types = assembly.GetTypes().Where(x => !x.IsNested && !x.IsInterface && typeof(IRepositoryBase).IsAssignableFrom(x));
 
         foreach (var type in @types)
         {

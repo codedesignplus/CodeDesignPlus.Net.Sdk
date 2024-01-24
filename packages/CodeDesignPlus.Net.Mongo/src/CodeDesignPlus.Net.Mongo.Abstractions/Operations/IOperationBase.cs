@@ -13,5 +13,5 @@ public interface IOperationBase<TKey, TUserKey, TEntity> :
     IUpdateOperation<TKey, TUserKey, TEntity>,
     IDeleteOperation<TKey, TUserKey, TEntity>,
     IRepositoryBase<TKey, TUserKey>
-    where TEntity : class, IEntityBase<TKey, TUserKey>
+    where TEntity : class, IEntity<TKey, TUserKey>
 { }

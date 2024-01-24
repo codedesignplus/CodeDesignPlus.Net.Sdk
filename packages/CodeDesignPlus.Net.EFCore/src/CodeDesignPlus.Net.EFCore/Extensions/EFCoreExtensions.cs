@@ -12,20 +12,22 @@ namespace CodeDesignPlus.Net.EFCore.Extensions;
 public static class EFCoreExtensions
 {
     /// <summary>
-    /// Sets the traversal properties of an entity that implements the IEntityBase interface
+    /// Sets the traversal properties of an entity that implements the IEntity interface
     /// </summary>
-    /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-    /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <param name="userRequired"></param>
     /// <param name="builder">The builder to be used to configure the entity type.</param>
-    public static void ConfigurationBase<TKey, TUserKey, TEntity>(this EntityTypeBuilder<TEntity> builder, bool userRequired = true, int maxLenghtUser = 256)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    public static void ConfigurationBase<TEntity>(this EntityTypeBuilder<TEntity> builder, bool userRequired = true, int maxLenghtUser = 256)
+        where TEntity : class, IEntity
     {
-        builder.Property(x => x.Id).ValueGeneratedOnAdd();
-        builder.Property(x => x.IdUserCreator).HasMaxLength(maxLenghtUser).IsRequired(userRequired);
+        builder.Property(x => x.Id);
         builder.Property(x => x.IsActive).IsRequired();
-        builder.Property(x => x.CreatedAt).IsRequired();
+
+        if (typeof(IAuditTrail).IsAssignableFrom(typeof(TEntity)))
+        {
+            builder.Property(nameof(IAuditTrail.IdUserCreator)).HasMaxLength(maxLenghtUser).IsRequired(userRequired);
+            builder.Property(nameof(IAuditTrail.CreatedAt)).IsRequired();
+        }
     }
 
     /// <summary>
@@ -37,7 +39,7 @@ public static class EFCoreExtensions
     /// <param name="pageSize">Page Size</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public static async Task<Pager<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, int currentPage, int pageSize)
-        where TEntity : class, IEntityBase
+        where TEntity : class, IEntity
     {
         if (currentPage < 1 || pageSize < 1)
             return default;

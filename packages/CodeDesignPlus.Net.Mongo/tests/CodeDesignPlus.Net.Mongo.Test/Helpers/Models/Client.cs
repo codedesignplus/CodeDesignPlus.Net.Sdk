@@ -2,7 +2,7 @@
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 
-public class Client: IEntityBase<Guid, Guid>
+public class Client: IEntity<Guid, Guid>
 {
     public Guid Id { get; set; }
 

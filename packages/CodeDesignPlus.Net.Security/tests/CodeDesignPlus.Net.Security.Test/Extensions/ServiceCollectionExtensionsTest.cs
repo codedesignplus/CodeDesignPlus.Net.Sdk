@@ -65,11 +65,11 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddSecurity(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IUserContext<,>));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IUserContext));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(UserContext<,>), libraryService.ImplementationType);
+        Assert.Equal(typeof(UserContext), libraryService.ImplementationType);
     }
 
     [Fact]
@@ -126,7 +126,7 @@ public class ServiceCollectionExtensionsTest
                 {
                     endpoints.MapGet("/", async context =>
                     {
-                        var userContext = context.RequestServices.GetRequiredService<IUserContext<Guid, Guid>>();
+                        var userContext = context.RequestServices.GetRequiredService<IUserContext>();
 
                         var claims = context.User.Claims.ToDictionary(x => x.Type, x => x.Value);
 

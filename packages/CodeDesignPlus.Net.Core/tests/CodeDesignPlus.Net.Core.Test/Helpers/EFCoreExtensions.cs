@@ -16,7 +16,7 @@ namespace CodeDesignPlus.Net.Core.Test.Helpers
         /// <param name="currentPage">Pagina actual</param>
         /// <param name="pageSize">Numero de registros en la pagina</param>
         /// <returns>Represents an asynchronous operation that can return a value.</returns>
-        public static async Task<Pager<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, int currentPage, int pageSize) where TEntity : IEntityBase
+        public static async Task<Pager<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, int currentPage, int pageSize) where TEntity : IEntity
         {
             if (currentPage < 1 || pageSize < 1)
                 return new Pager<TEntity>(0, null, 0, 0);

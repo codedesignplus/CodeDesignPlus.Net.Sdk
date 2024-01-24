@@ -6,8 +6,8 @@
     /// <remarks>
     /// More details can be found at: https://jasonwatmore.com/post/2018/10/17/c-pure-pagination-logic-in-c-aspnet
     /// </remarks>
-    /// <typeparam name="T">The type of data to return in the object.</typeparam>
-    public class Pager<T> where T : IBase
+    /// <typeparam name="TData">The type of data to return in the object.</typeparam>
+    public class Pager<TData> where TData : IBase
     {
         /// <summary>
         /// Gets the total items
@@ -48,7 +48,7 @@
         /// <summary>
         /// Gets the data
         /// </summary>
-        public List<T> Data { get; private set; }
+        public List<TData> Data { get; private set; }
 
         /// <summary>
         /// Creates a new instance of Pager.
@@ -58,7 +58,7 @@
         /// <param name="currentPage">Current page. Default is 1.</param>
         /// <param name="pageSize">Number of records per page. Default is 10.</param>
         /// <param name="maxPages">Maximum number of pages. Default is 10.</param>
-        public Pager(int totalItems, List<T> data, int currentPage = 1, int pageSize = 10, int maxPages = 10)
+        public Pager(int totalItems, List<TData> data, int currentPage = 1, int pageSize = 10, int maxPages = 10)
         {
             // calculate total pages
             var totalPages = (int)Math.Ceiling((decimal)totalItems / (decimal)pageSize);

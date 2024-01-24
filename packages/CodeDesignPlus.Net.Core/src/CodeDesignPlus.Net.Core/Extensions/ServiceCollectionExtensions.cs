@@ -1,7 +1,5 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Exceptions;
+﻿using CodeDesignPlus.Net.Core.Exceptions;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -35,8 +33,6 @@ public static class ServiceCollectionExtensions
             .AddOptions<CoreOptions>()
             .Bind(section)
             .ValidateDataAnnotations();
-
-        services.AddSingleton<ICoreService, CoreService>();
 
         return services;
     }

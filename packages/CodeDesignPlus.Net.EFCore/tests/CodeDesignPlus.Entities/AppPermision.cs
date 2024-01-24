@@ -3,13 +3,14 @@ using System;
 
 namespace CodeDesignPlus.Entities
 {
-    public class AppPermision : IEntityLong<int>
+    public class AppPermision : IEntity, IAuditTrail
     {
-        public long Id { get; set; }
-        public long IdApplication { get; set; }
-        public long IdPermission { get; set; }
+        public Guid Id { get; set; }
+        public Guid Tenant { get; set; }
+        public Guid IdApplication { get; set; }
+        public Guid IdPermission { get; set; }
         public bool IsActive { get; set; }
-        public int IdUserCreator { get; set; }
+        public Guid IdUserCreator { get; set; }
         public DateTime CreatedAt { get; set; }
 
         public Application Application { get; set; }

@@ -159,7 +159,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
                 {
                     Name = $"Fake - {i}",
                     IsActive = true,
-                    IdUserCreator = Guid.NewGuid().ToString("D"),
+                    IdUserCreator = Guid.NewGuid(),
                     CreatedAt = DateTime.UtcNow,
                 });
             }

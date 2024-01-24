@@ -77,7 +77,7 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddRepositories<long, int, CodeDesignPlusContextInMemory>();
 
         // Assert
-        var repository = serviceCollection.Where(x => typeof(IRepositoryBase<long, int>).IsAssignableFrom(x.ServiceType)).ToList();
+        var repository = serviceCollection.Where(x => typeof(IRepositoryBase).IsAssignableFrom(x.ServiceType)).ToList();
 
         repository.ForEach(x => Assert.Equal(ServiceLifetime.Transient, x.Lifetime));
     }

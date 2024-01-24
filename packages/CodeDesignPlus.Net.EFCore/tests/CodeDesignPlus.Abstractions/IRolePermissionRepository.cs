@@ -2,7 +2,7 @@
 
 namespace CodeDesignPlus.Abstractions
 {
-    public interface IRolePermissionRepository : IRepositoryBase<long, int>
+    public interface IRolePermissionRepository : IRepositoryBase
     {
     }
 }

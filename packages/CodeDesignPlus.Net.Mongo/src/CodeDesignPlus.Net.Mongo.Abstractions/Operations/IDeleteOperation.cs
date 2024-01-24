@@ -8,7 +8,7 @@ namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
 /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
 /// <typeparam name="TEntity">Type of entity to delete</typeparam>
-public interface IDeleteOperation<TKey, TUserKey, TEntity> where TEntity : class, IEntityBase<TKey, TUserKey>
+public interface IDeleteOperation<TKey, TUserKey, TEntity> where TEntity : class, IEntity<TKey, TUserKey>
 {
     /// <summary>
     /// Method that deletes a record in the database

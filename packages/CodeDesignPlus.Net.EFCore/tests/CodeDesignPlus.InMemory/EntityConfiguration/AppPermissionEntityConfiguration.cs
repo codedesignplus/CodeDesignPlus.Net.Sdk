@@ -16,7 +16,7 @@ namespace CodeDesignPlus.InMemory.EntityConfiguration
         {
             IsInvoked = true;
 
-            builder.ConfigurationBase<long, int, AppPermision>();
+            builder.ConfigurationBase();
 
             builder.HasOne(x => x.Permission).WithMany(x => x.AppPermisions).HasForeignKey(x => x.IdPermission);
             builder.HasOne(x => x.Application).WithMany(x => x.AppPermisions).HasForeignKey(x => x.IdApplication);

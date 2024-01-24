@@ -122,8 +122,9 @@ public class RepositoryBaseTest
         // Arrange 
         var entity = new Application()
         {
+            Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = new Random().Next(1, 15),
+            IdUserCreator = Guid.NewGuid(),
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
@@ -138,10 +139,13 @@ public class RepositoryBaseTest
         var repository = new ApplicationRepository(context);
 
         // Act 
-        var result = await repository.CreateAsync(entity);
+        await repository.CreateAsync(entity);
+
+        var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == entity.Id);
 
         // Assert
-        Assert.True(result.Id > 0);
+        Assert.NotNull(result);
+        Assert.Equal(entity.Id, result.Id);
         Assert.Equal(nameof(Application.Name), result.Name);
         Assert.Equal(nameof(Application.Description), result.Description);
         Assert.Equal(entity.IdUserCreator, result.IdUserCreator);
@@ -185,14 +189,17 @@ public class RepositoryBaseTest
 
         var repository = new ApplicationRepository(context);
 
-        var applicationCreated = await repository.CreateAsync(new Application()
+        var applicationCreated = new Application()
         {
+            Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = new Random().Next(1, 15),
+            IdUserCreator = Guid.NewGuid(),
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
-        });
+        };
+
+        await repository.CreateAsync(applicationCreated);
 
         // Act
         var applicationUpdate = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
@@ -203,14 +210,13 @@ public class RepositoryBaseTest
         applicationUpdate.Name = "New Name";
         applicationUpdate.CreatedAt = DateTime.MaxValue;
         applicationUpdate.IsActive = false;
-        applicationUpdate.IdUserCreator = 100;
+        applicationUpdate.IdUserCreator = Guid.NewGuid();
 
-        var success = await repository.UpdateAsync(applicationUpdate);
+        await repository.UpdateAsync(applicationUpdate);
 
         // Assert
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationUpdate.Id);
 
-        Assert.True(success);
         Assert.NotNull(result);
         Assert.Equal("New Name", result.Name);
         Assert.Equal("New Description", result.Description);
@@ -255,11 +261,15 @@ public class RepositoryBaseTest
 
         var repository = new ApplicationRepository(context);
 
+        var id = Guid.NewGuid();
+
         // Act
-        var success = await repository.DeleteAsync<Application>(x => x.Id == 10);
+        await repository.DeleteAsync<Application>(x => x.Id == id);
+
+        var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == id);
 
         // Assert
-        Assert.False(success);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -277,20 +287,24 @@ public class RepositoryBaseTest
 
         var repository = new ApplicationRepository(context);
 
-        var applicationCreated = await repository.CreateAsync(new Application()
+        var applicationCreated = new Application()
         {
             Name = nameof(Application.Name),
-            IdUserCreator = new Random().Next(1, 15),
+            IdUserCreator = Guid.NewGuid(),
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
-        });
+        };
+
+        await repository.CreateAsync(applicationCreated);
 
         // Act
-        var success = await repository.DeleteAsync<Application>(x => x.Id == applicationCreated.Id);
+        await repository.DeleteAsync<Application>(x => x.Id == applicationCreated.Id);
+
+        var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
 
         // Assert
-        Assert.True(success);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -311,7 +325,9 @@ public class RepositoryBaseTest
         var repository = new ApplicationRepository(context);
 
         // Act
-        var result = await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities);
+
+        var result = await repository.GetEntity<Application>().ToListAsync();
 
         // Assert
         Assert.Empty(result);
@@ -326,18 +342,20 @@ public class RepositoryBaseTest
         // Arrange 
         var entities = new List<Application>
         {
-            new Application()
+            new ()
             {
+                Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = new Random().Next(1, 15),
+                IdUserCreator = Guid.NewGuid(),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
-            new Application()
+            new ()
             {
+                Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = new Random().Next(1, 15),
+                IdUserCreator = Guid.NewGuid(),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
@@ -353,10 +371,15 @@ public class RepositoryBaseTest
         var repository = new ApplicationRepository(context);
 
         // Act
-        var result = await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities);
+
+        var result = await repository.GetEntity<Application>().ToListAsync();
 
         // Assert
-        Assert.Contains(result, x => x.Id > 0);
+        Assert.NotEmpty(result);
+        Assert.Equal(entities.Count, result.Count);
+        Assert.Equal(entities[0].Id, result[0].Id);
+        Assert.Equal(entities[1].Id, result[1].Id);
     }
 
     /// <summary>
@@ -377,10 +400,12 @@ public class RepositoryBaseTest
         var repository = new ApplicationRepository(context);
 
         // Act
-        var success = await repository.UpdateRangeAsync(entities);
+        await repository.UpdateRangeAsync(entities);
+
+        var result = await repository.GetEntity<Application>().ToListAsync();
 
         // Assert
-        Assert.False(success);
+        Assert.Empty(result);
     }
 
     /// <summary>
@@ -392,19 +417,21 @@ public class RepositoryBaseTest
         // Arrange
         var entities = new List<Application>
         {
-            new Application()
+            new ()
             {
+                Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = new Random().Next(1, 15),
+                IdUserCreator = Guid.NewGuid(),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
 
-            new Application()
+            new ()
             {
+                Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = new Random().Next(1, 15),
+                IdUserCreator = Guid.NewGuid(),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
@@ -419,7 +446,9 @@ public class RepositoryBaseTest
 
         var repository = new ApplicationRepository(context);
 
-        var entitiesCreated = await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities);
+
+        var entitiesCreated = await repository.GetEntity<Application>().ToListAsync();
 
         // Act
         var entitiesUpdate = await repository.GetEntity<Application>().Where(x => x.IsActive).ToListAsync();
@@ -430,15 +459,13 @@ public class RepositoryBaseTest
             x.Name = "New Name";
             x.CreatedAt = DateTime.MaxValue;
             x.IsActive = false;
-            x.IdUserCreator = 100;
+            x.IdUserCreator = Guid.NewGuid();
         });
 
-        var success = await repository.UpdateRangeAsync(entitiesUpdate);
+        await repository.UpdateRangeAsync(entitiesUpdate);
 
         // Assert
         var result = await repository.GetEntity<Application>().Where(x => !x.IsActive).ToListAsync();
-
-        Assert.True(success);
 
         foreach (var item in result)
         {
@@ -466,10 +493,12 @@ public class RepositoryBaseTest
         var repository = new ApplicationRepository(context);
 
         // Act
-        var success = await repository.DeleteRangeAsync(entities);
+        await repository.DeleteRangeAsync(entities);
+
+        var result = await repository.GetEntity<Application>().ToListAsync();
 
         // Assert
-        Assert.False(success);
+        Assert.Empty(result);
     }
 
     /// <summary>
@@ -481,18 +510,20 @@ public class RepositoryBaseTest
         // Arrange 
         var entities = new List<Application>
         {
-            new Application()
+            new ()
             {
+                Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = new Random().Next(1, 15),
+                IdUserCreator = Guid.NewGuid(),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
             },
-            new Application()
+            new ()
             {
+                Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = new Random().Next(1, 15),
+                IdUserCreator = Guid.NewGuid(),
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 Description = nameof(Application.Description)
@@ -507,15 +538,19 @@ public class RepositoryBaseTest
 
         var repository = new ApplicationRepository(context);
 
-        var entitiesCreated = await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities);
+
+        var entitiesCreated = await repository.GetEntity<Application>().ToListAsync();
 
         // Act
         var entitiesDelete = await repository.GetEntity<Application>().Where(x => x.IsActive).ToListAsync();
 
-        var success = await repository.DeleteRangeAsync(entitiesDelete);
+        await repository.DeleteRangeAsync(entitiesDelete);
+
+        var result = await repository.GetEntity<Application>().ToListAsync();
 
         // Assert
-        Assert.True(success);
+        Assert.Empty(result);
     }
 
     /// <summary>
@@ -532,12 +567,15 @@ public class RepositoryBaseTest
         var context = new CodeDesignPlusContextInMemory(options);
 
         var repository = new ApplicationRepository(context);
+        var id = Guid.NewGuid();
 
         // Act 
-        var success = await repository.ChangeStateAsync<Application>(1, false);
+        await repository.ChangeStateAsync<Application>(id, false);
+
+        var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == id);
 
         // Assert
-        Assert.False(success);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -549,8 +587,9 @@ public class RepositoryBaseTest
         // Arrange 
         var entity = new Application()
         {
+            Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = new Random().Next(1, 15),
+            IdUserCreator = Guid.NewGuid(),
             IsActive = true,
             CreatedAt = DateTime.UtcNow,
             Description = nameof(Application.Description)
@@ -564,13 +603,25 @@ public class RepositoryBaseTest
 
         var repository = new ApplicationRepository(context);
 
-        var entityCreate = await repository.CreateAsync(entity);
+        await repository.CreateAsync(entity);
+
+        var entityCreated = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == entity.Id);
+
+        Assert.NotNull(entityCreated);
 
         // Act 
-        var success = await repository.ChangeStateAsync<Application>(entityCreate.Id, !entityCreate.IsActive);
+        await repository.ChangeStateAsync<Application>(entityCreated.Id, !entityCreated.IsActive);
+
+        var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == entityCreated.Id);
 
         // Assert
-        Assert.True(success);
+        Assert.NotNull(result);
+        Assert.Equal(entityCreated.Id, result.Id);
+        Assert.Equal(entityCreated.Name, result.Name);
+        Assert.Equal(entityCreated.Description, result.Description);
+        Assert.Equal(entityCreated.IdUserCreator, result.IdUserCreator);
+        Assert.Equal(entityCreated.CreatedAt, result.CreatedAt);
+        Assert.False(result.IsActive);
     }
 
     /// <summary>
@@ -580,6 +631,16 @@ public class RepositoryBaseTest
     public async Task TransactionAsync_CommitedTransaction_ReturnResultDelegate()
     {
         // Arrange 
+        var applicationCreated = new Application()
+        {
+            Id = Guid.NewGuid(),
+            Name = nameof(Application.Name),
+            IdUserCreator = Guid.NewGuid(),
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            Description = nameof(Application.Description)
+        };
+
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
         var options = builder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=UnitTestTransaction;Trusted_Connection=True;MultipleActiveResultSets=true").Options;
@@ -592,22 +653,21 @@ public class RepositoryBaseTest
         var repository = new ApplicationRepository(context);
 
         // Act
-        var result = await repository.TransactionAsync<bool>(async context =>
+        await repository.TransactionAsync<bool>(async context =>
         {
-            var applicationCreated = await repository.CreateAsync(new Application()
-            {
-                Name = nameof(Application.Name),
-                IdUserCreator = new Random().Next(1, 15),
-                IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                Description = nameof(Application.Description)
-            });
-
-            return applicationCreated.Id > 0;
+            await repository.CreateAsync(applicationCreated);
         });
 
+        var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
+
         // Assert
-        Assert.True(result);
+        Assert.NotNull(result);
+        Assert.Equal(applicationCreated.Id, result.Id);
+        Assert.Equal(applicationCreated.Name, result.Name);
+        Assert.Equal(applicationCreated.Description, result.Description);
+        Assert.Equal(applicationCreated.IdUserCreator, result.IdUserCreator);
+        Assert.Equal(applicationCreated.CreatedAt, result.CreatedAt);
+        Assert.Equal(applicationCreated.IsActive, result.IsActive);
     }
 
     /// <summary>
@@ -617,6 +677,16 @@ public class RepositoryBaseTest
     public async Task TransactionAsync_RollbackTransaction_InvalidOperationException()
     {
         // Arrange 
+        var applicationCreated = new Application()
+        {
+            Id = Guid.NewGuid(),
+            Name = nameof(Application.Name),
+            IdUserCreator = Guid.NewGuid(),
+            IsActive = true,
+            CreatedAt = DateTime.UtcNow,
+            Description = nameof(Application.Description)
+        };
+
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
         var options = builder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=UnitTestTransaction;Trusted_Connection=True;MultipleActiveResultSets=true").Options;
@@ -631,27 +701,23 @@ public class RepositoryBaseTest
         // Act & Assert
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(async () =>
         {
-            var result = await repository.TransactionAsync<bool>(async context =>
+            await repository.TransactionAsync<bool>(async context =>
             {
-                var applicationCreated = await repository.CreateAsync(new Application()
-                {
-                    Name = nameof(Application.Name),
-                    IdUserCreator = new Random().Next(1, 15),
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    Description = nameof(Application.Description)
-                });
+                await repository.CreateAsync(applicationCreated);
 
-                if (applicationCreated.Id > 0)
+                var application = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
+
+                if (application != null)
                 {
                     throw new InvalidOperationException("Failed Transaction");
                 }
-
-                return applicationCreated.Id > 0;
             });
         });
 
         // Assert
+        var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
+
+        Assert.Null(result);
         Assert.Equal("Failed Transaction", exception.Message);
     }
 }

@@ -1,25 +1,21 @@
-﻿namespace CodeDesignPlus.Net.Core.Abstractions
+﻿namespace CodeDesignPlus.Net.Core.Abstractions;
+
+
+/// <summary>
+/// Defines the base structure for entities and DTOs.
+/// </summary>
+public interface IBase
 {
     /// <summary>
-    /// Defines the base structure for entities, DTOs, and generic types.
+    /// Gets or sets the primary identifier of the record.
     /// </summary>
-    public interface IBase { }
-
+    Guid Id { get; set; }
     /// <summary>
-    /// Defines the base structure for entities and DTOs.
+    /// Gets or sets the identifier of the user who created the record.
     /// </summary>
-    /// <typeparam name="TKey">Data type that will identify the record.</typeparam>
-    /// <typeparam name="TUserKey">Data type that will identify the user.</typeparam>
-    public interface IBase<TKey, TUserKey> : IBase, IAuditTrail<TUserKey>
-    {
-        /// <summary>
-        /// Gets or sets the primary identifier of the record.
-        /// </summary>
-        TKey Id { get; set; }
-
-        /// <summary>
-        /// Gets or sets a value indicating whether the record is active.
-        /// </summary>
-        bool IsActive { get; set; }
-    }
+    Guid Tenant { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether the record is active.
+    /// </summary>
+    bool IsActive { get; set; }
 }

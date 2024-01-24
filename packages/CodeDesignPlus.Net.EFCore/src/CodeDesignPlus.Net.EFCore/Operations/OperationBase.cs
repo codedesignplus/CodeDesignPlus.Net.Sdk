@@ -7,52 +7,47 @@ using Microsoft.EntityFrameworkCore;
 namespace CodeDesignPlus.Net.EFCore.Operations;
 
 /// <summary>
-/// Implementación de las operaciones CRUD estandarizadas en el SDK
+/// It allows the repository to create, update and delete a record by assigning the information to the transversal properties of the entity
 /// </summary>
-/// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-/// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TKey, TUserKey>, IOperationBase<TKey, TUserKey, TEntity>
-    where TEntity : class, IEntityBase<TKey, TUserKey>
+/// <param name="authenticatetUser">Information of the authenticated user during the request</param>
+/// <param name="context">Represents a session with the database and can be used to query and save instances of your entities</param>
+public abstract class OperationBase<TEntity>(
+    IUserContext authenticatetUser,
+    DbContext context
+)
+: RepositoryBase(context), IOperationBase<TEntity>
+    where TEntity : class, IEntity
 {
     /// <summary>
     /// List of properties that will not be updated
     /// </summary>
-    private readonly List<string> blacklist = new () {
-         nameof(IEntityBase<TKey, TUserKey>.Id),
-         nameof(IEntityBase<TKey, TUserKey>.CreatedAt),
-         nameof(IEntityBase<TKey, TUserKey>.IdUserCreator)
-     };
+    private readonly List<string> blacklist = [
+         nameof(IEntity.Id),
+         nameof(IAuditTrail.CreatedAt),
+         nameof(IAuditTrail.IdUserCreator)
+     ];
 
     /// <summary>
     /// Provide the information of the authenticated user during the request
     /// </summary>
-    protected readonly IUserContext<TUserKey> AuthenticateUser;
-
-    /// <summary>
-    /// Initializes a new instance of CodeDesignPlus.EFCore.Operations.Operation class using the speciffied options.
-    /// </summary>
-    /// <param name="authenticatetUser">Information of the authenticated user during the request</param>
-    /// <param name="context">Represents a session with the database and can be used to query and save instances of your entities</param>
-    protected OperationBase(IUserContext<TUserKey> authenticatetUser, DbContext context) : base(context)
-    {
-        this.AuthenticateUser = authenticatetUser;
-    }
+    protected readonly IUserContext AuthenticateUser = authenticatetUser;
 
     /// <summary>
     /// Method to create a record in the database
     /// </summary>
     /// <param name="entity">Entity to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public virtual async Task<TKey> CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    /// <returns>Represents an asynchronous operation.</returns>
+    public virtual async Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        entity.IdUserCreator = this.AuthenticateUser.IdUser;
-        entity.CreatedAt = DateTime.UtcNow;
+        if (entity is IAuditTrail auditTrailEntity)
+        {
+            auditTrailEntity.IdUserCreator = this.AuthenticateUser.IdUser;
+            auditTrailEntity.CreatedAt = DateTime.UtcNow;
+        }
 
-        entity = await base.CreateAsync(entity, cancellationToken);
-
-        return entity.Id;
+        await base.CreateAsync(entity, cancellationToken);
     }
 
     /// <summary>
@@ -60,8 +55,8 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     /// </summary>
     /// <param name="id">Id of the record to delete</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public virtual Task<bool> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
+    /// <returns>Represents an asynchronous operation.</returns>
+    public virtual Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return base.DeleteAsync<TEntity>(x => x.Id.Equals(id), cancellationToken);
     }
@@ -72,10 +67,10 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     /// <param name="id">Id of the record to update</param>
     /// <param name="entity">Entity with the information to update</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public virtual async Task<bool> UpdateAsync(TKey id, TEntity entity, CancellationToken cancellationToken = default)
+    /// <returns>Represents an asynchronous operation.</returns>
+    public virtual async Task UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default)
     {
-        var entityUpdated = await base.GetEntity<TEntity>().FindAsync(id);
+        var entityUpdated = await base.GetEntity<TEntity>().FindAsync([id], cancellationToken: cancellationToken);
 
         if (entityUpdated != null)
         {
@@ -89,9 +84,7 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
                     entityUpdated.GetType().GetProperty(property.Name).SetValue(entityUpdated, value, null);
             }
 
-            return await base.Context.SaveChangesAsync() > 0;
+            await base.Context.SaveChangesAsync(cancellationToken);
         }
-
-        return false;
     }
 }

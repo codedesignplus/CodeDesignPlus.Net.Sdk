@@ -16,7 +16,7 @@ namespace CodeDesignPlus.InMemory.EntityConfiguration
         {
             IsInvoked = true;
 
-            builder.ConfigurationBase<long, int, RolePermission>();
+            builder.ConfigurationBase();
 
             builder.Property(x => x.NameRole).HasColumnType("varchar(32)").IsRequired();
 

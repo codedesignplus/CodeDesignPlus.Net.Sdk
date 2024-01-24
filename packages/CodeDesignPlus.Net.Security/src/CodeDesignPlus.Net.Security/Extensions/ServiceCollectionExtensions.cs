@@ -41,7 +41,7 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services
-            .AddSingleton(typeof(IUserContext<,>), typeof(UserContext<,>))
+            .AddSingleton<IUserContext, UserContext>()
             .AddHttpContextAccessor()
             .AddAuthorization()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

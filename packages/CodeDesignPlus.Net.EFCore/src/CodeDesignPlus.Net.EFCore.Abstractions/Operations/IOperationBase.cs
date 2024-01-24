@@ -3,15 +3,13 @@
 namespace CodeDesignPlus.Net.EFCore.Abstractions.Operations;
 
 /// <summary>
-/// Enables standardized CRUD operations in the SDK
+/// It allows the repository to create, update and delete a record by assigning the information to the transversal properties of the entity
 /// </summary>
-/// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-/// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-public interface IOperationBase<TKey, TUserKey, TEntity> :
-    ICreateOperation<TKey, TUserKey, TEntity>,
-    IUpdateOperation<TKey, TUserKey, TEntity>,
-    IDeleteOperation<TKey, TUserKey, TEntity>,
-    IRepositoryBase<TKey, TUserKey>
-    where TEntity : class, IEntityBase<TKey, TUserKey>
+public interface IOperationBase<TEntity> :
+    ICreateOperation<TEntity>,
+    IUpdateOperation<TEntity>,
+    IDeleteOperation<TEntity>,
+    IRepositoryBase
+    where TEntity : class, IEntity
 { }

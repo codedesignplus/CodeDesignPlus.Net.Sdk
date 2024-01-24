@@ -4,22 +4,17 @@ using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Entities
 {
-    public class Application : IEntityLong<int>
+    public class Application : IEntity, IAuditTrail
     {
-        public Application()
-        {
-            this.AppPermisions = new List<AppPermision>();
-            this.RolePermisions = new List<RolePermission>();
-        }
-
-        public long Id { get; set; }
+        public Guid Id { get; set; }
+        public Guid Tenant { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsActive { get; set; }
-        public int IdUserCreator { get; set; }
+        public Guid IdUserCreator { get; set; }
         public DateTime CreatedAt { get; set; }
 
-        public List<AppPermision> AppPermisions { get; set; }
-        public List<RolePermission> RolePermisions { get; set; }
+        public List<AppPermision> AppPermisions { get; set; } = [];
+        public List<RolePermission> RolePermisions { get; set; } = [];
     }
 }

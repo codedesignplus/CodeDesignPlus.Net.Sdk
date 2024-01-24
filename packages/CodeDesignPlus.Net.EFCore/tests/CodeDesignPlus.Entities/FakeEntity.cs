@@ -3,13 +3,14 @@ using System;
 
 namespace CodeDesignPlus.Entities
 {
-    public class FakeEntity : IEntityLong<int>
+    public class FakeEntity : IEntity, IAuditTrail
     {
-        public long Id { get; set; }
+        public Guid Id { get; set; }
+        public Guid Tenant { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
         public bool IsActive { get; set; }
-        public int IdUserCreator { get; set; }
+        public Guid IdUserCreator { get; set; }
         public DateTime CreatedAt { get; set; }
     }
 }

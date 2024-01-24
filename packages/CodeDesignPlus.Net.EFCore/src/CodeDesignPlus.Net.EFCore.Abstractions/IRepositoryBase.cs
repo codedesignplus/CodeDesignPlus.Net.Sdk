@@ -1,14 +1,14 @@
 ﻿using System.Linq.Expressions;
 using System.Data;
-using CodeDesignPlus.Net.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
+using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Net.EFCore.Abstractions;
 
 /// <summary>
 /// Exposes the base methods to carray out the most concurrent operations with the database
 /// </summary>
-public interface IRepositoryBase<TKey, TUserKey>
+public interface IRepositoryBase
 {
     /// <summary>
     /// Convert the DbContext to the assigned generic type
@@ -21,7 +21,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// </summary>
     /// <typeparam name="TEntity">The type of entity for which a set should be returned.</typeparam>
     /// <returns>A set for the given entity type.</returns>
-    DbSet<TEntity> GetEntity<TEntity>() where TEntity : class, IEntityBase<TKey, TUserKey>;
+    DbSet<TEntity> GetEntity<TEntity>() where TEntity : class, IEntity;
     /// <summary>
     /// Method that creates an entity in the database
     /// </summary>
@@ -29,7 +29,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="entity">Entity to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<TEntity> CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase<TKey, TUserKey>;
+    Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
     /// <summary>
     /// Method that updates an entity in the database
     /// </summary>
@@ -37,7 +37,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="entity">Entity to update</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<bool> UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase<TKey, TUserKey>;
+    Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
     /// <summary>
     /// Method that deletes an entity in the database
     /// </summary>
@@ -45,7 +45,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<bool> DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase<TKey, TUserKey>;
+    Task DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
     /// <summary>
     /// Method that creates a set of entities in the database
     /// </summary>
@@ -53,7 +53,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="entities">List of entities to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<List<TEntity>> CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase<TKey, TUserKey>;
+    Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
     /// <summary>
     /// Method that updates a set of entities in the database
     /// </summary>
@@ -61,7 +61,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="entities">List of entities to update</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<bool> UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase<TKey, TUserKey>;
+    Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
     /// <summary>
     /// Method that deletes a set of entities in the database
     /// </summary>
@@ -69,7 +69,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="entities">List of entities to delete</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<bool> DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase<TKey, TUserKey>;
+    Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
     /// <summary>
     /// Method that will change the state to the registry in the database
     /// </summary>
@@ -78,7 +78,7 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="state">Status tha will be assigned to the record if it exists</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<bool> ChangeStateAsync<TEntity>(TKey id, bool state, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase<TKey, TUserKey>;
+    Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken = default) where TEntity : class, IEntity;
     /// <summary>
     /// Method that allows multiple process in the database in a single transaction
     /// </summary>
@@ -87,5 +87,5 @@ public interface IRepositoryBase<TKey, TUserKey>
     /// <param name="isolation">Specifies the transaction locking behavior for the connection.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    Task<TResult> TransactionAsync<TResult>(Func<DbContext, Task<TResult>> process, IsolationLevel isolation = IsolationLevel.ReadUncommitted, CancellationToken cancellationToken = default);
+    Task TransactionAsync<TResult>(Func<DbContext, Task> process, IsolationLevel isolation = IsolationLevel.ReadUncommitted, CancellationToken cancellationToken = default);
 }

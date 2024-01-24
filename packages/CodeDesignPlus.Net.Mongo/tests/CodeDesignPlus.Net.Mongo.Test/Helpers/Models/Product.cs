@@ -2,7 +2,7 @@
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 
-public class Product : IEntityBase<Guid, Guid>
+public class Product : IEntity<Guid, Guid>
 {
     public Guid Id { get; set; }
     public bool IsActive  { get; set; }

@@ -35,7 +35,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public IMongoCollection<TEntity> GetCollection<TEntity>()
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         return serviceProvider.GetRequiredService<IMongoCollection<TEntity>>();
     }
@@ -49,7 +49,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public async Task<bool> ChangeStateAsync<TEntity>(TKey id, bool state, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         var collection = this.GetCollection<TEntity>();
 
@@ -69,7 +69,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public async Task<TEntity> CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         var collection = this.GetCollection<TEntity>();
 
@@ -86,7 +86,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public async Task<List<TEntity>> CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         var collection = this.GetCollection<TEntity>();
 
@@ -103,7 +103,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public async Task<bool> DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         var collection = this.GetCollection<TEntity>();
 
@@ -120,7 +120,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public async Task<bool> DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         var result = new List<bool>();
 
@@ -142,7 +142,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public async Task<bool> UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         var collection = this.GetCollection<TEntity>();
 
@@ -161,7 +161,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public async Task<bool> UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntity<TKey, TUserKey>
     {
         var result = new List<bool>();
 
