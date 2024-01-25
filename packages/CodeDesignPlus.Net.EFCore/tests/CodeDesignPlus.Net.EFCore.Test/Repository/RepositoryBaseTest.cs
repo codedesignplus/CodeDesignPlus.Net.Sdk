@@ -318,7 +318,7 @@ public class RepositoryBaseTest
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var options = builder.UseInMemoryDatabase(nameof(RepositoryBaseTest)).Options;
+        var options = builder.UseInMemoryDatabase(nameof(CraeteRangeAsync_ListEmpty_ReturnListEmpty)).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 
@@ -364,7 +364,7 @@ public class RepositoryBaseTest
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var options = builder.UseInMemoryDatabase(nameof(RepositoryBaseTest)).Options;
+        var options = builder.UseInMemoryDatabase(nameof(CreateRangeAsync_ListWithData_ReturnListAndIds)).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 
@@ -393,7 +393,7 @@ public class RepositoryBaseTest
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var options = builder.UseInMemoryDatabase(nameof(RepositoryBaseTest)).Options;
+        var options = builder.UseInMemoryDatabase(nameof(UpdateRangeAsync_ListEmpty_ReturnFalse)).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 
@@ -486,7 +486,7 @@ public class RepositoryBaseTest
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var options = builder.UseInMemoryDatabase(nameof(RepositoryBaseTest)).Options;
+        var options = builder.UseInMemoryDatabase(nameof(DeleteRangeAsync_ListEmpty_ReturnFalse)).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 
@@ -532,7 +532,7 @@ public class RepositoryBaseTest
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var options = builder.UseInMemoryDatabase(nameof(RepositoryBaseTest)).Options;
+        var options = builder.UseInMemoryDatabase(nameof(DeleteRangeAsync_EntityExist_True)).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 

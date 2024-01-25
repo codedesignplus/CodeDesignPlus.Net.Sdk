@@ -11,10 +11,6 @@ public interface IBase
     /// </summary>
     Guid Id { get; set; }
     /// <summary>
-    /// Gets or sets the identifier of the user who created the record.
-    /// </summary>
-    Guid Tenant { get; set; }
-    /// <summary>
     /// Gets or sets a value indicating whether the record is active.
     /// </summary>
     bool IsActive { get; set; }

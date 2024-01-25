@@ -32,7 +32,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// </summary>
     /// <typeparam name="TEntity">The type of entity for which a set should be returned.</typeparam>
     /// <returns>A set for the given entity type.</returns>
-    public DbSet<TEntity> GetEntity<TEntity>() where TEntity : class, IEntity => this.Context.Set<TEntity>();
+    public DbSet<TEntity> GetEntity<TEntity>() where TEntity : class, IEntityBase => this.Context.Set<TEntity>();
 
     /// <summary>
     /// Method that creates an entity in the database
@@ -41,7 +41,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entity">Entity to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -56,7 +56,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entity">Entity to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    private async Task ProcessCreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntity
+    private async Task ProcessCreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         await this.Context.AddAsync(entity, cancellationToken);
 
@@ -70,7 +70,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entity">Entity to update</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
         if (entity == null)
             throw new ArgumentNullException(nameof(entity));
@@ -85,7 +85,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entity">Entity to update</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    private async Task ProcessUpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntity
+    private async Task ProcessUpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         this.Context.Set<TEntity>().Update(entity);
 
@@ -108,7 +108,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public Task DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public Task DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
         if (predicate == null)
             throw new ArgumentNullException(nameof(predicate));
@@ -123,7 +123,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    private async Task ProcessDeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken) where TEntity : class, IEntity
+    private async Task ProcessDeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         var entity = await this.Context.Set<TEntity>().Where(predicate).FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -142,7 +142,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entities">List of entities to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public async Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public async Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
         if (entities == null)
             throw new ArgumentNullException(nameof(entities));
@@ -157,7 +157,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entities">List of entities to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    private async Task ProcessCreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntity
+    private async Task ProcessCreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         await this.Context.AddRangeAsync(entities, cancellationToken);
 
@@ -171,7 +171,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entities">List of entities to update</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public async Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public async Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
         if (entities == null)
             throw new ArgumentNullException(nameof(entities));
@@ -188,7 +188,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entities">List of entities to delete</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
         if (entities == null)
             throw new ArgumentNullException(nameof(entities));
@@ -206,7 +206,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="state">Status tha will be assigned to the record if it exists</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public async Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public async Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
         var entity = await this.Context.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
 

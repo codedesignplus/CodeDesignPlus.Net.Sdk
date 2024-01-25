@@ -17,13 +17,13 @@ public abstract class OperationBase<TEntity>(
     DbContext context
 )
 : RepositoryBase(context), IOperationBase<TEntity>
-    where TEntity : class, IEntity
+    where TEntity : class, IEntityBase
 {
     /// <summary>
     /// List of properties that will not be updated
     /// </summary>
     private readonly List<string> blacklist = [
-         nameof(IEntity.Id),
+         nameof(IEntityBase.Id),
          nameof(IAuditTrail.CreatedAt),
          nameof(IAuditTrail.IdUserCreator)
      ];

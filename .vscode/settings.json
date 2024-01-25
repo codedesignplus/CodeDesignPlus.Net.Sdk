@@ -13,6 +13,7 @@
         "net.security",
         "net.file.storage",
         "net.xunit",
-        "net.logger"
+        "net.logger",
+        "all"
     ]
 }
