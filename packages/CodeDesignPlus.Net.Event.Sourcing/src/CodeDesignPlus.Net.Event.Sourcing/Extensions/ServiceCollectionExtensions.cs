@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
 
         var eventSourcing = EventSourcingExtesions.GetEventSourcing() ?? throw new EventSourcingNotImplementedException();
         
-        services.AddSingleton(typeof(IEventSourcingService<>), eventSourcing);
+        services.AddSingleton(typeof(IEventSourcingService), eventSourcing);
 
         return services;
     }

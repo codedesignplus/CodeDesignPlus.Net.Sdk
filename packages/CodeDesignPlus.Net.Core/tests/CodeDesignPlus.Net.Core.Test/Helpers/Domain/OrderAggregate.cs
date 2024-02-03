@@ -14,7 +14,10 @@ public class OrderAggregate(Guid id, string name, string description, decimal pr
     {
         var aggregate = new OrderAggregate(id, name, description, price, createdAt, updatedAt);
 
-        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price, createdAt, updatedAt));
+        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price, createdAt, updatedAt, metadata: new Dictionary<string, object>
+        {
+            { "MetaKey1", "Value1" }
+        }));
 
         return aggregate;
     }

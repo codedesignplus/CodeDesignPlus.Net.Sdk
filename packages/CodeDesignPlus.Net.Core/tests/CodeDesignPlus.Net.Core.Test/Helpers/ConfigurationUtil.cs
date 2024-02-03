@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Core.Test.Helpers;
+﻿using System.Text.Json;
+
+namespace CodeDesignPlus.Net.Core.Test.Helpers;
 
 public static class ConfigurationUtil
 {

@@ -1,17 +1,24 @@
 ﻿namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 
-public class Metadata<TUserKey>
+/// <summary>
+/// Represents the metadata of the event.
+/// </summary>
+public class Metadata(Guid aggregateId, long version, Guid userId, string category)
 {
-    public Guid AggregateId { get; private set; }
-    public long Version { get; private set; }
-    public TUserKey UserId { get; private set; }
-    public string Category { get; private set; }
-
-    public Metadata(Guid aggregateId, long version, TUserKey userId, string category)
-    {
-        this.AggregateId = aggregateId;
-        this.Version = version;
-        this.UserId = userId;
-        this.Category = category;
-    }
+    /// <summary>
+    /// The identifier of the aggregate root that generated the event.
+    /// </summary>
+    public Guid AggregateId { get; private set; } = aggregateId;
+    /// <summary>
+    /// The version of the aggregate root.
+    /// </summary>
+    public long Version { get; private set; } = version;
+    /// <summary>
+    /// The identifier of the user who made the change.
+    /// </summary>
+    public Guid UserId { get; private set; } = userId;
+    /// <summary>
+    /// The category of the aggregate root.
+    /// </summary>
+    public string Category { get; private set; } = category;
 }

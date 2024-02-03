@@ -2,8 +2,15 @@
 
 public class OrderDeletedDomainEvent(
     Guid id,
-    DateTime deletedAt
-) : DomainEvent(Guid.NewGuid(), "OrderDeleted", DateTime.UtcNow, id)
+    DateTime deletedAt,
+    Guid? eventId = null,
+    DateTime? occurredAt = null
+) : DomainEvent(id, eventId, occurredAt)
 {
     public DateTime DeletedAt { get; private set; } = deletedAt;
+
+    public override string GetEventType()
+    {
+        return "OrderDeleted";
+    }
 }

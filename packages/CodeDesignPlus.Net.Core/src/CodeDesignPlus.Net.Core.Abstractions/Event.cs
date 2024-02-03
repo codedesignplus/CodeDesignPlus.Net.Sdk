@@ -1,21 +1,29 @@
 ﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
-public class Event(IDomainEvent domainEvent, EventMetadata metadata = null)
+/// <summary>
+/// Represents a domain event.
+/// </summary>
+/// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+/// <param name="id">The identifier of the event.</param>
+/// <param name="type">The type of the event.</param>
+/// <param name="attributes">The attributes of the event.</param>
+/// <param name="occurredAt">The date and time when the event occurred.</param>
+public class EventData<TDomainEvent>(Guid id, string type, TDomainEvent attributes, DateTime occurredAt) where TDomainEvent : DomainEvent
 {
-    public EventData Data { get; private set; } = new(domainEvent);
-    public EventMetadata Metadata { get; private set; } = metadata;
-}
-
-public class EventData(IDomainEvent domainEvent)
-{
-    public Guid Id { get; private set; } = domainEvent.EventId;
-    public string Type { get; private set; } = domainEvent.EventType;
-    public IDomainEvent DomainEvent { get; private set; } = domainEvent;
-    public DateTime OccurredAt { get; private set; } = domainEvent.OccurredAt;
-}
-
-public class EventMetadata(string key, object value)
-{
-    public string Key { get; private set; } = key;
-    public object Value { get; private set; } = value;
+    /// <summary>
+    /// Initializes a new instance of <see cref="EventData{TDomainEvent}"/>.
+    /// </summary>
+    public Guid Id { get; private set; } = id;
+    /// <summary>
+    /// The type of the event.
+    /// </summary>
+    public string Type { get; private set; } = type;
+    /// <summary>
+    /// The attributes of the event.
+    /// </summary>
+    public TDomainEvent Attributes { get; private set; } = attributes;
+    /// <summary>
+    /// The date and time when the event occurred.
+    /// </summary>
+    public DateTime OccurredAt { get; private set; } = occurredAt;
 }

@@ -1,12 +1,39 @@
 ﻿
-
-
 namespace CodeDesignPlus.Net.Core.Abstractions;
 
-public abstract class DomainEvent(Guid eventId, string type, DateTime occurredAt, Guid id) : IDomainEvent
+/// <summary>
+/// Represents the domain event that will be used to notify the changes that occur in the domain.
+/// </summary>
+/// <param name="aggregateId">The identifier of the aggregate root that generated the event.</param>
+/// <param name="eventId">The identifier of the event.</param>
+/// <param name="occurredAt">The date and time when the event occurred.</param>
+/// <param name="metadata">The metadata of the event.</param>
+public abstract class DomainEvent(
+    Guid aggregateId,
+    Guid? eventId = null,
+    DateTime? occurredAt = null,
+    Dictionary<string, object> metadata = null
+) : IDomainEvent
 {
-    public Guid EventId { get; private set; } = eventId;
-    public string EventType { get; private set; } = type;
-    public DateTime OccurredAt { get; private set; } = occurredAt;
-    public Guid Id { get; private set; } = id;
+    /// <summary>
+    /// The identifier of the aggregate root that generated the event.
+    /// </summary>
+    public Guid AggregateId { get; private set; } = aggregateId;
+    /// <summary>
+    /// The identifier of the event.
+    /// </summary>
+    public Guid? EventId { get; private set; } = eventId ?? Guid.NewGuid();
+    /// <summary>
+    /// The date and time when the event occurred.
+    /// </summary>
+    public DateTime? OccurredAt { get; private set; } = occurredAt ?? DateTime.UtcNow;
+    /// <summary>
+    /// The metadata of the event.
+    /// </summary>
+    public Dictionary<string, object> Metadata { get; private set; } = metadata ?? [];
+    /// <summary>
+    /// Gets the type of the event.
+    /// </summary>
+    /// <returns>The type of the event.</returns>
+    public abstract string GetEventType();
 }
