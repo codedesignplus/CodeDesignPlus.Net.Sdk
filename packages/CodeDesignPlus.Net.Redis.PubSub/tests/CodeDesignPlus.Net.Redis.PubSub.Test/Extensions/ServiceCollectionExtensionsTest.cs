@@ -6,6 +6,7 @@ using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using StackExchange.Redis;
+using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Extensions;
 
@@ -104,6 +105,7 @@ public class ServiceCollectionExtensionsTest
         var mockRedisService = new Mock<IRedisService>();
         var mockSubscriptionManager = new Mock<ISubscriptionManager>();
         var mockServiceProvider = new Mock<IServiceProvider>();
+        var mockDomainEventResolverService = new Mock<IDomainEventResolverService>();
 
         mockRedisServiceFactory.Setup(x => x.Create(It.IsAny<string>())).Returns(mockRedisService.Object);
 
@@ -116,11 +118,12 @@ public class ServiceCollectionExtensionsTest
             mockServiceProvider.Object,
             mockLogger.Object,
             O.Options.Create(new RedisPubSubOptions { Name = "Test" }),
-            O.Options.Create(new PubSubOptions())
+            O.Options.Create(new PubSubOptions()),
+            mockDomainEventResolverService.Object
         );
 
         // Act
-        PubSubService.ListenerEvent<UserCreatedEvent, UserCreatedEventHandler>(new RedisValue(JsonSerializer.Serialize(new UserCreatedEvent())), new CancellationToken());
+        PubSubService.ListenerEvent<UserCreatedEvent, UserCreatedEventHandler>(new RedisValue(JsonSerializer.Serialize(new UserCreatedEvent(Guid.NewGuid()))), new CancellationToken());
 
         // Assert
         mockLogger.VerifyLogging("No subscriptions found for event: UserCreatedEvent.", LogLevel.Warning);

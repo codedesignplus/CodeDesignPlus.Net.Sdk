@@ -1,9 +1,10 @@
-﻿using System.Text.Json;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.PubSub.Options;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json;
 using StackExchange.Redis;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Services;
@@ -13,26 +14,17 @@ namespace CodeDesignPlus.Net.Redis.PubSub.Services;
 /// </summary>
 public class RedisPubSubService : IRedisPubSubService
 {
-    /// <summary>
-    /// Service logger
-    /// </summary>
     private readonly ILogger<RedisPubSubService> logger;
-    /// <summary>
-    /// Service that management connection with Redis Server
-    /// </summary>
     private readonly IRedisService redisService;
-    /// <summary>
-    /// Service that management the events and events handlers inside assembly
-    /// </summary>
+    private readonly IDomainEventResolverService domainEventResolverService;
     private readonly ISubscriptionManager subscriptionManager;
-    /// <summary>
-    /// Service provider
-    /// </summary>
     private readonly IServiceProvider serviceProvider;
-    /// <summary>
-    /// The event bus options
-    /// </summary>
     private readonly PubSubOptions pubSubOptions;
+
+    private readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
+    {
+        ContractResolver = new RedisContratResolver([])
+    };
 
     /// <summary>
     /// Initialize a new instance of the <see cref="RedisPubSubService"/>
@@ -48,7 +40,8 @@ public class RedisPubSubService : IRedisPubSubService
         IServiceProvider serviceProvider,
         ILogger<RedisPubSubService> logger,
         IOptions<RedisPubSubOptions> options,
-        IOptions<PubSubOptions> PubSubOptions)
+        IOptions<PubSubOptions> PubSubOptions,
+        IDomainEventResolverService domainEventResolverService)
     {
         if (redisServiceFactory == null)
             throw new ArgumentNullException(nameof(redisServiceFactory));
@@ -59,8 +52,12 @@ public class RedisPubSubService : IRedisPubSubService
         if (PubSubOptions == null)
             throw new ArgumentNullException(nameof(PubSubOptions));
 
+        if (domainEventResolverService == null)
+            throw new ArgumentNullException(nameof(domainEventResolverService));
+
         this.redisService = redisServiceFactory.Create(options.Value.Name);
 
+        this.domainEventResolverService = domainEventResolverService;
         this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -76,7 +73,7 @@ public class RedisPubSubService : IRedisPubSubService
     /// <param name="token">The cancellation token that will be assigned to the new task.</param>
     /// <returns>Return a <see cref="Task"/></returns>
     /// <exception cref="ArgumentNullException">@event is null</exception>
-    public Task PublishAsync(EventBase @event, CancellationToken token)
+    public Task PublishAsync(IDomainEvent @event, CancellationToken token)
     {
         if (@event == null)
             throw new ArgumentNullException(nameof(@event));
@@ -95,9 +92,9 @@ public class RedisPubSubService : IRedisPubSubService
     /// <returns>The number of clients that received the message.</returns>
     private async Task<TResult> PrivatePublishAsync<TResult>(object @event, CancellationToken token)
     {
-        var channel = @event.GetType().Name;
+        var channel = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        var message = JsonSerializer.Serialize(@event);
+        var message = JsonConvert.SerializeObject(@event, this.jsonSerializerSettings);
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
@@ -115,10 +112,10 @@ public class RedisPubSubService : IRedisPubSubService
     /// <param name="token">The cancellation token that will be assigned to the new task.</param>
     /// <returns>Return a <see cref="Task"/></returns>
     public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = typeof(TEvent).Name;
+        var channel = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
@@ -133,7 +130,7 @@ public class RedisPubSubService : IRedisPubSubService
     /// <param name="value">The value received</param>    
     /// <param name="token">The cancellation token that will be assigned to the new task.</param>
     public void ListenerEvent<TEvent, TEventHandler>(RedisValue value, CancellationToken token)
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
         if (this.subscriptionManager.HasSubscriptionsForEvent<TEvent>())
@@ -144,7 +141,7 @@ public class RedisPubSubService : IRedisPubSubService
 
             foreach (var subscription in subscriptions)
             {
-                var @event = JsonSerializer.Deserialize<TEvent>(value);
+                var @event = JsonConvert.DeserializeObject<TEvent>(value);
 
                 if (this.pubSubOptions.EnableQueue)
                 {
@@ -172,10 +169,10 @@ public class RedisPubSubService : IRedisPubSubService
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
     public Task UnsubscribeAsync<TEvent, TEventHandler>()
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = typeof(TEvent).Name;
+        var channel = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
 
         this.subscriptionManager.RemoveSubscription<TEvent, TEventHandler>();
 
