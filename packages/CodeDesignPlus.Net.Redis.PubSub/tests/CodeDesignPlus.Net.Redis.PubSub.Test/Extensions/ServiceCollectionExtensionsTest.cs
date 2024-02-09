@@ -95,38 +95,4 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(OptionsUtil.RedisPubSubOptions.Name, value.Name);
         Assert.Equal(OptionsUtil.RedisPubSubOptions.Enable, value.Enable);
     }
-
-    [Fact]
-    public void ListenerEvent_NoSubscriptions_LogsWarning()
-    {
-        // Arrange
-        var mockLogger = new Mock<ILogger<RedisPubSubService>>();
-        var mockRedisServiceFactory = new Mock<IRedisServiceFactory>();
-        var mockRedisService = new Mock<IRedisService>();
-        var mockSubscriptionManager = new Mock<ISubscriptionManager>();
-        var mockServiceProvider = new Mock<IServiceProvider>();
-        var mockDomainEventResolverService = new Mock<IDomainEventResolverService>();
-
-        mockRedisServiceFactory.Setup(x => x.Create(It.IsAny<string>())).Returns(mockRedisService.Object);
-
-        // Simular que no hay suscripciones para el evento
-        mockSubscriptionManager.Setup(x => x.HasSubscriptionsForEvent<UserCreatedEvent>()).Returns(false);
-
-        var PubSubService = new RedisPubSubService(
-            mockRedisServiceFactory.Object,
-            mockSubscriptionManager.Object,
-            mockServiceProvider.Object,
-            mockLogger.Object,
-            O.Options.Create(new RedisPubSubOptions { Name = "Test" }),
-            O.Options.Create(new PubSubOptions()),
-            mockDomainEventResolverService.Object
-        );
-
-        // Act
-        PubSubService.ListenerEvent<UserCreatedEvent, UserCreatedEventHandler>(new RedisValue(JsonSerializer.Serialize(new UserCreatedEvent(Guid.NewGuid()))), new CancellationToken());
-
-        // Assert
-        mockLogger.VerifyLogging("No subscriptions found for event: UserCreatedEvent.", LogLevel.Warning);
-
-    }
 }

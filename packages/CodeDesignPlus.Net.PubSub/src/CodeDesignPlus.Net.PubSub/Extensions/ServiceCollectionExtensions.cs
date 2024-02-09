@@ -38,8 +38,6 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
-
         var pubSub = PubSubExtensions.GetPubSub() ?? throw new EventNotImplementedException();
         
         services.AddSingleton(typeof(IPubSub), pubSub);

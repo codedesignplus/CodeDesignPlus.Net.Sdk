@@ -29,8 +29,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     [Fact]
     public void Constructor_RedisIsNull_ArgumentNullException()
     {
-        // Arrange
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        // Arrange        
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
@@ -39,112 +38,91 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
 
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(null, subscriptionManager, serviceProvider, logger, options, pubSubOptions, domainEventResolverService));
-    }
-
-    [Fact]
-    public void Constructor_SubscriptionManagerIsNull_ArgumentNullException()
-    {
-        // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
-        var serviceProvider = Mock.Of<IServiceProvider>();
-        var logger = Mock.Of<ILogger<RedisPubSubService>>();
-        var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
-        var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
-
-        // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, null, serviceProvider, logger, options, pubSubOptions, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(null, serviceProvider, logger, options, pubSubOptions, domainEventResolverService));
     }
 
     [Fact]
     public void Constructor_ServiceProviderIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var factory = Mock.Of<IRedisServiceFactory>();        
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, subscriptionManager, null, logger, options, pubSubOptions, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, null, logger, options, pubSubOptions, domainEventResolverService));
     }
 
     [Fact]
     public void Constructor_LoggerIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var factory = Mock.Of<IRedisServiceFactory>();        
         var serviceProvider = Mock.Of<IServiceProvider>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, subscriptionManager, serviceProvider, null, options, pubSubOptions, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, serviceProvider, null, options, pubSubOptions, domainEventResolverService));
     }
 
     [Fact]
     public void Constructor_OptionsIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var factory = Mock.Of<IRedisServiceFactory>();        
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, subscriptionManager, serviceProvider, logger, null, pubSubOptions, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, serviceProvider, logger, null, pubSubOptions, domainEventResolverService));
     }
 
     [Fact]
     public void Constructor_OptionsPubSubIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var factory = Mock.Of<IRedisServiceFactory>();        
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, subscriptionManager, serviceProvider, logger, options, null, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, serviceProvider, logger, options, null, domainEventResolverService));
     }
 
     [Fact]
     public void Constructor_DomainEventResolverServiceIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var factory = Mock.Of<IRedisServiceFactory>();        
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, subscriptionManager, serviceProvider, logger, options, pubSubOptions, null));
+        Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, serviceProvider, logger, options, pubSubOptions, null));
     }
 
     [Fact]
     public void PublishAsync_EventIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        var factory = Mock.Of<IRedisServiceFactory>();        
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
 
-        var redisPubSubService = new RedisPubSubService(factory, subscriptionManager, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
+        var redisPubSubService = new RedisPubSubService(factory, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
 
         // Act & Arc
         Assert.ThrowsAsync<ArgumentNullException>(() => redisPubSubService.PublishAsync(null, CancellationToken.None));
@@ -164,7 +142,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
 
         var @eventSend = new UserCreatedEvent(Guid.NewGuid());
 
-        var subscriptionManager = Mock.Of<ISubscriptionManager>();
+        
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
@@ -189,7 +167,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         var factory = new Mock<IRedisServiceFactory>();
         factory.Setup(x => x.Create(It.IsAny<string>())).Returns(redisService.Object);
 
-        var redisPubSubService = new RedisPubSubService(factory.Object, subscriptionManager, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
+        var redisPubSubService = new RedisPubSubService(factory.Object, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
 
         // Act
         await redisPubSubService.PublishAsync(@event, CancellationToken.None);
@@ -384,22 +362,13 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     {
         // Arrange
         var channelUnsubscribe = string.Empty;
-        var isInvokedRemoveSubscription = false;
 
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
-        var subscriptionManager = new Mock<ISubscriptionManager>();
         var subscriber = new Mock<ISubscriber>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
         var domainEventResolverService = new DomainEventResolverService();
-
-        subscriptionManager
-            .Setup(x => x.RemoveSubscription<UserCreatedEvent, UserCreatedEventHandler>())
-            .Callback(() =>
-            {
-                isInvokedRemoveSubscription = true;
-            });
 
         subscriber
             .Setup(x => x.Unsubscribe(It.IsAny<RedisChannel>(), It.IsAny<Action<RedisChannel, RedisValue>>(), It.IsAny<CommandFlags>()))
@@ -414,13 +383,12 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         var factory = new Mock<IRedisServiceFactory>();
         factory.Setup(x => x.Create(It.IsAny<string>())).Returns(redisService.Object);
 
-        var redisPubSubService = new RedisPubSubService(factory.Object, subscriptionManager.Object, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
+        var redisPubSubService = new RedisPubSubService(factory.Object, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
 
         // Act
         await redisPubSubService.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>();
 
         // Assert
         Assert.Equal("user.create.event", channelUnsubscribe);
-        Assert.True(isInvokedRemoveSubscription);
     }
 }

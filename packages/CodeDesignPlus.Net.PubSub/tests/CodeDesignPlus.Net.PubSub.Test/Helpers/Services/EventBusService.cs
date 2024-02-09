@@ -8,19 +8,6 @@ namespace CodeDesignPlus.Net.PubSub.Test;
 public class PubSubService : IPubSub
 {
     /// <summary>
-    /// Subscription Manager
-    /// </summary>
-    public ISubscriptionManager Subscription { get; set; }
-
-    /// <summary>
-    /// Crea una nueva instancia de <see cref="PubSubService"/>
-    /// </summary>
-    public PubSubService(ISubscriptionManager subscriptionManager)
-    {
-        this.Subscription = subscriptionManager;
-    }
-
-    /// <summary>
     /// Metodo encargado de publicar un evento de integración
     /// </summary>
     /// <param name="event">Información del Evento a publicar</param>

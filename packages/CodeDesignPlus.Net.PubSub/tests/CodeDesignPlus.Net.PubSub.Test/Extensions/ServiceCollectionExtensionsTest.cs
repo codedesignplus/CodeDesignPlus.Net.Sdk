@@ -84,17 +84,12 @@ public class ServiceCollectionExtensionsTest
         services.AddPubSub(configuration);
 
         // Assert
-        var subscriptionManager = services.FirstOrDefault(x => typeof(ISubscriptionManager).IsAssignableFrom(x.ImplementationType));
-        var PubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
+        var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
 
-        Assert.NotNull(subscriptionManager);
-        Assert.NotNull(PubSub);
+        Assert.NotNull(pubSub);
 
-        Assert.Equal(typeof(SubscriptionManager), subscriptionManager.ImplementationType);
-        Assert.Equal(ServiceLifetime.Singleton, subscriptionManager.Lifetime);
-
-        Assert.Equal(typeof(PubSubService), PubSub.ImplementationType);
-        Assert.Equal(ServiceLifetime.Singleton, PubSub.Lifetime);
+        Assert.Equal(typeof(PubSubService), pubSub.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, pubSub.Lifetime);
     }
 
     /// <summary>

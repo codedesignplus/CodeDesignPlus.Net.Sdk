@@ -19,9 +19,8 @@ public class EventStorePubSubService : IEventStorePubSubService, IPubSub
         ContractResolver = new EventStoreContratResolver([]),
         ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
     };
-    
+
     private readonly IEventStoreFactory eventStoreFactory;
-    private readonly ISubscriptionManager subscriptionManager;
     private readonly IServiceProvider serviceProvider;
     private readonly ILogger<EventStorePubSubService> logger;
     private readonly EventStorePubSubOptions options;
@@ -32,7 +31,6 @@ public class EventStorePubSubService : IEventStorePubSubService, IPubSub
 
     public EventStorePubSubService(
         IEventStoreFactory eventStoreFactory,
-        ISubscriptionManager subscriptionManager,
         IServiceProvider serviceProvider,
         ILogger<EventStorePubSubService> logger,
         IOptions<EventStorePubSubOptions> eventStorePubSubOptions,
@@ -43,7 +41,6 @@ public class EventStorePubSubService : IEventStorePubSubService, IPubSub
         ArgumentNullException.ThrowIfNull(pubSubOptions, nameof(pubSubOptions));
 
         this.eventStoreFactory = eventStoreFactory ?? throw new ArgumentNullException(nameof(eventStoreFactory));
-        this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.domainEventResolverService = domainEventResolverService ?? throw new ArgumentNullException(nameof(domainEventResolverService));
@@ -125,34 +122,18 @@ public class EventStorePubSubService : IEventStorePubSubService, IPubSub
         where TEventHandler : IEventHandler<TEvent>
     {
         var domainEvent = JsonConvert.DeserializeObject<TEvent>(Encoding.UTF8.GetString(@event.Event.Data), this.jsonSettings);
-        
-        if (this.subscriptionManager.HasSubscriptionsForEvent<TEvent>())
+
+        if (this.pubSubOptions.EnableQueue)
         {
-            var subscriptions = this.subscriptionManager.FindSubscriptions<TEvent>();
+            var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
 
-            foreach (var subscription in subscriptions)
-            {
-                this.logger.LogDebug("Event {EventType} is being handled by {EventHandlerType}", subscription.EventType.Name, subscription.EventHandlerType.Name);
-
-                if (this.pubSubOptions.EnableQueue)
-                {
-                    var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
-
-                    queue.Enqueue(@domainEvent);
-                }
-                else
-                {
-                    var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
-
-                    await eventHandler.HandleAsync(@domainEvent, cancellationToken);
-                }
-
-                this.logger.LogDebug("Event {EventType} was successfully processed by handler {EventHandlerType}", subscription.EventType.Name, subscription.EventHandlerType.Name);
-            }
+            queue.Enqueue(@domainEvent);
         }
         else
         {
-            this.logger.LogWarning("No subscriptions found for event type {EventType}. Skipping processing.", typeof(TEvent).Name);
+            var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+
+            await eventHandler.HandleAsync(@domainEvent, cancellationToken);
         }
     }
 

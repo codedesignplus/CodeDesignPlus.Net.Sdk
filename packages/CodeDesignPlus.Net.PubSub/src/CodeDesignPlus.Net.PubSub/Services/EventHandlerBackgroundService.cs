@@ -13,18 +13,15 @@ public class EventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundSe
     where TEvent : IDomainEvent
 {
     private readonly ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger;
-    private readonly ISubscriptionManager subscriptionManager;
     private readonly IPubSub PubSub;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EventHandlerBackgroundService{TEventHandler, TEvent}"/> class.
     /// </summary>
-    /// <param name="subscriptionManager">Manages the event subscriptions.</param>
     /// <param name="PubSub">Service for managing events.</param>
     /// <param name="logger">Service for logging.</param>
-    public EventHandlerBackgroundService(ISubscriptionManager subscriptionManager, IPubSub PubSub, ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger)
+    public EventHandlerBackgroundService(IPubSub PubSub, ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger)
     {
-        this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.PubSub = PubSub ?? throw new ArgumentNullException(nameof(PubSub));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -39,10 +36,6 @@ public class EventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundSe
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
         this.logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
-
-        this.subscriptionManager.AddSubscription<TEvent, TEventHandler>();
-
-        this.logger.LogInformation("Subscription added for {TEventHandler} and event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
 
         this.PubSub.SubscribeAsync<TEvent, TEventHandler>(stoppingToken);
 

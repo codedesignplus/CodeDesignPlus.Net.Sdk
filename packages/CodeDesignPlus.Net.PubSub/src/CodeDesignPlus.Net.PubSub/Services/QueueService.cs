@@ -45,7 +45,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// Determines whether a sequence contains any elements.
         /// </summary>
         /// <returns>true if the source sequence contains any elements; otherwise, false.</returns>
-        public bool Any() => this.queueEvent.Any();
+        public bool Any() => !queueEvent.IsEmpty;
 
         /// <summary>
         /// Agrega un objeto al final de la queue
@@ -65,11 +65,11 @@ namespace CodeDesignPlus.Net.PubSub.Services
             if (!exist)
             {
                 this.queueEvent.Enqueue(@event);
-                this.logger.LogInformation($"Event of type {typeof(TEvent).Name} enqueued.");
+                this.logger.LogInformation("Event of type {name} enqueued.", typeof(TEvent).Name);
             }
             else
             {
-                this.logger.LogWarning($"Event of type {typeof(TEvent).Name} was already in the queue. Skipping.");
+                this.logger.LogWarning("Event of type {name} was already in the queue. Skipping.", typeof(TEvent).Name);
             }
         }
 

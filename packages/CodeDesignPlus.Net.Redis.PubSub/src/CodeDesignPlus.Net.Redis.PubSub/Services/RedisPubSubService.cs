@@ -17,7 +17,6 @@ public class RedisPubSubService : IRedisPubSubService
     private readonly ILogger<RedisPubSubService> logger;
     private readonly IRedisService redisService;
     private readonly IDomainEventResolverService domainEventResolverService;
-    private readonly ISubscriptionManager subscriptionManager;
     private readonly IServiceProvider serviceProvider;
     private readonly PubSubOptions pubSubOptions;
 
@@ -30,13 +29,11 @@ public class RedisPubSubService : IRedisPubSubService
     /// Initialize a new instance of the <see cref="RedisPubSubService"/>
     /// </summary>
     /// <param name="redisServiceFactory">Service that management connection with Redis Server</param>
-    /// <param name="subscriptionManager">Service that management the events and events handlers inside assembly</param>
     /// <param name="serviceProvider">Service provider</param>
     /// <param name="logger">Service logger</param>
     /// <param name="PubSubOptions">The event bus options</param>
     public RedisPubSubService(
         IRedisServiceFactory redisServiceFactory,
-        ISubscriptionManager subscriptionManager,
         IServiceProvider serviceProvider,
         ILogger<RedisPubSubService> logger,
         IOptions<RedisPubSubOptions> options,
@@ -58,7 +55,6 @@ public class RedisPubSubService : IRedisPubSubService
         this.redisService = redisServiceFactory.Create(options.Value.Name);
 
         this.domainEventResolverService = domainEventResolverService;
-        this.subscriptionManager = subscriptionManager ?? throw new ArgumentNullException(nameof(subscriptionManager));
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.pubSubOptions = PubSubOptions.Value;
@@ -133,33 +129,19 @@ public class RedisPubSubService : IRedisPubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        if (this.subscriptionManager.HasSubscriptionsForEvent<TEvent>())
+        var @event = JsonConvert.DeserializeObject<TEvent>(value);
+
+        if (this.pubSubOptions.EnableQueue)
         {
-            this.logger.LogInformation("Received event: {TEvent}.", typeof(TEvent).Name);
+            var queue = this.serviceProvider.GetService<IQueueService<TEventHandler, TEvent>>();
 
-            var subscriptions = this.subscriptionManager.FindSubscriptions<TEvent>();
-
-            foreach (var subscription in subscriptions)
-            {
-                var @event = JsonConvert.DeserializeObject<TEvent>(value);
-
-                if (this.pubSubOptions.EnableQueue)
-                {
-                    var queue = this.serviceProvider.GetService<IQueueService<TEventHandler, TEvent>>();
-
-                    queue.Enqueue(@event);
-                }
-                else
-                {
-                    var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
-
-                    eventHandler.HandleAsync(@event, token);
-                }
-            }
+            queue.Enqueue(@event);
         }
         else
         {
-            this.logger.LogWarning("No subscriptions found for event: {TEvent}.", typeof(TEvent).Name);
+            var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+
+            eventHandler.HandleAsync(@event, token);
         }
     }
 
@@ -173,8 +155,6 @@ public class RedisPubSubService : IRedisPubSubService
         where TEventHandler : IEventHandler<TEvent>
     {
         var channel = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
-
-        this.subscriptionManager.RemoveSubscription<TEvent, TEventHandler>();
 
         this.redisService.Subscriber.Unsubscribe(RedisChannel.Literal(channel));
 
