@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.Redis.Extensions;
 
-namespace CodeDesignPlus.Net.Redis.Extensions;
+namespace CodeDesignPlus.Net.Redis.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
