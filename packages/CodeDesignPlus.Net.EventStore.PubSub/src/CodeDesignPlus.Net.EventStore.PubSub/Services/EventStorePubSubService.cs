@@ -125,42 +125,35 @@ public class EventStorePubSubService : IEventStorePubSubService, IPubSub
         where TEventHandler : IEventHandler<TEvent>
     {
         var domainEvent = JsonConvert.DeserializeObject<TEvent>(Encoding.UTF8.GetString(@event.Event.Data), this.jsonSettings);
-
-        var projectionHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
-
-        await projectionHandler.HandleAsync(domainEvent, cancellationToken);
-
-
-        /*******************/
         
-        // if (this.subscriptionManager.HasSubscriptionsForEvent<TEvent>())
-        // {
-        //     var subscriptions = this.subscriptionManager.FindSubscriptions<TEvent>();
+        if (this.subscriptionManager.HasSubscriptionsForEvent<TEvent>())
+        {
+            var subscriptions = this.subscriptionManager.FindSubscriptions<TEvent>();
 
-        //     foreach (var subscription in subscriptions)
-        //     {
-        //         this.logger.LogDebug("Event {EventType} is being handled by {EventHandlerType}", subscription.EventType.Name, subscription.EventHandlerType.Name);
+            foreach (var subscription in subscriptions)
+            {
+                this.logger.LogDebug("Event {EventType} is being handled by {EventHandlerType}", subscription.EventType.Name, subscription.EventHandlerType.Name);
 
-        //         if (this.pubSubOptions.EnableQueue)
-        //         {
-        //             var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
+                if (this.pubSubOptions.EnableQueue)
+                {
+                    var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
 
-        //             queue.Enqueue(@domainEvent);
-        //         }
-        //         else
-        //         {
-        //             var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+                    queue.Enqueue(@domainEvent);
+                }
+                else
+                {
+                    var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
-        //             await eventHandler.HandleAsync(@domainEvent, cancellationToken);
-        //         }
+                    await eventHandler.HandleAsync(@domainEvent, cancellationToken);
+                }
 
-        //         this.logger.LogDebug("Event {EventType} was successfully processed by handler {EventHandlerType}", subscription.EventType.Name, subscription.EventHandlerType.Name);
-        //     }
-        // }
-        // else
-        // {
-        //     this.logger.LogWarning("No subscriptions found for event type {EventType}. Skipping processing.", typeof(TEvent).Name);
-        // }
+                this.logger.LogDebug("Event {EventType} was successfully processed by handler {EventHandlerType}", subscription.EventType.Name, subscription.EventHandlerType.Name);
+            }
+        }
+        else
+        {
+            this.logger.LogWarning("No subscriptions found for event type {EventType}. Skipping processing.", typeof(TEvent).Name);
+        }
     }
 
     /// <summary>
