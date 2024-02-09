@@ -25,7 +25,7 @@ public class JsonSystemTextSerializerTest
     public void Serialize_ShouldReturnByteArray_WhenDataIsValid()
     {
         // Arrange
-        var data = new UserCreatedEvent { Username = "Alice", Names = "Alice Rodriguez" };
+        var data = new UserCreatedEvent(Guid.NewGuid()) { Username = "Alice", Names = "Alice Rodriguez" };
 
         // Act
         var result = _serializer.Serialize(data, new SerializationContext());
@@ -53,7 +53,7 @@ public class JsonSystemTextSerializerTest
     public void Deserialize_ShouldReturnObject_WhenDataIsValid()
     {
         // Arrange
-        var expected = new UserCreatedEvent { Username = "Alice", Names = "Alice Rodriguez" };
+        var expected = new UserCreatedEvent(Guid.NewGuid()) { Username = "Alice", Names = "Alice Rodriguez" };
         var jsonData = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(expected);
         var isNull = false;
 

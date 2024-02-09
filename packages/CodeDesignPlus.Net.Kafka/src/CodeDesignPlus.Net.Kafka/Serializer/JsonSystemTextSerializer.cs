@@ -1,4 +1,6 @@
-﻿using Confluent.Kafka;
+﻿using System.Text;
+using Confluent.Kafka;
+using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Kafka.Serializer;
 
@@ -19,7 +21,7 @@ public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
         if (data == null)
             return null;
 
-        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data);
+        return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
     }
 
     /// <summary>
@@ -34,6 +36,6 @@ public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
         if (isNull)
             return default;
             
-        return System.Text.Json.JsonSerializer.Deserialize<T>(data);
+        return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(data));
     }
 }

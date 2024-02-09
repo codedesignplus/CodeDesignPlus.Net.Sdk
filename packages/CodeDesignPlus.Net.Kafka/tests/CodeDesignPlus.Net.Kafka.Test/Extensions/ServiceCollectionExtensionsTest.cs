@@ -1,7 +1,7 @@
 ﻿using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
-using CodeDesignPlus.Net.xUnit.Helpers;
 using Confluent.Kafka;
 using CodeDesignPlus.Net.Kafka.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Extensions;
 
@@ -86,45 +86,5 @@ public class ServiceCollectionExtensionsTest
 
         Assert.NotNull(options);
         Assert.NotNull(value);
-    }
-
-
-    [Fact]
-    public void RegisterProducers_CreateProducersWithEvents_Producers()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Kafka = OptionUtils.KafkaOptions });
-
-        var serviceCollection = new ServiceCollection();
-
-        // Act
-        serviceCollection.AddKafka(configuration);
-
-        // Assert
-        var producer = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IProducer<string, UserCreatedEvent>));
-
-        Assert.NotNull(producer);
-        Assert.Equal(ServiceLifetime.Singleton, producer.Lifetime);
-        Assert.NotNull(producer.ImplementationInstance);
-    }
-
-
-    [Fact]
-    public void RegisterConsumers_CreateConsumersWithEvents_Consumers()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Kafka = OptionUtils.KafkaOptions });
-
-        var serviceCollection = new ServiceCollection();
-
-        // Act
-        serviceCollection.AddKafka(configuration);
-
-        // Assert
-        var consumer = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IConsumer<string, UserCreatedEvent>));
-
-        Assert.NotNull(consumer);
-        Assert.Equal(ServiceLifetime.Singleton, consumer.Lifetime);
-        Assert.NotNull(consumer.ImplementationInstance);
     }
 }

@@ -37,7 +37,7 @@ public class EventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundSe
     {
         this.logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
 
-        this.PubSub.SubscribeAsync<TEvent, TEventHandler>(stoppingToken);
+        Task.Run(() => this.PubSub.SubscribeAsync<TEvent, TEventHandler>(stoppingToken), stoppingToken);
 
         return Task.CompletedTask;
     }

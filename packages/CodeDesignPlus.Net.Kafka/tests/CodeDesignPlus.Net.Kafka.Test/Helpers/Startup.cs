@@ -5,6 +5,8 @@ using CodeDesignPlus.Net.Kafka.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 using Microsoft.AspNetCore.Http;
 using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.Core;
+using CodeDesignPlus.Net.Core.Extensions;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers;
 
@@ -28,6 +30,7 @@ public class Startup
                     .SetMinimumLevel(LogLevel.Trace)
                     .UsesScopes();
             })
+            .AddCore(this.Configuration)
             .AddPubSub(this.Configuration)
             .AddSingleton<IMemoryService>(x => MemoryService)
             .AddKafka(this.Configuration);

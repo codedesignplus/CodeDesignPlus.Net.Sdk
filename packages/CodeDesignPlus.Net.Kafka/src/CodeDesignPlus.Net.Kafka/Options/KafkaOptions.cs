@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Confluent.Kafka;
 
 namespace CodeDesignPlus.Net.Kafka.Options;
 
@@ -16,7 +17,7 @@ public class KafkaOptions
     /// Get or sets the Enable
     /// </summary>
     public bool Enable { get; set; }
-    
+
     public string BootstrapServers { get; set; }
     public string Acks { get; set; }
     public int BatchSize { get; set; }
@@ -24,4 +25,20 @@ public class KafkaOptions
     public string CompressionType { get; set; }
     [Required]
     public string NameMicroservice { get; set; }
+
+    public ProducerConfig ProducerConfig => new()
+    {
+        BootstrapServers = this.BootstrapServers,
+        //Acks = this.Acks,
+        // BatchSize = this.BatchSize,
+        // LingerMs = this.LingerMs,
+        //CompressionType = this.CompressionType
+    };
+
+    public ConsumerConfig ConsumerConfig => new()
+    {
+        BootstrapServers = this.BootstrapServers,
+        GroupId = this.NameMicroservice,
+        AutoOffsetReset = AutoOffsetReset.Earliest
+    };
 }
