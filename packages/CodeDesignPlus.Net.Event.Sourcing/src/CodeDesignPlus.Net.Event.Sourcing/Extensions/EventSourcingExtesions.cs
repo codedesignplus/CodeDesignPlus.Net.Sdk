@@ -16,7 +16,6 @@ public static class EventSourcingExtesions
         return AppDomain.CurrentDomain
             .GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
-            .FirstOrDefault(t => t.IsClass && !t.IsAbstract && t.GetInterfaces()
-                .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventSourcingService)));
+            .FirstOrDefault(x => x.IsClass && !x.IsAbstract && typeof(IEventSourcingService).IsAssignableFrom(x) );
     }
 }

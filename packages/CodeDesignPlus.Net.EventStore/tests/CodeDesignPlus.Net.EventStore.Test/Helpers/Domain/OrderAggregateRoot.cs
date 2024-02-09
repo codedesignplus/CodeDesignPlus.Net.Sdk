@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Text.Json.Serialization;
 using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 using StackExchange.Redis;
@@ -12,148 +13,115 @@ public enum OrderStatus
     Cancelled
 }
 
-public class OrderAggregateRoot : AggregateRootBase<Guid>
+public class OrderAggregateRoot : AggregateRoot
 {
     public override string Category { get; protected set; } = "Order";
-    
+
     public DateTime CompletionDate { get; private set; }
     public DateTime CancellationDate { get; private set; }
     public Client? Client { get; private set; }
-    public List<OrderProduct> Products { get; private set; } = new List<OrderProduct>();
+    public List<OrderProduct> Products { get; private set; } = [];
     public OrderStatus Status { get; private set; } = OrderStatus.Pending;
     public Guid IdUserCreator { get; private set; }
     public DateTime DateCreated { get; private set; }
 
-    private OrderAggregateRoot() { }
+    public OrderAggregateRoot(Guid id) : base(id) { }
 
-    public OrderAggregateRoot(Guid idUserCreator, Guid idUser, Client client)
+    public static OrderAggregateRoot Create(Guid id, Guid idUserCreator, Client client)
     {
-        Id = Guid.NewGuid();
+        var aggregate = new OrderAggregateRoot(id);
 
-        this.CreateOrder(idUserCreator, idUser, client);
+        aggregate.AddEvent(new OrderCreatedEvent(id, idUserCreator, OrderStatus.Pending, client, DateTime.UtcNow));
+
+        return aggregate;
     }
 
-    public OrderAggregateRoot(Guid id, Guid idUserCreator, Guid idUser, Client client)
+    public void AddProduct(Product product, int quantity)
     {
-        Id = id;
-
-        this.CreateOrder(idUserCreator, idUser, client);
-    }
-
-    private void CreateOrder(Guid idUserCreator, Guid idUser, Client client)
-    {
-        var orderCreatedEvent = new OrderCreatedEvent(
-            Id,
-            idUserCreator,
-            OrderStatus.Pending,
-            client,
-            DateTime.UtcNow
-       );
-
-        ApplyChange(orderCreatedEvent, idUser);
-    }
-
-    // Método para agregar un producto a la orden
-    public void AddProduct(Product product, int quantity, Guid idUser)
-    {
-        var productAddedToOrderEvent = new ProductAddedToOrderEvent(
+        base.AddEvent(new ProductAddedToOrderEvent(
             Id,
             quantity,
             product
-        );
-
-        ApplyChange(productAddedToOrderEvent, idUser);
+        ));
     }
 
-    // Método para remover un producto de la orden
-    public void RemoveProduct(Guid productId, Guid idUser)
+    public void RemoveProduct(Guid productId)
     {
         var product = Products.SingleOrDefault(p => p.Product.Id == productId);
 
         if (product == null)
             throw new InvalidOperationException("Producto no encontrado en la orden.");
 
-        var productRemovedFromOrderEvent = new ProductRemovedFromOrderEvent(
+        base.AddEvent(new ProductRemovedFromOrderEvent(
             Id,
             productId
-        );
-
-        ApplyChange(productRemovedFromOrderEvent, idUser);
+        ));
     }
 
-    // Método para actualizar la cantidad de un producto en la orden
-    public void UpdateProductQuantity(Guid productId, int newQuantity, Guid idUser)
+    public void UpdateProductQuantity(Guid productId, int newQuantity)
     {
         var product = Products.SingleOrDefault(p => p.Product.Id == productId);
 
         if (product == null)
             throw new InvalidOperationException("Producto no encontrado en la orden.");
 
-        var productQuantityUpdatedEvent = new ProductQuantityUpdatedEvent(
+        base.AddEvent(new ProductQuantityUpdatedEvent(
             Id,
             productId,
             newQuantity
-        );
-
-        ApplyChange(productQuantityUpdatedEvent, idUser);
+        ));
     }
 
-    // Método para completar una orden
-    public void CompleteOrder(Guid idUser)
+    public void CompleteOrder()
     {
         if (Status == OrderStatus.Completed)
             throw new InvalidOperationException("La orden ya está completada.");
 
-        var orderCompletedEvent = new OrderCompletedEvent(
+        base.AddEvent(new OrderCompletedEvent(
             Id,
             DateTime.UtcNow
-        );
-
-        ApplyChange(orderCompletedEvent, idUser);
+        ));
     }
 
     // Método para cancelar una orden
-    public void CancelOrder(string reason, Guid idUser)
+    public void CancelOrder(string reason)
     {
         if (Status == OrderStatus.Cancelled)
             throw new InvalidOperationException("La orden ya está cancelada.");
 
-        var orderCancelledEvent = new OrderCancelledEvent(
+        base.AddEvent(new OrderCancelledEvent(
             Id,
             DateTime.UtcNow,
             reason
-        );
-
-        ApplyChange(orderCancelledEvent, idUser);
+        ));
     }
 
-    private void Apply(OrderCreatedEvent @event, Metadata<Guid> metadata)
+    private void Apply(OrderCreatedEvent @event)
     {
-        Id = @event.AggregateId;
         Client = @event.Client;
         Status = @event.OrderStatus;
         IdUserCreator = @event.IdUserCreator;
         DateCreated = @event.DateCreated;
     }
 
-    private void Apply(OrderCompletedEvent @event, Metadata<Guid> metadata)
+    private void Apply(OrderCompletedEvent @event)
     {
         Status = OrderStatus.Completed;
         CompletionDate = @event.CompletionDate;
     }
 
-    private void Apply(OrderCancelledEvent @event, Metadata<Guid> metadata)
+    private void Apply(OrderCancelledEvent @event)
     {
         Status = OrderStatus.Cancelled;
         CancellationDate = @event.CancellationDate;
     }
 
-    private void Apply(ProductAddedToOrderEvent @event, Metadata<Guid> metadata)
+    private void Apply(ProductAddedToOrderEvent @event)
     {
         Products.Add(new OrderProduct { Product = @event.Product, Quantity = @event.Quantity });
     }
 
-    private void Apply(ProductRemovedFromOrderEvent @event, Metadata<Guid> metadata)
+    private void Apply(ProductRemovedFromOrderEvent @event)
     {
         var productToRemove = Products.SingleOrDefault(p => p.Product.Id == @event.ProductId);
 
@@ -161,7 +129,7 @@ public class OrderAggregateRoot : AggregateRootBase<Guid>
             Products.Remove(productToRemove);
     }
 
-    private void Apply(ProductQuantityUpdatedEvent @event, Metadata<Guid> metadata)
+    private void Apply(ProductQuantityUpdatedEvent @event)
     {
         var productToUpdate = Products.SingleOrDefault(p => p.Product.Id == @event.ProductId);
         if (productToUpdate != null)

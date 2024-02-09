@@ -3,6 +3,8 @@ using CodeDesignPlus.Net.EventStore.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CodeDesignPlus.Net.Core.Abstractions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.EventStore.Extensions;
 
@@ -37,7 +39,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IEventStoreConnection, EventStoreConnection>();
         services.AddSingleton<IEventStoreFactory, EventStoreFactory>();
-        services.AddSingleton(typeof(IEventStoreService<>), typeof(EventStoreService<>));
+        services.AddSingleton<IEventStoreService, EventStoreService>();
 
         return services;
     }

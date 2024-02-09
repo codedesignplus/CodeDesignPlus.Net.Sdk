@@ -1,7 +1,9 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Events;
 
+[Key("product.added")]
 public class ProductAddedDomainEvent(
     Guid aggregateId, 
     string product,
@@ -11,9 +13,4 @@ public class ProductAddedDomainEvent(
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
     public string Product { get; set; } = product;
-
-    public override string GetEventType()
-    {
-        return "order.created";
-    }
 }

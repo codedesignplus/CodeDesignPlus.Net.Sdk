@@ -1,8 +1,9 @@
 ﻿
-using System.Text.Json.Serialization;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
 namespace CodeDesignPlus.Net.Core.Test;
 
+[Key("order.created")]
 public class OrderCreatedDomainEvent(
     Guid aggregateId,
     string name,
@@ -20,9 +21,4 @@ public class OrderCreatedDomainEvent(
     public decimal Price { get; private set; } = price;
     public DateTime CreatedAt { get; private set; } = createdAt;
     public DateTime? UpdatedAt { get; private set; } = updatedAt;
-
-    public override string GetEventType()
-    {
-        return "OrderCreated";
-    }
 }

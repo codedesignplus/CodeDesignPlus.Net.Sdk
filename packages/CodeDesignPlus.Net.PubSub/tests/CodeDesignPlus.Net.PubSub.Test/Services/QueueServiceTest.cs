@@ -55,7 +55,7 @@ public class QueueServiceTest
     public void Enqueue_AddsEventToQueue_When_EventIsNew()
     {
         var service = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, mockOptions.Object);
-        service.Enqueue(new UserRegisteredEvent()
+        service.Enqueue(new UserRegisteredEvent(Guid.NewGuid())
         {
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User),
@@ -67,7 +67,7 @@ public class QueueServiceTest
     [Fact]
     public void Enqueue_SkipsEvent_When_EventAlreadyInQueue()
     {
-        var userRegisteredEvent = new UserRegisteredEvent()
+        var userRegisteredEvent = new UserRegisteredEvent(Guid.NewGuid())
         {
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User),
@@ -82,7 +82,7 @@ public class QueueServiceTest
     [Fact]
     public async Task DequeueAsync_ProcessesEventsInQueue()
     {
-        var userRegisteredEvent = new UserRegisteredEvent()
+        var userRegisteredEvent = new UserRegisteredEvent(Guid.NewGuid())
         {
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User),
@@ -112,7 +112,7 @@ public class QueueServiceTest
 
         var loggerMock = new Mock<ILogger<QueueService<EventFailedHandler, EventFailed>>>();
 
-        var @event = new EventFailed();
+        var @event = new EventFailed(Guid.NewGuid());
         var handler = new EventFailedHandler();
 
         var service = new QueueService<EventFailedHandler, EventFailed>(handler, loggerMock.Object, mockOptions.Object);

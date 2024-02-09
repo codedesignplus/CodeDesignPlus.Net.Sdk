@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.PubSub.Services
@@ -10,7 +11,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
     /// <typeparam name="TEvent">Evento de Integración</typeparam>
     public class QueueService<TEventHandler, TEvent> : IQueueService<TEventHandler, TEvent>
         where TEventHandler : IEventHandler<TEvent>
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
     {
         private readonly ConcurrentQueue<TEvent> queueEvent = new();
         private readonly TEventHandler eventHandler;

@@ -21,9 +21,8 @@ public class SuscriptionTest
     /// </summary>
     public SuscriptionTest()
     {
-        this.userCreatedEvent = new UserRegisteredEvent()
+        this.userCreatedEvent = new UserRegisteredEvent(Guid.NewGuid())
         {
-            Id = new Random().Next(1, 1000),
             Age = (ushort)new Random().Next(1, 100),
             Name = nameof(UserRegisteredEvent.Name),
             User = nameof(UserRegisteredEvent.User),

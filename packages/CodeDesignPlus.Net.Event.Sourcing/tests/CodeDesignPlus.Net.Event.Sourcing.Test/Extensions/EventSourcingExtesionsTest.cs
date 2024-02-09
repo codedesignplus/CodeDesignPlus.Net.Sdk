@@ -9,6 +9,6 @@ public class EventSourcingExtesionsTest
     {
         var eventSourcing = EventSourcingExtesions.GetEventSourcing();
 
-        Assert.Equal(typeof(EventSourcingServiceFake<>), eventSourcing);
+        Assert.Equal(typeof(EventSourcingServiceFake), eventSourcing);
     }
 }

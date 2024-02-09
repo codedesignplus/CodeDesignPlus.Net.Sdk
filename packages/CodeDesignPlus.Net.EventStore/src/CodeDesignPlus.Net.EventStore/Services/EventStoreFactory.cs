@@ -35,20 +35,21 @@ public class EventStoreFactory: IEventStoreFactory
     /// Creates or retrieves an existing connection to EventStore based on the provided key.
     /// </summary>
     /// <param name="key">The unique identifier representing the desired connection.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the connection to EventStore.</returns>
     /// <exception cref="EventStoreException">Thrown when the specified connection key is not found in the settings.</exception>
-    public async Task<ES.IEventStoreConnection> CreateAsync(string key)
+    public async Task<ES.IEventStoreConnection> CreateAsync(string key, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(key))
             throw new ArgumentNullException(nameof(key));
 
-        if (!this.options.Servers.ContainsKey(key))
+        if (!options.Servers.TryGetValue(key, out Server server))
             throw new EventStoreException("The connection is not registered in the settings.");
 
-        if (this.connections.ContainsKey(key))
-            return this.connections[key];
+        if (connections.TryGetValue(key, out ES.IEventStoreConnection connection))
+            return connection;
 
-        var connection = await this.eventStoreConnection.InitializeAsync(this.options.Servers[key]);
+        connection = await this.eventStoreConnection.InitializeAsync(server);
         this.connections.Add(key, connection);
 
         this.logger.LogInformation("Successfully created and cached the connection for key '{key}'.", key);
@@ -85,9 +86,9 @@ public class EventStoreFactory: IEventStoreFactory
         if (string.IsNullOrEmpty(key))
             throw new ArgumentNullException(nameof(key));
 
-        if (!this.options.Servers.ContainsKey(key))
+        if (!options.Servers.TryGetValue(key, out Server server))
             throw new EventStoreException("The connection is not registered in the settings.");
 
-        return (this.options.Servers[key].User, this.options.Servers[key].Password);
+        return (server.User, server.Password);
     }
 }

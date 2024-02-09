@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.PubSub.Extensions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.PubSub.Extensions;
 
 /// <summary>
 /// Provides extension methods related to the PubSub functionality.
@@ -27,7 +29,7 @@ public static class PubSubExtensions
         return AppDomain.CurrentDomain
            .GetAssemblies()
            .SelectMany(assembly => assembly.GetTypes())
-           .Where(t => t.IsSubclassOf(typeof(EventBase)) && !t.IsAbstract)
+           .Where(t => typeof(IDomainEvent).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract && !t.IsInterface)
            .ToList();
     }
 
@@ -90,7 +92,7 @@ public static class PubSubExtensions
     {
         return interfaceEventHandlerGeneric
             .GetGenericArguments()
-            .FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
+            .FirstOrDefault(x => x.IsClass && !x.IsAbstract && typeof(IDomainEvent).IsAssignableFrom(x));
     }
 
     /// <summary>

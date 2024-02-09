@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using Microsoft.Extensions.Hosting;
 
 namespace CodeDesignPlus.Net.PubSub;
 
@@ -9,7 +10,7 @@ namespace CodeDesignPlus.Net.PubSub;
 /// <typeparam name="TEvent">The type of the event.</typeparam>
 public class EventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundService
     where TEventHandler : IEventHandler<TEvent>
-    where TEvent : EventBase
+    where TEvent : IDomainEvent
 {
     private readonly ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger;
     private readonly ISubscriptionManager subscriptionManager;

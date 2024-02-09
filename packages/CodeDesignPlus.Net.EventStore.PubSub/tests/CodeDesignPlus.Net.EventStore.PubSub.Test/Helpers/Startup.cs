@@ -5,6 +5,7 @@ using CodeDesignPlus.Net.Event.Sourcing.Extensions;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Memory;
 using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 using Microsoft.AspNetCore.Builder;
+using CodeDesignPlus.Net.Core.Extensions;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers;
 
@@ -28,6 +29,7 @@ public class Startup
                     .SetMinimumLevel(LogLevel.Trace)
                     .UsesScopes();
             })
+            .AddCore(this.Configuration)
             .AddPubSub(this.Configuration)
             .AddSingleton<IMemoryService>(x => MemoryService)
             .AddEventSourcing(this.Configuration)

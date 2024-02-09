@@ -38,7 +38,7 @@ public class SubscriptionManagerTests
         var eventName = manager.GetEventKey<UserRegisteredEvent>();
 
         // Assert
-        Assert.Equal("UserRegisteredEvent", eventName);
+        Assert.Equal("user.registered.domain.event", eventName);
     }
 
     [Fact]
@@ -53,8 +53,8 @@ public class SubscriptionManagerTests
         subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
 
         // Assert
-        loggerMock.VerifyLogging("Event UserRegisteredEvent added to handlers.", LogLevel.Information);
-        loggerMock.VerifyLogging("EventHandler UserRegisteredEventHandler for event UserRegisteredEvent registered.", LogLevel.Information);
+        loggerMock.VerifyLogging("Event user.registered.domain.event added to handlers.", LogLevel.Information);
+        loggerMock.VerifyLogging("EventHandler UserRegisteredEventHandler for event user.registered.domain.event registered.", LogLevel.Information);
 
     }
 
@@ -69,7 +69,7 @@ public class SubscriptionManagerTests
 
         // Act & Assert
         Assert.Throws<EventHandlerAlreadyRegisteredException<UserRegisteredEvent, UserRegisteredEventHandler>>(() => subscriptionManager.AddSubscription<UserRegisteredEvent, UserRegisteredEventHandler>());
-        loggerMock.VerifyLogging("EventHandler UserRegisteredEventHandler for event UserRegisteredEvent already registered.", LogLevel.Warning);
+        loggerMock.VerifyLogging("EventHandler UserRegisteredEventHandler for event user.registered.domain.event already registered.", LogLevel.Warning);
     }
 
     [Fact]
@@ -85,8 +85,8 @@ public class SubscriptionManagerTests
         subscriptionManager.RemoveSubscription<UserRegisteredEvent, UserRegisteredEventHandler>();
 
         // Assert
-        loggerMock.VerifyLogging("Removed subscription for EventHandler UserRegisteredEventHandler from event UserRegisteredEvent.", LogLevel.Information);
-        loggerMock.VerifyLogging("Event UserRegisteredEvent has no subscriptions and has been removed from handlers.", LogLevel.Information);
+        loggerMock.VerifyLogging("Removed subscription for EventHandler UserRegisteredEventHandler from event user.registered.domain.event.", LogLevel.Information);
+        loggerMock.VerifyLogging("Event user.registered.domain.event has no subscriptions and has been removed from handlers.", LogLevel.Information);
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class SubscriptionManagerTests
         Assert.Throws<EventIsNotRegisteredException>(() => subscriptionManager.FindSubscription<FakeEvent, FakeEventHandler>());
 
         // Assert
-        loggerMock.VerifyLogging($"Attempted to find subscription for unregistered event {typeof(FakeEvent).Name}.", LogLevel.Warning);
+        loggerMock.VerifyLogging($"Attempted to find subscription for unregistered event fake.event.domain.event.", LogLevel.Warning);
     }
 
     [Fact]
@@ -194,7 +194,7 @@ public class SubscriptionManagerTests
         // Act & Assert
         var exception = Assert.Throws<EventIsNotRegisteredException>(() => subscriptionManager.FindSubscription<UserRegisteredEvent, UserRegisteredEventHandler>());
 
-        loggerMock.VerifyLogging($"Attempted to find subscription for unregistered event {typeof(UserRegisteredEvent).Name}.", LogLevel.Warning);
+        loggerMock.VerifyLogging($"Attempted to find subscription for unregistered event user.registered.domain.event.", LogLevel.Warning);
     }
 
     [Fact]

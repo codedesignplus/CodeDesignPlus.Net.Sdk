@@ -1,4 +1,7 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Extensions;
+using CodeDesignPlus.Net.Core.Services;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 using CodeDesignPlus.Net.Event.Sourcing.Extensions;
 using CodeDesignPlus.Net.EventStore.Extensions;
@@ -13,21 +16,35 @@ namespace CodeDesignPlus.Net.EventStore.Test;
 public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 {
     private readonly EventStoreContainer fixture;
+    private readonly IDomainEventResolverService domainEventResolverService;
 
     public EventStoreServiceTest(EventStoreContainer fixture)
     {
         this.fixture = fixture;
+        this.domainEventResolverService = new DomainEventResolverService();
     }
 
     [Fact]
     public void Constructor_NullEventStoreFactory_ThrowsArgumentNullException()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStoreService<Guid>(null!, loggerMock.Object, options));
+        Assert.Throws<ArgumentNullException>(() => new EventStoreService(null!, this.domainEventResolverService, loggerMock.Object, options));
+    }
+
+    [Fact]
+    public void Consturctor_DomainEventResolverService_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
+        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+
+        // Act and Assert
+        Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, null!, loggerMock.Object, options));
     }
 
     [Fact]
@@ -38,7 +55,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStoreService<Guid>(eventStoreFactoryMock.Object, null!, options));
+        Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, null!, options));
     }
 
     [Fact]
@@ -46,10 +63,10 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
 
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, null!));
+        Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, null!));
     }
 
     [Fact]
@@ -57,11 +74,11 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
         // Act
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Assert
         Assert.NotNull(eventStoreService);
@@ -74,10 +91,10 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.CountEventsAsync(category, Guid.NewGuid()));
@@ -88,10 +105,10 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.CountEventsAsync("YourCategory", Guid.Empty));
@@ -105,7 +122,6 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange        
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
         var idProductUpdate = Guid.NewGuid();
         var idProductRemove = Guid.NewGuid();
 
@@ -117,20 +133,22 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
-        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
+
+        var events = orderExpected.GetAndClearEvents();
 
         // Act
-        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        foreach (var @event in events)
         {
-            await eventSourcing.AppendEventAsync(@event, metadata);
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
         }
 
         var numberEvents = await eventSourcing.CountEventsAsync(orderExpected.Category, orderExpected.Id);
 
         // Assert
-        Assert.Equal(orderExpected.UncommittedEvents.Count, numberEvents);
+        Assert.Equal(events.Count, numberEvents);
     }
 
     [Fact]
@@ -138,14 +156,14 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     {
         // Arrange        
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
-        var metadata = new Metadata<Guid>(Guid.NewGuid(), 0, Guid.NewGuid(), "Order");
+        var aggregate = OrderAggregateRoot.Create(Guid.NewGuid(), Guid.NewGuid(), new Client());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.AppendEventAsync<OrderCreatedEvent>(null!, metadata));
+        Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.AppendEventAsync<OrderCreatedEvent>(aggregate.Category, null!));
     }
 
     [Fact]
@@ -154,7 +172,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange        
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
+
         var idProductUpdate = Guid.NewGuid();
         var idProductRemove = Guid.NewGuid();
 
@@ -166,19 +184,21 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
-        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
+
+        var events = orderExpected.GetAndClearEvents();
 
         // Act
-        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        foreach (var @event in events)
         {
-            await eventSourcing.AppendEventAsync(@event, metadata);
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
         }
 
         var allEvents = await eventSourcing.LoadEventsAsync(orderExpected.Category, orderExpected.Id);
 
-        var order = OrderAggregateRoot.Rehydrate<OrderAggregateRoot>(allEvents);
+        var order = OrderAggregateRoot.Rehydrate<OrderAggregateRoot>(orderExpected.Id, allEvents);
 
         // Assert
         Assert.Equal(orderExpected.Id, order.Id);
@@ -189,7 +209,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         Assert.NotNull(order.Client);
         Assert.Equal(orderExpected.Client.Id, order.Client.Id);
         Assert.Equal(orderExpected.Client.Name, order.Client.Name);
-        Assert.Equal(orderExpected.UncommittedEvents.Count - 1, order.Version);
+        Assert.Equal(events.Count - 1, order.Version);
         Assert.Equal(orderExpected.CompletionDate, order.CompletionDate);
         Assert.Equal(orderExpected.IdUserCreator, order.IdUserCreator);
         Assert.Contains(
@@ -203,9 +223,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
                 )
         );
 
-        orderExpected.ClearUncommittedEvents();
-
-        Assert.Empty(orderExpected.UncommittedEvents);
+        Assert.Empty(orderExpected.GetAndClearEvents());
     }
 
 
@@ -215,7 +233,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange        
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
+
 
         var client = new Client()
         {
@@ -225,7 +243,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
         var version = await eventSourcing.GetVersionAsync(orderExpected.Category, orderExpected.Id);
 
@@ -239,7 +257,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange        
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
+
         var idProductUpdate = Guid.NewGuid();
         var idProductRemove = Guid.NewGuid();
 
@@ -251,32 +269,34 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
-        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
+
+        var events = orderExpected.GetAndClearEvents();
 
         // Act
-        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        foreach (var @event in events)
         {
-            await eventSourcing.AppendEventAsync(@event, metadata);
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
         }
 
         var version = await eventSourcing.GetVersionAsync(orderExpected.Category, orderExpected.Id);
 
         // Assert
-        Assert.Equal(orderExpected.UncommittedEvents.Count - 1, version);
+        Assert.Equal(events.Count - 1, version);
     }
 
     [Fact]
     public async Task LoadEventsAsync_NullCategory_ThrowsArgumentNullException()
     {
         // Arrange        
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.LoadEventsAsync(null!, Guid.NewGuid()));
@@ -286,12 +306,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task LoadEventsAsync_EmptyAggregateId_ThrowsArgumentException()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.LoadEventsAsync("YourCategory", Guid.Empty));
@@ -303,12 +323,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task GetVersionAsync_NullCategory_ThrowsArgumentNullException(string category)
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.GetVersionAsync(category, Guid.NewGuid()));
@@ -318,12 +338,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task GetVersionAsync_EmptyAggregateId_ThrowsArgumentException()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.GetVersionAsync("YourCategory", Guid.Empty));
@@ -337,12 +357,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task LoadSnapshotAsync_NullCategory_ThrowsArgumentNullException(string category)
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.LoadSnapshotAsync<OrderAggregateRoot>(category, Guid.NewGuid()));
@@ -352,12 +372,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task LoadSnapshotAsync_EmptyAggregateId_ThrowsArgumentException()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.LoadSnapshotAsync<OrderAggregateRoot>("YourCategory", Guid.Empty));
@@ -367,12 +387,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task SaveSnapshotAsync_NullAggregate_ThrowsArgumentNullException()
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.SaveSnapshotAsync<OrderAggregateRoot>(null!));
@@ -385,7 +405,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
+
         var idProductUpdate = Guid.NewGuid();
         var idProductRemove = Guid.NewGuid();
 
@@ -397,13 +417,15 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
-        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
 
-        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        var events = orderExpected.GetAndClearEvents();
+
+        foreach (var @event in events)
         {
-            await eventSourcing.AppendEventAsync(@event, metadata);
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
         }
 
         // Act
@@ -434,9 +456,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
                 )
         );
 
-        orderExpected.ClearUncommittedEvents();
-
-        Assert.Empty(orderExpected.UncommittedEvents);
+        Assert.Empty(orderExpected.GetAndClearEvents());
     }
 
     [Fact]
@@ -445,7 +465,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
+
         var idProductUpdate = Guid.NewGuid();
         var idProductRemove = Guid.NewGuid();
 
@@ -457,13 +477,15 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
-        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
 
-        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        var events = orderExpected.GetAndClearEvents();
+
+        foreach (var @event in events)
         {
-            await eventSourcing.AppendEventAsync(@event, metadata);
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
         }
 
         // Act
@@ -472,31 +494,25 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var order = await eventSourcing.LoadSnapshotAsync<OrderAggregateRoot>(orderExpected.Category, orderExpected.Id);
 
         // Assert
-        foreach (var (eventExpected, metadataExpected) in orderExpected.UncommittedEvents)
+        foreach (var eventExpected in orderExpected.GetAndClearEvents())
         {
             if (eventExpected is ProductAddedToOrderEvent value)
             {
-                var (@event, metadata) = productAddedToOrderEvent.FirstOrDefault(x => x.Item1.IdEvent == value.IdEvent);
+                var @event = productAddedToOrderEvent.FirstOrDefault(x => x.EventId == value.EventId);
 
+                Assert.NotNull(@event);
                 Assert.Equal(value.AggregateId, @event.AggregateId);
-                Assert.Equal(value.IdEvent, @event.IdEvent);
-                Assert.Equal(value.EventDate, @event.EventDate);
+                Assert.Equal(value.EventId, @event.EventId);
+                Assert.Equal(value.OccurredAt, @event.OccurredAt);
                 Assert.Equal(value.EventType, @event.EventType);
                 Assert.Equal(value.Quantity, @event.Quantity);
                 Assert.Equal(value.Product.Id, @event.Product.Id);
                 Assert.Equal(value.Product.Name, @event.Product.Name);
                 Assert.Equal(value.Product.Price, @event.Product.Price);
-
-                Assert.Equal(metadataExpected.Category, metadata.Category);
-                Assert.Equal(metadataExpected.AggregateId, metadata.AggregateId);
-                Assert.Equal(metadataExpected.Version, metadata.Version);
-                Assert.Equal(metadataExpected.UserId, metadata.UserId);
             }
         }
 
-        orderExpected.ClearUncommittedEvents();
-
-        Assert.Empty(orderExpected.UncommittedEvents);
+        Assert.Empty(orderExpected.GetAndClearEvents());
     }
 
     [Theory]
@@ -505,12 +521,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task SearchEventsAsync_NullCategory_ThrowsArgumentNullException(string category)
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.SearchEventsAsync<OrderCreatedEvent>(category));
@@ -522,7 +538,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
+
         var idProductUpdate = Guid.NewGuid();
         var idProductRemove = Guid.NewGuid();
 
@@ -534,13 +550,13 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
-        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
 
-        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        foreach (var @event in orderExpected.GetAndClearEvents())
         {
-            await eventSourcing.AppendEventAsync(@event, metadata);
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
         }
 
         // Act
@@ -549,31 +565,27 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var order = await eventSourcing.LoadSnapshotAsync<OrderAggregateRoot>(orderExpected.Category, orderExpected.Id);
 
         // Assert
-        foreach (var (eventExpected, metadataExpected) in orderExpected.UncommittedEvents)
+        foreach (var eventExpected in orderExpected.GetAndClearEvents())
         {
             if (eventExpected is ProductAddedToOrderEvent value)
             {
-                var (@event, metadata) = allEvents.FirstOrDefault(x => x.Item1.IdEvent == value.IdEvent);
+                var @event = allEvents.FirstOrDefault(x => x.EventId == value.EventId);
 
+
+                Assert.NotNull(@event);
                 Assert.Equal(value.AggregateId, @event.AggregateId);
-                Assert.Equal(value.IdEvent, @event.IdEvent);
-                Assert.Equal(value.EventDate, @event.EventDate);
+                Assert.Equal(value.EventId, @event.EventId);
+                Assert.Equal(value.OccurredAt, @event.OccurredAt);
                 Assert.Equal(value.EventType, @event.EventType);
                 Assert.Equal(value.Quantity, @event.Quantity);
                 Assert.Equal(value.Product.Id, @event.Product.Id);
                 Assert.Equal(value.Product.Name, @event.Product.Name);
                 Assert.Equal(value.Product.Price, @event.Product.Price);
 
-                Assert.Equal(metadataExpected.Category, metadata.Category);
-                Assert.Equal(metadataExpected.AggregateId, metadata.AggregateId);
-                Assert.Equal(metadataExpected.Version, metadata.Version);
-                Assert.Equal(metadataExpected.UserId, metadata.UserId);
             }
         }
 
-        orderExpected.ClearUncommittedEvents();
-
-        Assert.Empty(orderExpected.UncommittedEvents);
+        Assert.Empty(orderExpected.GetAndClearEvents());
     }
 
     [Theory]
@@ -582,12 +594,12 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     public async Task SearchEventsAsync_NullStreamName_ThrowsArgumentNullException(string? stream)
     {
         // Arrange
-        var loggerMock = new Mock<ILogger<EventStoreService<Guid>>>();
+        var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
         var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService<Guid>(eventStoreFactoryMock.Object, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.SearchEventsAsync(stream));
@@ -599,7 +611,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var idAggregator = Guid.NewGuid();
         var idUserCreator = Guid.NewGuid();
-        var idUserEvent = Guid.NewGuid();
+
         var idProductUpdate = Guid.NewGuid();
         var idProductRemove = Guid.NewGuid();
 
@@ -611,13 +623,15 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var eventSourcing = GetService();
 
-        var orderExpected = new OrderAggregateRoot(idAggregator, idUserCreator, idUserEvent, client);
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
 
-        AddEvents(idUserEvent, idProductUpdate, idProductRemove, orderExpected);
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
 
-        foreach (var (@event, metadata) in orderExpected.UncommittedEvents)
+        var events = orderExpected.GetAndClearEvents();
+
+        foreach (var @event in events)
         {
-            await eventSourcing.AppendEventAsync(@event, metadata);
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
         }
 
         // Act
@@ -626,31 +640,28 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var order = await eventSourcing.LoadSnapshotAsync<OrderAggregateRoot>(orderExpected.Category, orderExpected.Id);
 
         // Assert
-        foreach (var (eventExpected, metadataExpected) in orderExpected.UncommittedEvents.Select(x => ((DomainEventBase)x.Event, x.Metadata)))
+        var eventsExpected = orderExpected.GetAndClearEvents();
+        foreach (var eventExpected in eventsExpected)
         {
-            var (@event, metadata) = allEvents.Select(x => ((DomainEventBase)x.Item1, x.Item2)).FirstOrDefault(x => x.Item1.IdEvent == eventExpected.IdEvent);
+            var @event = allEvents.FirstOrDefault(x => x.EventId == eventExpected.EventId);
 
+            Assert.NotNull(@event);
             Assert.Equal(eventExpected.AggregateId, @event.AggregateId);
-            Assert.Equal(eventExpected.IdEvent, @event.IdEvent);
-            Assert.Equal(eventExpected.EventDate, @event.EventDate);
+            Assert.Equal(eventExpected.EventId, @event.EventId);
+            Assert.Equal(eventExpected.OccurredAt, @event.OccurredAt);
             Assert.Equal(eventExpected.EventType, @event.EventType);
-
-            Assert.Equal(metadataExpected.Category, metadata.Category);
-            Assert.Equal(metadataExpected.AggregateId, metadata.AggregateId);
-            Assert.Equal(metadataExpected.Version, metadata.Version);
-            Assert.Equal(metadataExpected.UserId, metadata.UserId);
-
         }
 
-        orderExpected.ClearUncommittedEvents();
-
-        Assert.Empty(orderExpected.UncommittedEvents);
+        Assert.Empty(orderExpected.GetAndClearEvents());
     }
 
-    private IEventSourcingService<Guid> GetService()
+    private IEventSourcingService GetService()
     {
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
+            Core = new {
+                AppName = "CodeDesignPlus.Net.EventStore.Test"
+            },
             EventSourcing = new
             {
                 MainName = "aggregate",
@@ -662,50 +673,51 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         serviceCollection
             .AddLogging()
+            .AddCore(configuration)
             .AddEventSourcing(configuration)
             .AddEventStore(configuration);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var eventSourcing = serviceProvider.GetRequiredService<IEventSourcingService<Guid>>();
+        var eventSourcing = serviceProvider.GetRequiredService<IEventSourcingService>();
         return eventSourcing;
     }
 
-    private static void AddEvents(Guid idUserEvent, Guid idProductUpdate, Guid idProductRemove, OrderAggregateRoot orderExpected)
+    private static void AddEvents(Guid idProductUpdate, Guid idProductRemove, OrderAggregateRoot orderExpected)
     {
         orderExpected.AddProduct(new Product()
         {
             Id = Guid.NewGuid(),
             Name = "TV",
             Price = 10000
-        }, 1, idUserEvent);
+        }, 1);
 
         orderExpected.AddProduct(new Product()
         {
             Id = Guid.NewGuid(),
             Name = "Phone",
             Price = 10000
-        }, 3, idUserEvent);
+        }, 3);
 
         orderExpected.AddProduct(new Product()
         {
             Id = idProductRemove,
             Name = "Monitor",
             Price = 10000
-        }, 7, idUserEvent);
+        }, 7);
 
         orderExpected.AddProduct(new Product()
         {
             Id = idProductUpdate,
             Name = "Mouse",
             Price = 10000
-        }, 10, idUserEvent);
+        }, 10);
 
-        orderExpected.UpdateProductQuantity(idProductUpdate, 20, idUserEvent);
+        orderExpected.UpdateProductQuantity(idProductUpdate, 20);
 
-        orderExpected.RemoveProduct(idProductRemove, idUserEvent);
+        orderExpected.RemoveProduct(idProductRemove);
 
-        orderExpected.CompleteOrder(idUserEvent);
+        orderExpected.CompleteOrder();
     }
 
 }

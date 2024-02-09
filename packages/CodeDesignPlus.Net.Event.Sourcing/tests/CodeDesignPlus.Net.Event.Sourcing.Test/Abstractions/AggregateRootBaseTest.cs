@@ -115,47 +115,4 @@ public class AggregateRootBaseTest
         Assert.NotEmpty(rehydratedAggregate.Products);
         Assert.Contains(rehydratedAggregate.Products, x => x == "TV");
     }
-
-    // [Fact]
-    // public void CreateOrGetDelegate_CreateNewDelegate_ReturnsTrue()
-    // {
-    //     // Act
-    //     var delegate1 = OrderAggregateRoot.CreateOrGetDelegate<OrderAggregateRoot>();
-    //     Assert.NotNull(delegate1);
-
-    //     var delegate2 = OrderAggregateRoot.CreateOrGetDelegate<OrderAggregateRoot>();
-    //     Assert.NotNull(delegate2);
-
-    //     // Assert
-    //     Assert.Equal(delegate1, delegate2);
-    // }
-
-    // [Fact]
-    // public void UncommittedEventsAndClear_UncommittedEventsCleared_Success()
-    // {
-    //     // Arrange
-    //     var idUser = Guid.NewGuid();
-    //     var aggregateId = Guid.NewGuid();
-    //     var name = "TV";
-
-    //     var @event = new OrderCreatedEvent(aggregateId, name);
-    //     var aggregate = new OrderAggregateRoot();
-
-    //     aggregate.ApplyChange(@event, idUser);
-
-    //     // Act
-    //     var uncommittedEvents = aggregate.UncommittedEvents.ToList();
-    //     aggregate.ClearUncommittedEvents();
-
-    //     // Assert
-    //     Assert.Single(uncommittedEvents);
-    //     var uncommittedEvent = uncommittedEvents[0];
-    //     var metadata = uncommittedEvent.Metadata;
-    //     Assert.Equal(@event, uncommittedEvent.Event);
-    //     Assert.Equal(aggregateId, metadata.AggregateId);
-    //     Assert.Equal(idUser, metadata.UserId);
-    //     Assert.Equal(0, metadata.Version);
-    //     Assert.Equal(aggregate.Category, metadata.Category);
-    //     Assert.Empty(aggregate.UncommittedEvents);
-    // }
 }

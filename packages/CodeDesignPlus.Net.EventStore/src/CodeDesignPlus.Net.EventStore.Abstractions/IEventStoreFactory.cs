@@ -11,8 +11,9 @@ public interface IEventStoreFactory
     /// Creates or retrieves an existing connection to EventStore based on the provided key.
     /// </summary>
     /// <param name="key">The unique identifier representing the desired connection.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the connection to EventStore.</returns>
-    Task<ES.IEventStoreConnection> CreateAsync(string key);
+    Task<ES.IEventStoreConnection> CreateAsync(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Attempts to remove the connection with the specified key.

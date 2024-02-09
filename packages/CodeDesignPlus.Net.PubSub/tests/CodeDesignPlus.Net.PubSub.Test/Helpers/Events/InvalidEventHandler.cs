@@ -1,5 +1,7 @@
 ﻿using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.PubSub.Extensions;
+using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
 namespace CodeDesignPlus.Net.PubSub.Test;
 
@@ -42,9 +44,13 @@ public interface IFake
 /// Fake event to check method <see cref="ServiceCollectionExtensions.AddEventsHandlers{TStartupLogic}(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/>
 /// in unit test <see cref="ServiceCollectionExtensionsTest.AddEventHandlers_Services_HandlersQueueAndService"/>
 /// </summary>
-public abstract class FakeEvent : EventBase
+[Key("fake.event.domain.event")]
+public abstract class FakeEvent : DomainEvent
 {
-
+    protected FakeEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null)
+        : base(aggregateId, eventId, occurredAt, metadata)
+    {
+    }
 }
 
 /// <summary>
@@ -65,9 +71,14 @@ public class FakeEventHandler : IEventHandler<FakeEvent>
     }
 }
 
-public class EventFailed : EventBase
-{
 
+[Key("event.failed.domain.event")]
+public class EventFailed : DomainEvent
+{
+    public EventFailed(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null)
+        : base(aggregateId, eventId, occurredAt, metadata)
+    {
+    }
 }
 
 public class EventFailedHandler : IEventHandler<EventFailed>

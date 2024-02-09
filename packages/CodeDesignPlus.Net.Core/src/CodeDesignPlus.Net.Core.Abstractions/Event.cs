@@ -1,6 +1,38 @@
 ﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
+/// Represents the metadata of the event.
+/// </summary>
+/// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+public class Event<TDomainEvent> where TDomainEvent : DomainEvent
+{
+    /// <summary>
+    /// The data of the event.
+    /// </summary>
+    public EventData<TDomainEvent> Data { get; private set; }
+    /// <summary>
+    /// The metadata of the event.
+    /// </summary>
+    public Dictionary<string, object> Metadata { get; private set; }    
+
+    /// <summary>
+    /// Initializes a new instance of <see cref="Event{TDomainEvent}"/>.
+    /// </summary>
+    /// <param name="data">The data of the event.</param>
+    /// <param name="metadata">The metadata of the event.</param>
+    public Event(EventData<TDomainEvent> data, Dictionary<string, object> metadata)
+    {
+        data.Attributes.Metadata = metadata;
+        data.Attributes.EventId = data.Id;
+        data.Attributes.OccurredAt = data.OccurredAt;
+
+        this.Data = data;
+        this.Metadata = metadata;
+    }
+}
+
+
+/// <summary>
 /// Represents a domain event.
 /// </summary>
 /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>

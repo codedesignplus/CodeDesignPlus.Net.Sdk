@@ -3,7 +3,6 @@
     /// <summary>
     /// Se genera cuando se quiere acceder a un evento que no esta registrado
     /// </summary>
-    [Serializable]
     public class EventNotExistException : Exception
     {
 
@@ -28,16 +27,6 @@
         /// <param name="message">Mensaje del error</param>
         /// <param name="innerException">Inner Exception</param>
         public EventNotExistException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        /// <summary>
-        /// Without this constructor, deserialization will fail
-        /// </summary>
-        /// <param name="info">Serialization Info</param>
-        /// <param name="context">Streaming Context</param>
-        protected EventNotExistException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
         {
         }
     }

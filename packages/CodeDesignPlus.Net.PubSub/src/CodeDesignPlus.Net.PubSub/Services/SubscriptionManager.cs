@@ -1,4 +1,7 @@
-﻿using CodeDesignPlus.Net.PubSub.Exceptions;
+﻿using System.Reflection;
+using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using CodeDesignPlus.Net.PubSub.Exceptions;
 
 namespace CodeDesignPlus.Net.PubSub.Services
 {
@@ -7,7 +10,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
     /// </summary>
     public class SubscriptionManager : ISubscriptionManager
     {
-        private readonly Dictionary<string, List<Subscription>> handlers = new();
+        private readonly Dictionary<string, List<Subscription>> handlers = [];
         private readonly ILogger<SubscriptionManager> logger;
 
         /// <summary>
@@ -25,7 +28,15 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// </summary>
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <returns>The name of the event type.</returns>
-        public string GetEventKey<TEvent>() where TEvent : EventBase => typeof(TEvent).Name;
+        public string GetEventKey<TEvent>() where TEvent : IDomainEvent
+        {
+            var attribute = typeof(TEvent).GetCustomAttribute<KeyAttribute>();	
+
+            if (attribute is null)	
+                throw new KeyAttributeNotFoundException(typeof(TEvent).Name);
+
+            return typeof(TEvent).GetCustomAttribute<KeyAttribute>().Key;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubscriptionManager"/> class.
@@ -46,14 +57,14 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <typeparam name="TEventHandler">The event handler type.</typeparam>
         /// <exception cref="EventHandlerAlreadyRegisteredException{TEvent, TEventHandler}">Thrown when the event handler is already registered.</exception>
         public void AddSubscription<TEvent, TEventHandler>()
-            where TEvent : EventBase
+            where TEvent : IDomainEvent
             where TEventHandler : IEventHandler<TEvent>
         {
             var eventName = this.GetEventKey<TEvent>();
 
             if (!this.HasSubscriptionsForEvent<TEvent>())
             {
-                this.handlers.Add(eventName, new List<Subscription>());
+                this.handlers.Add(eventName, []);
                 this.logger.LogInformation("Event {eventName} added to handlers.", eventName);
             }
 
@@ -73,7 +84,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <typeparam name="TEvent">The event type.</typeparam>
         /// <typeparam name="TEventHandler">The event handler type.</typeparam>
         public void RemoveSubscription<TEvent, TEventHandler>()
-           where TEvent : EventBase
+           where TEvent : IDomainEvent
            where TEventHandler : IEventHandler<TEvent>
         {
             var eventName = GetEventKey<TEvent>();
@@ -95,7 +106,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// </summary>
         /// <typeparam name="TEvent">Integration event to check if it has an associated event handler.</typeparam>
         /// <returns>Returns true if the integration event has an associated event handler.</returns>
-        public bool HasSubscriptionsForEvent<TEvent>() where TEvent : EventBase
+        public bool HasSubscriptionsForEvent<TEvent>() where TEvent : IDomainEvent
         {
             var eventName = this.GetEventKey<TEvent>();
 
@@ -108,14 +119,14 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <typeparam name="TEvent">Integration event to query.</typeparam>
         /// <exception cref="EventIsNotRegisteredException">Thrown if the specified event is not registered.</exception>
         /// <returns>Returns the subscription details for an event.</returns>
-        public IEnumerable<Subscription> GetHandlers<TEvent>() where TEvent : EventBase
+        public IEnumerable<Subscription> GetHandlers<TEvent>() where TEvent : IDomainEvent
         {
             var eventName = this.GetEventKey<TEvent>();
 
-            if (!this.handlers.ContainsKey(eventName))
+            if (!handlers.TryGetValue(eventName, out List<Subscription> value))
                 throw new EventIsNotRegisteredException();
 
-            return this.handlers[eventName];
+            return value;
         }
 
         /// <summary>
@@ -126,7 +137,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <exception cref="EventIsNotRegisteredException">Thrown if trying to find a subscription for an unregistered event.</exception>
         /// <returns>Returns the subscription details for the provided event type. If the event is not found, returns null.</returns>
         public Subscription FindSubscription<TEvent, TEventHandler>()
-             where TEvent : EventBase
+             where TEvent : IDomainEvent
              where TEventHandler : IEventHandler<TEvent>
         {
             var eventName = this.GetEventKey<TEvent>();
@@ -147,7 +158,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <exception cref="EventIsNotRegisteredException">Thrown if the specified event is not registered.</exception>
         /// <returns>Returns the list of subscription details for the provided event type. If none are found, returns null.</returns>
         public List<Subscription> FindSubscriptions<TEvent>()
-             where TEvent : EventBase
+             where TEvent : IDomainEvent
         {
             var eventName = this.GetEventKey<TEvent>();
 

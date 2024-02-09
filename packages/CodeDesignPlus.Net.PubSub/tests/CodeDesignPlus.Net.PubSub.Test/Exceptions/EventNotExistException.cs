@@ -57,29 +57,5 @@ namespace CodeDesignPlus.Net.PubSub.Test.Exceptions
             Assert.NotNull(exception.InnerException);
         }
 
-        /// <summary>
-        /// Valida el constructor con el mensaje y la excepción interna
-        /// </summary>
-        [Fact]
-        public void Constructor_Serealization_Exception()
-        {
-            // Arrange 
-            var message = Guid.NewGuid().ToString();
-            var innerException = new InvalidOperationException("The operation is invalid");
-
-            // Act
-            var exception = new EventNotExistException(message, innerException);
-
-            var serialize = JsonConvert.SerializeObject(exception);
-
-            var result = JsonConvert.DeserializeObject(serialize, typeof(EventNotExistException)) as EventNotExistException;
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.NotNull(result.Message);
-            Assert.NotNull(result.InnerException);
-            Assert.Equal(innerException, exception.InnerException);
-            Assert.Equal(message, exception.Message);
-        }
     }
 }

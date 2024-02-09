@@ -21,7 +21,7 @@ public class EventStoreOptions : IValidatableObject
     /// A dictionary of servers where the key is a unique identifier or name for the server, 
     /// and the value contains the server's connection details.
     /// </value>
-    public Dictionary<string, Server> Servers { get; set; } = new();
+    public Dictionary<string, Server> Servers { get; set; } = [];
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -32,8 +32,8 @@ public class EventStoreOptions : IValidatableObject
     {
         var validations = new List<ValidationResult>();
 
-        if (!this.Servers.Any())
-            validations.Add(new ValidationResult("The collection of EventStore servers (nodes) to which the application can connect is required.", new[] { nameof(this.Servers) }));
+        if (Servers.Count == 0)
+            validations.Add(new ValidationResult("The collection of EventStore servers (nodes) to which the application can connect is required.", [nameof(this.Servers)]));
 
         foreach (var server in this.Servers)
             Validator.TryValidateObject(server.Value, new ValidationContext(server.Value), validations, true);

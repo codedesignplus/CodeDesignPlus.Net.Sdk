@@ -1,6 +1,5 @@
 ﻿global using System.Text;
-global using System.Text.Json;
-global using System.Text.Json.Serialization;
+global using Newtonsoft.Json;
 global using CodeDesignPlus.Net.Core.Abstractions;
 global using CodeDesignPlus.Net.Core.Exceptions;
 global using CodeDesignPlus.Net.Core.Extensions;

@@ -2,6 +2,7 @@
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CodeDesignPlus.Net.Core.Services;
 
 namespace CodeDesignPlus.Net.Core.Extensions;
 
@@ -33,6 +34,8 @@ public static class ServiceCollectionExtensions
             .AddOptions<CoreOptions>()
             .Bind(section)
             .ValidateDataAnnotations();
+
+        services.AddSingleton<IDomainEventResolverService, DomainEventResolverService>();
 
         return services;
     }

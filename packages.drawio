@@ -1,16 +1,16 @@
-<mxfile host="Electron" modified="2024-02-03T05:29:50.073Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/23.0.2 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" version="23.0.2" etag="iTRlWMPOkG2hMh0D2iYx" type="device" pages="2">
+<mxfile host="Electron" modified="2024-02-09T03:40:06.506Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/23.0.2 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="xoxRn_kVpPY7ttsmhjsY" version="23.0.2" type="device" pages="2">
   <diagram id="ALPiPwQ1Wrh_tRAnz7oF" name="Page-1">
-    <mxGraphModel dx="2284" dy="836" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2643" dy="1045" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
         <mxCell id="4" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="2" target="3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="2" value="CodeDesignPlus.Net.Core" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="2" value="CodeDesignPlus.Net.Core" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;strokeColor=#007FFF;" parent="1" vertex="1">
           <mxGeometry x="305" y="270" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="3" value="CodeDesignPlus.Net.Core.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="3" value="CodeDesignPlus.Net.Core.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;strokeColor=#007FFF;" parent="1" vertex="1">
           <mxGeometry x="305" y="180" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="21" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="7" target="3" edge="1">
@@ -29,13 +29,13 @@
           <mxGeometry x="-230" y="270" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="10" value="CodeDesignPlus.Net.Redis.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1810" y="540" width="335" height="40" as="geometry" />
+          <mxGeometry x="2745" y="880" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="24" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="11" target="10" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="11" value="CodeDesignPlus.Net.Redis" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1810" y="450" width="335" height="40" as="geometry" />
+          <mxGeometry x="2745" y="790" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="13" value="CodeDesignPlus.Net.Security.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="305" y="540" width="335" height="40" as="geometry" />
@@ -46,20 +46,23 @@
         <mxCell id="14" value="CodeDesignPlus.Net.Security" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="305" y="450" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="16" value="CodeDesignPlus.Net.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="1" vertex="1">
-          <mxGeometry x="840" y="530" width="335" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="23" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="17" target="16" edge="1">
+        <mxCell id="cR9hNljPTaHk-naQaL1g-62" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="16" target="3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="17" value="CodeDesignPlus.Net.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="840" y="440" width="335" height="40" as="geometry" />
+        <mxCell id="16" value="CodeDesignPlus.Net.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;strokeColor=#007FFF;" parent="1" vertex="1">
+          <mxGeometry x="1750" y="770" width="335" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-59" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="17" target="16">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="17" value="CodeDesignPlus.Net.PubSub" style="rounded=0;whiteSpace=wrap;html=1;strokeColor=#007FFF;" parent="1" vertex="1">
+          <mxGeometry x="1750" y="850" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="28" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="25" target="16" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="25" value="CodeDesignPlus.Net.Redis.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1360" y="540" width="335" height="40" as="geometry" />
+          <mxGeometry x="2295" y="880" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="26" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="27" target="25" edge="1">
           <mxGeometry relative="1" as="geometry" />
@@ -68,61 +71,66 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="27" value="CodeDesignPlus.Net.Redis.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1360" y="450" width="335" height="40" as="geometry" />
+          <mxGeometry x="2295" y="790" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="33" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.75;entryY=1;entryDx=0;entryDy=0;" parent="1" source="30" target="16" edge="1">
+        <mxCell id="cR9hNljPTaHk-naQaL1g-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="30" target="3">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="30" value="CodeDesignPlus.Net.Event.Sourcing.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1360" y="790" width="335" height="40" as="geometry" />
+        <mxCell id="30" value="CodeDesignPlus.Net.Event.Sourcing.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;strokeColor=#007FFF;" parent="1" vertex="1">
+          <mxGeometry x="590" y="760" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="31" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="32" target="30" edge="1">
+        <mxCell id="BZV_SSzwjaXfjPJKH0XT-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="32" target="30" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="32" value="CodeDesignPlus.Net.Event.Sourcing" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1360" y="700" width="335" height="40" as="geometry" />
+        <mxCell id="32" value="CodeDesignPlus.Net.Event.Sourcing" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;strokeColor=#007FFF;" parent="1" vertex="1">
+          <mxGeometry x="590" y="850" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="39" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="34" target="3" edge="1">
+        <mxCell id="PFTSv4L4xOiEKsPsDuad-58" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="34" target="30" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1010" y="1020" />
+              <mxPoint x="1010" y="780" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="34" value="CodeDesignPlus.Net.EventStore.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1035" y="1000" width="335" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-60" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=0.25;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="36" target="34">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="40" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="34" target="30" edge="1">
+        <mxCell id="36" value="CodeDesignPlus.Net.EventStore" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="750" y="1140" width="335" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-61" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;" edge="1" parent="1" source="41" target="34">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="34" value="CodeDesignPlus.Net.EventStore.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="660" y="920" width="335" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="38" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="36" target="34" edge="1">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="36" value="CodeDesignPlus.Net.EventStore" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="660" y="1020" width="335" height="40" as="geometry" />
-        </mxCell>
-        <mxCell id="44" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="41" target="34" edge="1">
+        <mxCell id="cR9hNljPTaHk-naQaL1g-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.75;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="41" target="16">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="41" value="CodeDesignPlus.Net.EventStore.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="200" y="1120" width="335" height="40" as="geometry" />
+          <mxGeometry x="1200" y="1230" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="42" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="43" target="41" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="43" value="CodeDesignPlus.Net.EventStore.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="200" y="1220" width="335" height="40" as="geometry" />
+        <mxCell id="cR9hNljPTaHk-naQaL1g-69" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;" edge="1" parent="1" source="43" target="36">
+          <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="45" value="Use AppName" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
-          <mxGeometry x="750" y="815" width="100" height="30" as="geometry" />
+        <mxCell id="43" value="CodeDesignPlus.Net.EventStore.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="1200" y="1330" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="49" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="46" target="16" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="46" value="CodeDesignPlus.Net.Kafka.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1108" y="260" width="335" height="40" as="geometry" />
+          <mxGeometry x="2043" y="600" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="47" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="48" target="46" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="48" value="CodeDesignPlus.Net.Kafka" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
-          <mxGeometry x="1108" y="170" width="335" height="40" as="geometry" />
+          <mxGeometry x="2043" y="510" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="50" value="CodeDesignPlus.Net.xUnit" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-270" y="1220" width="335" height="40" as="geometry" />
@@ -145,153 +153,162 @@
         <mxCell id="57" value="CodeDesignPlus.Net.Logger" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-150" y="80" width="335" height="40" as="geometry" />
         </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-64" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="600" y="230" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-65" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="890" y="810" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-66" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="1340" y="970" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-67" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="2070" y="830" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cR9hNljPTaHk-naQaL1g-68" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" vertex="1" parent="1">
+          <mxGeometry x="1509.5" y="1290" width="25.5" height="30" as="geometry" />
+        </mxCell>
       </root>
     </mxGraphModel>
   </diagram>
   <diagram id="akfSif0_D-DrA6sWvF45" name="Page-2">
-    <mxGraphModel dx="2893" dy="1895" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+    <mxGraphModel dx="2609" dy="1730" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-1" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-2" target="rKmocAkUo4Y0R12zVvtC-3">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-1" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-2" target="rKmocAkUo4Y0R12zVvtC-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-2" value="CodeDesignPlus.Net.Core" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-2" value="CodeDesignPlus.Net.Core" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="305" y="270" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-3" value="CodeDesignPlus.Net.Core.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-3" value="CodeDesignPlus.Net.Core.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="305" y="180" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-4" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-6" target="rKmocAkUo4Y0R12zVvtC-3">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-4" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-6" target="rKmocAkUo4Y0R12zVvtC-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-5" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-6" target="rKmocAkUo4Y0R12zVvtC-12">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-5" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-6" target="rKmocAkUo4Y0R12zVvtC-12" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-6" value="CodeDesignPlus.Net.EFCore.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-6" value="CodeDesignPlus.Net.EFCore.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-230" y="360" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-7" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-8" target="rKmocAkUo4Y0R12zVvtC-6">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-7" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-8" target="rKmocAkUo4Y0R12zVvtC-6" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-8" value="CodeDesignPlus.Net.EFCore" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-8" value="CodeDesignPlus.Net.EFCore" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-230" y="270" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-9" value="CodeDesignPlus.Net.Redis.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-9" value="CodeDesignPlus.Net.Redis.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="2340" y="330" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-10" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-11" target="rKmocAkUo4Y0R12zVvtC-9">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-10" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-11" target="rKmocAkUo4Y0R12zVvtC-9" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-11" value="CodeDesignPlus.Net.Redis" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-11" value="CodeDesignPlus.Net.Redis" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="2340" y="240" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-12" value="CodeDesignPlus.Net.Security.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-12" value="CodeDesignPlus.Net.Security.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="305" y="540" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-13" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-14" target="rKmocAkUo4Y0R12zVvtC-12">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-13" style="edgeStyle=none;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-14" target="rKmocAkUo4Y0R12zVvtC-12" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-14" value="CodeDesignPlus.Net.Security" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-14" value="CodeDesignPlus.Net.Security" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="305" y="450" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-15" value="CodeDesignPlus.Net.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-15" value="CodeDesignPlus.Net.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;dashed=1;dashPattern=8 8;" parent="1" vertex="1">
           <mxGeometry x="1370" y="320" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-16" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-17" target="rKmocAkUo4Y0R12zVvtC-15">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-16" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-17" target="rKmocAkUo4Y0R12zVvtC-15" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-17" value="CodeDesignPlus.Net.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-17" value="CodeDesignPlus.Net.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1370" y="230" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-18" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-19" target="rKmocAkUo4Y0R12zVvtC-15">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-18" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.75;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-19" target="rKmocAkUo4Y0R12zVvtC-15" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-19" value="CodeDesignPlus.Net.Redis.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-19" value="CodeDesignPlus.Net.Redis.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1890" y="330" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-20" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-22" target="rKmocAkUo4Y0R12zVvtC-19">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-20" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-22" target="rKmocAkUo4Y0R12zVvtC-19" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-21" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-19" target="rKmocAkUo4Y0R12zVvtC-9">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-21" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-19" target="rKmocAkUo4Y0R12zVvtC-9" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-22" value="CodeDesignPlus.Net.Redis.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-22" value="CodeDesignPlus.Net.Redis.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1890" y="240" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-24" target="rKmocAkUo4Y0R12zVvtC-3">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-48" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-24" target="rKmocAkUo4Y0R12zVvtC-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-24" value="CodeDesignPlus.Net.Event.Sourcing.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-24" value="CodeDesignPlus.Net.Event.Sourcing.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1360" y="790" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-25" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-26" target="rKmocAkUo4Y0R12zVvtC-24">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-25" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-26" target="rKmocAkUo4Y0R12zVvtC-24" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-26" value="CodeDesignPlus.Net.Event.Sourcing" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-26" value="CodeDesignPlus.Net.Event.Sourcing" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1360" y="700" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-27" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.25;exitY=0;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-29" target="rKmocAkUo4Y0R12zVvtC-3">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-28" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-29" target="rKmocAkUo4Y0R12zVvtC-24" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-28" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-29" target="rKmocAkUo4Y0R12zVvtC-24">
-          <mxGeometry relative="1" as="geometry" />
-        </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-29" value="CodeDesignPlus.Net.EventStore.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-29" value="CodeDesignPlus.Net.EventStore.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="660" y="920" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-30" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-31" target="rKmocAkUo4Y0R12zVvtC-29">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-30" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-31" target="rKmocAkUo4Y0R12zVvtC-29" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-31" value="CodeDesignPlus.Net.EventStore" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-31" value="CodeDesignPlus.Net.EventStore" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="660" y="1020" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-32" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-33" target="rKmocAkUo4Y0R12zVvtC-29">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-32" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-33" target="rKmocAkUo4Y0R12zVvtC-29" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-33" value="CodeDesignPlus.Net.EventStore.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-33" value="CodeDesignPlus.Net.EventStore.PubSub.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="200" y="1120" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-34" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-35" target="rKmocAkUo4Y0R12zVvtC-33">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-34" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-35" target="rKmocAkUo4Y0R12zVvtC-33" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-35" value="CodeDesignPlus.Net.EventStore.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-35" value="CodeDesignPlus.Net.EventStore.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="200" y="1220" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-36" value="Use AppName" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" vertex="1" parent="1">
-          <mxGeometry x="750" y="815" width="100" height="30" as="geometry" />
-        </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-37" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-38" target="rKmocAkUo4Y0R12zVvtC-15">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-37" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-38" target="rKmocAkUo4Y0R12zVvtC-15" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-38" value="CodeDesignPlus.Net.Kafka.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-38" value="CodeDesignPlus.Net.Kafka.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1638" y="50" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-39" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-40" target="rKmocAkUo4Y0R12zVvtC-38">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-39" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-40" target="rKmocAkUo4Y0R12zVvtC-38" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-40" value="CodeDesignPlus.Net.Kafka" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-40" value="CodeDesignPlus.Net.Kafka" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1638" y="-40" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-41" value="CodeDesignPlus.Net.xUnit" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-41" value="CodeDesignPlus.Net.xUnit" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-270" y="1220" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-42" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-43" target="rKmocAkUo4Y0R12zVvtC-12">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-42" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-43" target="rKmocAkUo4Y0R12zVvtC-12" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-43" value="CodeDesignPlus.Net.File.Storage.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-43" value="CodeDesignPlus.Net.File.Storage.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-230" y="650" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-44" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-45" target="rKmocAkUo4Y0R12zVvtC-43">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-44" style="edgeStyle=none;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-45" target="rKmocAkUo4Y0R12zVvtC-43" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-45" value="CodeDesignPlus.Net.File.Storage" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-45" value="CodeDesignPlus.Net.File.Storage" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-230" y="750" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-46" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" edge="1" parent="1" source="rKmocAkUo4Y0R12zVvtC-47" target="rKmocAkUo4Y0R12zVvtC-3">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-46" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="rKmocAkUo4Y0R12zVvtC-47" target="rKmocAkUo4Y0R12zVvtC-3" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="rKmocAkUo4Y0R12zVvtC-47" value="CodeDesignPlus.Net.Logger" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="rKmocAkUo4Y0R12zVvtC-47" value="CodeDesignPlus.Net.Logger" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="-150" y="80" width="335" height="40" as="geometry" />
         </mxCell>
       </root>

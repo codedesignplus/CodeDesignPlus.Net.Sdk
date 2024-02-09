@@ -1,11 +1,13 @@
-﻿namespace CodeDesignPlus.Net.PubSub.Abstractions
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.PubSub.Abstractions
 {
     /// <summary>
     /// Interfaz base para implementar un manejador de eventos a partir de un evento definido
     /// </summary>
     /// <typeparam name="TEvent">Evento de Integración</typeparam>
     public interface IEventHandler<in TEvent>
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
     {
         /// <summary>
         /// Invocado por el event bus cuando se detecta un evento al que se esta subscrito

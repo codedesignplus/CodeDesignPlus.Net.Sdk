@@ -21,6 +21,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.EventStore.PubSub.Abstractions\CodeDesignPlus.Net.EventStore.PubSub.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.EventStore\src\CodeDesignPlus.Net.EventStore\CodeDesignPlus.Net.EventStore.csproj" />
+
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">

@@ -66,7 +66,7 @@ public class ServiceCollectionExtensionsTest
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(EventSourcingServiceFake<>), libraryService.ImplementationType);
+        Assert.Equal(typeof(EventSourcingServiceFake), libraryService.ImplementationType);
     }
 
     [Fact]

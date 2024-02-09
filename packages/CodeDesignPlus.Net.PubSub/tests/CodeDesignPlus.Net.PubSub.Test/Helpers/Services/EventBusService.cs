@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.PubSub.Test;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.PubSub.Test;
 
 /// <summary>
 /// Implementación del Bus de eventos
@@ -24,7 +26,7 @@ public class PubSubService : IPubSub
     /// <param name="event">Información del Evento a publicar</param>
     /// <param name="token">Cancellation Token</param>
     /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
-    public Task PublishAsync(EventBase @event, CancellationToken token)
+    public Task PublishAsync(IDomainEvent @event, CancellationToken token)
     {
         return Task.CompletedTask;
     }
@@ -35,7 +37,7 @@ public class PubSubService : IPubSub
     /// <param name="event">Información del Evento a publicar</param>
     /// <param name="token">Cancellation Token</param>
     /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica, la información determinada por la implementación de la interfaz</returns>
-    public Task<TResult> PublishAsync<TResult>(EventBase @event, CancellationToken token)
+    public Task<TResult> PublishAsync<TResult>(IDomainEvent @event, CancellationToken token)
     {
         return Task.FromResult<TResult>(default!);
     }
@@ -47,7 +49,7 @@ public class PubSubService : IPubSub
     /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
     /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
     public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
         return Task.CompletedTask;
@@ -59,7 +61,7 @@ public class PubSubService : IPubSub
     /// <typeparam name="TEvent">Evento de integración a escuchar</typeparam>
     /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
     public Task UnsubscribeAsync<TEvent, TEventHandler>()
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
         return Task.CompletedTask;

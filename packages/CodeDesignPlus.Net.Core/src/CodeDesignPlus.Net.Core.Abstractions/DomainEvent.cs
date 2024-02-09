@@ -1,4 +1,7 @@
 ﻿
+using System.Reflection;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+
 namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
@@ -22,18 +25,28 @@ public abstract class DomainEvent(
     /// <summary>
     /// The identifier of the event.
     /// </summary>
-    public Guid? EventId { get; private set; } = eventId ?? Guid.NewGuid();
+    public Guid EventId { get; internal set; } = eventId ?? Guid.NewGuid();
     /// <summary>
     /// The date and time when the event occurred.
-    /// </summary>
-    public DateTime? OccurredAt { get; private set; } = occurredAt ?? DateTime.UtcNow;
+    /// </summary>   
+    public DateTime OccurredAt { get; internal set; } = occurredAt ?? DateTime.UtcNow;
     /// <summary>
     /// The metadata of the event.
-    /// </summary>
-    public Dictionary<string, object> Metadata { get; private set; } = metadata ?? [];
+    /// </summary>    
+    public Dictionary<string, object> Metadata { get; internal set; } = metadata ?? [];
     /// <summary>
     /// Gets the type of the event.
     /// </summary>
-    /// <returns>The type of the event.</returns>
-    public abstract string GetEventType();
+    public string EventType
+    {
+        get
+        {
+            var attribute = this.GetType().GetCustomAttribute<KeyAttribute>();
+
+            if (attribute is null)
+                throw new InvalidOperationException($"The event {this.GetType().Name} does not have the {nameof(KeyAttribute)} attribute.");
+
+            return attribute.Key;
+        }
+    }
 }

@@ -1,43 +1,45 @@
-﻿using Newtonsoft.Json;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
-using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
+﻿using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
+using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 
-
-public class ProductAddedToOrderEvent : DomainEventBase
+[Key("product.added")]
+public class ProductAddedToOrderEvent(
+    Guid aggregateId,
+    int quantity,
+    Product product,
+    Guid? eventId = null,
+    DateTime? occurredAt = null,
+    Dictionary<string, object>? metadata = null
+) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
-    public int Quantity { get; }
-    public Product Product { get; set; }
-
-    public ProductAddedToOrderEvent(Guid aggregateId, int quantity, Product product)
-        : base(aggregateId)
-    {
-        this.Product = product;
-        this.Quantity = quantity;
-    }
+    public int Quantity { get; } = quantity;
+    public Product Product { get; set; } = product;
 }
 
-public class ProductRemovedFromOrderEvent : DomainEventBase
+[Key("product.removed")]
+public class ProductRemovedFromOrderEvent(
+    Guid aggregateId,
+    Guid productId,
+    Guid? eventId = null,
+    DateTime? occurredAt = null,
+    Dictionary<string, object>? metadata = null
+) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
-    public Guid ProductId { get; }
-
-    public ProductRemovedFromOrderEvent(Guid aggregateId, Guid productId)
-        : base(aggregateId)
-    {
-        this.ProductId = productId;
-    }
+    public Guid ProductId { get; } = productId;
 }
 
-public class ProductQuantityUpdatedEvent : DomainEventBase
+[Key("product.quantity.updated")]
+public class ProductQuantityUpdatedEvent(
+    Guid aggregateId, 
+    Guid productId, 
+    int newQuantity,
+    Guid? eventId = null,
+    DateTime? occurredAt = null,
+    Dictionary<string, object>? metadata = null
+) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
-    public Guid ProductId { get; }
-    public int NewQuantity { get; }
-
-    public ProductQuantityUpdatedEvent(Guid aggregateId, Guid productId, int newQuantity)
-        : base(aggregateId)
-    {
-        this.ProductId = productId;
-        this.NewQuantity = newQuantity;
-    }
+    public Guid ProductId { get; } = productId;
+    public int NewQuantity { get; } = newQuantity;
 }

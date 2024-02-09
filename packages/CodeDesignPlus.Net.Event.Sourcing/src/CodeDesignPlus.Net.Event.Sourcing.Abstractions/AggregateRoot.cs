@@ -42,6 +42,9 @@ public abstract class AggregateRoot : Core.Abstractions.AggregateRoot, IAggregat
     {
         @event.Metadata.Add("Version", ++this.Version);
         @event.Metadata.Add("Category", this.Category);
+        @event.Metadata.Add("OccurredAt", @event.OccurredAt);
+        @event.Metadata.Add("EventId", @event.EventId);
+        @event.Metadata.Add("EventType", @event.EventType);
 
         this.DomainEvents.Add(@event);
 
@@ -111,18 +114,3 @@ public abstract class AggregateRoot : Core.Abstractions.AggregateRoot, IAggregat
         return (Func<Guid, T>)instanceDelegate;
     }
 }
-
-// // Supongamos que T tiene un constructor que acepta ciertos argumentos
-// var parametro1 = Expression.Parameter(typeof(TipoDelArgumento1), "nombreDelParametro1");
-// var parametro2 = Expression.Parameter(typeof(TipoDelArgumento2), "nombreDelParametro2");
-
-// var constructorInfo = typeof(T).GetConstructor(new[] { typeof(TipoDelArgumento1), typeof(TipoDelArgumento2) });
-
-// var nuevaInstancia = Expression.New(constructorInfo, parametro1, parametro2);
-
-// var lambda = Expression.Lambda<Func<T, TipoDelArgumento1, TipoDelArgumento2>>(nuevaInstancia, parametro1, parametro2);
-
-// var compiledLambda = lambda.Compile();
-
-// // // Uso de la lambda con argumentos
-// var instanciaDelTipoT = compiledLambda(instanciaExistenteDeT, valorDelArgumento1, valorDelArgumento2);

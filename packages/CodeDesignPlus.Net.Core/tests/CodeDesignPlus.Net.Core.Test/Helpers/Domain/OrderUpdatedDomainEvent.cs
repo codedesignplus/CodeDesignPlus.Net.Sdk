@@ -1,6 +1,9 @@
 ﻿
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+
 namespace CodeDesignPlus.Net.Core.Test;
 
+[Key("order.updated")]
 public class OrderUpdatedDomainEvent(
     Guid id,
     string name,
@@ -15,9 +18,4 @@ public class OrderUpdatedDomainEvent(
     public string Description { get; private set; } = description;
     public decimal Price { get; private set; } = price;
     public DateTime? UpdatedAt { get; private set; } = updatedAt;
-
-    public override string GetEventType()
-    {
-        return "OrderUpdated";
-    }
 }

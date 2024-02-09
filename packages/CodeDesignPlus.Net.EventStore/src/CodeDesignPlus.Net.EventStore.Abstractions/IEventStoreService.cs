@@ -2,6 +2,9 @@
 
 namespace CodeDesignPlus.Net.EventStore.Abstractions;
 
-public interface IEventStoreService<TKey>: IEventSourcingService<TKey>
+/// <summary>
+/// Interface that defines the methods to be implemented by the event store service.
+/// </summary>
+public interface IEventStoreService: IEventSourcingService
 {
 }

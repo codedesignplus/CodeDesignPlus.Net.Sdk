@@ -10,11 +10,11 @@ public interface IDomainEvent
     /// <summary>
     /// The identifier of the event.
     /// </summary>
-    Guid? EventId { get; }
+    Guid EventId { get; }
     /// <summary>
     /// The date and time the event occurred.
     /// </summary>
-    DateTime? OccurredAt { get; }
+    DateTime OccurredAt { get; }
     /// <summary>
     /// The identifier of the aggregate root that generated the event.
     /// </summary>
@@ -24,8 +24,7 @@ public interface IDomainEvent
     /// </summary>
     Dictionary<string, object> Metadata { get; }
     /// <summary>
-    /// Get the type of the event.
+    /// Gets the type of the event.
     /// </summary>
-    /// <returns>The type of the event.</returns>
-    string GetEventType();
+    string EventType { get; }
 }

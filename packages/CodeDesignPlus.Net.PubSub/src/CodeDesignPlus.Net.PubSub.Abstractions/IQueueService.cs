@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.PubSub.Abstractions
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.PubSub.Abstractions
 {
     /// <summary>
     /// Servicio que administra los eventos notificados por el event bus
@@ -7,7 +9,7 @@
     /// <typeparam name="TEventHandler">Manejador de eventos</typeparam>
     public interface IQueueService<TEventHandler, in TEvent>
         where TEventHandler : IEventHandler<TEvent>
-        where TEvent : EventBase
+        where TEvent : IDomainEvent
     {
         /// <summary>
         /// Agrega un objeto al final de la queue

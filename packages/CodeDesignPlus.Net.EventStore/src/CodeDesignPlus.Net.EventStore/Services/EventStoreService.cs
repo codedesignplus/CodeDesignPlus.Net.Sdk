@@ -1,48 +1,46 @@
 ﻿
 using System.Text;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using EventStore.ClientAPI;
 using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
+using CodeDesignPlus.Net.Core.Abstractions;
 using Newtonsoft.Json;
-using CodeDesignPlus.Net.EventStore.Core;
+using Newtonsoft.Json.Serialization;
+using CodeDesignPlus.Net.EventStore.Serializer;
 
 namespace CodeDesignPlus.Net.EventStore.Services;
 
 /// <summary>
 /// Provides services for interacting with EventStore.
 /// </summary>
-public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
+public class EventStoreService : IEventStoreService
 {
+    private readonly JsonSerializerSettings settings = new()
+    {
+        ContractResolver = new EventStoreContratResolver(),
+        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+    };
+
     private readonly IEventStoreFactory eventStoreFactory;
-    private readonly ILogger<EventStoreService<TUserKey>> logger;
+    private readonly ILogger<EventStoreService> logger;
     private readonly EventSourcingOptions options;
-    private readonly List<Type> types;
-    private readonly JsonSerializerSettings jsonSerializerSettings;
+    private readonly IDomainEventResolverService domainEventResolverService;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventStoreService{TUserKey}"/> class.
+    /// Initializes a new instance of the <see cref="EventStoreService"/> class.
     /// </summary>
     /// <param name="eventStoreFactory">The factory for creating EventStore connections.</param>
     /// <param name="logger">The logger.</param>
     /// <param name="options">The options for event sourcing.</param>
-    public EventStoreService(IEventStoreFactory eventStoreFactory, ILogger<EventStoreService<TUserKey>> logger, IOptions<EventSourcingOptions> options)
+    /// <param name="domainEventResolverService">The service for resolving domain events.</param>
+    /// <exception cref="ArgumentNullException">The eventStoreFactory, logger or options is null.</exception>
+    public EventStoreService(IEventStoreFactory eventStoreFactory, IDomainEventResolverService domainEventResolverService, ILogger<EventStoreService> logger, IOptions<EventSourcingOptions> options)
     {
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
 
         this.eventStoreFactory = eventStoreFactory ?? throw new ArgumentNullException(nameof(eventStoreFactory));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.options = options.Value;
-
-        this.jsonSerializerSettings = new()
-        {
-            ContractResolver = new PrivateResolver()
-        };
-
-        this.types = AppDomain.CurrentDomain
-            .GetAssemblies()
-            .SelectMany(assembly => assembly.GetTypes())
-            .ToList();
+        this.domainEventResolverService = domainEventResolverService ?? throw new ArgumentNullException(nameof(domainEventResolverService));
     }
 
     /// <summary>
@@ -50,8 +48,9 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// </summary>
     /// <param name="category">The category of the events.</param>
     /// <param name="aggregateId">The aggregate ID of the events.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the number of events.</returns>
-    public Task<long> CountEventsAsync(string category, Guid aggregateId)
+    public Task<long> CountEventsAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
@@ -59,7 +58,7 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
-        return CountEventsInternalAsync(category, aggregateId);
+        return CountEventsInternalAsync(category, aggregateId, cancellationToken);
     }
 
     /// <summary>
@@ -67,10 +66,11 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// </summary>
     /// <param name="category">The category of the events.</param>
     /// <param name="aggregateId">The aggregate ID of the events.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the number of events.</returns>
-    private async Task<long> CountEventsInternalAsync(string category, Guid aggregateId)
+    private async Task<long> CountEventsInternalAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
         var stream = GetAggregateName(category, aggregateId);
 
@@ -92,46 +92,55 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// <summary>
     /// Appends an event to the event store.
     /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
+    /// <param name="category">The category of the events.</param>
     /// <param name="event">The event to append.</param>
     /// <param name="metadata">The metadata associated with the event.</param>
-    /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
+    /// <param name="version">The version of the event store.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task AppendEventAsync<TDomainEvent>(TDomainEvent @event, Metadata<TUserKey> metadata)
+    public Task AppendEventAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default)
         where TDomainEvent : IDomainEvent
     {
         if (@event == null)
             throw new ArgumentNullException(nameof(@event));
 
-        return AppendEventInternalAsync(@event, metadata);
+        return AppendEventInternalAsync(category, @event, version, cancellationToken);
     }
 
     /// <summary>
     /// Appends an event to the event store.
     /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
     /// <param name="event">The event to append.</param>
     /// <param name="metadata">The metadata associated with the event.</param>
-    /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    private async Task AppendEventInternalAsync<TDomainEvent>(TDomainEvent @event, Metadata<TUserKey> metadata)
+    private async Task AppendEventInternalAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default)
         where TDomainEvent : IDomainEvent
     {
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+
+        version ??= await GetVersionAsync(category, @event.AggregateId, cancellationToken);
 
         var eventData = new EventData(
-           Guid.NewGuid(),
-           @event.GetType().Name,
+           @event.EventId,
+           @event.EventType,
            true,
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event)),
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(metadata)));
+           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, this.settings)),
+           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata, this.settings)));
 
-        await connection.AppendToStreamAsync(GetAggregateName(metadata), metadata.Version - 1, eventData);
+        await connection.AppendToStreamAsync(GetAggregateName(category, @event.AggregateId), (long)version, eventData);
     }
 
     /// <summary>
     /// Gets the version of the event store.
     /// </summary>
+    /// <param name="category">The category of the events.</param>
+    /// <param name="aggregateId">The aggregate ID of the events.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the version of the event store.</returns>
-    public async Task<long> GetVersionAsync(string category, Guid aggregateId)
+    public async Task<long> GetVersionAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
@@ -139,7 +148,7 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
         var slice = await connection.ReadStreamEventsBackwardAsync(GetAggregateName(category, aggregateId), StreamPosition.End, 1, false);
 
@@ -154,8 +163,9 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// </summary>
     /// <param name="category">The category of the events.</param>
     /// <param name="aggregateId">The aggregate ID of the events.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the loaded events.</returns>
-    public async Task<IEnumerable<(IDomainEvent, Metadata<TUserKey>)>> LoadEventsAsync(string category, Guid aggregateId)
+    public async Task<IEnumerable<IDomainEvent>> LoadEventsAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
@@ -163,19 +173,18 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
         var streamEvents = await connection.ReadStreamEventsForwardAsync(GetAggregateName(category, aggregateId), 0, 4096, false);
 
         return streamEvents.Events
             .Select(e =>
             {
-                var type = this.types.FirstOrDefault(t => t.Name == e.Event.EventType);
+                var type = domainEventResolverService.GetDomainEventType(e.Event.EventType);
 
-                var @event = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Event.Data), type, this.jsonSerializerSettings);
-                var metadata = JsonConvert.DeserializeObject<Metadata<TUserKey>>(Encoding.UTF8.GetString(e.Event.Metadata), this.jsonSerializerSettings);
+                var @event = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Event.Data), type, this.settings);
 
-                return ((IDomainEvent)@event, metadata);
+                return @event as IDomainEvent;
             });
     }
 
@@ -184,9 +193,10 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// </summary>
     /// <param name="category">The category of the snapshot.</param>
     /// <param name="aggregateId">The aggregate ID of the snapshot.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the loaded snapshot.</returns>
-    public async Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId)
-        where TAggregate : IAggregateRoot<TUserKey>
+    public async Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId, CancellationToken cancellationToken = default)
+        where TAggregate : Event.Sourcing.Abstractions.IAggregateRoot
     {
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
@@ -194,14 +204,16 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
         var streamEvents = await connection.ReadStreamEventsBackwardAsync(this.GetSnapshotName(category, aggregateId), StreamPosition.End, 1, false);
 
         if (streamEvents.Status == SliceReadStatus.StreamNotFound || streamEvents.Events.Length == 0)
             return default;
 
-        return JsonConvert.DeserializeObject<TAggregate>(Encoding.UTF8.GetString(streamEvents.Events[0].Event.Data), this.jsonSerializerSettings);
+        var json = Encoding.UTF8.GetString(streamEvents.Events[0].Event.Data);
+
+        return JsonConvert.DeserializeObject<TAggregate>(json, this.settings);
     }
 
     /// <summary>
@@ -210,16 +222,17 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// <param name="category">The category of the snapshot.</param>
     /// <param name="aggregateId">The aggregate ID of the snapshot.</param>
     /// <param name="snapshot">The snapshot to save.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate)
-        where TAggregate : IAggregateRoot<TUserKey>
+    public async Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate, CancellationToken cancellationToken = default)
+        where TAggregate : Event.Sourcing.Abstractions.IAggregateRoot
     {
         if (aggregate == null)
             throw new ArgumentNullException(nameof(aggregate));
 
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
-        var serializedAggregate = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(aggregate));
+        var serializedAggregate = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(aggregate, this.settings));
 
         var eventData = new EventData(Guid.NewGuid(), "snapshot", true, serializedAggregate, null);
 
@@ -229,16 +242,17 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// <summary>
     /// Searches for events that match the specified criteria.
     /// </summary>
-    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="streamName">The name of the stream.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the events that match the criteria.</returns>
-    public async Task<IEnumerable<(IDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync(string streamName)
+    public async Task<IEnumerable<IDomainEvent>> SearchEventsAsync(string streamName, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(streamName))
             throw new ArgumentNullException(nameof(streamName));
 
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
-        var events = new List<(IDomainEvent, Metadata<TUserKey>)>();
+        var events = new List<IDomainEvent>();
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
         do
@@ -248,13 +262,11 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
 
             var items = currentSlice.Events.Select(e =>
             {
-                var type = this.types.FirstOrDefault(t => t.Name == e.Event.EventType);
+                var type = domainEventResolverService.GetDomainEventType(e.Event.EventType);
 
-                var @event = (IDomainEvent)JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Event.Data), type, this.jsonSerializerSettings);
+                var @event = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Event.Data), type, this.settings);
 
-                var metadata = JsonConvert.DeserializeObject<Metadata<TUserKey>>(Encoding.UTF8.GetString(e.Event.Metadata), this.jsonSerializerSettings);
-
-                return (@event, metadata);
+                return @event as IDomainEvent;
             });
 
             events.AddRange(items);
@@ -267,14 +279,14 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// <summary>
     /// Searches for events that match the specified criteria.
     /// </summary>
-    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the events that match the criteria.</returns>
-    public async Task<IEnumerable<(TDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync<TDomainEvent>()
+    public async Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(CancellationToken cancellationToken = default)
         where TDomainEvent : IDomainEvent
     {
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
-        var events = new List<(TDomainEvent, Metadata<TUserKey>)>();
+        var events = new List<TDomainEvent>();
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
         do
@@ -288,11 +300,9 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
                 var @eventJson = Encoding.UTF8.GetString(e.Event.Data);
                 var metadataJson = Encoding.UTF8.GetString(e.Event.Metadata);
 
-                var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.jsonSerializerSettings);
+                var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.settings);
 
-                var metadata = JsonConvert.DeserializeObject<Metadata<TUserKey>>(metadataJson, this.jsonSerializerSettings);
-
-                return (@event, metadata);
+                return @event;
             }));
 
         } while (!currentSlice.IsEndOfStream);
@@ -303,18 +313,19 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     /// <summary>
     /// Searches for events that match the specified criteria.
     /// </summary>
+    /// <param name="category">The category of the events.</param>
     /// <param name="criteria">The criteria to match.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the events that match the criteria.</returns>
-    public async Task<IEnumerable<(TDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync<TDomainEvent>(string category)
+    public async Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(string category, CancellationToken cancellationToken = default)
        where TDomainEvent : IDomainEvent
     {
 
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
 
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
 
-        var events = new List<(TDomainEvent, Metadata<TUserKey>)>();
+        var events = new List<TDomainEvent>();
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
 
@@ -328,12 +339,10 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
                 if (e.Event.EventType == typeof(TDomainEvent).Name)
                 {
                     var @eventJson = Encoding.UTF8.GetString(e.Event.Data);
-                    var metadataJson = Encoding.UTF8.GetString(e.Event.Metadata);
 
-                    var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.jsonSerializerSettings);
-                    var metadata = JsonConvert.DeserializeObject<Metadata<TUserKey>>(metadataJson, this.jsonSerializerSettings);
+                    var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.settings);
 
-                    events.Add((@event, metadata));
+                    events.Add(@event);
                 }
             }
 
@@ -354,19 +363,9 @@ public class EventStoreService<TUserKey> : IEventStoreService<TUserKey>
     }
 
     /// <summary>
-    /// Gets the aggregate name using the provided metadata.
-    /// </summary>
-    /// <param name="metadata">The metadata used to construct the aggregate name.</param>
-    /// <returns>The name of the aggregate.</returns>
-    private static string GetAggregateName(Metadata<TUserKey> metadata)
-    {
-        return $"{metadata.Category}-{metadata.AggregateId}";
-    }
-
-    /// <summary>
     /// Gets the snapshot name for a specific category and aggregate ID.
     /// </summary>
-    /// <param name="category">The category of the snapshot.</param>
+    /// <param name="category">The category of the aggregate.</param>
     /// <param name="aggregateId">The ID of the aggregate.</param>
     /// <returns>The name of the snapshot.</returns>
     private string GetSnapshotName(string category, Guid aggregateId)
