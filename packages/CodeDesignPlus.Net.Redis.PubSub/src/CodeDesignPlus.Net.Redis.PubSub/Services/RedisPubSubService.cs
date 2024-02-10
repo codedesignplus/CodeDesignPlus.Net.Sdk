@@ -3,6 +3,7 @@ using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.PubSub.Options;
+using CodeDesignPlus.Net.Serializers;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using StackExchange.Redis;
@@ -22,7 +23,7 @@ public class RedisPubSubService : IRedisPubSubService
 
     private readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
     {
-        ContractResolver = new RedisContratResolver([])
+        ContractResolver = new EventContractResolver([])
     };
 
     /// <summary>

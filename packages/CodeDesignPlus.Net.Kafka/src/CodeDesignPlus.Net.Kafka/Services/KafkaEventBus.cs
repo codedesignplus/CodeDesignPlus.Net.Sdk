@@ -56,7 +56,12 @@ public class KafkaEventBus : IKafkaEventBus
 
         var topic = this.domainEventResolverService.GetKeyDomainEvent(type);
 
-        var headers = new Headers();
+        var headers = new Headers
+        {
+            { "EventType", Encoding.UTF8.GetBytes(@event.EventType) },
+            { "OccurredAt", Encoding.UTF8.GetBytes(@event.OccurredAt.ToString()) },
+            { "EventId", Encoding.UTF8.GetBytes(@event.EventId.ToString()) },
+        };
 
         foreach (var item in @event.Metadata)
         {
@@ -70,11 +75,7 @@ public class KafkaEventBus : IKafkaEventBus
             Headers = headers
         };
 
-        var producerBuilder = new ProducerBuilder<string, IDomainEvent>(options.ProducerConfig);
-
-        producerBuilder.SetValueSerializer(new JsonSystemTextSerializer<IDomainEvent>());
-        
-        var producer = producerBuilder.Build();
+        var producer = this.serviceProvider.GetRequiredService<IProducer<string, IDomainEvent>>();
 
         await producer.ProduceAsync(topic, message, token);
 
@@ -91,47 +92,42 @@ public class KafkaEventBus : IKafkaEventBus
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        try
+        this.logger.LogInformation("Subscribing to Kafka topic for event type: {EventType}", typeof(TEvent).Name);
+
+        var consumerBuilder = new ConsumerBuilder<string, TEvent>(this.options.ConsumerConfig);
+
+        consumerBuilder.SetValueDeserializer(new JsonSystemTextSerializer<TEvent>());
+
+        using var consumer = consumerBuilder.Build();
+
+        cancellationToken.Register(() => {
+
+            consumer.Close();
+        });
+
+        var topic = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
+
+        consumer.Subscribe(topic);
+
+        while (!cancellationToken.IsCancellationRequested)
         {
-
-            this.logger.LogInformation("Subscribing to Kafka topic for event type: {EventType}", typeof(TEvent).Name);
-
-            var consumerBuilder = new ConsumerBuilder<string, TEvent>(this.options.ConsumerConfig);
-            consumerBuilder.SetValueDeserializer(new JsonSystemTextSerializer<TEvent>());
-
-            using var consumer = consumerBuilder.Build();
-
-            cancellationToken.Register(consumer.Close);
-
-            var topic = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
-
-            consumer.Subscribe(topic);
-
-            while (!cancellationToken.IsCancellationRequested)
+            try
             {
-                try
-                {
-                    this.logger.LogInformation("Listener the event {EventType}", typeof(TEvent).Name);
-                    var value = consumer.Consume(cancellationToken);
+                this.logger.LogInformation("Listener the event {EventType}", typeof(TEvent).Name);
+                var value = consumer.Consume(cancellationToken);
 
-                    await this.ProcessEventAsync<TEvent, TEventHandler>(value.Message.Key, value.Message.Value, cancellationToken);
+                await this.ProcessEventAsync<TEvent, TEventHandler>(value.Message.Key, value.Message.Value, cancellationToken);
 
-                    this.logger.LogInformation("End Listener the event {EventType}", typeof(TEvent).Name);
+                this.logger.LogInformation("End Listener the event {EventType}", typeof(TEvent).Name);
 
-                }
-                catch (ConsumeException e)
-                {
-                    this.logger.LogError(e, "An error occurred while consuming a Kafka message for event type: {EventType}", typeof(TEvent).Name);
-                }
             }
-
-            this.logger.LogInformation("Kafka event listening has stopped for event type: {EventType} due to cancellation request.", typeof(TEvent).Name);
-        }
-        catch (Exception e)
-        {
-            this.logger.LogError(e, "An error occurred while consuming a Kafka message for event type: {EventType}", typeof(TEvent).Name);
+            catch (ConsumeException e)
+            {
+                this.logger.LogError(e, "An error occurred while consuming a Kafka message for event type: {EventType}", typeof(TEvent).Name);
+            }
         }
 
+        this.logger.LogInformation("Kafka event listening has stopped for event type: {EventType} due to cancellation request.", typeof(TEvent).Name);
     }
 
     /// <summary>

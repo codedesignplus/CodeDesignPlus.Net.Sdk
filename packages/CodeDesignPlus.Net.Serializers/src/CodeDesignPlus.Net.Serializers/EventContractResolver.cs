@@ -3,18 +3,19 @@ using CodeDesignPlus.Net.Core.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace CodeDesignPlus.Net.Redis.PubSub;
+namespace CodeDesignPlus.Net.Serializers;
 
-
-public class RedisContratResolver : DefaultContractResolver
+/// <summary>
+/// Contract resolver for the serialization of domain events.
+/// </summary>
+public class EventContractResolver : DefaultContractResolver
 {
-
     /// <summary>
     /// The property names to ignore.
     /// </summary>
     private readonly string[] propertyNamesToIgnore;
 
-    public RedisContratResolver()
+    public EventContractResolver()
     {
         this.propertyNamesToIgnore = [
             nameof(IDomainEvent.EventId),
@@ -24,7 +25,7 @@ public class RedisContratResolver : DefaultContractResolver
         ];
     }
 
-    public RedisContratResolver(string[] propertyNamesToIgnore)
+    public EventContractResolver(string[] propertyNamesToIgnore)
     {
         this.propertyNamesToIgnore = propertyNamesToIgnore;
     }

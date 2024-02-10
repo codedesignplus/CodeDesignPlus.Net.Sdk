@@ -42,14 +42,13 @@ public static class ServiceCollectionExtensions
 
         var options = section.Get<KafkaOptions>();
 
-        // services.AddSingleton(x => {
+        services.AddSingleton(x => {
+            var producerBuilder = new ProducerBuilder<string, IDomainEvent>(options.ProducerConfig);
 
-        //     var a = new ProducerBuilder<string, UserCreatedEvent2>(options.ProducerConfig);
+            producerBuilder.SetValueSerializer(new Serializer.JsonSystemTextSerializer<IDomainEvent>());
 
-        //     var b = a.Build();
-
-        //     return b;
-        // });
+            return producerBuilder.Build();
+        });
 
         return services;
     }
