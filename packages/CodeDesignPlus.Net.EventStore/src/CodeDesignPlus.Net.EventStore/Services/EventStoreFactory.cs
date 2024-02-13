@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Net.EventStore.Exceptions;
 using CodeDesignPlus.Net.EventStore.Abstractions.Options;
 using ES = EventStore.ClientAPI;
+using System.Collections.Concurrent;
 
 namespace CodeDesignPlus.Net.EventStore.Services;
 
@@ -10,7 +11,7 @@ namespace CodeDesignPlus.Net.EventStore.Services;
 /// </summary>
 public class EventStoreFactory: IEventStoreFactory
 {
-    private readonly Dictionary<string, ES.IEventStoreConnection> connections = new();
+    private readonly ConcurrentDictionary<string, ES.IEventStoreConnection> connections = new();
     private readonly IEventStoreConnection eventStoreConnection;
     private readonly ILogger<EventStoreFactory> logger;
     private readonly EventStoreOptions options;
@@ -50,9 +51,9 @@ public class EventStoreFactory: IEventStoreFactory
             return connection;
 
         connection = await this.eventStoreConnection.InitializeAsync(server);
-        this.connections.Add(key, connection);
+        var succeess = this.connections.TryAdd(key, connection);
 
-        this.logger.LogInformation("Successfully created and cached the connection for key '{key}'.", key);
+        this.logger.LogInformation("Successfully created and cached the connection for key '{key}-{succeess}'.", key, succeess);
 
         return connection;
     }
@@ -64,7 +65,7 @@ public class EventStoreFactory: IEventStoreFactory
     /// <returns><c>true</c> if the connection was successfully removed; otherwise, <c>false</c>.</returns>
     public bool RemoveConnection(string key)
     {
-        var result = this.connections.Remove(key);
+        var result = this.connections.TryRemove(key, out _);
 
         if (result)
             this.logger.LogInformation("Successfully removed the connection for key '{key}'.", key);
