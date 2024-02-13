@@ -7,13 +7,13 @@ using Semver;
 
 namespace CodeDesignPlus.Net.File.Storage.Providers;
 
-public class AzureBlobProvider<TKeyUser, TTenant>(
-    IAzureBlobFactory<TKeyUser, TTenant> factory,
-    ILogger<AzureBlobProvider<TKeyUser, TTenant>> logger,
+public class AzureBlobProvider(
+    IAzureBlobFactory factory,
+    ILogger<AzureBlobProvider> logger,
     IHostEnvironment environment
-    ) : BaseProvider(logger, environment), IAzureBlobProvider<TKeyUser, TTenant>
+    ) : BaseProvider(logger, environment), IAzureBlobProvider
 {
-    private readonly IAzureBlobFactory<TKeyUser, TTenant> factory = factory.Create();
+    private readonly IAzureBlobFactory factory = factory.Create();
 
     public Task<Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {

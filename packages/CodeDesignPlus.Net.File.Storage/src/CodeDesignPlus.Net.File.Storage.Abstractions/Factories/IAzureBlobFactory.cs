@@ -5,11 +5,11 @@ using CodeDesignPlus.Net.Security.Abstractions;
 namespace CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
 
 
-public interface IAzureBlobFactory<TKeyUser, TTenant>
+public interface IAzureBlobFactory
 {
     FileStorageOptions Options { get; }
-    IUserContext<TKeyUser, TTenant> UserContext { get; }
+    IUserContext UserContext { get; }
     BlobServiceClient Client { get; }
-    IAzureBlobFactory<TKeyUser, TTenant> Create();
+    IAzureBlobFactory Create();
     BlobContainerClient GetContainerClient();
 }

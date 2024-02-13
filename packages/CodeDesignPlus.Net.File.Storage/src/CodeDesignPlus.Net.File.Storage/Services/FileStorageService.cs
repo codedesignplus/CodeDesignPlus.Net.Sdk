@@ -4,15 +4,15 @@ using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 
 namespace CodeDesignPlus.Net.File.Storage.Services;
 
-public class FileStorageService<TKeyUser, TTenant>(
-    ILogger<FileStorageService<TKeyUser, TTenant>> logger,
+public class FileStorageService(
+    ILogger<FileStorageService> logger,
     IOptions<FileStorageOptions> options,
-    IEnumerable<IProvider<TKeyUser, TTenant>> providers
-) : IFileStorageService<TKeyUser, TTenant>
+    IEnumerable<IProvider> providers
+) : IFileStorageService
 {
-    private readonly ILogger<FileStorageService<TKeyUser, TTenant>> logger = logger;
+    private readonly ILogger<FileStorageService> logger = logger;
     private readonly FileStorageOptions options = options.Value;
-    private readonly IEnumerable<IProvider<TKeyUser, TTenant>> providers = providers;
+    private readonly IEnumerable<IProvider> providers = providers;
 
 
     public Task<Response[]> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)

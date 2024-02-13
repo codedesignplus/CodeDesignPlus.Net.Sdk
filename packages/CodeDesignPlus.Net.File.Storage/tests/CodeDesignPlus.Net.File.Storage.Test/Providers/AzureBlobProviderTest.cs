@@ -23,13 +23,13 @@ public class AzureBlobProviderTest
     private string blobname;
     private M.FileDetail pathDetail;
     private readonly M.File file;
-    private readonly Mock<ILogger<AzureBlobProvider<Guid, Guid>>> loggerMock;
+    private readonly Mock<ILogger<AzureBlobProvider>> loggerMock;
     private readonly Mock<IHostEnvironment> environmentMock;
     private readonly IOptions<FileStorageOptions> options;
     private readonly Mock<BlobContainerClient> blobContainerClientMock;
     private readonly Mock<BlobClient> blobClientMock;
-    private readonly Mock<IAzureBlobFactory<Guid, Guid>> factoryMock;
-    private readonly Mock<IUserContext<Guid, Guid>> userContextMock;
+    private readonly Mock<IAzureBlobFactory> factoryMock;
+    private readonly Mock<IUserContext> userContextMock;
 
     public AzureBlobProviderTest()
     {
@@ -45,12 +45,12 @@ public class AzureBlobProviderTest
         this.file = new M.File(filename);
         this.options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
-        this.loggerMock = new Mock<ILogger<AzureBlobProvider<Guid, Guid>>>();
-        this.userContextMock = new Mock<IUserContext<Guid, Guid>>();
+        this.loggerMock = new Mock<ILogger<AzureBlobProvider>>();
+        this.userContextMock = new Mock<IUserContext>();
         this.environmentMock = new Mock<IHostEnvironment>();
         this.blobContainerClientMock = new Mock<BlobContainerClient>();
         this.blobClientMock = new Mock<BlobClient>();
-        this.factoryMock = new Mock<IAzureBlobFactory<Guid, Guid>>();
+        this.factoryMock = new Mock<IAzureBlobFactory>();
 
         userContextMock.SetupGet(x => x.Tenant).Returns(tenant);
 
@@ -98,7 +98,7 @@ public class AzureBlobProviderTest
     public async void UploadAsync_Default_Success()
     {
         // Arrange
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
@@ -115,7 +115,7 @@ public class AzureBlobProviderTest
         this.blobname = $"{filename}";
         this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, this.blobname, TypeProviders.AzureBlobProvider);
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
@@ -150,7 +150,7 @@ public class AzureBlobProviderTest
             })
             .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, true, cancellationToken);
@@ -192,7 +192,7 @@ public class AzureBlobProviderTest
           .ReturnsAsync(Azure.Response.FromValue(true, Mock.Of<Azure.Response>()))
           .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
 
         // Act
@@ -224,7 +224,7 @@ public class AzureBlobProviderTest
           .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
           .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
 
         // Act
@@ -245,7 +245,7 @@ public class AzureBlobProviderTest
     {
         // Arrange
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DeleteAsync(filename, target, cancellationToken);
@@ -271,7 +271,7 @@ public class AzureBlobProviderTest
           .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
           .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DeleteAsync(filename, target, cancellationToken);

@@ -2,7 +2,7 @@
 
 namespace CodeDesignPlus.Net.File.Storage.Abstractions;
 
-public interface IFileStorageService<TKeyUser, TTenant>
+public interface IFileStorageService
 {
     Task<Response[]> UploadAsync(Stream stream, string file, string target, bool renowned, CancellationToken cancellationToken = default);
     Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default);

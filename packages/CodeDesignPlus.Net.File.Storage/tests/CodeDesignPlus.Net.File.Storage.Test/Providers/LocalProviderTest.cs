@@ -15,16 +15,16 @@ public class LocalProviderTest
         var tenant = Guid.NewGuid();
         var fileOptions = OptionsUtil.FileStorageOptions;
         var options = Microsoft.Extensions.Options.Options.Create(fileOptions);
-        var logger = new Mock<ILogger<LocalProvider<Guid, Guid>>>();
+        var logger = new Mock<ILogger<LocalProvider>>();
         var environment = new Mock<IHostEnvironment>();
         var filename = "test.txt";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext<Guid, Guid>>();
+        var userContext = new Mock<IUserContext>();
         userContext.SetupGet(x => x.Tenant).Returns(tenant);
 
-        var provider = new LocalProvider<Guid, Guid>(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
 
         // Act
         var response = await provider.UploadAsync(stream, filename, target);
@@ -49,17 +49,17 @@ public class LocalProviderTest
         var tenant = Guid.NewGuid();
         var fileOptions = OptionsUtil.FileStorageOptions;
         var options = Microsoft.Extensions.Options.Options.Create(fileOptions);
-        var logger = new Mock<ILogger<LocalProvider<Guid, Guid>>>();
+        var logger = new Mock<ILogger<LocalProvider>>();
         var environment = new Mock<IHostEnvironment>();
         var filename = "test.txt";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
         var renowned = true;
 
-        var userContext = new Mock<IUserContext<Guid, Guid>>();
+        var userContext = new Mock<IUserContext>();
         userContext.SetupGet(x => x.Tenant).Returns(tenant);
 
-        var provider = new LocalProvider<Guid, Guid>(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, filename, target, renowned);
@@ -84,16 +84,16 @@ public class LocalProviderTest
         var tenant = Guid.NewGuid();
         var fileOptions = OptionsUtil.FileStorageOptions;
         var options = Microsoft.Extensions.Options.Options.Create(fileOptions);
-        var logger = new Mock<ILogger<LocalProvider<Guid, Guid>>>();
+        var logger = new Mock<ILogger<LocalProvider>>();
         var environment = new Mock<IHostEnvironment>();
         var filename = "test.txt";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext<Guid, Guid>>();
+        var userContext = new Mock<IUserContext>();
         userContext.SetupGet(x => x.Tenant).Returns(tenant);
 
-        var provider = new LocalProvider<Guid, Guid>(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
 
         // Act
         var response = await provider.UploadAsync(stream, filename, target);
@@ -115,16 +115,16 @@ public class LocalProviderTest
         var tenant = Guid.NewGuid();
         var fileOptions = OptionsUtil.FileStorageOptions;
         var options = Microsoft.Extensions.Options.Options.Create(fileOptions);
-        var logger = new Mock<ILogger<LocalProvider<Guid, Guid>>>();
+        var logger = new Mock<ILogger<LocalProvider>>();
         var environment = new Mock<IHostEnvironment>();
         var filename = "test.txt";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext<Guid, Guid>>();
+        var userContext = new Mock<IUserContext>();
         userContext.SetupGet(x => x.Tenant).Returns(tenant);
 
-        var provider = new LocalProvider<Guid, Guid>(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
 
         // Act
         var responseDelete = await provider.DeleteAsync(filename, target);
@@ -141,16 +141,16 @@ public class LocalProviderTest
         var tenant = Guid.NewGuid();
         var fileOptions = OptionsUtil.FileStorageOptions;
         var options = Microsoft.Extensions.Options.Options.Create(fileOptions);
-        var logger = new Mock<ILogger<LocalProvider<Guid, Guid>>>();
+        var logger = new Mock<ILogger<LocalProvider>>();
         var environment = new Mock<IHostEnvironment>();
         var filename = "test.txt";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext<Guid, Guid>>();
+        var userContext = new Mock<IUserContext>();
         userContext.SetupGet(x => x.Tenant).Returns(tenant);
 
-        var provider = new LocalProvider<Guid, Guid>(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
 
         // Act
         var response = await provider.UploadAsync(stream, filename, target);
@@ -175,16 +175,16 @@ public class LocalProviderTest
         var tenant = Guid.NewGuid();
         var fileOptions = OptionsUtil.FileStorageOptions;
         var options = Microsoft.Extensions.Options.Options.Create(fileOptions);
-        var logger = new Mock<ILogger<LocalProvider<Guid, Guid>>>();
+        var logger = new Mock<ILogger<LocalProvider>>();
         var environment = new Mock<IHostEnvironment>();
         var filename = "test.txt";
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext<Guid, Guid>>();
+        var userContext = new Mock<IUserContext>();
         userContext.SetupGet(x => x.Tenant).Returns(tenant);
 
-        var provider = new LocalProvider<Guid, Guid>(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
 
         // Act
         var responseDownload = await provider.DownloadAsync(filename, target);

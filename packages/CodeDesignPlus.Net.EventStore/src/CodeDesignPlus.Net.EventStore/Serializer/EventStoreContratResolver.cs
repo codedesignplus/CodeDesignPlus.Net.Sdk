@@ -5,6 +5,15 @@ namespace CodeDesignPlus.Net.EventStore.Serializer;
 
 public class EventStoreContratResolver : EventContractResolver
 {
+
+    public EventStoreContratResolver() : base()
+    {
+    }
+
+    public EventStoreContratResolver(string[] converters) : base(converters)
+    {
+    }
+
     protected override JsonObjectContract CreateObjectContract(Type objectType)
     {
         var contract = base.CreateObjectContract(objectType);

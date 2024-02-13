@@ -38,17 +38,17 @@ public class AzureBlobProviderIntegrationTest
             }
         });
 
-        var logger = new Mock<ILogger<AzureBlobProvider<string, string>>>();
+        var logger = new Mock<ILogger<AzureBlobProvider>>();
 
         var environment = new Mock<IHostEnvironment>();
 
-        var userContext = new Mock<IUserContext<string, string>>();
+        var userContext = new Mock<IUserContext>();
 
-        userContext.SetupGet(u => u.Tenant).Returns("client-001");
+        userContext.SetupGet(u => u.Tenant).Returns(Guid.NewGuid());
 
-        var azureBlobFactory = new AzureBlobFactory<string, string>(options, userContext.Object);
+        var azureBlobFactory = new AzureBlobFactory(options, userContext.Object);
 
-        var provider = new AzureBlobProvider<string, string>(azureBlobFactory, logger.Object, environment.Object);
+        var provider = new AzureBlobProvider(azureBlobFactory, logger.Object, environment.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, "FakeDocument.txt", "docs/temp/info");
@@ -85,17 +85,17 @@ public class AzureBlobProviderIntegrationTest
             }
         });
 
-        var logger = new Mock<ILogger<AzureBlobProvider<string, string>>>();
+        var logger = new Mock<ILogger<AzureBlobProvider>>();
 
         var environment = new Mock<IHostEnvironment>();
 
-        var userContext = new Mock<IUserContext<string, string>>();
+        var userContext = new Mock<IUserContext>();
 
-        userContext.SetupGet(u => u.Tenant).Returns("client-001");
+        userContext.SetupGet(u => u.Tenant).Returns(Guid.NewGuid());
 
-        var azureBlobFactory = new AzureBlobFactory<string, string>(options, userContext.Object);
+        var azureBlobFactory = new AzureBlobFactory(options, userContext.Object);
 
-        var provider = new AzureBlobProvider<string, string>(azureBlobFactory, logger.Object, environment.Object);
+        var provider = new AzureBlobProvider(azureBlobFactory, logger.Object, environment.Object);
 
         // Act
         var result = await provider.DownloadAsync(System.IO.Path.GetFileName(file.FullName), "docs/temp/info");
@@ -132,17 +132,17 @@ public class AzureBlobProviderIntegrationTest
             }
         });
 
-        var logger = new Mock<ILogger<AzureBlobProvider<string, string>>>();
+        var logger = new Mock<ILogger<AzureBlobProvider>>();
 
         var environment = new Mock<IHostEnvironment>();
 
-        var userContext = new Mock<IUserContext<string, string>>();
+        var userContext = new Mock<IUserContext>();
 
-        userContext.SetupGet(u => u.Tenant).Returns("client-001");
+        userContext.SetupGet(u => u.Tenant).Returns(Guid.NewGuid());
 
-        var azureBlobFactory = new AzureBlobFactory<string, string>(options, userContext.Object);
+        var azureBlobFactory = new AzureBlobFactory(options, userContext.Object);
 
-        var provider = new AzureBlobProvider<string, string>(azureBlobFactory, logger.Object, environment.Object);
+        var provider = new AzureBlobProvider(azureBlobFactory, logger.Object, environment.Object);
 
         // Act
         var result = await provider.DeleteAsync(System.IO.Path.GetFileName(file.FullName), "docs/temp/info");

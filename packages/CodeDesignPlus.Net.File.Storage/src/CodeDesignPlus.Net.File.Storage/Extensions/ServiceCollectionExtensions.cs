@@ -40,18 +40,15 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton(typeof(IFileStorageService<,>), typeof(FileStorageService<,>));
-
-        services.AddSingleton(typeof(IAzureBlobFactory<,>), typeof(AzureBlobFactory<,>));
-        services.AddSingleton(typeof(IAzureFlieFactory<,>), typeof(AzureFileFactory<,>));
-
-        services.AddSingleton(typeof(IAzureBlobProvider<,>), typeof(AzureBlobProvider<,>));
-        services.AddSingleton(typeof(IAzureFileProvider<,>), typeof(AzureFileProvider<,>));
-        services.AddSingleton(typeof(ILocalProvider<,>), typeof(LocalProvider<,>));
-
-        services.AddSingleton(typeof(IProvider<,>), typeof(AzureBlobProvider<,>));
-        services.AddSingleton(typeof(IProvider<,>), typeof(AzureFileProvider<,>));
-        services.AddSingleton(typeof(IProvider<,>), typeof(LocalProvider<,>));
+        services.AddSingleton<IFileStorageService, FileStorageService>();
+        services.AddSingleton<IAzureBlobFactory, AzureBlobFactory>();
+        services.AddSingleton<IAzureFlieFactory, AzureFileFactory>();
+        services.AddSingleton<IAzureBlobProvider, AzureBlobProvider>();
+        services.AddSingleton<IAzureFileProvider, AzureFileProvider>();
+        services.AddSingleton<ILocalProvider, LocalProvider>();
+        services.AddSingleton<IProvider, AzureBlobProvider>();
+        services.AddSingleton<IProvider, AzureFileProvider>();
+        services.AddSingleton<IProvider, LocalProvider>();
 
         return services;
     }

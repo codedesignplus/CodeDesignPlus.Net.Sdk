@@ -6,14 +6,14 @@ using Microsoft.Extensions.Hosting;
 
 namespace CodeDesignPlus.Net.File.Storage;
 
-public class LocalProvider<TKeyUser, TTenant>(
+public class LocalProvider(
     IOptions<FileStorageOptions> options,
-    ILogger<LocalProvider<TKeyUser, TTenant>> logger,
+    ILogger<LocalProvider> logger,
     IHostEnvironment environment,
-    IUserContext<TKeyUser, TTenant> userContext
-) : BaseProvider(logger, environment), ILocalProvider<TKeyUser, TTenant>
+    IUserContext userContext
+) : BaseProvider(logger, environment), ILocalProvider
 {
-    private readonly IUserContext<TKeyUser, TTenant> UserContext = userContext;
+    private readonly IUserContext UserContext = userContext;
     private readonly FileStorageOptions options = options.Value;
 
     public Task<Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)

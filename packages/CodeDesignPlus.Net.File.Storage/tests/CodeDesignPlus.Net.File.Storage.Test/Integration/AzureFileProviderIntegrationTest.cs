@@ -37,17 +37,17 @@ public class AzureFileProviderIntegrationTest
             }
         });
 
-        var logger = new Mock<ILogger<AzureFileProvider<string, string>>>();
+        var logger = new Mock<ILogger<AzureFileProvider>>();
 
         var environment = new Mock<IHostEnvironment>();
 
-        var userContext = new Mock<IUserContext<string, string>>();
+        var userContext = new Mock<IUserContext>();
 
-        userContext.SetupGet(u => u.Tenant).Returns("client-001");
+        userContext.SetupGet(u => u.Tenant).Returns(Guid.NewGuid());
 
-        var azureFileFactory = new AzureFileFactory<string, string>(options, userContext.Object);
+        var azureFileFactory = new AzureFileFactory(options, userContext.Object);
 
-        var provider = new AzureFileProvider<string, string>(azureFileFactory, logger.Object, environment.Object);
+        var provider = new AzureFileProvider(azureFileFactory, logger.Object, environment.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, "FakeDocument.txt", null);
@@ -84,17 +84,17 @@ public class AzureFileProviderIntegrationTest
             }
         });
 
-        var logger = new Mock<ILogger<AzureFileProvider<string, string>>>();
+        var logger = new Mock<ILogger<AzureFileProvider>>();
 
         var environment = new Mock<IHostEnvironment>();
 
-        var userContext = new Mock<IUserContext<string, string>>();
+        var userContext = new Mock<IUserContext>();
 
-        userContext.SetupGet(u => u.Tenant).Returns("client-001");
+        userContext.SetupGet(u => u.Tenant).Returns(Guid.NewGuid());
 
-        var azureFileFactory = new AzureFileFactory<string, string>(options, userContext.Object);
+        var azureFileFactory = new AzureFileFactory(options, userContext.Object);
 
-        var provider = new AzureFileProvider<string, string>(azureFileFactory, logger.Object, environment.Object);
+        var provider = new AzureFileProvider(azureFileFactory, logger.Object, environment.Object);
 
         // Act
         var result = await provider.DownloadAsync(System.IO.Path.GetFileName(file.FullName), "docs/temp/info");
@@ -131,17 +131,17 @@ public class AzureFileProviderIntegrationTest
             }
         });
 
-        var logger = new Mock<ILogger<AzureFileProvider<string, string>>>();
+        var logger = new Mock<ILogger<AzureFileProvider>>();
 
         var environment = new Mock<IHostEnvironment>();
 
-        var userContext = new Mock<IUserContext<string, string>>();
+        var userContext = new Mock<IUserContext>();
 
-        userContext.SetupGet(u => u.Tenant).Returns("client-001");
+        userContext.SetupGet(u => u.Tenant).Returns(Guid.NewGuid());
 
-        var azureFileFactory = new AzureFileFactory<string, string>(options, userContext.Object);
+        var azureFileFactory = new AzureFileFactory(options, userContext.Object);
 
-        var provider = new AzureFileProvider<string, string>(azureFileFactory, logger.Object, environment.Object);
+        var provider = new AzureFileProvider(azureFileFactory, logger.Object, environment.Object);
 
         // Act
         var result = await provider.DeleteAsync(System.IO.Path.GetFileName(file.FullName), "docs/temp/info");

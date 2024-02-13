@@ -9,13 +9,13 @@ using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 namespace CodeDesignPlus.Net.File.Storage.Providers;
 
-public class AzureFileProvider<TKeyUser, TTenant>(
-    IAzureFlieFactory<TKeyUser, TTenant> factory,
-    ILogger<AzureFileProvider<TKeyUser, TTenant>> logger,
+public class AzureFileProvider(
+    IAzureFlieFactory factory,
+    ILogger<AzureFileProvider> logger,
     IHostEnvironment environment
-) : BaseProvider(logger, environment), IAzureFileProvider<TKeyUser, TTenant>
+) : BaseProvider(logger, environment), IAzureFileProvider
 {
-    private readonly IAzureFlieFactory<TKeyUser, TTenant> factory = factory.Create();
+    private readonly IAzureFlieFactory factory = factory.Create();
 
     public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
