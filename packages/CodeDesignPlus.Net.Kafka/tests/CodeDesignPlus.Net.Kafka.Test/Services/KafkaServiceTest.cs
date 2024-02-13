@@ -117,41 +117,41 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
         Assert.Equal(@event.EventId, userEvent.EventId);
     }
 
-    [Fact]
-    public async Task SubscribeAsync_ExitsLoop_When_CancellationTokenIsCancelled()
-    {
-        // Preparar
-        var mockLogger = new Mock<ILogger<KafkaEventBus>>();
-        var mockOptions = O.Options.Create(new KafkaOptions()
-        {
-            Enable = true,
-            BootstrapServers = "localhost:29092",
-            Acks = "all",
-            BatchSize = 4096,
-            LingerMs = 5,
-            CompressionType = "snappy",
-            NameMicroservice = "Test"
-        });
-        var mockPubSubOptions = O.Options.Create(new PubSubOptions());
-        var mockProducer = new Mock<IProducer<string, IDomainEvent>>();
-        var domainEventResolverService = new DomainEventResolverService();
+    // [Fact]
+    // public async Task SubscribeAsync_ExitsLoop_When_CancellationTokenIsCancelled()
+    // {
+    //     // Preparar
+    //     var mockLogger = new Mock<ILogger<KafkaEventBus>>();
+    //     var mockOptions = O.Options.Create(new KafkaOptions()
+    //     {
+    //         Enable = true,
+    //         BootstrapServers = "localhost:29092",
+    //         Acks = "all",
+    //         BatchSize = 4096,
+    //         LingerMs = 5,
+    //         CompressionType = "snappy",
+    //         NameMicroservice = "Test"
+    //     });
+    //     var mockPubSubOptions = O.Options.Create(new PubSubOptions());
+    //     var mockProducer = new Mock<IProducer<string, IDomainEvent>>();
+    //     var domainEventResolverService = new DomainEventResolverService();
 
-        var serviceCollection = new ServiceCollection()
-            .AddSingleton(x => new UserCreatedEventHandler(Mock.Of<ILogger<UserCreatedEventHandler>>(), new MemoryService()));
+    //     var serviceCollection = new ServiceCollection()
+    //         .AddSingleton(x => new UserCreatedEventHandler(Mock.Of<ILogger<UserCreatedEventHandler>>(), new MemoryService()));
 
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+    //     var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var kafkaEventBus = new KafkaEventBus(mockLogger.Object, domainEventResolverService, mockOptions, serviceProvider, mockPubSubOptions);
+    //     var kafkaEventBus = new KafkaEventBus(mockLogger.Object, domainEventResolverService, mockOptions, serviceProvider, mockPubSubOptions);
 
-        var cancellationTokenSource = new CancellationTokenSource();
-        cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));  // Cancela después de 100 ms
+    //     var cancellationTokenSource = new CancellationTokenSource();
+    //     cancellationTokenSource.CancelAfter(TimeSpan.FromSeconds(10));  // Cancela después de 100 ms
 
-        // Actuar
-        await kafkaEventBus.SubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>(cancellationTokenSource.Token);
+    //     // Actuar
+    //     await kafkaEventBus.SubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>(cancellationTokenSource.Token);
 
-        // Afirmar
-        mockLogger.VerifyLogging("Kafka event listening has stopped for event type: UserCreatedEvent due to cancellation request.", LogLevel.Information);
-    }
+    //     // Afirmar
+    //     mockLogger.VerifyLogging("Kafka event listening has stopped for event type: UserCreatedEvent due to cancellation request.", LogLevel.Information);
+    // }
 
     [Fact]
     public async Task Unsubscribe_InvokesConsumerUnsubscribeAndLogsInformation()

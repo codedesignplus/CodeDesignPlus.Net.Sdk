@@ -52,7 +52,7 @@ public static class ServiceCollectionExtensions
     {
         var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
 
-        var repositories = types.Where(x => !x.IsNested && !x.IsInterface && typeof(IRepositoryBase<TKey, TUserKey>).IsAssignableFrom(x));
+        var repositories = types.Where(x => !x.IsNested && !x.IsInterface && typeof(IRepositoryBase).IsAssignableFrom(x));
 
         foreach (var repository in @repositories)
         {

@@ -26,14 +26,17 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         var cancellationToken = CancellationToken.None;
         var (client, collection) = GetCollection();
         var serviceProvider = GetServiceProvider(client, collection);
+        var guid = Guid.NewGuid();
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
         // Act
-        var isSuccess = await repository.ChangeStateAsync<Client>(Guid.NewGuid(), false, cancellationToken);
+        await repository.ChangeStateAsync<Client>(guid, false, cancellationToken);
 
         // Assert
-        Assert.False(isSuccess);
+        var result = await collection.Find(x => x.Id == guid).FirstOrDefaultAsync(cancellationToken);
+
+        Assert.Null(result);
     }
 
     [Fact]
@@ -53,16 +56,15 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             IsActive = true
         };
 
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         // Act
-        var isSuccess = await repository.ChangeStateAsync<Client>(entity.Id, false, cancellationToken);
+        await repository.ChangeStateAsync<Client>(entity.Id, false, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(isSuccess);
         Assert.Equal(entity.Id, result.Id);
         Assert.Equal(entity.Name, result.Name);
         Assert.NotEqual(entity.IsActive, result.IsActive);
@@ -88,7 +90,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
@@ -127,7 +129,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        _ = await repository.CreateRangeAsync(entities, cancellationToken);
+        await repository.CreateRangeAsync(entities, cancellationToken);
 
         // Assert
         foreach (var entity in entities)
@@ -159,17 +161,16 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             IsActive = true
         };
 
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         // Act
         var filter = Builders<Client>.Filter.Eq(x => x.Id, entity.Id);
-        var isSuccess = await repository.DeleteAsync(filter, cancellationToken);
+        await repository.DeleteAsync(filter, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
         // Assert
         Assert.Null(result);
-        Assert.True(isSuccess);
     }
 
     [Fact]
@@ -198,10 +199,10 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             }
         };
 
-        _ = await repository.CreateRangeAsync(entities, cancellationToken);
+        await repository.CreateRangeAsync(entities, cancellationToken);
 
         // Act
-        var isSuccess = await repository.DeleteRangeAsync(entities, cancellationToken);
+        await repository.DeleteRangeAsync(entities, cancellationToken);
 
         // Assert
         foreach (var entity in entities)
@@ -210,8 +211,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
 
             Assert.Null(result);
         }
-
-        Assert.True(isSuccess);
     }
 
     [Fact]
@@ -231,17 +230,16 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             IsActive = true
         };
 
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         // Act
         entity.Name = "Test 2";
-        var isSuccess = await repository.UpdateAsync(entity, cancellationToken);
+        await repository.UpdateAsync(entity, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(isSuccess);
         Assert.Equal(entity.Id, result.Id);
         Assert.Equal(entity.Name, result.Name);
         Assert.Equal(entity.IsActive, result.IsActive);
@@ -274,7 +272,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             }
         };
 
-        _ = await repository.CreateRangeAsync(entities, cancellationToken);
+        await repository.CreateRangeAsync(entities, cancellationToken);
 
         // Act
         foreach (var entity in entities)
@@ -282,7 +280,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             entity.Name = "Test 2";
         }
 
-        var isSuccess = await repository.UpdateRangeAsync(entities, cancellationToken);
+        await repository.UpdateRangeAsync(entities, cancellationToken);
 
         // Assert
         foreach (var entity in entities)
@@ -290,7 +288,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
             Assert.NotNull(result);
-            Assert.True(isSuccess);
             Assert.Equal(entity.Id, result.Id);
             Assert.Equal(entity.Name, result.Name);
             Assert.Equal(entity.IsActive, result.IsActive);
@@ -316,19 +313,18 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        var result = await repository.TransactionAsync(async (database, session) =>
+        await repository.TransactionAsync(async (database, session) =>
         {
             var clientCollection = database.GetCollection<Client>(typeof(Client).Name);
 
             await clientCollection.InsertOneAsync(session, entity, cancellationToken: cancellationToken);
 
-            var result = await collection.Find(session, x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
-
-            return result;
         }, cancellationToken);
 
 
         // Assert
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
         Assert.NotNull(result);
         Assert.Equal(entity.Id, result.Id);
         Assert.Equal(entity.Name, result.Name);
@@ -354,7 +350,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        var isSuccess = await repository.TransactionAsync<bool>(async (database, session) =>
+        await repository.TransactionAsync(async (database, session) =>
         {
             var clientCollection = database.GetCollection<Client>(typeof(Client).Name);
 
@@ -367,7 +363,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Assert
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
-        Assert.False(isSuccess);
         Assert.Null(result);
         this.loggerMock.VerifyLogging("Failed to execute transaction", LogLevel.Error);
     }

@@ -37,14 +37,14 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
             IdUserCreator = idUser
         };
 
-        var userContextMock = new Mock<IUserContext<Guid>>();
+        var userContextMock = new Mock<IUserContext>();
 
         userContextMock.SetupGet(x => x.IdUser).Returns(idUser);
 
         var repository = new ProductRepository(userContextMock.Object, serviceProvider, this.options, this.loggerMock.Object);
 
         // Act
-        _ = await repository.CreateAsync(product);
+        await repository.CreateAsync(product);
 
         // Assert
         var result = await collection.Find(x => x.Id == product.Id).FirstOrDefaultAsync(cancellationToken);
@@ -74,21 +74,20 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
             IdUserCreator = idUser
         };
 
-        var userContextMock = new Mock<IUserContext<Guid>>();
+        var userContextMock = new Mock<IUserContext>();
 
         userContextMock.SetupGet(x => x.IdUser).Returns(idUser);
 
         var repository = new ProductRepository(userContextMock.Object, serviceProvider, this.options, this.loggerMock.Object);
 
-        _ = await repository.CreateAsync(product);
+        await repository.CreateAsync(product);
 
         // Act
-        var isSuccess = await repository.DeleteAsync(product.Id);
+        await repository.DeleteAsync(product.Id);
 
         // Assert
         var result = await collection.Find(x => x.Id == product.Id).FirstOrDefaultAsync(cancellationToken);
 
-        Assert.True(isSuccess);
         Assert.Null(result);
     }
 
@@ -110,22 +109,21 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
             IdUserCreator = idUser
         };
 
-        var userContextMock = new Mock<IUserContext<Guid>>();
+        var userContextMock = new Mock<IUserContext>();
 
         userContextMock.SetupGet(x => x.IdUser).Returns(idUser);
 
         var repository = new ProductRepository(userContextMock.Object, serviceProvider, this.options, this.loggerMock.Object);
 
-        _ = await repository.CreateAsync(product);
+        await repository.CreateAsync(product);
 
         // Act
         product.IsActive = false;
-        var isSuccess = await repository.UpdateAsync(product.Id, product);
+        await repository.UpdateAsync(product.Id, product);
 
         // Assert
         var result = await collection.Find(x => x.Id == product.Id).FirstOrDefaultAsync(cancellationToken);
 
-        Assert.True(isSuccess);
         Assert.NotNull(result);
         Assert.Equal(product.Id, result.Id);
         Assert.Equal(product.IsActive, result.IsActive);

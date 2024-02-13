@@ -13,28 +13,28 @@ namespace CodeDesignPlus.Net.Mongo;
 /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
 /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TKey, TUserKey>, IOperationBase<TKey, TUserKey, TEntity>
-    where TEntity : class, IEntity<TKey, TUserKey>
+public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TEntity>
+    where TEntity : class, IEntity
 {
     /// <summary>
     /// List of properties that will not be updated
     /// </summary>
-    private readonly List<string> blacklist = new() {
-         nameof(IEntity<TKey, TUserKey>.Id),
-         nameof(IEntity<TKey, TUserKey>.CreatedAt),
-         nameof(IEntity<TKey, TUserKey>.IdUserCreator)
-     };
+    private readonly List<string> blacklist = [
+         nameof(IEntity.Id),
+         nameof(IAuditTrail.CreatedAt),
+         nameof(IAuditTrail.IdUserCreator)
+     ];
 
     /// <summary>
     /// Provide the information of the authenticated user during the request
     /// </summary>
-    protected readonly IUserContext<TUserKey> AuthenticateUser;
+    protected readonly IUserContext AuthenticateUser;
 
     /// <summary>
     /// Initializes a new instance of CodeDesignPlus.EFCore.Operations.Operation class using the speciffied options.
     /// </summary>
     /// <param name="authenticatetUser">Information of the authenticated user during the request</param>
-    protected OperationBase(IUserContext<TUserKey> authenticatetUser, IServiceProvider serviceProvider, IOptions<MongoOptions> options, ILogger<RepositoryBase<TKey, TUserKey>> logger)
+    protected OperationBase(IUserContext authenticatetUser, IServiceProvider serviceProvider, IOptions<MongoOptions> options, ILogger<RepositoryBase> logger)
         : base(serviceProvider, options, logger)
     {
         this.AuthenticateUser = authenticatetUser;
@@ -46,14 +46,15 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     /// <param name="entity">Entity to create</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public virtual async Task<TKey> CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        entity.IdUserCreator = this.AuthenticateUser.IdUser;
-        entity.CreatedAt = DateTime.UtcNow;
+        if (entity is IAuditTrail auditTrailEntity)
+        {
+            auditTrailEntity.IdUserCreator = this.AuthenticateUser.IdUser;
+            auditTrailEntity.CreatedAt = DateTime.UtcNow;
+        }
 
-        entity = await base.CreateAsync(entity, cancellationToken);
-
-        return entity.Id;
+        return base.CreateAsync(entity, cancellationToken);
     }
 
     /// <summary>
@@ -62,7 +63,7 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     /// <param name="id">Id of the record to delete</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public virtual Task<bool> DeleteAsync(TKey id, CancellationToken cancellationToken = default)
+    public virtual Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
 
@@ -76,7 +77,7 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
     /// <param name="entity">Entity with the information to update</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public virtual async Task<bool> UpdateAsync(TKey id, TEntity entity, CancellationToken cancellationToken = default)
+    public virtual async Task UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default)
     {
         var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
 
@@ -96,7 +97,5 @@ public abstract class OperationBase<TKey, TUserKey, TEntity> : RepositoryBase<TK
 
         var update = Builders<TEntity>.Update.Combine(updates);
         var result = await base.GetCollection<TEntity>().UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
-
-        return result.ModifiedCount > 0;
     }
 }

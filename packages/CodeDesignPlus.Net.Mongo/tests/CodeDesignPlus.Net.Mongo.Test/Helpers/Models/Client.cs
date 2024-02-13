@@ -2,7 +2,7 @@
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 
-public class Client: IEntity<Guid, Guid>
+public class Client: IEntity
 {
     public Guid Id { get; set; }
 
@@ -11,5 +11,6 @@ public class Client: IEntity<Guid, Guid>
     public bool IsActive { get; set; }
     public Guid IdUserCreator { get; set; }
     public DateTime CreatedAt { get; set; }
+    public Guid Tenant { get; set; }
 
 }
