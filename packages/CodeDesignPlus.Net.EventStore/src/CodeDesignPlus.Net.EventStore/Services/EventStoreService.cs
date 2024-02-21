@@ -1,11 +1,10 @@
 ﻿
-using System.Text;
-using EventStore.ClientAPI;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 using CodeDesignPlus.Net.Core.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.Serializer;
+using EventStore.ClientAPI;
+using Newtonsoft.Json;
+using System.Text;
 
 namespace CodeDesignPlus.Net.EventStore.Services;
 

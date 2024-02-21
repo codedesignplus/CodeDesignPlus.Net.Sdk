@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Redis.Abstractions;
-using CodeDesignPlus.Net.Redis.Exceptions;
-using CodeDesignPlus.Net.Redis.Options;
+﻿using CodeDesignPlus.Net.Redis.Options;
 using CodeDesignPlus.Net.Redis.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -36,7 +34,7 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IRedisService, RedisService>();    
+        services.AddSingleton<IRedisService, RedisService>();
         services.AddSingleton<IRedisServiceFactory, RedisServiceFactory>();
 
         return services;

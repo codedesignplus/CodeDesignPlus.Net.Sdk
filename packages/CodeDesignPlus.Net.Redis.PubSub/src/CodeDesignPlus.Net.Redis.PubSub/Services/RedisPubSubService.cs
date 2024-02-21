@@ -106,9 +106,9 @@ public class RedisPubSubService : IRedisPubSubService
     /// </summary>
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
-    /// <param name="token">The cancellation token that will be assigned to the new task.</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
     /// <returns>Return a <see cref="Task"/></returns>
-    public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
+    public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -116,7 +116,7 @@ public class RedisPubSubService : IRedisPubSubService
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
-        return this.redisService.Subscriber.SubscribeAsync(RedisChannel.Literal(channel), (_, v) => this.ListenerEvent<TEvent, TEventHandler>(v, token));
+        return this.redisService.Subscriber.SubscribeAsync(RedisChannel.Literal(channel), (_, v) => this.ListenerEvent<TEvent, TEventHandler>(v, cancellationToken));
     }
 
     /// <summary>
@@ -125,14 +125,14 @@ public class RedisPubSubService : IRedisPubSubService
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
     /// <param name="value">The value received</param>    
-    /// <param name="token">The cancellation token that will be assigned to the new task.</param>
-    public void ListenerEvent<TEvent, TEventHandler>(RedisValue value, CancellationToken token)
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    public void ListenerEvent<TEvent, TEventHandler>(RedisValue value, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
         var @event = JsonConvert.DeserializeObject<TEvent>(value);
 
-        if (this.pubSubOptions.EnableQueue)
+        if (this.pubSubOptions.UseQueue)
         {
             var queue = this.serviceProvider.GetService<IQueueService<TEventHandler, TEvent>>();
 
@@ -142,7 +142,7 @@ public class RedisPubSubService : IRedisPubSubService
         {
             var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
-            eventHandler.HandleAsync(@event, token);
+            eventHandler.HandleAsync(@event, cancellationToken);
         }
     }
 
@@ -151,7 +151,9 @@ public class RedisPubSubService : IRedisPubSubService
     /// </summary>
     /// <typeparam name="TEvent">Type Event</typeparam>
     /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
-    public Task UnsubscribeAsync<TEvent, TEventHandler>()
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <returns>Return a <see cref="Task"/></returns>
+    public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -163,4 +165,18 @@ public class RedisPubSubService : IRedisPubSubService
 
         return Task.CompletedTask;
     }
+
+    /// <summary>
+    /// Publish a list of domain events
+    /// </summary>
+    /// <param name="event">Domains event to publish</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <returns>Return a <see cref="Task"/></returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    {
+        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+
+        return Task.WhenAll(tasks);
+    }
+
 }

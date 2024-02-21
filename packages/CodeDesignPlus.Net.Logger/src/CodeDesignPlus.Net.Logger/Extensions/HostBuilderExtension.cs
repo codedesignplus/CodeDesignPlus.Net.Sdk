@@ -1,10 +1,10 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Serilog;
+using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog.Exceptions;
 
 namespace CodeDesignPlus.Net.Logger;
 

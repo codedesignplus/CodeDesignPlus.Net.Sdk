@@ -1,7 +1,9 @@
-﻿using CodeDesignPlus.Net.Mongo.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Mongo.Abstractions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
@@ -41,16 +43,15 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    
+
     /// <summary>
     /// Add all repositories that implement the <see cref="IRepositoryBase{TKey, TUserKey}"/> interface
     /// </summary>
-    /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-    /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
+    /// <typeparam name="TStartup">The type of the startup class that implements the <see cref="IStartupServices"/> interface.</typeparam>
     /// <param name="services">The IServiceCollection to add services to.</param>
-    public static void AddRepositories<TKey, TUserKey>(this IServiceCollection services)
+    public static void AddRepositories<TStartup>(this IServiceCollection services) where TStartup : IStartupServices
     {
-        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
+        var types = typeof(TStartup).Assembly.GetTypes();
 
         var repositories = types.Where(x => !x.IsNested && !x.IsInterface && typeof(IRepositoryBase).IsAssignableFrom(x));
 

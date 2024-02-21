@@ -1,11 +1,11 @@
-﻿using System.Text;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Kafka.Options;
+using CodeDesignPlus.Net.Kafka.Serializer;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.Kafka.Options;
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Kafka.Serializer;
+using System.Text;
 
 namespace CodeDesignPlus.Net.Kafka.Services;
 
@@ -100,7 +100,8 @@ public class KafkaEventBus : IKafkaEventBus
 
         using var consumer = consumerBuilder.Build();
 
-        cancellationToken.Register(() => {
+        cancellationToken.Register(() =>
+        {
 
             consumer.Close();
         });
@@ -142,7 +143,7 @@ public class KafkaEventBus : IKafkaEventBus
        where TEvent : IDomainEvent
        where TEventHandler : IEventHandler<TEvent>
     {
-        if (this.pubSubOptions.EnableQueue)
+        if (this.pubSubOptions.UseQueue)
         {
             var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
 
@@ -161,7 +162,8 @@ public class KafkaEventBus : IKafkaEventBus
     /// </summary>
     /// <typeparam name="TEvent">The type of event.</typeparam>
     /// <typeparam name="TEventHandler">The type of event handler.</typeparam>
-    public Task UnsubscribeAsync<TEvent, TEventHandler>()
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -171,6 +173,19 @@ public class KafkaEventBus : IKafkaEventBus
         consumer.Unsubscribe();
 
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Publish a list of domain events
+    /// </summary>
+    /// <param name="event">Domains event to publish</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <returns>Return a <see cref="Task"/></returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    {
+        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+
+        return Task.WhenAll(tasks);
     }
 
 }

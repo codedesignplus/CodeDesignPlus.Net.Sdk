@@ -115,7 +115,7 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
     {
         var testServer = this.BuildTestServer(true, this.testOutput);
 
-        var pubSub = testServer.Host.Services.GetRequiredService<IPubSub>();
+        var pubSub = testServer.Host.Services.GetRequiredService<IMessage>();
 
         var @event = new OrderCreatedEvent(Guid.NewGuid(), Guid.NewGuid(), OrderStatus.Pending, new Client()
         {
@@ -162,7 +162,7 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
         var service = new EventStorePubSubService(eventStoreFactoryMock.Object, serviceProviderMock.Object, loggerMock.Object, eventStorePubSubOptions, pubSubOptions, domainEventResolverService);
 
         // Act
-        var task = service.UnsubscribeAsync<DomainEvent, IEventHandler<DomainEvent>>();
+        var task = service.UnsubscribeAsync<DomainEvent, IEventHandler<DomainEvent>>(CancellationToken.None);
 
         await task;
 

@@ -17,7 +17,7 @@ public class AzureBlobFactory : IAzureBlobFactory
     {
         ArgumentNullException.ThrowIfNull(options, nameof(options));
         ArgumentNullException.ThrowIfNull(userContext, nameof(userContext));
-        
+
         Options = options.Value;
         UserContext = userContext;
     }

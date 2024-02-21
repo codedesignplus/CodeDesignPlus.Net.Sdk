@@ -2,39 +2,23 @@
 
 namespace CodeDesignPlus.Net.PubSub.Test;
 
-/// <summary>
-/// Implementación del Bus de eventos
-/// </summary>
-public class PubSubService : IPubSub
+public class PubSubService : IMessage
 {
-    /// <summary>
-    /// Metodo encargado de publicar un evento de integración
-    /// </summary>
-    /// <param name="event">Información del Evento a publicar</param>
-    /// <param name="token">Cancellation Token</param>
-    /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
     public Task PublishAsync(IDomainEvent @event, CancellationToken token)
     {
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    /// Metodo encargado de publicar un evento de integración
-    /// </summary>
-    /// <param name="event">Información del Evento a publicar</param>
-    /// <param name="token">Cancellation Token</param>
-    /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica, la información determinada por la implementación de la interfaz</returns>
     public Task<TResult> PublishAsync<TResult>(IDomainEvent @event, CancellationToken token)
     {
         return Task.FromResult<TResult>(default!);
     }
 
-    /// <summary>
-    /// Metodo encargado de escuchar un evento de integración
-    /// </summary>
-    /// <typeparam name="TEvent">Evento de integración a escuchar</typeparam>
-    /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
-    /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    {
+        return Task.CompletedTask;
+    }
+
     public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -42,15 +26,10 @@ public class PubSubService : IPubSub
         return Task.CompletedTask;
     }
 
-    /// <summary>
-    /// Metodo encargado de cancelar la suscripción de un evento
-    /// </summary>
-    /// <typeparam name="TEvent">Evento de integración a escuchar</typeparam>
-    /// <typeparam name="TEventHandler">Manejador de eventos de integración (Callback)</typeparam>
-    public Task UnsubscribeAsync<TEvent, TEventHandler>()
+    public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        return Task.CompletedTask;
+        throw new NotImplementedException();
     }
 }

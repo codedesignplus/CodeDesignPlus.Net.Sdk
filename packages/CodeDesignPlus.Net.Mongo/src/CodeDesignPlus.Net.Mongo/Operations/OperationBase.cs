@@ -14,15 +14,15 @@ namespace CodeDesignPlus.Net.Mongo;
 /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
 public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TEntity>
-    where TEntity : class, IEntity
+    where TEntity : class, IEntityBase
 {
     /// <summary>
     /// List of properties that will not be updated
     /// </summary>
     private readonly List<string> blacklist = [
-         nameof(IEntity.Id),
-         nameof(IAuditTrail.CreatedAt),
-         nameof(IAuditTrail.IdUserCreator)
+         nameof(IEntityBase.Id),
+        nameof(IAuditTrail.CreatedAt),
+        nameof(IAuditTrail.IdUserCreator)
      ];
 
     /// <summary>

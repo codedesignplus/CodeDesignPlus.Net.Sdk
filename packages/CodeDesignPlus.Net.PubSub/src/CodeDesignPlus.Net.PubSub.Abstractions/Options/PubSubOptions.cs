@@ -15,7 +15,7 @@ public class PubSubOptions
     /// <summary>
     /// Get or sets the Enable
     /// </summary>
-    public bool EnableQueue { get; set; }
+    public bool UseQueue { get; set; }
     /// <summary>
     /// Number of seconds to wait for the queue
     /// </summary>

@@ -1,7 +1,7 @@
-﻿using CodeDesignPlus.Net.EventStore.Exceptions;
-using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-using ES = EventStore.ClientAPI;
+﻿using CodeDesignPlus.Net.EventStore.Abstractions.Options;
+using CodeDesignPlus.Net.EventStore.Exceptions;
 using System.Collections.Concurrent;
+using ES = EventStore.ClientAPI;
 
 namespace CodeDesignPlus.Net.EventStore.Services;
 
@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Net.EventStore.Services;
 /// Provides a factory to manage and retrieve connections to EventStore instances.
 /// This class ensures that connections are created, cached, and managed efficiently.
 /// </summary>
-public class EventStoreFactory: IEventStoreFactory
+public class EventStoreFactory : IEventStoreFactory
 {
     private readonly ConcurrentDictionary<string, ES.IEventStoreConnection> connections = new();
     private readonly IEventStoreConnection eventStoreConnection;

@@ -71,7 +71,7 @@ public class ServiceCollectionExtensionsTest
     }
 
     /// <summary>
-    /// Valida que se genere la excepción cuando no se encuentra un servicio que implemente la interfaz <see cref="IPubSub"/>
+    /// Valida que se genere la excepción cuando no se encuentra un servicio que implemente la interfaz <see cref="IMessage"/>
     /// </summary>
     [Fact]
     public void AddPubSub_RegisterServices_ServicesBase()
@@ -84,7 +84,7 @@ public class ServiceCollectionExtensionsTest
         services.AddPubSub(configuration);
 
         // Assert
-        var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
+        var pubSub = services.FirstOrDefault(x => typeof(IMessage).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
 

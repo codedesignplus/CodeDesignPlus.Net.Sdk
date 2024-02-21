@@ -1,9 +1,9 @@
-﻿using System.Reflection;
+﻿using CodeDesignPlus.Net.EFCore.Abstractions.Options;
 using CodeDesignPlus.Net.EFCore.Exceptions;
-using CodeDesignPlus.Net.EFCore.Abstractions.Options;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.EFCore.Extensions;
 

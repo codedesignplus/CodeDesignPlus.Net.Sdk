@@ -1,6 +1,5 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 using CodeDesignPlus.Net.Event.Sourcing.Exceptions;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -34,10 +33,6 @@ public static class ServiceCollectionExtensions
             .AddOptions<EventSourcingOptions>()
             .Bind(section)
             .ValidateDataAnnotations();
-
-        var eventSourcing = EventSourcingExtesions.GetEventSourcing() ?? throw new EventSourcingNotImplementedException();
-        
-        services.AddSingleton(typeof(IEventSourcingService), eventSourcing);
 
         return services;
     }

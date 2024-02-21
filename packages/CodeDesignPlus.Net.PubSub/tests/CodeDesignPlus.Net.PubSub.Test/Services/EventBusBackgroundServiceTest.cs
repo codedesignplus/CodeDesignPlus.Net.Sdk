@@ -7,12 +7,12 @@ namespace CodeDesignPlus.Net.PubSub.Test.Services;
 public class PubSubBackgroundServiceTest
 {
     private readonly Mock<ILogger<EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>> _mockLogger;
-    private readonly Mock<IPubSub> _mockPubSub;
+    private readonly Mock<IMessage> _mockPubSub;
 
     public PubSubBackgroundServiceTest()
     {
         _mockLogger = new Mock<ILogger<EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>>();
-        _mockPubSub = new Mock<IPubSub>();
+        _mockPubSub = new Mock<IMessage>();
     }
 
 

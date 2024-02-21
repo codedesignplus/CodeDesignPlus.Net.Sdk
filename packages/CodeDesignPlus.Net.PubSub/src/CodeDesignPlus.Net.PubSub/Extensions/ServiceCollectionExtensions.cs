@@ -1,6 +1,5 @@
-﻿using System.Reflection;
+﻿using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.PubSub.Exceptions;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.PubSub.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -38,24 +37,30 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        var pubSub = PubSubExtensions.GetPubSub() ?? throw new EventNotImplementedException();
-        
-        services.AddSingleton(typeof(IPubSub), pubSub);
+        var options = section.Get<PubSubOptions>();
 
-        services.AddEventsHandlers(section.Get<PubSubOptions>());
+        services.AddSingleton<IPubSub, Services.PubSub>();
+
+        services.AddEventsHandlers(options);
+
+        if (options.UseQueue)
+        {
+            services.AddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
+        }
 
         return services;
     }
 
-   
+
 
     /// <summary>
     /// Adds the event handlers that implement the CodeDesignPlus.PubSub.Abstractions.IEventHandler interface
     /// </summary>
     /// <param name="services">A reference to this instance after the operation has completed.</param>
-    /// <param name="PubSubOptions">The event bus options</param>
+    /// <param name="pubSubOptions">The event bus options</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, PubSubOptions PubSubOptions)
+    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, PubSubOptions pubSubOptions)
     {
         var eventsHandlers = PubSubExtensions.GetEventHandlers();
 
@@ -68,7 +73,7 @@ public static class ServiceCollectionExtensions
             if (eventType == null)
                 continue;
 
-            if (PubSubOptions.EnableQueue)
+            if (pubSubOptions.UseQueue)
             {
                 var queueServiceType = typeof(IQueueService<,>).MakeGenericType(eventHandler, eventType);
                 var queueServiceImplementationType = typeof(QueueService<,>).MakeGenericType(eventHandler, eventType);

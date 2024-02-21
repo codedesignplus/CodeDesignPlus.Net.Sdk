@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
+using System.ComponentModel.DataAnnotations;
 
 namespace CodeDesignPlus.Net.Kafka.Options;
 

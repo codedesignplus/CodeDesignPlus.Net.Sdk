@@ -14,7 +14,7 @@ public class RedisOptions : IValidatableObject
     /// <summary>
     /// Gets or sets the Instances
     /// </summary>
-    public Dictionary<string, Instance> Instances { get; set; } = new();
+    public Dictionary<string, Instance> Instances { get; set; } = [];
 
     /// <summary>
     /// Determines whether the specified object is valid.

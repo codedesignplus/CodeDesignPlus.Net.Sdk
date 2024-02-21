@@ -1,6 +1,5 @@
 ﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
 using Microsoft.AspNetCore.Http;
-using CodeDesignPlus.Net.Security.Abstractions;
 
 namespace CodeDesignPlus.Net.Security.Services;
 

@@ -1,8 +1,8 @@
-﻿using CodeDesignPlus.Net.Core.Exceptions;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Core.Exceptions;
+using CodeDesignPlus.Net.Core.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Core.Services;
 
 namespace CodeDesignPlus.Net.Core.Extensions;
 
@@ -39,5 +39,4 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
 }

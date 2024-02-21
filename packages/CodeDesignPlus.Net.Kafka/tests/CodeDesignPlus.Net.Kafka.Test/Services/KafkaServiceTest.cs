@@ -92,7 +92,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
 
         var testServer = BuildTestServer(enableQueue, this.testOutput, gorup);
 
-        var pubSub = testServer.Host.Services.GetRequiredService<IPubSub>();
+        var pubSub = testServer.Host.Services.GetRequiredService<IMessage>();
 
         await pubSub.PublishAsync(@event, CancellationToken.None);
 
@@ -164,7 +164,7 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
         var kafkaEventBus = new KafkaEventBus(_mockLogger.Object, _mockDomainEventResolverService.Object, _mockKafkaOptions.Object, serviceProvider, _mockPubSubOptions.Object);
 
         // Act
-        await kafkaEventBus.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>();
+        await kafkaEventBus.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>(CancellationToken.None);
 
         // Assert
         mockConsumer.Verify(x => x.Unsubscribe(), Times.Once);

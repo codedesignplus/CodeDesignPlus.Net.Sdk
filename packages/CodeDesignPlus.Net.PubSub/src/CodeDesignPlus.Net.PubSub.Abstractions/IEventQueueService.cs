@@ -2,21 +2,14 @@
 
 namespace CodeDesignPlus.Net.PubSub.Abstractions
 {
-    /// <summary>
-    /// Service that allows to manage a queue of events
-    /// </summary>
-    /// <typeparam name="TEventHandler">The event handler (Callback)</typeparam>
-    /// <typeparam name="TEvent">The domain event to manage</typeparam>
-    public interface IQueueService<TEventHandler, in TEvent>
-        where TEventHandler : IEventHandler<TEvent>
-        where TEvent : IDomainEvent
+    public interface IEventQueueService
     {
-     
         /// <summary>
         /// Add an object to the end of the concurrent queue.
         /// </summary>
+        /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
         /// <param name="event">The object to add to the concurrent queue. The value can be a null reference (Nothing in Visual Basic) for reference types.</param>
-        void Enqueue(TEvent @event);
+        Task EnqueueAsync(IDomainEvent @event, CancellationToken cancellationToken);
         /// <summary>
         /// Try to remove and return the object at the beginning of the concurrent queue.
         /// </summary>

@@ -1,4 +1,6 @@
 ﻿
+using System.Collections.Concurrent;
+
 namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
@@ -12,9 +14,14 @@ public abstract class AggregateRoot : IAggregateRoot
     public Guid Id { get; private set; }
 
     /// <summary>
+    /// Gets or sets the identifier of the user who created the record.
+    /// </summary>
+    public bool IsActive  { get; set; }
+
+    /// <summary>
     /// The list of events that have occurred in the aggregate root but have not yet been committed to the event store.
     /// </summary>
-    protected List<IDomainEvent> DomainEvents = [];
+    private readonly ConcurrentDictionary<Guid, IDomainEvent> domainEvents = [];
 
     /// <summary>
     /// Default constructor to rehydrate the aggregate root.
@@ -24,6 +31,7 @@ public abstract class AggregateRoot : IAggregateRoot
     /// <summary>
     /// Initializes a new instance of <see cref="AggregateRoot"/>.
     /// </summary>
+    /// <param name="id">The identifier of the aggregate root.</param>
     protected AggregateRoot(Guid id)
     {
         this.Id = id;
@@ -35,7 +43,7 @@ public abstract class AggregateRoot : IAggregateRoot
     /// <param name="event">The domain event to apply the changes.</param>
     public virtual void AddEvent(IDomainEvent @event)
     {
-        this.DomainEvents.Add(@event);
+        this.domainEvents.TryAdd(@event.EventId, @event);
     }
 
     /// <summary>
@@ -44,10 +52,10 @@ public abstract class AggregateRoot : IAggregateRoot
     /// <returns>The list of events that have occurred in the aggregate root.</returns>
     public virtual IReadOnlyList<IDomainEvent> GetAndClearEvents()
     {
-        var domainEvents = this.DomainEvents;
+        var domainEvents = this.domainEvents.Values.ToList();
 
-        this.DomainEvents = [];
+        this.domainEvents.Clear();
 
-        return domainEvents.AsReadOnly();
+        return domainEvents;
     }
 }

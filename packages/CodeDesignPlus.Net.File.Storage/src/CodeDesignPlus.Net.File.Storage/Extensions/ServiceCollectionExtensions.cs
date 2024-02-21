@@ -1,13 +1,12 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions;
-using CodeDesignPlus.Net.File.Storage.Exceptions;
+﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using CodeDesignPlus.Net.File.Storage.Exceptions;
+using CodeDesignPlus.Net.File.Storage.Factories;
+using CodeDesignPlus.Net.File.Storage.Providers;
 using CodeDesignPlus.Net.File.Storage.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-using CodeDesignPlus.Net.File.Storage.Providers;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
-using CodeDesignPlus.Net.File.Storage.Factories;
 
 namespace CodeDesignPlus.Net.File.Storage.Extensions;
 

@@ -11,7 +11,7 @@ namespace CodeDesignPlus.Net.PubSub.Without.Service.Test;
 public class PubSubExtensionsTest
 {
     /// <summary>
-    /// Valida que se genere la excepción cuando no se encuentra un servicio que implemente la interfaz <see cref="IPubSub"/>
+    /// Valida que se genere la excepción cuando no se encuentra un servicio que implemente la interfaz <see cref="IMessage"/>
     /// </summary>
     [Fact]
     public void AddPubSub_EventNotImplemented_EventNotImplementedException()

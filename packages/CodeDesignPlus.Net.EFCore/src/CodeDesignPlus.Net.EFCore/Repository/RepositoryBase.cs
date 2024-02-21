@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
-using CodeDesignPlus.Net.Core.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using Microsoft.EntityFrameworkCore;
 using System.Data;
+using System.Linq.Expressions;
 
 namespace CodeDesignPlus.Net.EFCore.Repository;
 

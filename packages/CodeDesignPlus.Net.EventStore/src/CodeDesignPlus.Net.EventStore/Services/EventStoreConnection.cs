@@ -1,5 +1,5 @@
-﻿using ES = EventStore.ClientAPI;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using ES = EventStore.ClientAPI;
 namespace CodeDesignPlus.Net.EventStore.Services;
 
 /// <summary>

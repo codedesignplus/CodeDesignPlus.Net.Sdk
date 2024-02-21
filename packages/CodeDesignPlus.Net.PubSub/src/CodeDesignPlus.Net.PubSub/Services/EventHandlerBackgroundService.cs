@@ -13,14 +13,14 @@ public class EventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundSe
     where TEvent : IDomainEvent
 {
     private readonly ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger;
-    private readonly IPubSub PubSub;
+    private readonly IMessage PubSub;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EventHandlerBackgroundService{TEventHandler, TEvent}"/> class.
     /// </summary>
     /// <param name="PubSub">Service for managing events.</param>
     /// <param name="logger">Service for logging.</param>
-    public EventHandlerBackgroundService(IPubSub PubSub, ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger)
+    public EventHandlerBackgroundService(IMessage PubSub, ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger)
     {
         this.PubSub = PubSub ?? throw new ArgumentNullException(nameof(PubSub));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));

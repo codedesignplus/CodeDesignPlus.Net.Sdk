@@ -1,8 +1,7 @@
-﻿using System.Text;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Serializers;
+﻿using CodeDesignPlus.Net.Serializers;
 using Confluent.Kafka;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace CodeDesignPlus.Net.Kafka.Serializer;
 
@@ -42,7 +41,7 @@ public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
     {
         if (isNull)
             return default;
-            
+
         return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(data), this.options);
     }
 }

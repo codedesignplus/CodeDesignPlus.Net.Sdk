@@ -1,6 +1,6 @@
-﻿using System.Collections.Concurrent;
-using CodeDesignPlus.Net.Core.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using System.Collections.Concurrent;
 
 namespace CodeDesignPlus.Net.PubSub.Services
 {
@@ -13,7 +13,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
         where TEventHandler : IEventHandler<TEvent>
         where TEvent : IDomainEvent
     {
-        private readonly ConcurrentQueue<TEvent> queueEvent = new();
+        private readonly ConcurrentQueue<TEvent> queue = new();
         private readonly TEventHandler eventHandler;
         private readonly ILogger<QueueService<TEventHandler, TEvent>> logger;
         private readonly PubSubOptions options;
@@ -25,27 +25,27 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <param name="logger">The service logger</param>
         public QueueService(TEventHandler eventHandler, ILogger<QueueService<TEventHandler, TEvent>> logger, IOptions<PubSubOptions> options)
         {
-            if(options == null)
+            if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
-            this.eventHandler = eventHandler ?? throw new ArgumentNullException(nameof(eventHandler));;
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));;
+            this.eventHandler = eventHandler ?? throw new ArgumentNullException(nameof(eventHandler)); ;
+            this.logger = logger ?? throw new ArgumentNullException(nameof(logger)); ;
             this.options = options.Value;
 
-        this.logger.LogInformation("QueueService initialized.");
+            this.logger.LogDebug("QueueService initialized.");
         }
 
         /// <summary>
         /// Gets the number of elements contained in the System.Collections.Concurrent.ConcurrentQueue`1.
         /// </summary>
         /// <returns>The number of elements contained in the System.Collections.Concurrent.ConcurrentQueue`1.</returns>
-        public int Count => this.queueEvent.Count;
+        public int Count => this.queue.Count;
 
         /// <summary>
         /// Determines whether a sequence contains any elements.
         /// </summary>
         /// <returns>true if the source sequence contains any elements; otherwise, false.</returns>
-        public bool Any() => !queueEvent.IsEmpty;
+        public bool Any() => !queue.IsEmpty;
 
         /// <summary>
         /// Agrega un objeto al final de la queue
@@ -60,12 +60,12 @@ namespace CodeDesignPlus.Net.PubSub.Services
                 throw new ArgumentNullException(nameof(@event));
             }
 
-            var exist = this.queueEvent.Any(x => x.Equals(@event));
+            var exist = this.queue.Any(x => x.Equals(@event));
 
             if (!exist)
             {
-                this.queueEvent.Enqueue(@event);
-                this.logger.LogInformation("Event of type {name} enqueued.", typeof(TEvent).Name);
+                this.queue.Enqueue(@event);
+                this.logger.LogDebug("Event of type {name} enqueued.", typeof(TEvent).Name);
             }
             else
             {
@@ -80,15 +80,15 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <returns>Return Task that represents an asynchronous operation.</returns>
         public async Task DequeueAsync(CancellationToken token)
         {
-            this.logger.LogInformation("DequeueAsync started.");
+            this.logger.LogDebug("DequeueAsync started.");
 
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-                    if (this.queueEvent.TryDequeue(out TEvent @event))
+                    if (this.queue.TryDequeue(out TEvent @event))
                     {
-                        this.logger.LogInformation("Dequeueing event of type {TEvent}.", typeof(TEvent).Name);
+                        this.logger.LogDebug("Dequeueing event of type {TEvent}.", typeof(TEvent).Name);
 
                         await this.eventHandler.HandleAsync(@event, token);
                     }
@@ -104,7 +104,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
                 }
             }
 
-            this.logger.LogInformation("DequeueAsync stopped due to cancellation token to type {TEvent}.", typeof(TEvent).Name);
+            this.logger.LogDebug("DequeueAsync stopped due to cancellation token to type {TEvent}.", typeof(TEvent).Name);
         }
     }
 }

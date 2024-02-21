@@ -125,7 +125,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         var redisPubSubService = new RedisPubSubService(factory, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
 
         // Act & Arc
-        Assert.ThrowsAsync<ArgumentNullException>(() => redisPubSubService.PublishAsync(null, CancellationToken.None));
+        Assert.ThrowsAsync<ArgumentNullException>(() => redisPubSubService.PublishAsync((IDomainEvent)null!, CancellationToken.None));
     }
 
     [Fact]
@@ -386,7 +386,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         var redisPubSubService = new RedisPubSubService(factory.Object, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
 
         // Act
-        await redisPubSubService.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>();
+        await redisPubSubService.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>(CancellationToken.None);
 
         // Assert
         Assert.Equal("user.create.event", channelUnsubscribe);

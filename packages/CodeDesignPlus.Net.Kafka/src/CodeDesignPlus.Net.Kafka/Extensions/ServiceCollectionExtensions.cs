@@ -1,11 +1,10 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.PubSub.Extensions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Kafka.Options;
 using CodeDesignPlus.Net.Kafka.Services;
+using CodeDesignPlus.Net.PubSub.Abstractions;
 using Confluent.Kafka;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Net.Kafka.Extensions;
 
@@ -38,17 +37,24 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IKafkaEventBus, KafkaEventBus>();
 
         var options = section.Get<KafkaOptions>();
 
-        services.AddSingleton(x => {
-            var producerBuilder = new ProducerBuilder<string, IDomainEvent>(options.ProducerConfig);
+        if (options.Enable)
+        {
+            services.AddSingleton<IMessage, KafkaEventBus>();
+            services.AddSingleton<IKafkaEventBus, KafkaEventBus>();
 
-            producerBuilder.SetValueSerializer(new Serializer.JsonSystemTextSerializer<IDomainEvent>());
+            services.AddSingleton(x =>
+            {
+                var producerBuilder = new ProducerBuilder<string, IDomainEvent>(options.ProducerConfig);
 
-            return producerBuilder.Build();
-        });
+                producerBuilder.SetValueSerializer(new Serializer.JsonSystemTextSerializer<IDomainEvent>());
+
+                return producerBuilder.Build();
+            });
+        }
+
 
         return services;
     }

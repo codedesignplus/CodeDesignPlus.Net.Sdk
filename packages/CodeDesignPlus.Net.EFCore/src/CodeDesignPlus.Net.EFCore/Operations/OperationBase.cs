@@ -24,8 +24,8 @@ public abstract class OperationBase<TEntity>(
     /// </summary>
     private readonly List<string> blacklist = [
          nameof(IEntityBase.Id),
-         nameof(IAuditTrail.CreatedAt),
-         nameof(IAuditTrail.IdUserCreator)
+        nameof(IAuditTrail.CreatedAt),
+        nameof(IAuditTrail.IdUserCreator)
      ];
 
     /// <summary>

@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace CodeDesignPlus.Net.File.Storage.Exceptions;
+﻿namespace CodeDesignPlus.Net.File.Storage.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.File.Storage. 

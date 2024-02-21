@@ -31,7 +31,6 @@ public abstract class AggregateRoot : Core.Abstractions.AggregateRoot, IAggregat
     /// <summary>
     /// Initializes a new instance of the <see cref="AggregateRoot"/> class.
     /// </summary>
-    /// <param name="id">The identifier of the aggregate root.</param>
     protected AggregateRoot(Guid id) : base(id) { }
 
     /// <summary>
@@ -46,7 +45,7 @@ public abstract class AggregateRoot : Core.Abstractions.AggregateRoot, IAggregat
         @event.Metadata.Add("EventId", @event.EventId);
         @event.Metadata.Add("EventType", @event.EventType);
 
-        this.DomainEvents.Add(@event);
+        base.AddEvent(@event);
 
         ApplyEvent(@event);
     }

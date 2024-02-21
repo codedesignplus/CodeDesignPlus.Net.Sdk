@@ -6,7 +6,7 @@ namespace CodeDesignPlus.Net.Redis.Services;
 /// <summary>
 /// Factory for creating and initializing instances of <see cref="IRedisService"/> based on provided configuration.
 /// </summary>
-public class RedisServiceFactory: IRedisServiceFactory
+public class RedisServiceFactory : IRedisServiceFactory
 {
     /// <summary>
     /// Provides an instance of a registered service.
@@ -41,7 +41,7 @@ public class RedisServiceFactory: IRedisServiceFactory
         if (string.IsNullOrEmpty(name))
             throw new ArgumentNullException(nameof(name));
 
-        if(!this.options.Instances.ContainsKey(name))
+        if (!this.options.Instances.ContainsKey(name))
             throw new Exceptions.RedisException($"The redis instance with the name {name} has not been registered");
 
         var service = this.serviceProvider.GetRequiredService<IRedisService>();

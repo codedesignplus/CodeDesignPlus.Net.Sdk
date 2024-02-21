@@ -1,7 +1,7 @@
 ﻿
 namespace CodeDesignPlus.Net.Core.Test;
 
-public class OrderAggregate(Guid id, string name, string description, decimal price, DateTime createdAt, DateTime? updatedAt = null)
+public class OrderAggregate(Guid id, string name, string description, decimal price, DateTime createdAt,  DateTime? updatedAt = null)
     : AggregateRoot(id)
 {
     public string Name { get; private set; } = name;
@@ -10,11 +10,11 @@ public class OrderAggregate(Guid id, string name, string description, decimal pr
     public DateTime CreatedAt { get; private set; } = createdAt;
     public DateTime? UpdatedAt { get; private set; } = updatedAt;
 
-    public static OrderAggregate Create(Guid id, string name, string description, decimal price, DateTime createdAt, DateTime? updatedAt = null)
+    public static OrderAggregate Create(Guid id, string name, string description, decimal price)
     {
-        var aggregate = new OrderAggregate(id, name, description, price, createdAt, updatedAt);
+        var aggregate = new OrderAggregate(id, name, description, price, DateTime.UtcNow, null);
 
-        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price, createdAt, updatedAt, metadata: new Dictionary<string, object>
+        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price, DateTime.UtcNow, null, metadata: new Dictionary<string, object>
         {
             { "MetaKey1", "Value1" }
         }));

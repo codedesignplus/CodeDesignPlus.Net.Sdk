@@ -1,12 +1,12 @@
-﻿using CodeDesignPlus.Net.Security.Exceptions;
-using CodeDesignPlus.Net.Security.Abstractions.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
+using CodeDesignPlus.Net.Security.Exceptions;
+using CodeDesignPlus.Net.Security.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Builder;
-using CodeDesignPlus.Net.Security.Services;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 
 namespace CodeDesignPlus.Net.Security.Extensions;
 

@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Redis.PubSub.Exceptions;
+﻿using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.Redis.PubSub.Exceptions;
 using CodeDesignPlus.Net.Redis.PubSub.Options;
 using CodeDesignPlus.Net.Redis.PubSub.Services;
 using Microsoft.Extensions.Configuration;
@@ -35,7 +36,13 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IRedisPubSubService, RedisPubSubService>();
+        var options = section.Get<RedisPubSubOptions>();
+
+        if (options.Enable)
+        {
+            services.AddSingleton<IMessage, RedisPubSubService>();
+            services.AddSingleton<IRedisPubSubService, RedisPubSubService>();
+        }
 
         return services;
     }

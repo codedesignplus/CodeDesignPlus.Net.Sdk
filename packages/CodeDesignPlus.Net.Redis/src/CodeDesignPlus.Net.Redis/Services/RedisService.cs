@@ -1,7 +1,6 @@
 ﻿using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
-using CodeDesignPlus.Net.Redis.Options;
 
 namespace CodeDesignPlus.Net.Redis.Services;
 

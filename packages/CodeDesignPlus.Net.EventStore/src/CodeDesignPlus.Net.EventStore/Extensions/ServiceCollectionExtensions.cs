@@ -1,10 +1,8 @@
-﻿using CodeDesignPlus.Net.EventStore.Exceptions;
-using CodeDesignPlus.Net.EventStore.Abstractions.Options;
+﻿using CodeDesignPlus.Net.EventStore.Abstractions.Options;
+using CodeDesignPlus.Net.EventStore.Exceptions;
 using CodeDesignPlus.Net.EventStore.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.EventStore.Extensions;
 

@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.PubSub.Exceptions;
 
 namespace CodeDesignPlus.Net.PubSub.Extensions;
 
@@ -93,22 +94,5 @@ public static class PubSubExtensions
         return interfaceEventHandlerGeneric
             .GetGenericArguments()
             .FirstOrDefault(x => x.IsClass && !x.IsAbstract && typeof(IDomainEvent).IsAssignableFrom(x));
-    }
-
-    /// <summary>
-    /// Retrieves the type of the class that implements the <see cref="IPubSub"/> interface from the current AppDomain.
-    /// It excludes abstract classes and interfaces.
-    /// </summary>
-    /// <returns>
-    /// The type of the class implementing the <see cref="IPubSub"/> interface. If no such class is found, returns null.
-    /// </returns>
-    public static Type GetPubSub()
-    {
-        var type = AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .SelectMany(x => x.GetTypes())
-                    .FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && !x.IsInterface);
-
-        return type;
     }
 }

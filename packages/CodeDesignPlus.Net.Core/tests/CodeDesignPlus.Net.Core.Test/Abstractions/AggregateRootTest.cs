@@ -10,7 +10,7 @@ public class AggregateRootTest
         var createAt = DateTime.UtcNow;
         var updatedAt = DateTime.UtcNow;
         var deleteAt = DateTime.UtcNow;
-        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, createAt);
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10);
 
         // Act
         orderAggregate.Update("Test 2", "Test Description 2", 20, updatedAt);
@@ -20,7 +20,7 @@ public class AggregateRootTest
         Assert.Equal("Test 2", orderAggregate.Name);
         Assert.Equal("Test Description 2", orderAggregate.Description);
         Assert.Equal(20, orderAggregate.Price);
-        Assert.Equal(createAt, orderAggregate.CreatedAt);
+        Assert.True(DateTime.UtcNow > orderAggregate.CreatedAt);
         Assert.Equal(updatedAt, orderAggregate.UpdatedAt);
 
         orderAggregate.Delete(deleteAt);
@@ -38,8 +38,7 @@ public class AggregateRootTest
     {
         // Arrange
         var id = Guid.NewGuid();
-        var createAt = DateTime.UtcNow;
-        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, createAt);
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10);
 
         // Act
         var domainEvent = (OrderCreatedDomainEvent)orderAggregate.GetAndClearEvents().FirstOrDefault()!;

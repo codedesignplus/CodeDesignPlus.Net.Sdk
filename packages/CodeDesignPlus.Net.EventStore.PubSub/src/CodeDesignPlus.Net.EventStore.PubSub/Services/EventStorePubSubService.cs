@@ -1,18 +1,18 @@
-﻿using System.Text;
-using CodeDesignPlus.Net.PubSub.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.EventStore.Abstractions;
+using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
+using CodeDesignPlus.Net.EventStore.Serializer;
+using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using EventStore.ClientAPI;
+using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
-using EventStore.ClientAPI.SystemData;
-using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.EventStore.Serializer;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using System.Text;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
 
-public class EventStorePubSubService : IEventStorePubSubService, IPubSub
+public class EventStorePubSubService : IEventStorePubSubService
 {
     private readonly JsonSerializerSettings jsonSettings = new()
     {
@@ -123,7 +123,7 @@ public class EventStorePubSubService : IEventStorePubSubService, IPubSub
     {
         var domainEvent = JsonConvert.DeserializeObject<TEvent>(Encoding.UTF8.GetString(@event.Event.Data), this.jsonSettings);
 
-        if (this.pubSubOptions.EnableQueue)
+        if (this.pubSubOptions.UseQueue)
         {
             var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
 
@@ -142,11 +142,26 @@ public class EventStorePubSubService : IEventStorePubSubService, IPubSub
     /// </summary>
     /// <typeparam name="TEvent">The type of the event to unsubscribe from.</typeparam>
     /// <typeparam name="TEventHandler">The type of the event handler that was handling the event.</typeparam>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task UnsubscribeAsync<TEvent, TEventHandler>()
+    public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
         return Task.CompletedTask;
+    }
+
+
+    /// <summary>
+    /// Publish a list of domain events
+    /// </summary>
+    /// <param name="event">Domains event to publish</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <returns>Return a <see cref="Task"/></returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    {
+        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+
+        return Task.WhenAll(tasks);
     }
 }

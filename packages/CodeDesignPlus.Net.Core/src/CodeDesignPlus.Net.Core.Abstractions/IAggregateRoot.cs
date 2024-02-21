@@ -3,12 +3,8 @@
 /// <summary>
 /// Represents the contract to be implemented by the aggregate root.
 /// </summary>
-public interface IAggregateRoot
+public interface IAggregateRoot: IEntityBase
 {
-    /// <summary>
-    /// The identifier of the aggregate root.
-    /// </summary>
-    Guid Id { get; }
     /// <summary>
     /// The date and time when the aggregate root was created.
     /// </summary>

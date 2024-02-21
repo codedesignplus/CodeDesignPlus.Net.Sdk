@@ -1,7 +1,7 @@
-﻿using CodeDesignPlus.Net.EventStore.PubSub.Abstractions;
+﻿using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.PubSub.Exceptions;
-using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.PubSub.Services;
+using CodeDesignPlus.Net.PubSub.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,7 +36,13 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IEventStorePubSubService, EventStorePubSubService>();
+        var options = section.Get<EventStorePubSubOptions>();
+
+        if (options.Enabled)
+        {
+            services.AddSingleton<IMessage, EventStorePubSubService>();
+            services.AddSingleton<IEventStorePubSubService, EventStorePubSubService>();
+        }
 
         return services;
     }

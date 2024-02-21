@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using StackExchange.Redis;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 
@@ -32,6 +33,7 @@ public class OrderCompletedEvent(
     ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
     public DateTime CompletionDate { get; } = completionDate;
+    public OrderStatus OrderStatus { get; } = OrderStatus.Completed;
 }
 
 [Key("order.cancelled")]
