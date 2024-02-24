@@ -20,6 +20,7 @@ public class RedisPubSubService : IRedisPubSubService
     private readonly IDomainEventResolverService domainEventResolverService;
     private readonly IServiceProvider serviceProvider;
     private readonly PubSubOptions pubSubOptions;
+    private readonly RedisPubSubOptions options;
 
     private readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
     {
@@ -53,7 +54,8 @@ public class RedisPubSubService : IRedisPubSubService
         if (domainEventResolverService == null)
             throw new ArgumentNullException(nameof(domainEventResolverService));
 
-        this.redisService = redisServiceFactory.Create(options.Value.Name);
+        this.options = options.Value;
+        this.redisService = redisServiceFactory.Create(this.options.Name);
 
         this.domainEventResolverService = domainEventResolverService;
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
@@ -62,6 +64,11 @@ public class RedisPubSubService : IRedisPubSubService
 
         this.logger.LogInformation("RedisPubSubService initialized.");
     }
+
+    /// <summary>
+    /// Gets a value indicating whether the service is listening for events.
+    /// </summary>
+    public bool ListenerEvents => this.options.ListenerEvents;
 
     /// <summary>
     /// Posts a message to the given channel.

@@ -24,7 +24,7 @@ public class EventStorePubSubService : IEventStorePubSubService
     private readonly IServiceProvider serviceProvider;
     private readonly ILogger<EventStorePubSubService> logger;
     private readonly EventStorePubSubOptions options;
-    private readonly PersistentSubscriptionSettingsBuilder settings;
+    private readonly PersistentSubscriptionSettings settings;
 
     private readonly IDomainEventResolverService domainEventResolverService;
     private readonly PubSubOptions pubSubOptions;
@@ -54,6 +54,10 @@ public class EventStorePubSubService : IEventStorePubSubService
         this.logger.LogInformation("EventStorePubSubService initialized.");
     }
 
+    /// <summary>
+    /// Gets a value indicating whether the service is listening for events.
+    /// </summary>
+    public bool ListenerEvents => this.options.ListenerEvents;
 
     public async Task PublishAsync(IDomainEvent @event, CancellationToken token)
     {
@@ -94,19 +98,28 @@ public class EventStorePubSubService : IEventStorePubSubService
 
         var userCredentials = new UserCredentials(user, pass);
 
-        await connection.CreatePersistentSubscriptionAsync(
-            stream,
-            options.Group,
-            this.settings,
-            userCredentials
-        );
+        try
+        {
+
+            await connection.CreatePersistentSubscriptionAsync(
+                stream,
+                options.Group,
+                this.settings,
+                userCredentials
+            );
+        }
+        catch (Exception e)
+        {
+            this.logger.LogWarning("{message}", e.Message);
+        }
+
 
         var subscription = await connection.ConnectToPersistentSubscriptionAsync(
-            stream,
-            options.Group,
-            (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, token),
-            (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
-        );
+                stream,
+                options.Group,
+                (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, token),
+                (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
+            );
     }
 
     /// <summary>

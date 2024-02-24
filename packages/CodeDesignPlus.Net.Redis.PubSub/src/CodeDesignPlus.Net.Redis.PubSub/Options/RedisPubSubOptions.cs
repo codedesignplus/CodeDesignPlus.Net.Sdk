@@ -21,4 +21,9 @@ public class RedisPubSubOptions
     /// </summary>
     [Required]
     public string Name { get; set; }
+
+    /// <summary>
+    /// True if the service is listening for events
+    /// </summary>
+    public bool ListenerEvents { get; set; }
 }

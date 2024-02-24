@@ -5,7 +5,7 @@ using System.Collections.Concurrent;
 namespace CodeDesignPlus.Net.PubSub.Services
 {
     /// <summary>
-    /// Implementación por defecto para el servicio <see cref="IQueueService{TEventHandler, TEvent}"/>
+    /// This service is responsible for managing the queue of events to be processed by the event handler
     /// </summary>
     /// <typeparam name="TEventHandler">Manejador de eventos</typeparam>
     /// <typeparam name="TEvent">Evento de Integración</typeparam>
@@ -19,10 +19,12 @@ namespace CodeDesignPlus.Net.PubSub.Services
         private readonly PubSubOptions options;
 
         /// <summary>
-        /// Crea una nueva instancia de <see cref="QueueService{TEvent}"/>
+        /// Initializes a new instance of the <see cref="QueueService{TEventHandler, TEvent}"/> class.
         /// </summary>
-        /// <param name="eventHandler">Event Handler</param>
-        /// <param name="logger">The service logger</param>
+        /// <param name="eventHandler">The event handler to process the events in the queue.</param>
+        /// <param name="logger">The logger service.</param>
+        /// <param name="options">The event bus options.</param>
+        /// <exception cref="ArgumentNullException"></exception>
         public QueueService(TEventHandler eventHandler, ILogger<QueueService<TEventHandler, TEvent>> logger, IOptions<PubSubOptions> options)
         {
             if (options == null)
@@ -48,10 +50,10 @@ namespace CodeDesignPlus.Net.PubSub.Services
         public bool Any() => !queue.IsEmpty;
 
         /// <summary>
-        /// Agrega un objeto al final de la queue
+        /// Enqueues the specified event.
         /// </summary>
-        /// <param name="event">El objeto a agregar al final de la Queu</param>
-        /// <exception cref="ArgumentNullException">Se genera cuando <paramref name="event"/> es nulo</exception>
+        /// <param name="event">The event to be enqueued.</param>
+        /// <exception cref="ArgumentNullException">throw if the event is null.</exception>
         public void Enqueue(TEvent @event)
         {
             if (@event == null)
@@ -74,10 +76,10 @@ namespace CodeDesignPlus.Net.PubSub.Services
         }
 
         /// <summary>
-        /// Tries to remove and return the object at the beginning of the concurrent queue.
+        /// Dequeues the event from the queue and processes it with the event handler.
         /// </summary>
-        /// <param name="token">Cancellation Token</param>
-        /// <returns>Return Task that represents an asynchronous operation.</returns>
+        /// <param name="token">The cancellation token.</param>
+        /// <returns>Returns a <see cref="Task"/> representing the asynchronous operation.</returns>
         public async Task DequeueAsync(CancellationToken token)
         {
             this.logger.LogDebug("DequeueAsync started.");

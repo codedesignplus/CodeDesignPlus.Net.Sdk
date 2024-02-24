@@ -13,16 +13,22 @@ public class EventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundSe
     where TEvent : IDomainEvent
 {
     private readonly ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger;
-    private readonly IMessage PubSub;
+    private readonly IMessage message;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EventHandlerBackgroundService{TEventHandler, TEvent}"/> class.
     /// </summary>
-    /// <param name="PubSub">Service for managing events.</param>
+    /// <param name="messages">Service for managing events.</param>
     /// <param name="logger">Service for logging.</param>
-    public EventHandlerBackgroundService(IMessage PubSub, ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger)
+    public EventHandlerBackgroundService(IEnumerable<IMessage> messages, ILogger<EventHandlerBackgroundService<TEventHandler, TEvent>> logger)
     {
-        this.PubSub = PubSub ?? throw new ArgumentNullException(nameof(PubSub));
+        if(!messages.Any())
+            throw new ArgumentException("There is no service available to process events. Please enable an event listener in your service.");
+
+        if (messages.Where(x => x.ListenerEvents).Count() > 1)
+            throw new ArgumentException("There are multiple services available to process events. Please disable one of the event listeners in your service.");
+
+        this.message = messages.FirstOrDefault(x => x.ListenerEvents);
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
         this.logger.LogInformation("EventHandlerBackgroundService for EventHandler: {TEventHandler} and Event: {TEvent} has been initialized.", typeof(TEventHandler).Name, typeof(TEvent).Name);
@@ -37,7 +43,7 @@ public class EventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundSe
     {
         this.logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
 
-        Task.Run(() => this.PubSub.SubscribeAsync<TEvent, TEventHandler>(stoppingToken), stoppingToken);
+        Task.Run(() => this.message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken), stoppingToken);
 
         return Task.CompletedTask;
     }

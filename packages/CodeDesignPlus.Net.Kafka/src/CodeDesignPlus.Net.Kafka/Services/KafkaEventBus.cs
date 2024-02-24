@@ -44,6 +44,11 @@ public class KafkaEventBus : IKafkaEventBus
     }
 
     /// <summary>
+    /// Gets a value indicating whether the service is listening for events.
+    /// </summary>
+    public bool ListenerEvents => this.options.ListenerEvents;
+
+    /// <summary>
     /// Publishes an event to Kafka.
     /// </summary>
     /// <param name="event">The event to be published.</param>
