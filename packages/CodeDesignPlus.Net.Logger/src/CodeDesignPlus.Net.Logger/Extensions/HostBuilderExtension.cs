@@ -6,7 +6,7 @@ using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 
-namespace CodeDesignPlus.Net.Logger;
+namespace CodeDesignPlus.Net.Logger.Extensions;
 
 /// <summary>
 /// The <see cref="IHostBuilder"/> extensions for Serilog
