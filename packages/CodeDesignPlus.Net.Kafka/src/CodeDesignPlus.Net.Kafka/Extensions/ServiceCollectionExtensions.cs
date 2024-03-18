@@ -3,6 +3,7 @@ using CodeDesignPlus.Net.Kafka.Options;
 using CodeDesignPlus.Net.Kafka.Services;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using Confluent.Kafka;
+using Confluent.Kafka.Extensions.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -51,7 +52,7 @@ public static class ServiceCollectionExtensions
 
                 producerBuilder.SetValueSerializer(new Serializer.JsonSystemTextSerializer<IDomainEvent>());
 
-                return producerBuilder.Build();
+                return producerBuilder.BuildWithInstrumentation();
             });
         }
 

@@ -1,5 +1,6 @@
 ﻿using CodeDesignPlus.Net.Redis.Options;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace CodeDesignPlus.Net.Redis.Services;
 
@@ -17,6 +18,11 @@ public class RedisServiceFactory : IRedisServiceFactory
     /// Configuration options for Redis.
     /// </summary>
     private readonly RedisOptions options;
+
+    /// <summary>
+    /// Instances of <see cref="IRedisService"/> that have been created and initialized.
+    /// </summary>
+    private ConcurrentDictionary<string, IRedisService> instances = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RedisServiceFactory"/> class.
@@ -44,10 +50,16 @@ public class RedisServiceFactory : IRedisServiceFactory
         if (!this.options.Instances.ContainsKey(name))
             throw new Exceptions.RedisException($"The redis instance with the name {name} has not been registered");
 
-        var service = this.serviceProvider.GetRequiredService<IRedisService>();
+        if (this.instances.TryGetValue(name, out var service))
+            return service;
+
+        service = this.serviceProvider.GetRequiredService<IRedisService>();
 
         service.Initialize(options.Instances[name]);
 
-        return service;
+        if (this.instances.TryAdd(name, service))
+            return service;
+
+        throw new Exceptions.RedisException($"The redis instance with the name {name} has not been initilized");
     }
 }

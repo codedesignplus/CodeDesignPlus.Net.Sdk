@@ -1,25 +1,31 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 
 namespace CodeDesignPlus.Net.PubSub.Services
 {
-    public class EventQueueService: IEventQueueService
+    public class EventQueueService : IEventQueueService
     {
         private readonly ConcurrentQueue<IDomainEvent> queue = new();
         private readonly ILogger<EventQueueService> logger;
         private readonly IEnumerable<IMessage> messages;
         private readonly PubSubOptions options;
+        private readonly IActivityService activityService;
 
-        public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IEnumerable<IMessage> messages)
+        public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IEnumerable<IMessage> messages, IActivityService activityService)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
 
+            ArgumentNullException.ThrowIfNull(activityService, nameof(activityService));
+
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
             this.messages = messages;
-            
+
             this.options = options.Value;
+
+            this.activityService = activityService;
 
             this.logger.LogDebug("EventQueueService initialized.");
         }
@@ -36,8 +42,20 @@ namespace CodeDesignPlus.Net.PubSub.Services
 
             if (!exist)
             {
+                var activity = this.activityService.StartActivity("EventQueueService.EnqueueAsync", ActivityKind.Internal);
+
+                this.activityService.Inject(activity, @event);
+
+                activity?.AddTag("event.type", @event.GetType().Name);
+                activity?.AddTag("event.id", @event.EventId.ToString());
+                activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
+
                 this.queue.Enqueue(@event);
+
                 this.logger.LogDebug("Event of type {name} enqueued.", @event.GetType().Name);
+
+                activity.SetStatus(ActivityStatusCode.Ok);
+                activity.Stop();
             }
             else
             {
@@ -55,13 +73,28 @@ namespace CodeDesignPlus.Net.PubSub.Services
             {
                 try
                 {
+
+
                     if (this.queue.TryDequeue(out IDomainEvent @event))
                     {
                         this.logger.LogDebug("Dequeueing event of type {TEvent}.", @event.GetType().Name);
 
+                        var parentContext = this.activityService.Extract(@event);
+
+                        var activity = this.activityService.StartActivity("EventQueueService.DequeueAsync", ActivityKind.Internal, parentContext);
+
+                        activity?.AddTag("event.type", @event.GetType().Name);
+                        activity?.AddTag("event.id", @event.EventId.ToString());
+                        activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
+
+
                         var tasks = this.messages.Select(x => x.PublishAsync(@event, token));
 
                         await Task.WhenAll(tasks);
+
+                        activity.SetStatus(ActivityStatusCode.Ok);
+
+                        activity.Stop();
                     }
                     else
                     {

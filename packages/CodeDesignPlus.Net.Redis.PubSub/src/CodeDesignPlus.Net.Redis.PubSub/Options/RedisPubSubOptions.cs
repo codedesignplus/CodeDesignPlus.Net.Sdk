@@ -16,11 +16,6 @@ public class RedisPubSubOptions
     /// Get or sets the Enable
     /// </summary>
     public bool Enable { get; set; }
-    /// <summary>
-    /// Gets or sets the name the instance of the Redis to publish and subcribe events
-    /// </summary>
-    [Required]
-    public string Name { get; set; }
 
     /// <summary>
     /// True if the service is listening for events

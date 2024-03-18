@@ -34,6 +34,7 @@ public abstract class DomainEvent(
     /// The metadata of the event.
     /// </summary>    
     public Dictionary<string, object> Metadata { get; internal set; } = metadata ?? [];
+
     /// <summary>
     /// Gets the type of the event.
     /// </summary>

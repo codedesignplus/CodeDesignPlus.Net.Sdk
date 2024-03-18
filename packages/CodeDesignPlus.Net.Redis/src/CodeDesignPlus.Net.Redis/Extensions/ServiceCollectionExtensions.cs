@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Redis.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Redis.Options;
 using CodeDesignPlus.Net.Redis.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,18 +25,31 @@ public static class ServiceCollectionExtensions
         if (configuration == null)
             throw new ArgumentNullException(nameof(configuration));
 
-        var section = configuration.GetSection(RedisOptions.Section);
+        var redisSection = configuration.GetSection(RedisOptions.Section);
+        var coreSection = configuration.GetSection(CoreOptions.Section);
 
-        if (!section.Exists())
+        if (!redisSection.Exists())
             throw new Exceptions.RedisException($"The section {RedisOptions.Section} is required.");
+
+        if (!coreSection.Exists())
+            throw new Exceptions.RedisException($"The section {CoreOptions.Section} is required.");
+
+        var options = coreSection.Get<CoreOptions>();
 
         services
             .AddOptions<RedisOptions>()
-            .Bind(section)
+            .Bind(redisSection)
             .ValidateDataAnnotations();
 
         services.AddSingleton<IRedisService, RedisService>();
         services.AddSingleton<IRedisServiceFactory, RedisServiceFactory>();
+
+        services.AddSingleton<IConnectionMultiplexer>((serviceProvider) =>
+        {
+            var connection = serviceProvider.GetService<IRedisServiceFactory>().Create(FactoryConst.RedisCore).Connection;
+
+            return connection;
+        });
 
         return services;
     }

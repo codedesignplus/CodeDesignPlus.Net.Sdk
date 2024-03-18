@@ -1,0 +1,15 @@
+﻿global using System.Text;
+global using System.Text.Json;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Options;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Services;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Test.Helpers;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Test.Helpers.Models;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.Configuration.Json;
+global using Microsoft.Extensions.Configuration.Memory;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using Xunit;

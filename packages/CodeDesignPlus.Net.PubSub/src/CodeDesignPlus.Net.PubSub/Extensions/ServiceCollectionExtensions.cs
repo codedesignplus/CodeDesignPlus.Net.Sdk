@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using CodeDesignPlus.Net.PubSub.Diagnostics;
 using CodeDesignPlus.Net.PubSub.Exceptions;
 using CodeDesignPlus.Net.PubSub.Services;
 using Microsoft.Extensions.Configuration;
@@ -40,6 +41,7 @@ public static class ServiceCollectionExtensions
         var options = section.Get<PubSubOptions>();
 
         services.AddSingleton<IPubSub, Services.PubSub>();
+        services.AddSingleton<IActivityService, ActivitySourceService>();
 
         services.AddEventsHandlers(options);
 

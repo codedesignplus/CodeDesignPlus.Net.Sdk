@@ -1,9 +1,10 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Mongo.Abstractions.Options;
+using CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
+using CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
-using System.Reflection;
 
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
@@ -38,11 +39,26 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IMongoClient>(x => new MongoClient(options.ConnectionString));
+        services.AddMongoDiagnostics(configuration);
+
+        services.AddSingleton<IMongoClient>((serviceProvider) =>
+        {
+            var mongoUrl = MongoUrl.Create(options.ConnectionString);
+
+            var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
+
+            clientSettings.ClusterConfigurator = builder =>
+            {
+                builder.SubscribeDiagnosticsActivityEventSubscriber(serviceProvider);
+            };
+
+            var mongoClient = new MongoClient(clientSettings);
+
+            return mongoClient;
+        });
 
         return services;
     }
-
 
     /// <summary>
     /// Add all repositories that implement the <see cref="IRepositoryBase{TKey, TUserKey}"/> interface

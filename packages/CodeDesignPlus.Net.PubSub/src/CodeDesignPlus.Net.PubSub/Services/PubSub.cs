@@ -1,5 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,19 +13,23 @@ namespace CodeDesignPlus.Net.PubSub.Services
     {
         private readonly IEnumerable<IMessage> messages;
         private readonly IOptions<PubSubOptions> options;
-        private readonly IEventQueueService eventQueueService;
+        private readonly IServiceProvider serviceProvider;
 
-        public PubSub(IEnumerable<IMessage> meessages, IOptions<PubSubOptions> options, IEventQueueService eventQueueService)
+        public PubSub(IEnumerable<IMessage> meessages, IOptions<PubSubOptions> options, IServiceProvider serviceProvider)
         {
             this.messages = meessages;
             this.options = options;
-            this.eventQueueService = eventQueueService;
+            this.serviceProvider = serviceProvider;
         }
 
         public Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
         {
             if (this.options.Value.UseQueue)
-                return this.eventQueueService.EnqueueAsync(@event, cancellationToken);
+            {
+                var eventQueueService = this.serviceProvider.GetRequiredService<IEventQueueService>();
+
+                return eventQueueService.EnqueueAsync(@event, cancellationToken);
+            }
 
             var tasks = this.messages.Select(x => x.PublishAsync(@event, cancellationToken));
 

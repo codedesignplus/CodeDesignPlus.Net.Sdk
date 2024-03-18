@@ -33,13 +33,13 @@ public class RedisPubSubService : IRedisPubSubService
     /// <param name="redisServiceFactory">Service that management connection with Redis Server</param>
     /// <param name="serviceProvider">Service provider</param>
     /// <param name="logger">Service logger</param>
-    /// <param name="PubSubOptions">The event bus options</param>
+    /// <param name="pubSubOptions">The event bus options</param>
     public RedisPubSubService(
         IRedisServiceFactory redisServiceFactory,
         IServiceProvider serviceProvider,
         ILogger<RedisPubSubService> logger,
         IOptions<RedisPubSubOptions> options,
-        IOptions<PubSubOptions> PubSubOptions,
+        IOptions<PubSubOptions> pubSubOptions,
         IDomainEventResolverService domainEventResolverService)
     {
         if (redisServiceFactory == null)
@@ -48,19 +48,19 @@ public class RedisPubSubService : IRedisPubSubService
         if (options == null)
             throw new ArgumentNullException(nameof(options));
 
-        if (PubSubOptions == null)
-            throw new ArgumentNullException(nameof(PubSubOptions));
+        if (pubSubOptions == null)
+            throw new ArgumentNullException(nameof(pubSubOptions));
 
         if (domainEventResolverService == null)
             throw new ArgumentNullException(nameof(domainEventResolverService));
 
         this.options = options.Value;
-        this.redisService = redisServiceFactory.Create(this.options.Name);
+        this.redisService = redisServiceFactory.Create(FactoryConst.RedisPubSub);
 
         this.domainEventResolverService = domainEventResolverService;
         this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.pubSubOptions = PubSubOptions.Value;
+        this.pubSubOptions = pubSubOptions.Value;
 
         this.logger.LogInformation("RedisPubSubService initialized.");
     }
