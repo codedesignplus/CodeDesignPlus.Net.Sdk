@@ -1,5 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Logger.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,7 +8,6 @@ using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 using Serilog.Sinks.OpenTelemetry;
-using System;
 
 namespace CodeDesignPlus.Net.Logger.Extensions;
 
@@ -77,11 +75,11 @@ public static class HostBuilderExtension
                 .Enrich.WithProperty("AppName", coreOptions.Value.AppName)
                 .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
                     .WithDefaultDestructurers()
-                    .WithDestructurers(new[] { new DbUpdateExceptionDestructurer() })
+                    .WithDestructurers([new DbUpdateExceptionDestructurer()])
                 )
                 .Enrich.With(new ExceptionEnricher());
 
-            if (loggerOptions.Value.OTelEndpoint == null)
+            if (!string.IsNullOrEmpty(loggerOptions.Value.OTelEndpoint))
             {
                 configuration.WriteTo.OpenTelemetry(options => {
                     options.Endpoint = loggerOptions.Value.OTelEndpoint;
@@ -95,7 +93,7 @@ public static class HostBuilderExtension
 
 
                     options.BatchingOptions.BatchSizeLimit = 10;
-                    options.BatchingOptions.Period = TimeSpan.FromSeconds(1);
+                    //options.BatchingOptions.Period = TimeSpan.FromSeconds(1);
                     options.BatchingOptions.QueueLimit = 10;
 
                     options.ResourceAttributes = new Dictionary<string, object>

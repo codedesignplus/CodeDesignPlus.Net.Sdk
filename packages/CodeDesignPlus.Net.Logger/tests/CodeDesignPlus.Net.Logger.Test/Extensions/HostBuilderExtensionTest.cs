@@ -1,6 +1,6 @@
 ﻿
 using Microsoft.Extensions.Hosting;
-using Serilog;
+using CodeDesignPlus.Net.Logger.Extensions;
 using Serilog.Events;
 using Serilog.Sinks.InMemory;
 
@@ -28,9 +28,12 @@ public class HostBuilderExtensionTest
             .UseSerilog(configuration =>
             {
                 configuration.WriteTo.InMemory(
-               outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
-               restrictedToMinimumLevel: LogEventLevel.Verbose);
+                   outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+                   restrictedToMinimumLevel: LogEventLevel.Verbose
+               );
             });
+
+
 
         // Act
         var host = hostBuilder.Build();

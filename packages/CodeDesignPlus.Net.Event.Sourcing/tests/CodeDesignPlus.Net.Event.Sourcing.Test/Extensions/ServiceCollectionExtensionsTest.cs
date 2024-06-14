@@ -49,27 +49,6 @@ public class ServiceCollectionExtensionsTest
     }
 
     [Fact]
-    public void AddEventSourcing_CheckServices_Success()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
-            EventSourcing = OptionsUtil.Options
-        });
-
-        var serviceCollection = new ServiceCollection();
-
-        // Act
-        serviceCollection.AddEventSourcing(configuration);
-
-        // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventSourcingService));
-
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(EventSourcingServiceFake), libraryService.ImplementationType);
-    }
-
-    [Fact]
     public void AddEventSourcing_SameOptions_Success()
     {
         // Arrange

@@ -51,7 +51,7 @@ public class ServiceCollectionExtensionsTest
     public void AddEventStorePubSub_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { EventStorePubSub = OptionsUtil.EventStoreOptions });
+        var configuration = ConfigurationUtil.GetConfiguration(new { EventStore = OptionsUtil.EventStoreOptions, EventStorePubSub = OptionsUtil.Options });
 
         var serviceCollection = new ServiceCollection();
 

@@ -1,6 +1,6 @@
-<mxfile host="Electron" modified="2024-02-09T18:30:09.619Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/23.0.2 Chrome/120.0.6099.109 Electron/28.1.0 Safari/537.36" etag="EPPd2WeBIXZ1otF5hTcp" version="23.0.2" type="device" pages="2">
+<mxfile host="Electron" modified="2024-06-14T03:02:20.909Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/24.5.1 Chrome/124.0.6367.207 Electron/30.0.6 Safari/537.36" etag="1Ezbze4mYyr91HQzzUCJ" version="24.5.1" type="device" pages="2">
   <diagram id="ALPiPwQ1Wrh_tRAnz7oF" name="Page-1">
-    <mxGraphModel dx="2268" dy="820" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
+    <mxGraphModel dx="2284" dy="836" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
         <mxCell id="0" />
         <mxCell id="1" parent="0" />
@@ -120,8 +120,13 @@
         <mxCell id="43" value="CodeDesignPlus.Net.EventStore.PubSub" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="1200" y="1330" width="335" height="40" as="geometry" />
         </mxCell>
-        <mxCell id="49" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.25;entryDx=0;entryDy=0;" parent="1" source="46" target="16" edge="1">
-          <mxGeometry relative="1" as="geometry" />
+        <mxCell id="49" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.75;entryY=0;entryDx=0;entryDy=0;" parent="1" source="46" target="16" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="2211" y="680" />
+              <mxPoint x="2001" y="680" />
+            </Array>
+          </mxGeometry>
         </mxCell>
         <mxCell id="46" value="CodeDesignPlus.Net.Kafka.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="2043" y="600" width="335" height="40" as="geometry" />
@@ -168,11 +173,38 @@
         <mxCell id="cR9hNljPTaHk-naQaL1g-68" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
           <mxGeometry x="1509.5" y="1290" width="25.5" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdpOT9Mr8JHG2yvZLoe9-58" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" vertex="1" parent="1">
+        <mxCell id="TdpOT9Mr8JHG2yvZLoe9-58" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
           <mxGeometry x="2620" y="770" width="25.5" height="30" as="geometry" />
         </mxCell>
-        <mxCell id="TdpOT9Mr8JHG2yvZLoe9-59" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" vertex="1" parent="1">
+        <mxCell id="TdpOT9Mr8JHG2yvZLoe9-59" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
           <mxGeometry x="3060" y="770" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nNXmfI7Xdwc4WvsdD9Fa-58" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
+          <mxGeometry x="79.5" y="320" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nNXmfI7Xdwc4WvsdD9Fa-59" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
+          <mxGeometry x="180" y="50" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nNXmfI7Xdwc4WvsdD9Fa-60" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
+          <mxGeometry x="65" y="620" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nNXmfI7Xdwc4WvsdD9Fa-61" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
+          <mxGeometry x="710" y="1100" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="nNXmfI7Xdwc4WvsdD9Fa-62" value="" style="verticalLabelPosition=bottom;verticalAlign=top;html=1;shape=mxgraph.basic.tick;fillColor=#60a917;fontColor=#ffffff;strokeColor=#2D7600;" parent="1" vertex="1">
+          <mxGeometry x="2390" y="550" width="25.5" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="-YHXVxjGIGFMavkAMuD4-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;" parent="1" source="-YHXVxjGIGFMavkAMuD4-58" target="16" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-YHXVxjGIGFMavkAMuD4-58" value="CodeDesignPlus.Net.RabitMQ.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="2500" y="600" width="335" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="-YHXVxjGIGFMavkAMuD4-59" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="-YHXVxjGIGFMavkAMuD4-60" target="-YHXVxjGIGFMavkAMuD4-58" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="-YHXVxjGIGFMavkAMuD4-60" value="CodeDesignPlus.Net.RabitMQ" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="2500" y="510" width="335" height="40" as="geometry" />
         </mxCell>
       </root>
     </mxGraphModel>

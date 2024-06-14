@@ -8,7 +8,7 @@ public class RedisPubSubOptionsTest
         // Arrange
         var options = new RedisPubSubOptions()
         {
-            Name = Guid.NewGuid().ToString()
+
         };
 
         // Act
@@ -18,16 +18,4 @@ public class RedisPubSubOptionsTest
         Assert.Empty(results);
     }
 
-    [Fact]
-    public void RedisPubSubOptions_NameIsRequired_FailedValidation()
-    {
-        // Arrange
-        var options = new RedisPubSubOptions();
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
-    }
 }

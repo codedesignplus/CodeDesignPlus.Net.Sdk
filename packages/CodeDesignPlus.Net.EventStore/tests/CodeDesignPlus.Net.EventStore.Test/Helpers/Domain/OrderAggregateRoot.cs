@@ -77,6 +77,8 @@ public class OrderAggregateRoot : AggregateRoot
         if (Status == OrderStatus.Completed)
             throw new InvalidOperationException("La orden ya está completada.");
 
+        this.Status = OrderStatus.Completed;
+
         base.AddEvent(new OrderCompletedEvent(
             Id,
             DateTime.UtcNow

@@ -8,7 +8,7 @@ public class MongoDiagnosticsOptionsTest
         // Arrange
         var options = new MongoDiagnosticsOptions()
         {
-            Name = Guid.NewGuid().ToString()
+
         };
 
         // Act
@@ -37,9 +37,7 @@ public class MongoDiagnosticsOptionsTest
         // Arrange
         var options = new MongoDiagnosticsOptions()
         {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = null
+            Enable = true
         };
 
         // Act
@@ -55,9 +53,7 @@ public class MongoDiagnosticsOptionsTest
         // Arrange
         var options = new MongoDiagnosticsOptions()
         {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = "asdfasdfsdfgs"
+            Enable = true
         };
 
         // Act

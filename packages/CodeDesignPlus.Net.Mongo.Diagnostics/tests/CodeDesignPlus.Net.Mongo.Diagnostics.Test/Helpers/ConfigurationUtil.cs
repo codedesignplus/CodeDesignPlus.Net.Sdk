@@ -5,8 +5,6 @@ public static class ConfigurationUtil
     public static readonly MongoDiagnosticsOptions MongoDiagnosticsOptions = new()
     {
         Enable = true,
-        Name = nameof(Diagnostics.Options.MongoDiagnosticsOptions.Name),
-        Email = $"{nameof(Diagnostics.Options.MongoDiagnosticsOptions.Name)}@codedesignplus.com"
     };
 
     public static IConfiguration GetConfiguration()

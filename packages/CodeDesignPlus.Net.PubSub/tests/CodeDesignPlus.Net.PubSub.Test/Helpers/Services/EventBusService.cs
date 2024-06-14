@@ -4,6 +4,8 @@ namespace CodeDesignPlus.Net.PubSub.Test;
 
 public class PubSubService : IMessage
 {
+    public bool ListenerEvents => true;
+
     public Task PublishAsync(IDomainEvent @event, CancellationToken token)
     {
         return Task.CompletedTask;

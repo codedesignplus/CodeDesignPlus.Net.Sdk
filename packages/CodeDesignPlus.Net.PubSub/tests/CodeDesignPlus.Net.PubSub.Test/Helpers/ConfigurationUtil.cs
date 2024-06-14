@@ -4,7 +4,7 @@ public static class ConfigurationUtil
 {
     public static readonly PubSubOptions PubSubOptions = new()
     {
-        EnableQueue = true,
+        UseQueue = true,
     };
 
     public static IConfiguration GetConfiguration()

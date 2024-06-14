@@ -223,8 +223,9 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
             },
             EventStorePubSub = new
             {
-                Enable = true,
+                Enabled = true,
                 Group = "testGroup",
+                ListenerEvents = true
             }
         });
 

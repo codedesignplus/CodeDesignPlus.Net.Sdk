@@ -213,7 +213,8 @@ public class KafkaServiceTest : IClassFixture<KafkaContainer>
                 BatchSize = 4096,
                 LingerMs = 5,
                 CompressionType = "snappy",
-                NameMicroservice = group
+                NameMicroservice = group,
+                ListenerEvents = true
             }
         });
 

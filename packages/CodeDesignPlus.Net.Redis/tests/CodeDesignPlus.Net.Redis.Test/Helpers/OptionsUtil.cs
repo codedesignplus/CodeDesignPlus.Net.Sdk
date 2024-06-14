@@ -11,6 +11,9 @@ public static class OptionsUtil
 
     public static readonly object AppSettings = new
     {
+        Core = new {
+            AppName = "test"
+        },
         Redis = RedisOptions
     };
 

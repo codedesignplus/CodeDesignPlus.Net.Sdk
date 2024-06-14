@@ -176,13 +176,13 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     }
 
     [Fact]
-    public void InitializeAsync_ServerNull_ArgumentNullException()
+    public async Task InitializeAsync_ServerNull_ArgumentNullException()
     {
          // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>().Object;
         var connection = new EventStoreConnection(this.coreOptions, logger);
 
         // Assert & Act
-        Assert.ThrowsAsync<ArgumentNullException>(() => connection.InitializeAsync(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => connection.InitializeAsync(null!));
     }
 }

@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.EventStore.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
+using CodeDesignPlus.Net.EventStore.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.Exceptions;
 using CodeDesignPlus.Net.EventStore.Services;
 using Microsoft.Extensions.Configuration;
@@ -38,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IEventStoreConnection, EventStoreConnection>();
         services.AddSingleton<IEventStoreFactory, EventStoreFactory>();
         services.AddSingleton<IEventStoreService, EventStoreService>();
+        services.AddSingleton<IEventSourcingService, EventStoreService>();
 
         return services;
     }

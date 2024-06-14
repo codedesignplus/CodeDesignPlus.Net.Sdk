@@ -3,7 +3,7 @@
 		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <Authors>CodeDesignPlus</Authors>
     <Description>{Description}</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>

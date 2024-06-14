@@ -40,7 +40,7 @@ public class QueueServiceTest
     public void Constructor_LogsInitializationMessage()
     {
         var _ = new QueueService<UserRegisteredEventHandler, UserRegisteredEvent>(mockEventHandler.Object, mockLogger.Object, mockOptions.Object);
-        mockLogger.VerifyLogging("QueueService initialized.", LogLevel.Information);
+        mockLogger.VerifyLogging("QueueService initialized.", LogLevel.Debug);
     }
 
     [Fact]
@@ -61,7 +61,7 @@ public class QueueServiceTest
             User = nameof(UserRegisteredEvent.User),
         });
         Assert.True(service.Any());
-        mockLogger.VerifyLogging("Event of type UserRegisteredEvent enqueued.", LogLevel.Information);
+        mockLogger.VerifyLogging("Event of type UserRegisteredEvent enqueued.", LogLevel.Debug);
     }
 
     [Fact]
@@ -98,9 +98,9 @@ public class QueueServiceTest
 
         await service.DequeueAsync(cts.Token);
 
-        mockLogger.VerifyLogging("Dequeueing event of type UserRegisteredEvent.", LogLevel.Information);
+        mockLogger.VerifyLogging("Dequeueing event of type UserRegisteredEvent.", LogLevel.Debug);
         mockLogger.VerifyLogging("No events in the queue of type UserRegisteredEvent. Waiting...", LogLevel.Debug, Times.AtLeastOnce());
-        mockLogger.VerifyLogging("DequeueAsync stopped due to cancellation token to type UserRegisteredEvent.", LogLevel.Information);
+        mockLogger.VerifyLogging("DequeueAsync stopped due to cancellation token to type UserRegisteredEvent.", LogLevel.Debug);
     }
 
 

@@ -45,7 +45,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_ServiceProviderIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();        
+        var factory = Mock.Of<IRedisServiceFactory>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
@@ -59,7 +59,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_LoggerIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();        
+        var factory = Mock.Of<IRedisServiceFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
@@ -73,7 +73,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_OptionsIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();        
+        var factory = Mock.Of<IRedisServiceFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var pubSubOptions = O.Options.Create(OptionsUtil.PubSubOptions);
@@ -87,7 +87,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_OptionsPubSubIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();        
+        var factory = Mock.Of<IRedisServiceFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
@@ -101,7 +101,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_DomainEventResolverServiceIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();        
+        var factory = Mock.Of<IRedisServiceFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
@@ -112,10 +112,10 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     }
 
     [Fact]
-    public void PublishAsync_EventIsNull_ArgumentNullException()
+    public async Task PublishAsync_EventIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();        
+        var factory = Mock.Of<IRedisServiceFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
@@ -125,7 +125,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         var redisPubSubService = new RedisPubSubService(factory, serviceProvider, logger, options, pubSubOptions, domainEventResolverService);
 
         // Act & Arc
-        Assert.ThrowsAsync<ArgumentNullException>(() => redisPubSubService.PublishAsync((IDomainEvent)null!, CancellationToken.None));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => redisPubSubService.PublishAsync((IDomainEvent)null!, CancellationToken.None));
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
 
         var @eventSend = new UserCreatedEvent(Guid.NewGuid());
 
-        
+
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
@@ -188,13 +188,15 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
 
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
-            Core = new {
+            Core = new
+            {
                 AppName = "Test"
             },
-            PubSub = new {
-                EnableQueue = true
+            PubSub = new
+            {
+                UseQueue = true
             },
-            Redis = redisContainer.RedisOptions("client.pfx", "Temporal1"),
+            Redis = redisContainer.RedisOptions("client.pfx", "Temporal1", "Core"),
             RedisPubSub = OptionsUtil.RedisPubSubOptions
         });
 
@@ -229,6 +231,8 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
             Birthdate = new DateTime(2019, 11, 21)
         };
 
+        _ = queue.DequeueAsync(cancellationToken);
+
         _ = Task.Factory.StartNew(() =>
         {
             while (!cancellationToken.IsCancellationRequested)
@@ -242,6 +246,8 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
             }
         }, cancellationToken);
 
+
+
         _ = Task.Factory.StartNew(async () =>
         {
             Thread.Sleep(3000);
@@ -249,8 +255,6 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
             await evenBus.PublishAsync(@event, cancellationToken);
         }, cancellationToken);
 
-        // Act
-        await queue.DequeueAsync(cancellationToken);
 
         // Assert
         cancellationToken.Register(() =>
@@ -268,7 +272,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         });
     }
 
-    
+
     [Fact]
     public async Task PublishEvent_InvokeHandlerWithQueueDisable_CheckEvent()
     {
@@ -278,13 +282,15 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
 
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
-            Core = new {
+            Core = new
+            {
                 AppName = "Test"
             },
-            PubSub = new {
-                EnableQueue = false
+            PubSub = new
+            {
+                UseQueue = false
             },
-            Redis = redisContainer.RedisOptions("client.pfx", "Temporal1"),
+            Redis = redisContainer.RedisOptions("client.pfx", "Temporal1", "Core"),
             RedisPubSub = OptionsUtil.RedisPubSubOptions
         });
 

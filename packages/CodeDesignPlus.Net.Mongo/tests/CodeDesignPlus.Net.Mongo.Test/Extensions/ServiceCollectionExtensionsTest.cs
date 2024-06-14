@@ -51,7 +51,7 @@ public class ServiceCollectionExtensionsTest
     public void AddMongo_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.MongoOptions });
+        var configuration = ConfigurationUtil.GetConfiguration(new { MongoDiagnostics = new { Enable = false }, Mongo = OptionsUtil.MongoOptions });
 
         var serviceCollection = new ServiceCollection();
 
@@ -70,7 +70,7 @@ public class ServiceCollectionExtensionsTest
     public void AddMongo_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.MongoOptions });
+        var configuration = ConfigurationUtil.GetConfiguration(new { MongoDiagnostics = new { Enable = false }, Mongo = OptionsUtil.MongoOptions });
 
         var serviceCollection = new ServiceCollection();
 
@@ -98,7 +98,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddRepositories<Guid, Guid>();
+        serviceCollection.AddRepositories<StartupFake>();
 
         // Assert
         var clientRepository = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IClientRepository) && x.ImplementationType == typeof(ClientRepository));

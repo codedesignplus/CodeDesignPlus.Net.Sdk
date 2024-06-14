@@ -87,7 +87,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void CountEventsAsync_CategoryIsNull_ThrowArgumentNullException(string category)
+    public async Task CountEventsAsync_CategoryIsNull_ThrowArgumentNullException(string? category)
     {
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
@@ -97,7 +97,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.CountEventsAsync(category, Guid.NewGuid()));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.CountEventsAsync(category, Guid.NewGuid()));
     }
 
     [Fact]
@@ -152,7 +152,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     }
 
     [Fact]
-    public void AppendEventAsync_NullEvent_ThrowsArgumentNullException()
+    public async Task AppendEventAsync_NullEvent_ThrowsArgumentNullException()
     {
         // Arrange        
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
@@ -163,7 +163,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
-        Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.AppendEventAsync<OrderCreatedEvent>(aggregate.Category, null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.AppendEventAsync<OrderCreatedEvent>(aggregate.Category, null!));
     }
 
     [Fact]

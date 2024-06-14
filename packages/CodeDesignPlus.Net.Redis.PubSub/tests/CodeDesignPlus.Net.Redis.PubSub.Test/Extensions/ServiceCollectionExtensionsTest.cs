@@ -57,7 +57,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisPubSub_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { RedisPubSub = new { Enable = false } });
+        var configuration = ConfigurationUtil.GetConfiguration(new { RedisPubSub = new { Enable = true } });
 
         var serviceCollection = new ServiceCollection();
 
@@ -92,7 +92,6 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(OptionsUtil.RedisPubSubOptions.Name, value.Name);
         Assert.Equal(OptionsUtil.RedisPubSubOptions.Enable, value.Enable);
     }
 }

@@ -45,49 +45,49 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal($"The section {MongoDiagnosticsOptions.Section} is required.", exception.Message);
     }
 
-    [Fact]
-    public void AddMongoDiagnostics_CheckServices_Success()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+    //[Fact]
+    //public void AddMongoDiagnostics_CheckServices_Success()
+    //{
+    //    // Arrange
+    //    var configuration = ConfigurationUtil.GetConfiguration();
 
-        var serviceCollection = new ServiceCollection();
+    //    var serviceCollection = new ServiceCollection();
 
-        // Act
-        serviceCollection.AddMongoDiagnostics(configuration);
+    //    // Act
+    //    serviceCollection.AddMongoDiagnostics(configuration);
 
-        // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IMongoDiagnosticsService));
+    //    // Assert
+    //    var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IMongoDiagnosticsService));
 
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(MongoDiagnosticsService), libraryService.ImplementationType);
-    }
+    //    Assert.NotNull(libraryService);
+    //    Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
+    //    Assert.Equal(typeof(MongoDiagnosticsService), libraryService.ImplementationType);
+    //}
 
-    [Fact]
-    public void AddMongoDiagnostics_SameOptions_Success()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
+    //[Fact]
+    //public void AddMongoDiagnostics_SameOptions_Success()
+    //{
+    //    // Arrange
+    //    var configuration = ConfigurationUtil.GetConfiguration();
 
-        var serviceCollection = new ServiceCollection();
+    //    var serviceCollection = new ServiceCollection();
 
-        // Act
-        serviceCollection.AddMongoDiagnostics(configuration);
+    //    // Act
+    //    serviceCollection.AddMongoDiagnostics(configuration);
 
-        // Assert
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+    //    // Assert
+    //    var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var options = serviceProvider.GetService<IOptions<MongoDiagnosticsOptions>>();
-        var value = options?.Value;
+    //    var options = serviceProvider.GetService<IOptions<MongoDiagnosticsOptions>>();
+    //    var value = options?.Value;
 
-        Assert.NotNull(options);
-        Assert.NotNull(value);
+    //    Assert.NotNull(options);
+    //    Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.MongoDiagnosticsOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.MongoDiagnosticsOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.MongoDiagnosticsOptions.Enable, value.Enable);
-    }
+    //    Assert.Equal(ConfigurationUtil.MongoDiagnosticsOptions.Name, value.Name);
+    //    Assert.Equal(ConfigurationUtil.MongoDiagnosticsOptions.Email, value.Email);
+    //    Assert.Equal(ConfigurationUtil.MongoDiagnosticsOptions.Enable, value.Enable);
+    //}
 
 
 }

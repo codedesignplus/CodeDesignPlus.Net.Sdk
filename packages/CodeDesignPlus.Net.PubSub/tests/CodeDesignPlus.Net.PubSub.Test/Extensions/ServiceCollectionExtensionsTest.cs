@@ -67,7 +67,7 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.PubSubOptions.EnableQueue, value.EnableQueue);
+        Assert.Equal(ConfigurationUtil.PubSubOptions.UseQueue, value.UseQueue);
     }
 
     /// <summary>
@@ -84,11 +84,11 @@ public class ServiceCollectionExtensionsTest
         services.AddPubSub(configuration);
 
         // Assert
-        var pubSub = services.FirstOrDefault(x => typeof(IMessage).IsAssignableFrom(x.ImplementationType));
+        var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
 
-        Assert.Equal(typeof(PubSubService), pubSub.ImplementationType);
+        Assert.Equal(typeof(PubSub.Services.PubSub), pubSub.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, pubSub.Lifetime);
     }
 
