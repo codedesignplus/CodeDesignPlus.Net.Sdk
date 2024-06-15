@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Net.Logger.Test;
 public class HostBuilderExtensionTest
 {
     [Fact]
-    public void UseSiigoSerilog_RegisterLogger_Succecss()
+    public void UseSerilog_RegisterLogger_Succecss()
     {
         // Arrange
         var hostBuilder = Host
@@ -61,7 +61,7 @@ public class HostBuilderExtensionTest
 
     
     [Fact]
-    public void UseSiigoSerilog_ActionIsNull_Succecss()
+    public void UseSerilog_ActionIsNull_Succecss()
     {
         // Arrange
         var hostBuilder = Host

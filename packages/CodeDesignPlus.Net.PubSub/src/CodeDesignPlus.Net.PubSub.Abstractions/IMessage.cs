@@ -38,10 +38,5 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions
         Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
             where TEvent : IDomainEvent
             where TEventHandler : IEventHandler<TEvent>;
-
-        /// <summary>
-        /// True if the service is listening for events
-        /// </summary>
-        bool ListenerEvents { get; }
     }
 }

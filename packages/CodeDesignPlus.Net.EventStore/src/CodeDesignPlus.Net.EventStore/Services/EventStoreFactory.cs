@@ -24,11 +24,12 @@ public class EventStoreFactory : IEventStoreFactory
     /// <param name="options">The configuration options for the EventStore connections.</param>
     public EventStoreFactory(IEventStoreConnection eventStoreConnection, ILogger<EventStoreFactory> logger, IOptions<EventStoreOptions> options)
     {
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(nameof(options));
+        ArgumentNullException.ThrowIfNull(nameof(eventStoreConnection));
+        ArgumentNullException.ThrowIfNull(nameof(logger));
 
-        this.eventStoreConnection = eventStoreConnection ?? throw new ArgumentNullException(nameof(eventStoreConnection));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.eventStoreConnection = eventStoreConnection ;
+        this.logger = logger ;
         this.options = options.Value;
     }
 
@@ -50,7 +51,7 @@ public class EventStoreFactory : IEventStoreFactory
         if (connections.TryGetValue(key, out ES.IEventStoreConnection connection))
             return connection;
 
-        connection = await this.eventStoreConnection.InitializeAsync(server);
+        connection = await this.eventStoreConnection.InitializeAsync(server).ConfigureAwait(false);
         var succeess = this.connections.TryAdd(key, connection);
 
         this.logger.LogInformation("Successfully created and cached the connection for key '{key}-{succeess}'.", key, succeess);

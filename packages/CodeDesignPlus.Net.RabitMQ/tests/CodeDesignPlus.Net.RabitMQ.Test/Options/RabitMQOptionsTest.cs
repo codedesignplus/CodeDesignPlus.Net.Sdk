@@ -8,7 +8,7 @@ public class RabitMQOptionsTest
         // Arrange
         var options = new RabitMQOptions()
         {
-            HostName = Guid.NewGuid().ToString()
+            Host = Guid.NewGuid().ToString()
         };
 
         // Act
@@ -38,7 +38,7 @@ public class RabitMQOptionsTest
         var options = new RabitMQOptions()
         {
             Enable = true,
-            HostName = Guid.NewGuid().ToString(),
+            Host = Guid.NewGuid().ToString(),
             UserName = null
         };
 
@@ -56,7 +56,7 @@ public class RabitMQOptionsTest
         var options = new RabitMQOptions()
         {
             Enable = true,
-            HostName = Guid.NewGuid().ToString(),
+            Host = Guid.NewGuid().ToString(),
             UserName = "asdfasdfsdfgs"
         };
 

@@ -4,6 +4,7 @@ using CodeDesignPlus.Net.Redis.PubSub.Options;
 using CodeDesignPlus.Net.Redis.PubSub.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Extensions;
 
@@ -40,7 +41,7 @@ public static class ServiceCollectionExtensions
 
         if (options.Enable)
         {
-            services.AddSingleton<IMessage, RedisPubSubService>();
+            services.TryAddSingleton<IMessage, RedisPubSubService>();
             services.AddSingleton<IRedisPubSubService, RedisPubSubService>();
         }
 

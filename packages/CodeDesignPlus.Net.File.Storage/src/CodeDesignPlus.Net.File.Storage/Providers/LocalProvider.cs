@@ -27,7 +27,7 @@ public class LocalProvider(
                 var memoryStream = new MemoryStream();
                 var str = new FileStream(path, FileMode.Open);
 
-                await str.CopyToAsync(memoryStream, cancellationToken: cancellationToken);
+                await str.CopyToAsync(memoryStream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
                 str.Close();
 
@@ -53,7 +53,7 @@ public class LocalProvider(
 
             using var fileStream = new FileStream(path, FileMode.Create);
 
-            await stream.CopyToAsync(fileStream, cancellationToken: cancellationToken);
+            await stream.CopyToAsync(fileStream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             file.Detail = new Abstractions.Models.FileDetail(this.options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
 

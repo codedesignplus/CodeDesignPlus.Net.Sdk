@@ -4,6 +4,7 @@ using CodeDesignPlus.Net.EventStore.PubSub.Services;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Extensions;
 
@@ -40,7 +41,7 @@ public static class ServiceCollectionExtensions
 
         if (options.Enabled)
         {
-            services.AddSingleton<IMessage, EventStorePubSubService>();
+            services.TryAddSingleton<IMessage, EventStorePubSubService>();
             services.AddSingleton<IEventStorePubSubService, EventStorePubSubService>();
         }
 

@@ -54,14 +54,9 @@ public class EventStorePubSubService : IEventStorePubSubService
         this.logger.LogInformation("EventStorePubSubService initialized.");
     }
 
-    /// <summary>
-    /// Gets a value indicating whether the service is listening for events.
-    /// </summary>
-    public bool ListenerEvents => this.options.ListenerEvents;
-
     public async Task PublishAsync(IDomainEvent @event, CancellationToken token)
     {
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, token);
+        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, token).ConfigureAwait(false);
 
         var stream = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
@@ -76,7 +71,7 @@ public class EventStorePubSubService : IEventStorePubSubService
            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, this.jsonSettings)),
            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata, this.jsonSettings)));
 
-        await connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData);
+        await connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -90,7 +85,7 @@ public class EventStorePubSubService : IEventStorePubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, token);
+        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, token).ConfigureAwait(false);
 
         var (user, pass) = this.eventStoreFactory.GetCredentials(EventStoreFactoryConst.Core);
 
@@ -106,7 +101,7 @@ public class EventStorePubSubService : IEventStorePubSubService
                 options.Group,
                 this.settings,
                 userCredentials
-            );
+            ).ConfigureAwait(false);
         }
         catch (Exception e)
         {
@@ -117,9 +112,9 @@ public class EventStorePubSubService : IEventStorePubSubService
         var subscription = await connection.ConnectToPersistentSubscriptionAsync(
                 stream,
                 options.Group,
-                (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, token),
+                (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, token).ConfigureAwait(false),
                 (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
-            );
+            ).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -130,24 +125,15 @@ public class EventStorePubSubService : IEventStorePubSubService
     /// <param name="event">The event that was received.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    private async Task EventAppearedAsync<TEvent, TEventHandler>(ResolvedEvent @event, CancellationToken cancellationToken)
+    private Task EventAppearedAsync<TEvent, TEventHandler>(ResolvedEvent @event, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
         var domainEvent = JsonConvert.DeserializeObject<TEvent>(Encoding.UTF8.GetString(@event.Event.Data), this.jsonSettings);
 
-        if (this.pubSubOptions.UseQueue)
-        {
-            var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
+        var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
-            queue.Enqueue(@domainEvent);
-        }
-        else
-        {
-            var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
-
-            await eventHandler.HandleAsync(@domainEvent, cancellationToken);
-        }
+        return eventHandler.HandleAsync(@domainEvent, cancellationToken);
     }
 
     /// <summary>

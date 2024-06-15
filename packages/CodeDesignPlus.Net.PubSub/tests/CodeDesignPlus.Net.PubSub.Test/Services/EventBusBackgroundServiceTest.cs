@@ -6,12 +6,12 @@ namespace CodeDesignPlus.Net.PubSub.Test.Services;
 
 public class PubSubBackgroundServiceTest
 {
-    private readonly Mock<ILogger<EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>> _mockLogger;
+    private readonly Mock<ILogger<RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>> _mockLogger;
     private readonly Mock<IMessage> _mockPubSub;
 
     public PubSubBackgroundServiceTest()
     {
-        _mockLogger = new Mock<ILogger<EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>>();
+        _mockLogger = new Mock<ILogger<RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>>>();
         _mockPubSub = new Mock<IMessage>();
     }
 
@@ -23,7 +23,7 @@ public class PubSubBackgroundServiceTest
         Assert.Throws<ArgumentNullException>(() =>
         {
             // Act
-            var service = new EventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>( null, _mockLogger.Object);
+            var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>( null, _mockLogger.Object);
         });
     }
 

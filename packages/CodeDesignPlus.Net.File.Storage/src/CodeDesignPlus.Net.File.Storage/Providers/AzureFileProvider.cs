@@ -22,7 +22,7 @@ public class AzureFileProvider(
 
             var fileClient = directory.GetFileClient(filename);
 
-            if (!await fileClient.ExistsAsync(cancellationToken))
+            if (!await fileClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 response.Success = false;
                 response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
@@ -30,7 +30,7 @@ public class AzureFileProvider(
                 return response;
             }
 
-            var download = await fileClient.DownloadAsync(cancellationToken: cancellationToken);
+            var download = await fileClient.DownloadAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             response.Stream = download.Value.Content;
             response.Stream.Position = 0;
@@ -47,11 +47,11 @@ public class AzureFileProvider(
         {
             var sharedClient = this.factory.GetContainerClient();
 
-            await sharedClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+            await sharedClient.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             var directory = sharedClient.GetDirectoryClient(target);
 
-            if (!await directory.ExistsAsync(cancellationToken))
+            if (!await directory.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 var pathParts = target.Split('/');
                 var currentPath = string.Empty;
@@ -62,7 +62,7 @@ public class AzureFileProvider(
 
                     directory = sharedClient.GetDirectoryClient(currentPath);
 
-                    await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+                    await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
                 }
             }
 
@@ -85,9 +85,9 @@ public class AzureFileProvider(
                 }
             }
 
-            await fileClient.CreateAsync(stream.Length, metadata: file.GetMetadata(this.factory.Options.UriDownload), cancellationToken: cancellationToken);
+            await fileClient.CreateAsync(stream.Length, metadata: file.GetMetadata(this.factory.Options.UriDownload), cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            await fileClient.UploadAsync(stream, cancellationToken: cancellationToken);
+            await fileClient.UploadAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             file.Size = stream.Length;
             file.Detail = new M.FileDetail(this.factory.Options.UriDownload, target, name, TypeProviders.AzureFileProvider);
@@ -106,7 +106,7 @@ public class AzureFileProvider(
 
             var fileClient = directory.GetFileClient(filename);
 
-            var download = await fileClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+            var download = await fileClient.DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             response.Success = download;
 

@@ -6,8 +6,7 @@ public static class OptionsUtil
 {
     public static readonly RedisPubSubOptions RedisPubSubOptions = new()
     {
-        Enable = true,
-        ListenerEvents = true
+        Enable = true
     };
 
     public static readonly PubSubOptions PubSubOptions = new()

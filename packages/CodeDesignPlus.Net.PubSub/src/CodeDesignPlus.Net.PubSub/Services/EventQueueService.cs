@@ -9,11 +9,11 @@ namespace CodeDesignPlus.Net.PubSub.Services
     {
         private readonly ConcurrentQueue<IDomainEvent> queue = new();
         private readonly ILogger<EventQueueService> logger;
-        private readonly IEnumerable<IMessage> messages;
+        private readonly IMessage message;
         private readonly PubSubOptions options;
         private readonly IActivityService activityService;
 
-        public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IEnumerable<IMessage> messages, IActivityService activityService)
+        public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IMessage message, IActivityService activityService)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options));
@@ -21,7 +21,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
             ArgumentNullException.ThrowIfNull(activityService, nameof(activityService));
 
             this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            this.messages = messages;
+            this.message = message;
 
             this.options = options.Value;
 
@@ -88,9 +88,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
                         activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
 
 
-                        var tasks = this.messages.Select(x => x.PublishAsync(@event, token));
-
-                        await Task.WhenAll(tasks);
+                        await this.message.PublishAsync(@event, token).ConfigureAwait(false);
 
                         activity.SetStatus(ActivityStatusCode.Ok);
 

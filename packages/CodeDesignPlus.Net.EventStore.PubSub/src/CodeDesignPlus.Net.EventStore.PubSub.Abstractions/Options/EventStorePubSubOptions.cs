@@ -22,5 +22,4 @@ public class EventStorePubSubOptions
     /// </summary>
     [Required]
     public string Group { get; set; }
-    public bool ListenerEvents { get; set; }
 }

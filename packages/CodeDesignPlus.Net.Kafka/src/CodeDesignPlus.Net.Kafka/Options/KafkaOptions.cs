@@ -26,8 +26,6 @@ public class KafkaOptions
     [Required]
     public string NameMicroservice { get; set; }
 
-    public bool ListenerEvents { get; set; }
-
     public ProducerConfig ProducerConfig => new()
     {
         BootstrapServers = this.BootstrapServers,

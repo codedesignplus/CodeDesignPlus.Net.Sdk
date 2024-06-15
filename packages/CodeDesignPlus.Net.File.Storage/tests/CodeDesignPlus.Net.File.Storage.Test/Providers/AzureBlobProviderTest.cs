@@ -95,7 +95,7 @@ public class AzureBlobProviderTest
     }
 
     [Fact]
-    public async void UploadAsync_Default_Success()
+    public async Task UploadAsync_Default_Success()
     {
         // Arrange
         var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
@@ -108,7 +108,7 @@ public class AzureBlobProviderTest
     }
 
     [Fact]
-    public async void UploadAsync_EmptyTarget_Success()
+    public async Task UploadAsync_EmptyTarget_Success()
     {
         // Arrange     
         this.target = null!;
@@ -126,7 +126,7 @@ public class AzureBlobProviderTest
 
 
     [Fact]
-    public async void UploadAsync_Renowned_Success()
+    public async Task UploadAsync_Renowned_Success()
     {
         // Arrange    
         file.Renowned = true;

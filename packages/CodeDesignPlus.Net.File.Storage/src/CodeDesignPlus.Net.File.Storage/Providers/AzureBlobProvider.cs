@@ -23,7 +23,7 @@ public class AzureBlobProvider(
 
             var blobClient = this.factory.GetContainerClient().GetBlobClient(name);
 
-            if (!await blobClient.ExistsAsync(cancellationToken))
+            if (!await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 response.Success = false;
                 response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
@@ -33,7 +33,7 @@ public class AzureBlobProvider(
 
             var stream = new MemoryStream();
 
-            await blobClient.DownloadToAsync(stream, cancellationToken: cancellationToken);
+            await blobClient.DownloadToAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             response.Stream = stream;
             response.Stream.Position = 0;
@@ -49,7 +49,7 @@ public class AzureBlobProvider(
         {
             var container = this.factory.GetContainerClient();
 
-            await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+            await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             var name = GetName(target, System.IO.Path.GetFileName(file.FullName));
 
@@ -59,7 +59,7 @@ public class AzureBlobProvider(
             {
                 var count = 1;
 
-                while (await blobClient.ExistsAsync(cancellationToken))
+                while (await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
                 {
                     count += 1;
 
@@ -81,7 +81,7 @@ public class AzureBlobProvider(
                 {
                     ContentType = file.Mime.MimeType
                 },
-            }, cancellationToken: cancellationToken);
+            }, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             file.Size = stream.Length;
             file.Detail = new Abstractions.Models.FileDetail(this.factory.Options.UriDownload, target, System.IO.Path.GetFileName(name), TypeProviders.AzureBlobProvider);
@@ -102,7 +102,7 @@ public class AzureBlobProvider(
 
             var blobClient = container.GetBlobClient(name);
 
-            var deleted = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+            var deleted = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             response.Success = deleted;
 

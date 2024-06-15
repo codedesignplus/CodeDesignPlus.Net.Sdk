@@ -20,7 +20,7 @@ public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
 
         try
         {
-            response = await process(file, response);
+            response = await process(file, response).ConfigureAwait(false);
         }
         catch (Exception ex)
         {

@@ -6,6 +6,7 @@ using Confluent.Kafka;
 using Confluent.Kafka.Extensions.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.Kafka.Extensions;
 
@@ -43,8 +44,8 @@ public static class ServiceCollectionExtensions
 
         if (options.Enable)
         {
-            services.AddSingleton<IMessage, KafkaEventBus>();
-            services.AddSingleton<IKafkaEventBus, KafkaEventBus>();
+            services.TryAddSingleton<IMessage, KafkaPubSub>();
+            services.AddSingleton<IKafkaPubSub, KafkaPubSub>();
 
             services.AddSingleton(x =>
             {

@@ -26,8 +26,6 @@ public class RabitMQOptions : IValidatableObject
     [Required]
     public string Password { get; set; }
 
-    public bool ListenerEvents { get; set; }
-
     /// <summary>
     /// Determines whether the specified object is valid.
     /// </summary>

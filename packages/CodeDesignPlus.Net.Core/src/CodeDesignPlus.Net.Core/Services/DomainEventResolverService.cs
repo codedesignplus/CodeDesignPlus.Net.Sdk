@@ -6,7 +6,7 @@ namespace CodeDesignPlus.Net.Core.Services;
 
 public class DomainEventResolverService : IDomainEventResolverService
 {
-    private readonly Dictionary<string, Type> _eventTypes = [];
+    private readonly Dictionary<string, Type> eventTypes = [];
 
     public DomainEventResolverService()
     {
@@ -21,7 +21,7 @@ public class DomainEventResolverService : IDomainEventResolverService
             if (attribute is null)
                 throw new InvalidOperationException($"The event {type.Name} does not have the KeyAttribute");
 
-            _eventTypes.Add(attribute.Key, type);
+            eventTypes.Add(attribute.Key, type);
         }
     }
 
@@ -30,7 +30,7 @@ public class DomainEventResolverService : IDomainEventResolverService
         if (string.IsNullOrWhiteSpace(eventName))
             throw new ArgumentNullException(nameof(eventName));
 
-        if (!_eventTypes.TryGetValue(eventName, out var type))
+        if (!eventTypes.TryGetValue(eventName, out var type))
             throw new ArgumentException($"The event type {eventName} does not exist");
 
         return type;

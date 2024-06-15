@@ -84,7 +84,7 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.RabitMQOptions.HostName, value.HostName);
+        Assert.Equal(ConfigurationUtil.RabitMQOptions.Host, value.Host);
         Assert.Equal(ConfigurationUtil.RabitMQOptions.UserName, value.UserName);
         Assert.Equal(ConfigurationUtil.RabitMQOptions.Enable, value.Enable);
     }

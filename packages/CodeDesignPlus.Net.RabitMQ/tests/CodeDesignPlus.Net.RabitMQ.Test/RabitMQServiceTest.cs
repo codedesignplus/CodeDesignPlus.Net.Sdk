@@ -7,18 +7,18 @@ namespace CodeDesignPlus.Net.RabitMQ.Test;
 
 public class RabitMQServiceTest
 {
-    [Fact]
-    public async Task Echo_ReturnSameValue_Equals()
-    {
-        // Arrange
-        var expected = Guid.NewGuid().ToString();
-        var logger = Mock.Of<ILogger<RabitPubSubService>>();
-        var options = Microsoft.Extensions.Options.Options.Create(new RabitMQOptions());
+    // [Fact]
+    // public async Task Echo_ReturnSameValue_Equals()
+    // {
+    //     // Arrange
+    //     var expected = Guid.NewGuid().ToString();
+    //     var logger = Mock.Of<ILogger<RabitPubSubService>>();
+    //     var options = Microsoft.Extensions.Options.Options.Create(new RabitMQOptions());
 
-        // Act
-        var actual = await new RabitPubSubService(logger, options).EchoAsync(expected);
+    //     // Act
+    //     var actual = await new RabitPubSubService(logger, options).EchoAsync(expected);
 
-        // Assert
-        Assert.Equal(expected, actual);
-    }
+    //     // Assert
+    //     Assert.Equal(expected, actual);
+    // }
 }

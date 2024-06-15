@@ -16,9 +16,4 @@ public class RedisPubSubOptions
     /// Get or sets the Enable
     /// </summary>
     public bool Enable { get; set; }
-
-    /// <summary>
-    /// True if the service is listening for events
-    /// </summary>
-    public bool ListenerEvents { get; set; }
 }

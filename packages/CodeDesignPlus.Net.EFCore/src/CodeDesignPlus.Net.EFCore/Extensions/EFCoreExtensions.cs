@@ -44,11 +44,11 @@ public static class EFCoreExtensions
         if (currentPage < 1 || pageSize < 1)
             return default;
 
-        var totalItems = await query.CountAsync();
+        var totalItems = await query.CountAsync().ConfigureAwait(false);
 
         var skip = (currentPage - 1) * pageSize;
 
-        var data = await query.Skip(skip).Take(pageSize).ToListAsync();
+        var data = await query.Skip(skip).Take(pageSize).ToListAsync().ConfigureAwait(false);
 
         return new Pager<TEntity>(totalItems, data, currentPage, pageSize);
     }

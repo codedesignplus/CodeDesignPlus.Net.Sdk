@@ -6,6 +6,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.RabitMQ.Extensions;
 
@@ -42,7 +43,7 @@ public static class ServiceCollectionExtensions
 
         if (options.Enable)
         {
-            services.AddSingleton<IMessage, RabitPubSubService>();
+            services.TryAddSingleton<IMessage, RabitPubSubService>();
             services.AddSingleton<IRabitPubSubService, RabitPubSubService>();
             services.AddSingleton<IRabitConnection, RabitConnection>();
         }

@@ -5,8 +5,8 @@ public static class ConfigurationUtil
     public static readonly RabitMQOptions RabitMQOptions = new()
     {
         Enable = true,
-        HostName = nameof(RabitMQ.Abstractions.Options.RabitMQOptions.HostName),
-        UserName = $"{nameof(RabitMQ.Abstractions.Options.RabitMQOptions.HostName)}@codedesignplus.com"
+        Host = nameof(RabitMQ.Abstractions.Options.RabitMQOptions.Host),
+        UserName = $"{nameof(RabitMQ.Abstractions.Options.RabitMQOptions.Host)}@codedesignplus.com"
     };
 
     public static IConfiguration GetConfiguration()

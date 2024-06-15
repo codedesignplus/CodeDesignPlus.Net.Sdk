@@ -54,8 +54,6 @@ public class RabitPubSubService : IRabitPubSubService, IDisposable
         this.logger.LogInformation("RabitPubSubService initialized.");
     }
 
-    public bool ListenerEvents => this.options.ListenerEvents;
-
     public Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         if (@event == null)
@@ -124,18 +122,9 @@ public class RabitPubSubService : IRabitPubSubService, IDisposable
             if (@event is null)
                 throw new InvalidOperationException("Domain event not found");
 
-            if (this.pubSubOptions.UseQueue)
-            {
-                var queue = this.serviceProvider.GetService<IQueueService<TEventHandler, TEvent>>();
+            var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
-                queue.Enqueue(@event);
-            }
-            else
-            {
-                var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
-
-                await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
-            }
+            await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);            
 
             channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
         };

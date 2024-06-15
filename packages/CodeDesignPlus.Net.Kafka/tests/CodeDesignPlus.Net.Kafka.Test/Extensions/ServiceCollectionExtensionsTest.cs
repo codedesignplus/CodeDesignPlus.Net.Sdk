@@ -60,11 +60,11 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddKafka(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IKafkaEventBus));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IKafkaPubSub));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(KafkaEventBus), libraryService.ImplementationType);
+        Assert.Equal(typeof(KafkaPubSub), libraryService.ImplementationType);
     }
 
     [Fact]

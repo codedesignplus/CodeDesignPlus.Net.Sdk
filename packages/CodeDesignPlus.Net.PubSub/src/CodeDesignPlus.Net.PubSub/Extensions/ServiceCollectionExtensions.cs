@@ -75,17 +75,7 @@ public static class ServiceCollectionExtensions
             if (eventType == null)
                 continue;
 
-            if (pubSubOptions.UseQueue)
-            {
-                var queueServiceType = typeof(IQueueService<,>).MakeGenericType(eventHandler, eventType);
-                var queueServiceImplementationType = typeof(QueueService<,>).MakeGenericType(eventHandler, eventType);
-                services.AddSingleton(queueServiceType, queueServiceImplementationType);
-
-                var hostServiceImplementationType = typeof(QueueBackgroundService<,>).MakeGenericType(eventHandler, eventType);
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), hostServiceImplementationType));
-            }
-
-            var eventHandlerBackgroundType = typeof(EventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
+            var eventHandlerBackgroundType = typeof(RegisterEventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), eventHandlerBackgroundType));
 
             services.AddSingleton(eventHandler);

@@ -65,10 +65,6 @@ public class RedisPubSubService : IRedisPubSubService
         this.logger.LogInformation("RedisPubSubService initialized.");
     }
 
-    /// <summary>
-    /// Gets a value indicating whether the service is listening for events.
-    /// </summary>
-    public bool ListenerEvents => this.options.ListenerEvents;
 
     /// <summary>
     /// Posts a message to the given channel.
@@ -139,18 +135,9 @@ public class RedisPubSubService : IRedisPubSubService
     {
         var @event = JsonConvert.DeserializeObject<TEvent>(value);
 
-        if (this.pubSubOptions.UseQueue)
-        {
-            var queue = this.serviceProvider.GetService<IQueueService<TEventHandler, TEvent>>();
+        var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
-            queue.Enqueue(@event);
-        }
-        else
-        {
-            var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
-
-            eventHandler.HandleAsync(@event, cancellationToken);
-        }
+        eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>

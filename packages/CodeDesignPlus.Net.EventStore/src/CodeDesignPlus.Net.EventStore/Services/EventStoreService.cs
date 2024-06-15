@@ -69,7 +69,7 @@ public class EventStoreService : IEventStoreService
     /// <returns>A task that represents the asynchronous operation. The task result contains the number of events.</returns>
     private async Task<long> CountEventsInternalAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var stream = GetAggregateName(category, aggregateId);
 
@@ -80,7 +80,7 @@ public class EventStoreService : IEventStoreService
 
         do
         {
-            currentSlice = await connection.ReadStreamEventsForwardAsync(stream, nextSliceStart, pageSize, false);
+            currentSlice = await connection.ReadStreamEventsForwardAsync(stream, nextSliceStart, pageSize, false).ConfigureAwait(false);
             nextSliceStart = currentSlice.NextEventNumber;
             count += currentSlice.Events.Length;
         } while (!currentSlice.IsEndOfStream);
@@ -118,9 +118,9 @@ public class EventStoreService : IEventStoreService
     private async Task AppendEventInternalAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default)
         where TDomainEvent : IDomainEvent
     {
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
-        version ??= await GetVersionAsync(category, @event.AggregateId, cancellationToken);
+        version ??= await GetVersionAsync(category, @event.AggregateId, cancellationToken).ConfigureAwait(false);
 
         var eventData = new EventData(
            @event.EventId,
@@ -129,7 +129,7 @@ public class EventStoreService : IEventStoreService
            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, this.settings)),
            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata, this.settings)));
 
-        await connection.AppendToStreamAsync(GetAggregateName(category, @event.AggregateId), (long)version, eventData);
+        await connection.AppendToStreamAsync(GetAggregateName(category, @event.AggregateId), (long)version, eventData).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -147,9 +147,9 @@ public class EventStoreService : IEventStoreService
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
-        var slice = await connection.ReadStreamEventsBackwardAsync(GetAggregateName(category, aggregateId), StreamPosition.End, 1, false);
+        var slice = await connection.ReadStreamEventsBackwardAsync(GetAggregateName(category, aggregateId), StreamPosition.End, 1, false).ConfigureAwait(false);
 
         if (slice.Status == SliceReadStatus.StreamNotFound || slice.Events.Length == 0)
             return -1;
@@ -172,9 +172,9 @@ public class EventStoreService : IEventStoreService
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
-        var streamEvents = await connection.ReadStreamEventsForwardAsync(GetAggregateName(category, aggregateId), 0, 4096, false);
+        var streamEvents = await connection.ReadStreamEventsForwardAsync(GetAggregateName(category, aggregateId), 0, 4096, false).ConfigureAwait(false);
 
         return streamEvents.Events
             .Select(e =>
@@ -203,9 +203,9 @@ public class EventStoreService : IEventStoreService
         if (aggregateId == Guid.Empty)
             throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
 
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
-        var streamEvents = await connection.ReadStreamEventsBackwardAsync(this.GetSnapshotName(category, aggregateId), StreamPosition.End, 1, false);
+        var streamEvents = await connection.ReadStreamEventsBackwardAsync(this.GetSnapshotName(category, aggregateId), StreamPosition.End, 1, false).ConfigureAwait(false);
 
         if (streamEvents.Status == SliceReadStatus.StreamNotFound || streamEvents.Events.Length == 0)
             return default;
@@ -229,13 +229,13 @@ public class EventStoreService : IEventStoreService
         if (aggregate == null)
             throw new ArgumentNullException(nameof(aggregate));
 
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var serializedAggregate = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(aggregate, this.settings));
 
         var eventData = new EventData(Guid.NewGuid(), "snapshot", true, serializedAggregate, null);
 
-        await connection.AppendToStreamAsync(this.GetSnapshotName(aggregate.Category, aggregate.Id), ExpectedVersion.Any, eventData);
+        await connection.AppendToStreamAsync(this.GetSnapshotName(aggregate.Category, aggregate.Id), ExpectedVersion.Any, eventData).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -249,14 +249,14 @@ public class EventStoreService : IEventStoreService
         if (string.IsNullOrEmpty(streamName))
             throw new ArgumentNullException(nameof(streamName));
 
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var events = new List<IDomainEvent>();
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
         do
         {
-            currentSlice = await connection.ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false);
+            currentSlice = await connection.ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false).ConfigureAwait(false);
             nextSliceStart = currentSlice.NextEventNumber;
 
             var items = currentSlice.Events.Select(e =>
@@ -283,14 +283,14 @@ public class EventStoreService : IEventStoreService
     public async Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(CancellationToken cancellationToken = default)
         where TDomainEvent : IDomainEvent
     {
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var events = new List<TDomainEvent>();
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
         do
         {
-            currentSlice = await connection.ReadStreamEventsForwardAsync($"$et-{typeof(TDomainEvent).Name}", nextSliceStart, 200, true);
+            currentSlice = await connection.ReadStreamEventsForwardAsync($"$et-{typeof(TDomainEvent).Name}", nextSliceStart, 200, true).ConfigureAwait(false);
             nextSliceStart = currentSlice.NextEventNumber;
 
             events.AddRange(currentSlice.Events.Select(e =>
@@ -322,7 +322,7 @@ public class EventStoreService : IEventStoreService
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
 
-        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken);
+        var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var events = new List<TDomainEvent>();
         StreamEventsSlice currentSlice;
@@ -330,7 +330,7 @@ public class EventStoreService : IEventStoreService
 
         do
         {
-            currentSlice = await connection.ReadStreamEventsForwardAsync($"$ce-{category}", nextSliceStart, 200, true);
+            currentSlice = await connection.ReadStreamEventsForwardAsync($"$ce-{category}", nextSliceStart, 200, true).ConfigureAwait(false);
             nextSliceStart = currentSlice.NextEventNumber;
 
             foreach (var e in currentSlice.Events)

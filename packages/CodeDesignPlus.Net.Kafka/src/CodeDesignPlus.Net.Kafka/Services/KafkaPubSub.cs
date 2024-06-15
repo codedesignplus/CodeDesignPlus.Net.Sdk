@@ -12,23 +12,23 @@ namespace CodeDesignPlus.Net.Kafka.Services;
 /// <summary>
 /// Provides the default implementation for the <see cref="IKafkaService"/> interface.
 /// </summary>
-public class KafkaEventBus : IKafkaEventBus
+public class KafkaPubSub : IKafkaPubSub
 {
     private readonly IDomainEventResolverService domainEventResolverService;
-    private readonly ILogger<KafkaEventBus> logger;
+    private readonly ILogger<KafkaPubSub> logger;
     private readonly KafkaOptions options;
     private readonly IServiceProvider serviceProvider;
     private readonly PubSubOptions pubSubOptions;
 
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="KafkaEventBus"/> class.
+    /// Initializes a new instance of the <see cref="KafkaPubSub"/> class.
     /// </summary>
     /// <param name="logger">Service for logging.</param>
     /// <param name="options">Configuration options for Kafka.</param>
     /// <param name="serviceProvider">Provides an instance of a service.</param>
     /// <param name="pubSubOptions">Configuration options for the event bus.</param>
-    public KafkaEventBus(ILogger<KafkaEventBus> logger, IDomainEventResolverService domainEventResolverService, IOptions<KafkaOptions> options, IServiceProvider serviceProvider, IOptions<PubSubOptions> pubSubOptions)
+    public KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolverService domainEventResolverService, IOptions<KafkaOptions> options, IServiceProvider serviceProvider, IOptions<PubSubOptions> pubSubOptions)
     {
         if (options == null)
             throw new ArgumentNullException(nameof(options));
@@ -42,11 +42,6 @@ public class KafkaEventBus : IKafkaEventBus
         this.options = options.Value;
         this.pubSubOptions = pubSubOptions.Value;
     }
-
-    /// <summary>
-    /// Gets a value indicating whether the service is listening for events.
-    /// </summary>
-    public bool ListenerEvents => this.options.ListenerEvents;
 
     /// <summary>
     /// Publishes an event to Kafka.
@@ -82,7 +77,7 @@ public class KafkaEventBus : IKafkaEventBus
 
         var producer = this.serviceProvider.GetRequiredService<IProducer<string, IDomainEvent>>();
 
-        await producer.ProduceAsync(topic, message, token);
+        await producer.ProduceAsync(topic, message, token).ConfigureAwait(false);
 
         this.logger.LogInformation("Event published to Kafka successfully. Event type: {EventType}", @event.GetType().Name);
     }
@@ -107,7 +102,6 @@ public class KafkaEventBus : IKafkaEventBus
 
         cancellationToken.Register(() =>
         {
-
             consumer.Close();
         });
 
@@ -122,7 +116,9 @@ public class KafkaEventBus : IKafkaEventBus
                 this.logger.LogInformation("Listener the event {EventType}", typeof(TEvent).Name);
                 var value = consumer.Consume(cancellationToken);
 
-                await this.ProcessEventAsync<TEvent, TEventHandler>(value.Message.Key, value.Message.Value, cancellationToken);
+                var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+
+                await eventHandler.HandleAsync(value.Message.Value, cancellationToken).ConfigureAwait(false);
 
                 this.logger.LogInformation("End Listener the event {EventType}", typeof(TEvent).Name);
 
@@ -134,32 +130,6 @@ public class KafkaEventBus : IKafkaEventBus
         }
 
         this.logger.LogInformation("Kafka event listening has stopped for event type: {EventType} due to cancellation request.", typeof(TEvent).Name);
-    }
-
-    /// <summary>
-    /// Processes a received event.
-    /// </summary>
-    /// <typeparam name="TEvent">The type of event.</typeparam>
-    /// <typeparam name="TEventHandler">The type of event handler.</typeparam>
-    /// <param name="key">The key of the message.</param>
-    /// <param name="event">The received event.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
-    private async Task ProcessEventAsync<TEvent, TEventHandler>(string key, TEvent @event, CancellationToken cancellationToken)
-       where TEvent : IDomainEvent
-       where TEventHandler : IEventHandler<TEvent>
-    {
-        if (this.pubSubOptions.UseQueue)
-        {
-            var queue = this.serviceProvider.GetRequiredService<IQueueService<TEventHandler, TEvent>>();
-
-            queue.Enqueue(@event);
-        }
-        else
-        {
-            var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
-
-            await eventHandler.HandleAsync(@event, cancellationToken);
-        }
     }
 
     /// <summary>

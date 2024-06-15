@@ -58,9 +58,9 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     private async Task ProcessCreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
-        await this.Context.AddAsync(entity, cancellationToken);
+        await this.Context.AddAsync(entity, cancellationToken).ConfigureAwait(false);
 
-        await this.Context.SaveChangesAsync(cancellationToken);
+        await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -72,8 +72,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         return this.ProcessUpdateAsync(entity, cancellationToken);
     }
@@ -98,7 +97,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
         if (createdAtProperty != null)
             this.Context.Entry(entity).Property(nameof(IAuditTrail.CreatedAt)).IsModified = false;
 
-        await this.Context.SaveChangesAsync(cancellationToken);
+        await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -110,8 +109,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     public Task DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
-        if (predicate == null)
-            throw new ArgumentNullException(nameof(predicate));
+        ArgumentNullException.ThrowIfNull(predicate);
 
         return this.ProcessDeleteAsync(predicate, cancellationToken);
     }
@@ -125,13 +123,13 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     private async Task ProcessDeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
-        var entity = await this.Context.Set<TEntity>().Where(predicate).FirstOrDefaultAsync(cancellationToken: cancellationToken);
+        var entity = await this.Context.Set<TEntity>().Where(predicate).FirstOrDefaultAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
         if (entity != null)
         {
             this.Context.Set<TEntity>().Remove(entity);
 
-            await this.Context.SaveChangesAsync(cancellationToken);
+            await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -144,10 +142,9 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     public async Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
-        if (entities == null)
-            throw new ArgumentNullException(nameof(entities));
+        ArgumentNullException.ThrowIfNull(entities);
 
-        await ProcessCreateRangeAsync(entities, cancellationToken);
+        await ProcessCreateRangeAsync(entities, cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -159,9 +156,9 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     private async Task ProcessCreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
-        await this.Context.AddRangeAsync(entities, cancellationToken);
+        await this.Context.AddRangeAsync(entities, cancellationToken).ConfigureAwait(false);
 
-        await this.Context.SaveChangesAsync(cancellationToken);
+        await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -173,12 +170,11 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     public async Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
-        if (entities == null)
-            throw new ArgumentNullException(nameof(entities));
+        ArgumentNullException.ThrowIfNull(entities);
 
         this.Context.UpdateRange(entities);
 
-        await this.Context.SaveChangesAsync(cancellationToken);
+        await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -190,12 +186,11 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
-        if (entities == null)
-            throw new ArgumentNullException(nameof(entities));
+        ArgumentNullException.ThrowIfNull(entities);
 
         this.Context.RemoveRange(entities);
 
-        await this.Context.SaveChangesAsync(cancellationToken);
+        await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -214,7 +209,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
         {
             entity.IsActive = state;
 
-            await this.Context.SaveChangesAsync(cancellationToken);
+            await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
         }
     }
 
@@ -232,11 +227,11 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
 
         await strategy.ExecuteAsync(async (cancellation) =>
         {
-            using var transaction = await this.Context.Database.BeginTransactionAsync(isolation, cancellation);
+            using var transaction = await this.Context.Database.BeginTransactionAsync(isolation, cancellation).ConfigureAwait(false);
 
-            await process(this.Context);
+            await process(this.Context).ConfigureAwait(false);
 
-            await transaction.CommitAsync();
-        }, cancellationToken);
+            await transaction.CommitAsync(cancellation).ConfigureAwait(false);
+        }, cancellationToken).ConfigureAwait(false);
     }
 }
