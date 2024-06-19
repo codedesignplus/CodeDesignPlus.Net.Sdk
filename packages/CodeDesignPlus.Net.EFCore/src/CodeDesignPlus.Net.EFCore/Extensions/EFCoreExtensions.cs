@@ -25,7 +25,7 @@ public static class EFCoreExtensions
 
         if (typeof(IAuditTrail).IsAssignableFrom(typeof(TEntity)))
         {
-            builder.Property(nameof(IAuditTrail.IdUserCreator)).HasMaxLength(maxLenghtUser).IsRequired(userRequired);
+            builder.Property(nameof(IAuditTrail.CreateBy)).HasMaxLength(maxLenghtUser).IsRequired(userRequired);
             builder.Property(nameof(IAuditTrail.CreatedAt)).IsRequired();
         }
     }

@@ -22,7 +22,7 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     private readonly List<string> blacklist = [
          nameof(IEntityBase.Id),
         nameof(IAuditTrail.CreatedAt),
-        nameof(IAuditTrail.IdUserCreator)
+        nameof(IAuditTrail.CreateBy)
      ];
 
     /// <summary>
@@ -50,7 +50,7 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     {
         if (entity is IAuditTrail auditTrailEntity)
         {
-            auditTrailEntity.IdUserCreator = this.AuthenticateUser.IdUser;
+            auditTrailEntity.CreateBy = this.AuthenticateUser.IdUser;
             auditTrailEntity.CreatedAt = DateTime.UtcNow;
         }
 

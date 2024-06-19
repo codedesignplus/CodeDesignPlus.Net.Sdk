@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Criteria;
+﻿namespace CodeDesignPlus.Net.Criteria.Models;
 
 /// <summary>
 /// Tokenizes the input string into a list of tokens.

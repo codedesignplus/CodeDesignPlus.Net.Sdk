@@ -10,8 +10,4 @@ public interface IBase
     /// Gets or sets the primary identifier of the record.
     /// </summary>
     Guid Id { get; }
-    /// <summary>
-    /// Gets or sets a value indicating whether the record is active.
-    /// </summary>
-    bool IsActive { get; set; }
 }

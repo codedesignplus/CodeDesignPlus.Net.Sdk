@@ -11,8 +11,4 @@ public interface IEntityBase : IBase { }
 /// </summary>
 public interface IEntity : IEntityBase, IBase
 {
-    /// <summary>
-    /// Gets or sets the identifier of the user who created the record.
-    /// </summary>
-    Guid Tenant { get; set; }
 }

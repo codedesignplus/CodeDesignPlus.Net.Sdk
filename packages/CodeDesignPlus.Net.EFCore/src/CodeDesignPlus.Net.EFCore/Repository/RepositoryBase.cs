@@ -88,11 +88,11 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     {
         this.Context.Set<TEntity>().Update(entity);
 
-        var idUserCreatorProperty = this.Context.Entry(entity).Metadata.FindProperty(nameof(IAuditTrail.IdUserCreator));
+        var idUserCreatorProperty = this.Context.Entry(entity).Metadata.FindProperty(nameof(IAuditTrail.CreateBy));
         var createdAtProperty = this.Context.Entry(entity).Metadata.FindProperty(nameof(IAuditTrail.CreatedAt));
 
         if (idUserCreatorProperty != null)
-            this.Context.Entry(entity).Property(nameof(IAuditTrail.IdUserCreator)).IsModified = false;
+            this.Context.Entry(entity).Property(nameof(IAuditTrail.CreateBy)).IsModified = false;
 
         if (createdAtProperty != null)
             this.Context.Entry(entity).Property(nameof(IAuditTrail.CreatedAt)).IsModified = false;

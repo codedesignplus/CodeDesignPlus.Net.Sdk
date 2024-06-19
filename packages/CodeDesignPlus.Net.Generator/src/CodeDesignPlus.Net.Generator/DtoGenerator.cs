@@ -22,7 +22,7 @@ namespace CodeDesignPlus.Net.Generator
 
         public void Execute(GeneratorExecutionContext context)
         {
-            Debugger.Launch();
+            //Debugger.Launch();
 
             // Obtener todos los árboles de sintaxis del proyecto principal
             var syntaxTrees = context.Compilation.SyntaxTrees;

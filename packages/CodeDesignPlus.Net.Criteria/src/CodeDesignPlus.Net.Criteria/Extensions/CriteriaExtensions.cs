@@ -1,7 +1,7 @@
 ﻿using System.Linq.Expressions;
 using C = CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
 
-namespace CodeDesignPlus.Net.Criteria;
+namespace CodeDesignPlus.Net.Criteria.Extensions;
 
 
 public static class CriteriaExtensions
@@ -20,7 +20,7 @@ public static class CriteriaExtensions
         return Evaluator.Evaluate<T>(ast);
     }
 
-    public static Expression<Func<T, object>>? GetSortByExpression<T>(this C.Criteria criteria)
+    public static Expression<Func<T, object>> GetSortByExpression<T>(this C.Criteria criteria)
     {
         ArgumentNullException.ThrowIfNull(criteria, nameof(criteria));
 

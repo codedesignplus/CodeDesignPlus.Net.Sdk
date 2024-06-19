@@ -1,7 +1,13 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
+using C = CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
 using CodeDesignPlus.Net.Mongo.Abstractions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using CodeDesignPlus.Net.Criteria.Extensions;
+using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
+using System.Linq.Expressions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 
 namespace CodeDesignPlus.Net.Mongo.Repository;
 
@@ -186,4 +192,116 @@ public abstract class RepositoryBase : IRepositoryBase
             this.logger.LogError(ex, "Failed to execute transaction");
         }
     }
+
+    /// <summary>
+    /// Method that returns a list of records from the database.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <param name="criteria">The criteria to filter the records.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>Represents an asynchronous operation</returns>    
+    public Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var query = Query<TEntity>(criteria);
+
+        return query.ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Method that returns a list of records from the database.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <typeparam name="TResult">The type of the result to project.</typeparam>
+    /// <param name="criteria">The criteria to filter the records.</param>
+    /// <param name="projection">The projection to apply to the records.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>Represents an asynchronous operation</returns>
+    public Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var query = Query<TEntity>(criteria);
+
+        return query.Project(projection).ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Method that returns a list of records from the database.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <param name="id">The ID of the record to search.</param>
+    /// <param name="criteria">The criteria to filter the records.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>Represents an asynchronous operation</returns>
+    public async Task<List<TEntity>> MatchingAsync<TEntity>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TEntity>>> projection, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+
+        var propertyName = GetPropertyName(projection);
+
+        var filterCriteria = criteria.GetFilterExpression<TEntity>();
+
+        var bsonFilter = GetBsonDocument(filterCriteria, "x");
+
+        var pipeline = new[]
+        {
+            new BsonDocument("$match", new BsonDocument("_id", new BsonBinaryData(id, GuidRepresentation.Standard))),
+            new BsonDocument("$project", new BsonDocument
+            {
+                {
+                    propertyName, new BsonDocument("$filter", new BsonDocument {
+                        { "input", $"${propertyName}" },
+                        { "as", "entity" },
+                        { "cond", bsonFilter  }
+                    })
+                }
+            }),
+            new BsonDocument("$unwind", new BsonDocument("path", $"${propertyName}")),
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}"))
+        };
+
+        var result = await collection.Aggregate<BsonDocument>(pipeline, cancellationToken: cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+
+        return result.Select(doc => BsonSerializer.Deserialize<TEntity>(doc)).ToList();
+    }
+
+
+    private IFindFluent<TEntity, TEntity> Query<TEntity>(C.Criteria criteria)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+        var filter = criteria.GetFilterExpression<TEntity>();
+        var sortBy = criteria.GetSortByExpression<TEntity>();
+
+        var query = collection.Find(filter ?? (x => true));
+
+        if (sortBy != null)
+            if (criteria.Order.OrderType == OrderTypes.Ascending)
+                query = query.SortBy(sortBy);
+            else
+                query = query.SortByDescending(sortBy);
+
+        return query;
+    }
+
+    private static string GetPropertyName<TEntity, TResult>(Expression<Func<TEntity, TResult>> projection)
+        where TEntity : class, IEntityBase
+    {
+        if (projection.Body is MemberExpression memberExpression)
+            return memberExpression.Member.Name;
+        else
+            throw new ArgumentException("La expresión debe ser una MemberExpression");
+    }
+
+    public static BsonDocument GetBsonDocument<TEntity>(Expression<Func<TEntity, bool>> expression, string alias)
+        where TEntity : class, IEntityBase
+    {
+        var parameter = expression.Parameters[0];
+
+        var converter = new ExpressionConverter(parameter, alias);
+
+        return converter.Convert(expression.Body);
+    }
+
 }

@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Criteria;
+﻿namespace CodeDesignPlus.Net.Criteria.Models;
 
 /// <summary>
 /// Abstract syntax tree (AST) type.
