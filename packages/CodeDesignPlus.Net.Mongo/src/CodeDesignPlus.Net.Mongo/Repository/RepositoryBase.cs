@@ -57,12 +57,14 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
     public Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase
+        where TEntity : class, IEntity
     {
         var collection = this.GetCollection<TEntity>();
 
         var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id);
-        var update = Builders<TEntity>.Update.Set(e => e.IsActive, state);
+        var update = Builders<TEntity>.Update
+            .Set(e => e.IsActive, state)
+            .Set(e => e.UpdatedAt, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
         return collection.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
     }

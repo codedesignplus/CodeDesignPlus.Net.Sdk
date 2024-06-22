@@ -88,14 +88,14 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     {
         this.Context.Set<TEntity>().Update(entity);
 
-        var idUserCreatorProperty = this.Context.Entry(entity).Metadata.FindProperty(nameof(IAuditTrail.CreateBy));
-        var createdAtProperty = this.Context.Entry(entity).Metadata.FindProperty(nameof(IAuditTrail.CreatedAt));
+        var idUserCreatorProperty = this.Context.Entry(entity).Metadata.FindProperty(nameof(IEntity.CreatedBy));
+        var createdAtProperty = this.Context.Entry(entity).Metadata.FindProperty(nameof(IEntity.CreatedAt));
 
         if (idUserCreatorProperty != null)
-            this.Context.Entry(entity).Property(nameof(IAuditTrail.CreateBy)).IsModified = false;
+            this.Context.Entry(entity).Property(nameof(IEntity.CreatedBy)).IsModified = false;
 
         if (createdAtProperty != null)
-            this.Context.Entry(entity).Property(nameof(IAuditTrail.CreatedAt)).IsModified = false;
+            this.Context.Entry(entity).Property(nameof(IEntity.CreatedAt)).IsModified = false;
 
         await this.Context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
     }
@@ -201,7 +201,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="state">Status tha will be assigned to the record if it exists</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public async Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
+    public async Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken = default) where TEntity : class, IEntity
     {
         var entity = await this.Context.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
 

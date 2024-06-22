@@ -20,9 +20,11 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     /// List of properties that will not be updated
     /// </summary>
     private readonly List<string> blacklist = [
-         nameof(IEntityBase.Id),
-        nameof(IAuditTrail.CreatedAt),
-        nameof(IAuditTrail.CreateBy)
+        nameof(IEntityBase.Id),
+        nameof(IEntity.CreatedAt),
+        nameof(IEntity.CreatedBy),
+        nameof(IEntity.UpdatedAt),
+        nameof(IEntity.UpdatedBy)
      ];
 
     /// <summary>
@@ -48,10 +50,10 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public virtual Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        if (entity is IAuditTrail auditTrailEntity)
+        if (entity is IEntity auditTrailEntity)
         {
-            auditTrailEntity.CreateBy = this.AuthenticateUser.IdUser;
-            auditTrailEntity.CreatedAt = DateTime.UtcNow;
+            auditTrailEntity.CreatedBy = this.AuthenticateUser.IdUser;
+            auditTrailEntity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         return base.CreateAsync(entity, cancellationToken);

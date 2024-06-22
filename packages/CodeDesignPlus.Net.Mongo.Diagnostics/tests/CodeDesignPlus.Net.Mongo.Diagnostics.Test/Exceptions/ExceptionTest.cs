@@ -12,7 +12,7 @@ public class MongoDiagnosticsExceptionTest
 
         // Assert 
         Assert.Null(exception.Errors);
-        Assert.Equal("Exception of type 'CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions.Mongo.DiagnosticsException' was thrown.", exception.Message);
+        Assert.Equal("Exception of type 'CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions.MongoDiagnosticsException' was thrown.", exception.Message);
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class MongoDiagnosticsExceptionTest
 
         // Assert 
         Assert.Equal(errors, exception.Errors);
-        Assert.Equal("Exception of type 'CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions.Mongo.DiagnosticsException' was thrown.", exception.Message);
+        Assert.Equal("Exception of type 'CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions.MongoDiagnosticsException' was thrown.", exception.Message);
     }
 
     [Fact]

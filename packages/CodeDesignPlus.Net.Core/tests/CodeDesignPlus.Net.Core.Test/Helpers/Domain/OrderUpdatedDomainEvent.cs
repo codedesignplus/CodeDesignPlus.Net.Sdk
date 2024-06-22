@@ -9,13 +9,16 @@ public class OrderUpdatedDomainEvent(
     string name,
     string description,
     decimal price,
-    DateTime? updatedAt,
+    long? updatedAt,
+    Guid UpdatedBy,
     Guid? eventId = null,
     DateTime? occurredAt = null
 ) : DomainEvent(id, eventId, occurredAt)
 {
+    private readonly Guid updatedBy = UpdatedBy;
+
     public string Name { get; private set; } = name;
     public string Description { get; private set; } = description;
     public decimal Price { get; private set; } = price;
-    public DateTime? UpdatedAt { get; private set; } = updatedAt;
+    public long? UpdatedAt { get; private set; } = updatedAt;
 }

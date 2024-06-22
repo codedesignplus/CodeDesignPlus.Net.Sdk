@@ -15,7 +15,7 @@ public abstract class DomainEvent(
     Guid aggregateId,
     Guid? eventId = null,
     DateTime? occurredAt = null,
-    Dictionary<string, object> metadata = null
+    Dictionary<string, object>? metadata = null
 ) : IDomainEvent
 {
     /// <summary>

@@ -6,7 +6,9 @@ public static class ConfigurationUtil
     {
         Enable = true,
         Host = nameof(RabitMQ.Abstractions.Options.RabitMQOptions.Host),
-        UserName = $"{nameof(RabitMQ.Abstractions.Options.RabitMQOptions.Host)}@codedesignplus.com"
+        UserName = $"{nameof(RabitMQ.Abstractions.Options.RabitMQOptions.Host)}@codedesignplus.com",
+        Password = nameof(RabitMQ.Abstractions.Options.RabitMQOptions.Password),
+        Port = 5672,
     };
 
     public static IConfiguration GetConfiguration()

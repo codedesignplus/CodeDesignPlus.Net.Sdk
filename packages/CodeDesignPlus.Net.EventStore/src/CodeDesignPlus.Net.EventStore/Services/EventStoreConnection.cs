@@ -19,8 +19,8 @@ public class EventStoreConnection : IEventStoreConnection
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="coreOptions"/> parameter is null.</exception>
     public EventStoreConnection(IOptions<CoreOptions> coreOptions, ILogger<EventStoreConnection> logger)
     {
-        ArgumentNullException.ThrowIfNull(nameof(coreOptions));
-        ArgumentNullException.ThrowIfNull(nameof(logger));
+        ArgumentNullException.ThrowIfNull(coreOptions, nameof(coreOptions));
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
 
         this.coreOptions = coreOptions.Value;
         this.logger = logger;
@@ -35,7 +35,7 @@ public class EventStoreConnection : IEventStoreConnection
     /// <returns>A task representing the asynchronous initialization operation. The task result contains the initialized connection.</returns>
     public async Task<ES.IEventStoreConnection> InitializeAsync(Server server)
     {
-        ArgumentNullException.ThrowIfNull(nameof(server));
+        ArgumentNullException.ThrowIfNull(server, nameof(server));
 
         var settings = ES.ConnectionSettings.Create()
             .SetClusterGossipPort(server.ConnectionString.Port)

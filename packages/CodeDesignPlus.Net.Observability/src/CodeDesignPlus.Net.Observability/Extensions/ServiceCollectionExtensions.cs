@@ -89,6 +89,8 @@ public static class ServiceCollectionExtensions
             });
             tracing.AddHttpClientInstrumentation();
 
+            //tracing.AddGrpcClientInstrumentation();
+
             tracing.AddSource(greeterActivitySource.Name);
 
             tracing.AddSource("CodeDesignPlus.Net.Mongo.Diagnostics");

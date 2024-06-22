@@ -40,61 +40,60 @@ public static class Guard
 
     public static void IsTrue(bool value, Layer layer, string error)
     {
-        if (!value)
+        if (value)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
     }
 
     public static void IsFalse(bool value, Layer layer, string error)
     {
-        if (value)
+        if (!value)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
     }
-
     public static void IsGreaterThan<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
-    {
-        if (value.CompareTo(compare) <= 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
-    }
-
-    public static void IsGreaterThanOrEqual<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
-    {
-        if (value.CompareTo(compare) < 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
-    }
-
-    public static void IsLessThan<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
-    {
-        if (value.CompareTo(compare) >= 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
-    }
-
-    public static void IsLessThanOrEqual<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) > 0)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
     }
 
-    public static void AreEquals<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    public static void IsGreaterThanOrEqual<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
     {
-        if (value.CompareTo(compare) != 0)
+        if (value.CompareTo(compare) >= 0)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
     }
 
-    public static void AreNotEquals<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    public static void IsLessThan<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    {
+        if (value.CompareTo(compare) < 0)
+            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+    }
+
+    public static void IsLessThanOrEqual<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    {
+        if (value.CompareTo(compare) <= 0)
+            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+    }
+
+    public static void AreEquals<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) == 0)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
     }
 
+    public static void AreNotEquals<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    {
+        if (value.CompareTo(compare) != 0)
+            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+    }
+
     public static void IsInRange<T>(T value, T min, T max, Layer layer, string error) where T : IComparable<T>
     {
-        if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
+        if (value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
     }
 
     public static void IsNotInRange<T>(T value, T min, T max, Layer layer, string error) where T : IComparable<T>
     {
-        if (value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0)
+        if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
     }
 

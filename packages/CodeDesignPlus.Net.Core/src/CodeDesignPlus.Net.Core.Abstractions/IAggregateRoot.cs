@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the contract to be implemented by the aggregate root.
 /// </summary>
-public interface IAggregateRoot: IEntityBase
+public interface IAggregateRoot: IEntity
 {
     /// <summary>
     /// The date and time when the aggregate root was created.

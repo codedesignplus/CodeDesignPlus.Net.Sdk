@@ -54,8 +54,8 @@ namespace CodeDesignPlus.Net.PubSub.Services
 
                 this.logger.LogDebug("Event of type {name} enqueued.", @event.GetType().Name);
 
-                activity.SetStatus(ActivityStatusCode.Ok);
-                activity.Stop();
+                activity?.SetStatus(ActivityStatusCode.Ok);
+                activity?.Stop();
             }
             else
             {
@@ -90,9 +90,9 @@ namespace CodeDesignPlus.Net.PubSub.Services
 
                         await this.message.PublishAsync(@event, token).ConfigureAwait(false);
 
-                        activity.SetStatus(ActivityStatusCode.Ok);
+                        activity?.SetStatus(ActivityStatusCode.Ok);
 
-                        activity.Stop();
+                        activity?.Stop();
                     }
                     else
                     {

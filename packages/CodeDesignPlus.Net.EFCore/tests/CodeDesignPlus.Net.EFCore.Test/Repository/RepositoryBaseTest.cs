@@ -124,9 +124,9 @@ public class RepositoryBaseTest
         {
             Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = Guid.NewGuid(),
+            CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Description = nameof(Application.Description)
         };
 
@@ -148,7 +148,7 @@ public class RepositoryBaseTest
         Assert.Equal(entity.Id, result.Id);
         Assert.Equal(nameof(Application.Name), result.Name);
         Assert.Equal(nameof(Application.Description), result.Description);
-        Assert.Equal(entity.IdUserCreator, result.IdUserCreator);
+        Assert.Equal(entity.CreatedBy, result.CreatedBy);
         Assert.Equal(entity.IsActive, result.IsActive);
         Assert.Equal(entity.CreatedAt, result.CreatedAt);
     }
@@ -193,9 +193,9 @@ public class RepositoryBaseTest
         {
             Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = Guid.NewGuid(),
+            CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Description = nameof(Application.Description)
         };
 
@@ -208,9 +208,9 @@ public class RepositoryBaseTest
 
         applicationUpdate.Description = "New Description";
         applicationUpdate.Name = "New Name";
-        applicationUpdate.CreatedAt = DateTime.MaxValue;
+        applicationUpdate.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         applicationUpdate.IsActive = false;
-        applicationUpdate.IdUserCreator = Guid.NewGuid();
+        applicationUpdate.CreatedBy = Guid.NewGuid();
 
         await repository.UpdateAsync(applicationUpdate);
 
@@ -221,7 +221,7 @@ public class RepositoryBaseTest
         Assert.Equal("New Name", result.Name);
         Assert.Equal("New Description", result.Description);
         Assert.False(result.IsActive);
-        Assert.Equal(applicationCreated.IdUserCreator, result.IdUserCreator);
+        Assert.Equal(applicationCreated.CreatedBy, result.CreatedBy);
         Assert.Equal(applicationCreated.CreatedAt, result.CreatedAt);
     }
 
@@ -290,9 +290,9 @@ public class RepositoryBaseTest
         var applicationCreated = new Application()
         {
             Name = nameof(Application.Name),
-            IdUserCreator = Guid.NewGuid(),
+            CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Description = nameof(Application.Description)
         };
 
@@ -346,18 +346,18 @@ public class RepositoryBaseTest
             {
                 Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = Guid.NewGuid(),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = nameof(Application.Description)
             },
             new ()
             {
                 Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = Guid.NewGuid(),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = nameof(Application.Description)
             }
         };
@@ -421,9 +421,9 @@ public class RepositoryBaseTest
             {
                 Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = Guid.NewGuid(),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = nameof(Application.Description)
             },
 
@@ -431,9 +431,9 @@ public class RepositoryBaseTest
             {
                 Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = Guid.NewGuid(),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = nameof(Application.Description)
             }
         };
@@ -457,9 +457,9 @@ public class RepositoryBaseTest
         {
             x.Description = "New Description";
             x.Name = "New Name";
-            x.CreatedAt = DateTime.MaxValue;
+            x.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
             x.IsActive = false;
-            x.IdUserCreator = Guid.NewGuid();
+            x.CreatedBy = Guid.NewGuid();
         });
 
         await repository.UpdateRangeAsync(entitiesUpdate);
@@ -514,18 +514,18 @@ public class RepositoryBaseTest
             {
                 Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = Guid.NewGuid(),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = nameof(Application.Description)
             },
             new ()
             {
                 Id = Guid.NewGuid(),
                 Name = nameof(Application.Name),
-                IdUserCreator = Guid.NewGuid(),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = nameof(Application.Description)
             }
         };
@@ -589,9 +589,9 @@ public class RepositoryBaseTest
         {
             Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = Guid.NewGuid(),
+            CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Description = nameof(Application.Description)
         };
 
@@ -619,7 +619,7 @@ public class RepositoryBaseTest
         Assert.Equal(entityCreated.Id, result.Id);
         Assert.Equal(entityCreated.Name, result.Name);
         Assert.Equal(entityCreated.Description, result.Description);
-        Assert.Equal(entityCreated.IdUserCreator, result.IdUserCreator);
+        Assert.Equal(entityCreated.CreatedBy, result.CreatedBy);
         Assert.Equal(entityCreated.CreatedAt, result.CreatedAt);
         Assert.False(result.IsActive);
     }
@@ -635,9 +635,9 @@ public class RepositoryBaseTest
         {
             Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = Guid.NewGuid(),
+            CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Description = nameof(Application.Description)
         };
 
@@ -665,7 +665,7 @@ public class RepositoryBaseTest
         Assert.Equal(applicationCreated.Id, result.Id);
         Assert.Equal(applicationCreated.Name, result.Name);
         Assert.Equal(applicationCreated.Description, result.Description);
-        Assert.Equal(applicationCreated.IdUserCreator, result.IdUserCreator);
+        Assert.Equal(applicationCreated.CreatedBy, result.CreatedBy);
         Assert.Equal(applicationCreated.CreatedAt, result.CreatedAt);
         Assert.Equal(applicationCreated.IsActive, result.IsActive);
     }
@@ -681,9 +681,9 @@ public class RepositoryBaseTest
         {
             Id = Guid.NewGuid(),
             Name = nameof(Application.Name),
-            IdUserCreator = Guid.NewGuid(),
+            CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTime.UtcNow,
+            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
             Description = nameof(Application.Description)
         };
 

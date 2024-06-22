@@ -221,8 +221,6 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
 
         var evenBus = serviceProvider.GetRequiredService<IRedisPubSubService>();
 
-        var queue = serviceProvider.GetRequiredService<IQueueService<UserCreatedEventHandler, UserCreatedEvent>>();
-
         var @event = new UserCreatedEvent(Guid.NewGuid())
         {
             Names = "Code",
@@ -230,8 +228,6 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
             UserName = "coded",
             Birthdate = new DateTime(2019, 11, 21)
         };
-
-        _ = queue.DequeueAsync(cancellationToken);
 
         _ = Task.Factory.StartNew(() =>
         {

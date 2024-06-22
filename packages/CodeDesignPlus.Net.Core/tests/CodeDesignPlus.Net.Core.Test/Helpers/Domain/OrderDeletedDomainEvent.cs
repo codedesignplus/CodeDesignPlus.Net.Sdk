@@ -5,10 +5,10 @@ namespace CodeDesignPlus.Net.Core.Test;
 [Key("order.deleted")]
 public class OrderDeletedDomainEvent(
     Guid id,
-    DateTime deletedAt,
+    long? deletedAt,
     Guid? eventId = null,
     DateTime? occurredAt = null
 ) : DomainEvent(id, eventId, occurredAt)
 {
-    public DateTime DeletedAt { get; private set; } = deletedAt;
+    public long? DeletedAt { get; private set; } = deletedAt;
 }

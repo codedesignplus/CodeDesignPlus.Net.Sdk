@@ -24,9 +24,9 @@ public class EventStoreFactory : IEventStoreFactory
     /// <param name="options">The configuration options for the EventStore connections.</param>
     public EventStoreFactory(IEventStoreConnection eventStoreConnection, ILogger<EventStoreFactory> logger, IOptions<EventStoreOptions> options)
     {
-        ArgumentNullException.ThrowIfNull(nameof(options));
-        ArgumentNullException.ThrowIfNull(nameof(eventStoreConnection));
-        ArgumentNullException.ThrowIfNull(nameof(logger));
+        ArgumentNullException.ThrowIfNull(options, nameof(options));
+        ArgumentNullException.ThrowIfNull(eventStoreConnection, nameof(eventStoreConnection));
+        ArgumentNullException.ThrowIfNull(logger, nameof(logger));
 
         this.eventStoreConnection = eventStoreConnection ;
         this.logger = logger ;

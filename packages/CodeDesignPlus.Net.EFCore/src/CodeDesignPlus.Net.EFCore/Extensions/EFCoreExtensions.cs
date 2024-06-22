@@ -15,18 +15,17 @@ public static class EFCoreExtensions
     /// Sets the traversal properties of an entity that implements the IEntity interface
     /// </summary>
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="userRequired"></param>
-    /// <param name="builder">The builder to be used to configure the entity type.</param>
-    public static void ConfigurationBase<TEntity>(this EntityTypeBuilder<TEntity> builder, bool userRequired = true, int maxLenghtUser = 256)
-        where TEntity : class, IEntity
+    public static void ConfigurationBase<TEntity>(this EntityTypeBuilder<TEntity> builder)
+        where TEntity : class, IEntityBase
     {
         builder.Property(x => x.Id);
-        builder.Property(x => x.IsActive).IsRequired();
 
-        if (typeof(IAuditTrail).IsAssignableFrom(typeof(TEntity)))
-        {
-            builder.Property(nameof(IAuditTrail.CreateBy)).HasMaxLength(maxLenghtUser).IsRequired(userRequired);
-            builder.Property(nameof(IAuditTrail.CreatedAt)).IsRequired();
+        if (typeof(IEntity).IsAssignableFrom(typeof(TEntity)))
+        {            
+            builder.Property(nameof(IEntity.CreatedAt)).IsRequired();
+            builder.Property(nameof(IEntity.CreatedBy)).IsRequired();
+            builder.Property(nameof(IEntity.UpdatedAt)).IsRequired(false);
+            builder.Property(nameof(IEntity.UpdatedBy)).IsRequired(false);;
         }
     }
 

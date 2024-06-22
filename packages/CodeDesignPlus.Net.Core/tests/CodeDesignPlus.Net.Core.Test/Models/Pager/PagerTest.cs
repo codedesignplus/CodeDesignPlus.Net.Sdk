@@ -159,8 +159,8 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
                 {
                     Name = $"Fake - {i}",
                     IsActive = true,
-                    IdUserCreator = Guid.NewGuid(),
-                    CreatedAt = DateTime.UtcNow,
+                    CreatedBy = Guid.NewGuid(),
+                    CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 });
             }
             await fakeContext.FakeEntity.AddRangeAsync(entities);

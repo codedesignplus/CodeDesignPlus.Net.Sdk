@@ -17,9 +17,24 @@ public abstract class AggregateRoot : IAggregateRoot
     /// Gets or sets the identifier of the user who created the record.
     /// </summary>
     public bool IsActive  { get; set; }
-    
     /// <summary>
-    /// Gets or sets the identifier of the user who created the record.
+    /// Get or sets the creatae at
+    /// </summary>
+    public long CreatedAt { get; set; }
+    /// <summary>
+    /// Get or sets the create by
+    /// </summary>
+    public Guid CreatedBy { get; set; }
+    /// <summary>
+    /// Get or sets the update at
+    /// </summary>
+    public long? UpdatedAt { get; set; }
+    /// <summary>
+    /// Get or sets the update by
+    /// </summary>
+    public Guid? UpdatedBy { get; set; }    
+    /// <summary>
+    /// Get or set the tenant identifier.
     /// </summary>
     public Guid Tenant { get; set; }
 

@@ -7,25 +7,29 @@ public class AggregateRootTest
     {
         // Arrange
         var id = Guid.NewGuid();
-        var createAt = DateTime.UtcNow;
-        var updatedAt = DateTime.UtcNow;
-        var deleteAt = DateTime.UtcNow;
-        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10);
+        var createBy = Guid.NewGuid();
+        var updatedBy = Guid.NewGuid();
+
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, createBy);
 
         // Act
-        orderAggregate.Update("Test 2", "Test Description 2", 20, updatedAt);
+        orderAggregate.Update("Test 2", "Test Description 2", 20, updatedBy);
 
         // Assert
         Assert.Equal(id, orderAggregate.Id);
         Assert.Equal("Test 2", orderAggregate.Name);
         Assert.Equal("Test Description 2", orderAggregate.Description);
         Assert.Equal(20, orderAggregate.Price);
-        Assert.True(DateTime.UtcNow > orderAggregate.CreatedAt);
-        Assert.Equal(updatedAt, orderAggregate.UpdatedAt);
+        Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.CreatedAt);
+        Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.UpdatedAt);
 
-        orderAggregate.Delete(deleteAt);
+        Thread.Sleep(1000);
+        
+        orderAggregate.Delete();
 
-        Assert.Equal(deleteAt, orderAggregate.UpdatedAt);
+        Thread.Sleep(1000);
+
+        Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.UpdatedAt);
 
         var events = orderAggregate.GetAndClearEvents();
 
@@ -38,11 +42,11 @@ public class AggregateRootTest
     {
         // Arrange
         var id = Guid.NewGuid();
-        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10);
+        var createBy = Guid.NewGuid();
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, createBy);
 
         // Act
         var domainEvent = (OrderCreatedDomainEvent)orderAggregate.GetAndClearEvents().FirstOrDefault()!;
-
 
         // Assert
         var json = JsonConvert.SerializeObject(domainEvent, new EventJsonConvert());
@@ -59,6 +63,7 @@ public class AggregateRootTest
         Assert.Equal(domainEvent.Price, @event.Price);
         Assert.Equal(domainEvent.CreatedAt, @event.CreatedAt);
         Assert.Equal(domainEvent.UpdatedAt, @event.UpdatedAt);
+        Assert.Equal(domainEvent.CreateBy, @event.CreateBy);
 
         foreach (var item in domainEvent.Metadata)
         {

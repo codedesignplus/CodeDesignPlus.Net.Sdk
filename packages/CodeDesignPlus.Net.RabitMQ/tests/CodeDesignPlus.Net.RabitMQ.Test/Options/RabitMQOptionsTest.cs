@@ -8,7 +8,10 @@ public class RabitMQOptionsTest
         // Arrange
         var options = new RabitMQOptions()
         {
-            Host = Guid.NewGuid().ToString()
+            Host = Guid.NewGuid().ToString(),
+            UserName = Guid.NewGuid().ToString(),
+            Password = Guid.NewGuid().ToString(),
+            Port = 5672,
         };
 
         // Act
@@ -19,51 +22,38 @@ public class RabitMQOptionsTest
     }
 
     [Fact]
-    public void RabitMQOptions_NameIsRequired_FailedValidation()
-    {
-        // Arrange
-        var options = new RabitMQOptions();
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
-    }
-
-    [Fact]
-    public void RabitMQOptions_EmailIsRequired_FailedValidation()
+    public void RabitMQOptions_UserNameIsRequired_FailedValidation()
     {
         // Arrange
         var options = new RabitMQOptions()
         {
-            Enable = true,
             Host = Guid.NewGuid().ToString(),
-            UserName = null
+            Password = Guid.NewGuid().ToString(),
+            Port = 5672,
         };
 
         // Act
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The UserName field is required.");
     }
 
     [Fact]
-    public void RabitMQOptions_EmailIsInvalid_FailedValidation()
+    public void RabitMQOptions_PasaswordIsRequired_FailedValidation()
     {
         // Arrange
         var options = new RabitMQOptions()
         {
-            Enable = true,
             Host = Guid.NewGuid().ToString(),
-            UserName = "asdfasdfsdfgs"
+            UserName = Guid.NewGuid().ToString(),
+            Port = 5672,
         };
 
         // Act
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
+        Assert.Contains(results, x => x.ErrorMessage == "The Password field is required.");
     }
 }

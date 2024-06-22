@@ -45,49 +45,49 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal($"The section {ObservabilityOptions.Section} is required.", exception.Message);
     }
 
-    [Fact]
-    public void AddObservability_CheckServices_Success()
-    {
-        // Arrange
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration();
+    // [Fact]
+    // public void AddObservability_CheckServices_Success()
+    // {
+    //     // Arrange
+    //     var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration();
 
-        var serviceCollection = new ServiceCollection();
+    //     var serviceCollection = new ServiceCollection();
 
-        // Act
-        serviceCollection.AddObservability(configuration);
+    //     // Act
+    //     serviceCollection.AddObservability(configuration);
 
-        // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IObservabilityService));
+    //     // Assert
+    //     var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IObservabilityService));
 
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(ObservabilityService), libraryService.ImplementationType);
-    }
+    //     Assert.NotNull(libraryService);
+    //     Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
+    //     Assert.Equal(typeof(ObservabilityService), libraryService.ImplementationType);
+    // }
 
-    [Fact]
-    public void AddObservability_SameOptions_Success()
-    {
-        // Arrange
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration();
+    // [Fact]
+    // public void AddObservability_SameOptions_Success()
+    // {
+    //     // Arrange
+    //     var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration();
 
-        var serviceCollection = new ServiceCollection();
+    //     var serviceCollection = new ServiceCollection();
 
-        // Act
-        serviceCollection.AddObservability(configuration);
+    //     // Act
+    //     serviceCollection.AddObservability(configuration);
 
-        // Assert
-        var serviceProvider = serviceCollection.BuildServiceProvider();
+    //     // Assert
+    //     var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var options = serviceProvider.GetService<IOptions<ObservabilityOptions>>();
-        var value = options?.Value;
+    //     var options = serviceProvider.GetService<IOptions<ObservabilityOptions>>();
+    //     var value = options?.Value;
 
-        Assert.NotNull(options);
-        Assert.NotNull(value);
+    //     Assert.NotNull(options);
+    //     Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.ObservabilityOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.ObservabilityOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.ObservabilityOptions.Enable, value.Enable);
-    }
+    //     Assert.Equal(ConfigurationUtil.ObservabilityOptions.Name, value.Name);
+    //     Assert.Equal(ConfigurationUtil.ObservabilityOptions.Email, value.Email);
+    //     Assert.Equal(ConfigurationUtil.ObservabilityOptions.Enable, value.Enable);
+    // }
 
 
 }

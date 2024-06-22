@@ -57,7 +57,7 @@ public class OperationBaseTest
         Assert.Equal("Permission", result.Controller);
         Assert.Equal("Post", result.Action);
         Assert.True(result.IsActive);
-        Assert.Equal(userContext.IdUser, result.IdUserCreator);
+        Assert.Equal(userContext.IdUser, result.CreatedBy);
         Assert.Equal(permission.CreatedAt, result.CreatedAt);
     }
 
@@ -120,7 +120,7 @@ public class OperationBaseTest
         Assert.Equal("Permission", entity.Controller);
         Assert.Equal("Put", entity.Action);
         Assert.False(entity.IsActive);
-        Assert.Equal(userContext.IdUser, entity.IdUserCreator);
+        Assert.Equal(userContext.IdUser, entity.CreatedBy);
         Assert.Equal(permission.CreatedAt, entity.CreatedAt);
     }
 

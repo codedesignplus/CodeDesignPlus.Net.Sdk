@@ -37,7 +37,7 @@ public class EFCoreExtensionsTest
 
         // Act
         var idProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.Id));
-        var idUserCreatorProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.IdUserCreator));
+        var idUserCreatorProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.CreatedBy));
         var IsActiveProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.IsActive));
         var dateCreatedProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.CreatedAt));
 
@@ -107,9 +107,9 @@ public class EFCoreExtensionsTest
             applications.Add(new Application()
             {
                 Name = $"{nameof(Application.Name)}-{i}",
-                IdUserCreator = Guid.NewGuid(),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = $"{nameof(Application.Description)}-{i}"
             });
         }

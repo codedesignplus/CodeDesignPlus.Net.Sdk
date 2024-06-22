@@ -1,11 +1,15 @@
-﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
+﻿using System.Linq;
+using System.Text.Json;
+using CodeDesignPlus.Net.Security.Abstractions.Options;
 using CodeDesignPlus.Net.Security.Exceptions;
 using CodeDesignPlus.Net.Security.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
 
 namespace CodeDesignPlus.Net.Security.Extensions;
@@ -72,6 +76,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.AspNetCore.Authentication.AuthenticationBuilder so that additional calls can be chained.</returns>
     public static AuthenticationBuilder AddJwtBearer(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration, Action<JwtBearerOptions> options = null)
     {
+        Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+
         var securityOptions = configuration.GetSection(SecurityOptions.Section).Get<SecurityOptions>();
 
         authenticationBuilder
@@ -84,25 +90,56 @@ public static class ServiceCollectionExtensions
 
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
-                        RequireSignedTokens = securityOptions.RequireSignedTokens,
-                        ValidateAudience = securityOptions.ValidateAudience,
                         ValidateIssuer = securityOptions.ValidateIssuer,
                         ValidateLifetime = securityOptions.ValidateLifetime,
-                        ValidateIssuerSigningKey = securityOptions.ValidateIssuerSigningKey,
                         ValidIssuer = securityOptions.ValidIssuer,
-                        ValidAudiences = securityOptions.ValidAudiences
+                        ValidateAudience = securityOptions.ValidateAudience,
+                        ValidAudiences = securityOptions.ValidAudiences,
+                        SignatureValidator = (token, _) => new JsonWebToken(token)
                     };
 
                     if (securityOptions.Certificate != null)
+                    {
+                        x.TokenValidationParameters.ValidateIssuerSigningKey = true;
+                        x.TokenValidationParameters.RequireSignedTokens = true;
                         x.TokenValidationParameters.IssuerSigningKey = new X509SecurityKey(securityOptions.Certificate);
+                    }
 
                     x.IncludeErrorDetails = securityOptions.IncludeErrorDetails;
                     x.RequireHttpsMetadata = securityOptions.RequireHttpsMetadata;
 
                     options?.Invoke(x);
+
+                    x.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = AuthenticationFailed
+                    };
                 }
             );
 
         return authenticationBuilder;
+    }
+
+    private static async Task AuthenticationFailed(AuthenticationFailedContext context)
+    {
+        var exception = context.Exception;
+
+        var exceptionMessages = new Dictionary<Type, (string Header, string Message)>
+        {
+            { typeof(SecurityTokenExpiredException), ("Token-Expired", exception.Message) },
+            { typeof(SecurityTokenInvalidAudienceException), ("Token-InvalidAudience", exception.Message) },
+            { typeof(SecurityTokenInvalidIssuerException), ("Token-InvalidIssuer", exception.Message) },
+            { typeof(SecurityTokenValidationException), ("Token-Validation", exception.Message) },
+            { typeof(SecurityTokenException), ("Token-Exception", exception.Message) }
+        };
+
+        if (exceptionMessages.TryGetValue(exception.GetType(), out var values))
+        {
+            context.Response.Headers.Append(values.Header, "true");
+            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            context.Response.ContentType = "application/json";
+
+            await context.Response.WriteAsync(JsonSerializer.Serialize(new { values.Message }));
+        }
     }
 }

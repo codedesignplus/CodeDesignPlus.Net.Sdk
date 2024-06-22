@@ -39,7 +39,7 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddMongoDiagnostics(configuration);
+        //services.AddMongoDiagnostics(configuration);
 
         services.AddSingleton<IMongoClient>((serviceProvider) =>
         {

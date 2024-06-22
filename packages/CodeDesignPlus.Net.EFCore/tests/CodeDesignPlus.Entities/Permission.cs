@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace CodeDesignPlus.Entities
 {
-    public class Permission : IEntity, IAuditTrail
+    public class Permission : IEntity
     {
         public Guid Id { get; set; }
         public Guid Tenant { get; set; }
@@ -13,9 +13,10 @@ namespace CodeDesignPlus.Entities
         public string Controller { get; set; }
         public string Action { get; set; }
         public bool IsActive { get; set; }
-        public Guid IdUserCreator { get; set; }
-        public DateTime CreatedAt { get; set; }
-
+        public long CreatedAt { get; set; }
+        public Guid CreatedBy { get; set; }
+        public long? UpdatedAt { get; set; }
+        public Guid? UpdatedBy { get; set; }
 
         public List<AppPermision> AppPermisions { get; set; } = [];
         public List<RolePermission> RolePermisions { get; set; } = [];

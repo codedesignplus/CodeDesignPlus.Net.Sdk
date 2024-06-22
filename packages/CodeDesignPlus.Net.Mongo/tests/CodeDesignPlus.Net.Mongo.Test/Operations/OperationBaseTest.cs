@@ -28,13 +28,13 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         var serviceProvider = GetServiceProvider(client, collection);
 
         var idUser = Guid.NewGuid();
-        var date = DateTime.UtcNow;
+        var date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var product = new Product
         {
             IsActive = true,
             Id = Guid.NewGuid(),
             CreatedAt = date,
-            IdUserCreator = idUser
+            CreatedBy = idUser
         };
 
         var userContextMock = new Mock<IUserContext>();
@@ -53,7 +53,7 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         Assert.Equal(product.Id, result.Id);
         Assert.Equal(product.IsActive, result.IsActive);
         Assert.True(date < result.CreatedAt);
-        Assert.Equal(idUser, result.IdUserCreator);
+        Assert.Equal(idUser, result.CreatedBy);
     }
 
     [Fact]
@@ -65,13 +65,13 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         var serviceProvider = GetServiceProvider(client, collection);
 
         var idUser = Guid.NewGuid();
-        var date = DateTime.UtcNow;
+        var date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var product = new Product
         {
             IsActive = true,
             Id = Guid.NewGuid(),
             CreatedAt = date,
-            IdUserCreator = idUser
+            CreatedBy = idUser
         };
 
         var userContextMock = new Mock<IUserContext>();
@@ -100,13 +100,13 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         var serviceProvider = GetServiceProvider(client, collection);
 
         var idUser = Guid.NewGuid();
-        var date = DateTime.UtcNow;
+        var date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         var product = new Product
         {
             IsActive = true,
             Id = Guid.NewGuid(),
             CreatedAt = date,
-            IdUserCreator = idUser
+            CreatedBy = idUser
         };
 
         var userContextMock = new Mock<IUserContext>();
@@ -127,7 +127,7 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         Assert.NotNull(result);
         Assert.Equal(product.Id, result.Id);
         Assert.Equal(product.IsActive, result.IsActive);
-        Assert.Equal(product.IdUserCreator, result.IdUserCreator);
+        Assert.Equal(product.CreatedBy, result.CreatedBy);
     }
 
     private static ServiceProvider GetServiceProvider(IMongoClient mongoClient, IMongoCollection<Product> collection)

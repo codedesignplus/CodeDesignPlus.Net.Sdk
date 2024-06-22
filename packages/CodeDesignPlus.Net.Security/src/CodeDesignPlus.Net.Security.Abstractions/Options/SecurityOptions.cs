@@ -17,6 +17,10 @@ public class SecurityOptions
     /// </summary>
     public string Authority { get; set; }
     /// <summary>
+    /// Gets or sets the client id to use in the authentication
+    /// </summary>
+    public string ClientId { get; set; }
+    /// <summary>
     /// Gets or sets the audience to use in the authentication
     /// </summary>
     public bool IncludeErrorDetails { get; set; }
@@ -24,10 +28,6 @@ public class SecurityOptions
     /// Gets or sets the audience to use in the authentication
     /// </summary>
     public bool RequireHttpsMetadata { get; set; }
-    /// <summary>
-    /// Gets or sets a value indicating whether tokens must have an 'aud' claim matching the audience in the options.
-    /// </summary>
-    public bool RequireSignedTokens { get; set; }
     /// <summary>
     /// Gets or sets a value indicating whether the token signature must be validated.
     /// </summary>
@@ -40,10 +40,6 @@ public class SecurityOptions
     /// Gets or sets a value indicating whether the token issuer will be validated during token validation.
     /// </summary>
     public bool ValidateLifetime { get; set; }
-    /// <summary>
-    /// Gets or sets a value indicating whether the token signature will be validated during token validation.
-    /// </summary>
-    public bool ValidateIssuerSigningKey { get; set; }
     /// <summary>
     /// Gets or sets the valid issuer that will be used to check against the token's issuer.
     /// </summary>

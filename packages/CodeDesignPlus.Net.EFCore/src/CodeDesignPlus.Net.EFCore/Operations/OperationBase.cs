@@ -24,8 +24,10 @@ public abstract class OperationBase<TEntity>(
     /// </summary>
     private readonly List<string> blacklist = [
          nameof(IEntityBase.Id),
-        nameof(IAuditTrail.CreatedAt),
-        nameof(IAuditTrail.CreateBy)
+        nameof(IEntity.CreatedAt),
+        nameof(IEntity.CreatedBy),
+        nameof(IEntity.UpdatedAt),
+        nameof(IEntity.UpdatedBy)
      ];
 
     /// <summary>
@@ -41,10 +43,10 @@ public abstract class OperationBase<TEntity>(
     /// <returns>Represents an asynchronous operation.</returns>
     public virtual async Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
-        if (entity is IAuditTrail auditTrailEntity)
+        if (entity is IEntity auditTrailEntity)
         {
-            auditTrailEntity.CreateBy = this.AuthenticateUser.IdUser;
-            auditTrailEntity.CreatedAt = DateTime.UtcNow;
+            auditTrailEntity.CreatedBy = this.AuthenticateUser.IdUser;
+            auditTrailEntity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
         }
 
         await base.CreateAsync(entity, cancellationToken);

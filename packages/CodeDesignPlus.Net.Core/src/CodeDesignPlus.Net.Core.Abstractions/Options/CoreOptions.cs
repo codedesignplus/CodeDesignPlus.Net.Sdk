@@ -16,5 +16,5 @@ public class CoreOptions
     /// Gets or sets the name
     /// </summary>
     [Required]
-    public string AppName { get; set; }
+    public string? AppName { get; set; }
 }

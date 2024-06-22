@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace CodeDesignPlus.Net.Generator
+namespace CodeDesignPlus.Net.Generator.Attributes
 {
-
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
     public class DtoGeneratorAttribute : Attribute { }
 }

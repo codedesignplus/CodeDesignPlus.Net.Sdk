@@ -9,8 +9,9 @@ public class OrderCreatedDomainEvent(
     string name,
     string description,
     decimal price,
-    DateTime createdAt,
-    DateTime? updatedAt,
+    long createdAt,
+    Guid createBy,
+    long? updatedAt,
     Guid? eventId = null,
     DateTime? occurredAt = null,
     Dictionary<string, object>? metadata = null
@@ -19,6 +20,7 @@ public class OrderCreatedDomainEvent(
     public string Name { get; private set; } = name;
     public string Description { get; private set; } = description;
     public decimal Price { get; private set; } = price;
-    public DateTime CreatedAt { get; private set; } = createdAt;
-    public DateTime? UpdatedAt { get; private set; } = updatedAt;
+    public long CreatedAt { get; private set; } = createdAt;
+    public Guid CreateBy { get; private set; } = createBy;
+    public long? UpdatedAt { get; private set; } = updatedAt;
 }
