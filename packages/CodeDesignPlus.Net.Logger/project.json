@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Logger",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Logger.Key",
+        "projectKey": "CodeDesignPlus.Net.Logger",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

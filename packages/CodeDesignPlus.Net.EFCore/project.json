@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.EFCore",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.EFCore.Key",
+        "projectKey": "CodeDesignPlus.Net.EFCore",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

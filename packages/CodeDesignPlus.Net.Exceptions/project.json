@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Exceptions",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Exceptions.Key",
+        "projectKey": "CodeDesignPlus.Net.Exceptions",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

@@ -3,7 +3,7 @@
 public class AggregateRootTest
 {
     [Fact]
-    public void AggregateRoot()
+    public async Task AggregateRoot()
     {
         // Arrange
         var id = Guid.NewGuid();
@@ -14,6 +14,8 @@ public class AggregateRootTest
 
         // Act
         orderAggregate.Update("Test 2", "Test Description 2", 20, updatedBy);
+
+        await Task.Delay(1000);
 
         // Assert
         Assert.Equal(id, orderAggregate.Id);

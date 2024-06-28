@@ -10,7 +10,8 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
-            AppName = Guid.NewGuid().ToString()
+            AppName = Guid.NewGuid().ToString(),
+            Version = "v1"
         };
 
         // Act

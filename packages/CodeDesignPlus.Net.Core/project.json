@@ -43,21 +43,16 @@
       }
     },
     "sonarqube": {
-      "executor": "@koliveira15/nx-sonarqube:scan",
+      "executor": "nx:run-commands",
+      "outputs": [],
       "options": {
-        "name": "CodeDesignPlus.Net.Core",
-        "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Core.Key",
-        "organization": "codedesignplus",
-        "skipTargetDefaults": false,
-        "branches": false,
-        "qualityGate": false,
-        "qualityGateTimeout": "600",
-        "skipImplicitDeps": false,
-        "exclusions": "**Tests*.cs",
-        "extra": {
-          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Core.Test/coverage.opencover.xml"
-        }
+        "args": "--org=codedesignplus --key=CodeDesignPlus.Net.Core --server=https://sonarcloud.io/",        
+        "commands": [
+          "dotnet sonarscanner begin /o:{args.org} /k:{args.key} /d:sonar.host.url={args.server} /d:sonar.coverage.exclusions=\"**Tests*.cs\" /d:sonar.cs.opencover.reportsPaths={projectRoot}/tests/CodeDesignPlus.Net.Core.Test/coverage.opencover.xml",
+          "dotnet build {projectRoot}/CodeDesignPlus.Net.Core.sln",
+          "dotnet sonarscanner end"
+        ],
+        "parallel": false
       }
     },
     "pack": {

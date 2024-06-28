@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.File.Storage",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.File.Storage.Key",
+        "projectKey": "CodeDesignPlus.Net.File.Storage",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

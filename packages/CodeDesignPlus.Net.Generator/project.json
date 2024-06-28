@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Generator",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Generator.Key",
+        "projectKey": "CodeDesignPlus.Net.Generator",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

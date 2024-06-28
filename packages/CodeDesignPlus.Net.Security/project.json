@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Security",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Security.Key",
+        "projectKey": "CodeDesignPlus.Net.Security",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

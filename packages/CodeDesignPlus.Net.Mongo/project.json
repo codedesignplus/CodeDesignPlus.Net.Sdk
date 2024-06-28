@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Mongo",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Mongo.Key",
+        "projectKey": "CodeDesignPlus.Net.Mongo",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

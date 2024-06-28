@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.RabitMQ",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.RabitMQ.Key",
+        "projectKey": "CodeDesignPlus.Net.RabitMQ",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

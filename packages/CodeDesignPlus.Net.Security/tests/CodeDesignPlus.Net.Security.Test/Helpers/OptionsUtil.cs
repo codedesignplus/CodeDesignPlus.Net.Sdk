@@ -12,13 +12,11 @@ public static class OptionsUtil
         CertificatePath = "certificate.pfx",
         IncludeErrorDetails = true,
         RequireHttpsMetadata = false,
-        RequireSignedTokens = false,
         ValidateAudience = false,
         ValidateIssuer = false,
         ValidateLifetime = false,
-        ValidateIssuerSigningKey = false,
         ValidIssuer = "https://localhost:5001",
-        ValidAudiences = new string[] { "CodeDesignPlus.Net.Security.Test" }
+        ValidAudiences = ["CodeDesignPlus.Net.Security.Test"]
     };
 
     public static readonly SecurityOptions SecurityOptionsAzure = new()
@@ -26,13 +24,11 @@ public static class OptionsUtil
         Authority = "https://codedesignplus.b2clogin.com/codedesignplus.onmicrosoft.com/B2C_1_signin/v2.0",
         IncludeErrorDetails = true,
         RequireHttpsMetadata = false,
-        RequireSignedTokens = true,
         ValidateAudience = false,
         ValidateIssuer = false,
         ValidateLifetime = false,
-        ValidateIssuerSigningKey = false,
         ValidIssuer = "https://codedesignplus.b2clogin.com/codedesignplus.onmicrosoft.com/B2C_1_signin/v2.0",
-        ValidAudiences = new string[] { "7f2aea10-b63c-44ce-8580-78ab3e5189aa" }
+        ValidAudiences = ["7f2aea10-b63c-44ce-8580-78ab3e5189aa"]
     };
 
 }

@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.EventStore",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.EventStore.Key",
+        "projectKey": "CodeDesignPlus.Net.EventStore",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

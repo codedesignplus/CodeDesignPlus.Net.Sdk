@@ -17,4 +17,18 @@ public class CoreOptions
     /// </summary>
     [Required]
     public string? AppName { get; set; }
+
+    [Required]
+    public string? Version { get; set; }
+
+    public string? Description { get; set; }
+
+    public ContactOptions Contact { get; set; } = new();
+}
+
+public class ContactOptions
+{
+    public string? Name { get; set; }
+
+    public string? Email { get; set; }
 }

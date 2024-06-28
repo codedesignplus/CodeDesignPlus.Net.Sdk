@@ -18,11 +18,9 @@ public class SecurityOptionsTest
             CertificatePassword = "123456",
             IncludeErrorDetails = true,
             RequireHttpsMetadata = false,
-            RequireSignedTokens = false,
             ValidateAudience = false,
             ValidateIssuer = false,
             ValidateLifetime = false,
-            ValidateIssuerSigningKey = false,
             ValidIssuer = "https://localhost:5001",
             ValidAudiences = new string[] { "CodeDesignPlus.Net.Security.Test" }
         };
@@ -38,11 +36,9 @@ public class SecurityOptionsTest
         Assert.Equal("123456", options.CertificatePassword);
         Assert.True(options.IncludeErrorDetails);
         Assert.False(options.RequireHttpsMetadata);
-        Assert.False(options.RequireSignedTokens);
         Assert.False(options.ValidateAudience);
         Assert.False(options.ValidateIssuer);
         Assert.False(options.ValidateLifetime);
-        Assert.False(options.ValidateIssuerSigningKey);
         Assert.Equal("https://localhost:5001", options.ValidIssuer);
         Assert.Contains("CodeDesignPlus.Net.Security.Test", options.ValidAudiences);
     }

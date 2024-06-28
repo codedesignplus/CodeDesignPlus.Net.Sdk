@@ -6,6 +6,8 @@ public static class ConfigurationUtil
     public static readonly CoreOptions CoreOptions = new()
     {
         AppName = nameof(Abstractions.Options.CoreOptions.AppName),
+        Version = "v1",
+        Description = nameof(Abstractions.Options.CoreOptions.Description),
     };
 
     public static IConfiguration GetConfiguration()

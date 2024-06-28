@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Observability",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Observability.Key",
+        "projectKey": "CodeDesignPlus.Net.Observability",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

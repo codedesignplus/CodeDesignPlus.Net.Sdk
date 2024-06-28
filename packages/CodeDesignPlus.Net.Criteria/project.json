@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Criteria",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Criteria.Key",
+        "projectKey": "CodeDesignPlus.Net.Criteria",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,

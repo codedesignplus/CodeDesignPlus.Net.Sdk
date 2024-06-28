@@ -47,7 +47,7 @@
       "options": {
         "name": "CodeDesignPlus.Net.Serializers",
         "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Serializers.Key",
+        "projectKey": "CodeDesignPlus.Net.Serializers",
         "organization": "codedesignplus",
         "skipTargetDefaults": false,
         "branches": false,
