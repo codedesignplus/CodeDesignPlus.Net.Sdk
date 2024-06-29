@@ -1,9 +1,5 @@
 ﻿namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 
-using System;
-using System.Collections.Generic;
-using CodeDesignPlus.Net.Core.Abstractions;
-
 /// <summary>
 /// Provides operations for interacting with an event store in an Event Sourcing system.
 /// </summary>
@@ -28,7 +24,7 @@ public interface IEventSourcingService
     /// <param name="version">The version of the event store.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    Task AppendEventAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default) 
+    Task AppendEventAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default)
         where TDomainEvent : IDomainEvent;
 
     /// <summary>

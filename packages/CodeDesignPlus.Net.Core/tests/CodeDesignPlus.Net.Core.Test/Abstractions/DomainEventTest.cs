@@ -27,7 +27,7 @@ public class DomainEventTest
         Assert.NotEqual(Guid.Empty, domainEvent.EventId);
         Assert.NotEqual(Guid.Empty, domainEvent.EventId);
         Assert.Equal(aggregateId, domainEvent.AggregateId);
-        Assert.Equal("order.created", domainEvent.EventType);
+        Assert.Equal("v1.orderaggregate.created", domainEvent.EventType);
         Assert.Equal(name, domainEvent.Name);
         Assert.Equal(description, domainEvent.Description);
         Assert.Equal(price, domainEvent.Price);
@@ -62,7 +62,7 @@ public class DomainEventTest
         // Assert
         Assert.Equal(eventId, domainEvent.EventId);
         Assert.Equal(aggregateId, domainEvent.AggregateId);
-        Assert.Equal("order.created", domainEvent.EventType);
+        Assert.Equal("v1.orderaggregate.created", domainEvent.EventType);
         Assert.Equal(name, domainEvent.Name);
         Assert.Equal(description, domainEvent.Description);
         Assert.Equal(price, domainEvent.Price);

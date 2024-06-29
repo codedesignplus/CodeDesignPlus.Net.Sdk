@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Event.Sourcing;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Exceptions;
 
 /// <summary>
 /// Se genera cuando se quiere acceder a un evento que no esta registrado

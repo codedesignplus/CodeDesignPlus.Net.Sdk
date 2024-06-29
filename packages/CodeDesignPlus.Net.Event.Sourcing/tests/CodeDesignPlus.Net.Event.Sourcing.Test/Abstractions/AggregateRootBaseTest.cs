@@ -2,7 +2,7 @@
 using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Aggregates;
 using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Events;
 
-namespace CodeDesignPlus.Net.Event.Sourcing.Test;
+namespace CodeDesignPlus.Net.Event.Sourcing.Test.Abstractions;
 public class AggregateRootBaseTest
 {
     [Fact]
@@ -104,7 +104,7 @@ public class AggregateRootBaseTest
         };
 
         // Act
-        var rehydratedAggregate = OrderAggregateRoot.Rehydrate<OrderAggregateRoot>(aggregateId, events);
+        var rehydratedAggregate = Sourcing.Abstractions.AggregateRoot.Rehydrate<OrderAggregateRoot>(aggregateId, events);
 
         // Assert
         Assert.Equal(aggregateId, rehydratedAggregate.Id);

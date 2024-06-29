@@ -8,6 +8,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Business = Guid.NewGuid().ToString(),
             AppName = Guid.NewGuid().ToString(),
             Version = "v1",
             Description = Guid.NewGuid().ToString(),
@@ -31,6 +32,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Business = null!,
             AppName = null!,
             Version = null!,
             Description = null!,
@@ -41,6 +43,7 @@ public class CoreOptionsTest
         var results = options.Validate();
 
         // Assert
+        Assert.Contains(results, x => x.ErrorMessage == "The Business field is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The AppName field is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The Version field is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The Description field is required.");
@@ -54,6 +57,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Business = Guid.NewGuid().ToString(),
             AppName = Guid.NewGuid().ToString(),
             Version = "v1.0",
             Description = Guid.NewGuid().ToString(),
@@ -77,6 +81,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Business = Guid.NewGuid().ToString(),
             AppName = Guid.NewGuid().ToString(),
             Version = "v1",
             Description = Guid.NewGuid().ToString(),

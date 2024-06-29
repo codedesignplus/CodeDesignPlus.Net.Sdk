@@ -1,6 +1,6 @@
 ﻿namespace CodeDesignPlus.Net.Core.Test.Helpers.Domain;
 
-[EventKey("order.updated")]
+[EventKey<OrderAggregate>(1, "updated")]
 public class OrderUpdatedDomainEvent(
     Guid id,
     string name,

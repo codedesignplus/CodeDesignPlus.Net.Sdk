@@ -1,6 +1,6 @@
 ﻿namespace CodeDesignPlus.Net.Core.Test.Helpers.Domain;
 
-[EventKey("order.created")]
+[EventKey<OrderAggregate>(1, "created")]
 public class OrderCreatedDomainEvent(
     Guid aggregateId,
     string name,

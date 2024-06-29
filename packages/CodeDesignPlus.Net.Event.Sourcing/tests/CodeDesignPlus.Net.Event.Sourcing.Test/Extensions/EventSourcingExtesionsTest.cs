@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Extensions;
-
-namespace CodeDesignPlus.Net.Event.Sourcing.Test.Extensions;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Test.Extensions;
 
 public class EventSourcingExtesionsTest
 {

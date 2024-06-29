@@ -11,7 +11,11 @@ public class CoreOptions : IValidatableObject
     /// Name of the setions used in the appsettings
     /// </summary>
     public static readonly string Section = "Core";
-
+    /// <summary>
+    /// Gets or sets the business
+    /// </summary>
+    [Required]
+    public required string Business { get; set;}
     /// <summary>
     /// Gets or sets the name
     /// </summary>

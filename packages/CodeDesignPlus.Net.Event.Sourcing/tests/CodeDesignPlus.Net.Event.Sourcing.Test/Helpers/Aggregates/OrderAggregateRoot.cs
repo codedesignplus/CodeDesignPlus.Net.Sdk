@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Events;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Events;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Aggregates;
 

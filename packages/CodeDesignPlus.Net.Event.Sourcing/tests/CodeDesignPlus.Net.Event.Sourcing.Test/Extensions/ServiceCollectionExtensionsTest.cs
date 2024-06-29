@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Event.Sourcing.Extensions;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Extensions;
 
@@ -52,7 +50,8 @@ public class ServiceCollectionExtensionsTest
     public void AddEventSourcing_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
             EventSourcing = OptionsUtil.Options
         });
 

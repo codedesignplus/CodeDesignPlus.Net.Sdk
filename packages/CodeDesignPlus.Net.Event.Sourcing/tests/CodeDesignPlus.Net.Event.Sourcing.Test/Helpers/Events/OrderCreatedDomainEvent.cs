@@ -1,12 +1,13 @@
 ﻿
 using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using CodeDesignPlus.Net.Core.Abstractions.Attributees;
+using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Aggregates;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Events;
 
-[Key("order.created")]
+[EventKey<OrderAggregateRoot>(1, "created")]
 public class OrderCreatedDomainEvent(
-    Guid aggregateId, 
+    Guid aggregateId,
     string name,
     Guid idUser,
     Guid? eventId = null,

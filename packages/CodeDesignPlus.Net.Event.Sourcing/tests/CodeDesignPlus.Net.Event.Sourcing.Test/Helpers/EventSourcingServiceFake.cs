@@ -25,12 +25,12 @@ public class EventSourcingServiceFake : IEventSourcingService
         throw new NotImplementedException();
     }
 
-    public Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId, CancellationToken cancellationToken = default) where TAggregate : Abstractions.IAggregateRoot
+    public Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId, CancellationToken cancellationToken = default) where TAggregate : Sourcing.Abstractions.IAggregateRoot
     {
         throw new NotImplementedException();
     }
 
-    public Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate, CancellationToken cancellationToken = default) where TAggregate : Abstractions.IAggregateRoot
+    public Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate, CancellationToken cancellationToken = default) where TAggregate : Sourcing.Abstractions.IAggregateRoot
     {
         throw new NotImplementedException();
     }

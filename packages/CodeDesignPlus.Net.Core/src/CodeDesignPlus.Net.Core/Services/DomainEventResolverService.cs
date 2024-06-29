@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Core.Services;
+﻿using Microsoft.Extensions.Options;
+
+namespace CodeDesignPlus.Net.Core.Services;
 
 /// <summary>
 /// Service to resolve domain events.
@@ -6,12 +8,17 @@
 public class DomainEventResolverService : IDomainEventResolverService
 {
     private readonly Dictionary<string, Type> eventTypes = [];
+    private readonly CoreOptions coreOptions;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DomainEventResolverService"/> class.
     /// </summary>
-    public DomainEventResolverService()
+    public DomainEventResolverService(IOptions<CoreOptions> options)
     {
+        ArgumentNullException.ThrowIfNull(options);
+
+        this.coreOptions = options.Value;
+
         var types = AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(s => s.GetTypes())
             .Where(x => typeof(DomainEvent).IsAssignableFrom(x) && !x.IsAbstract);
@@ -21,7 +28,11 @@ public class DomainEventResolverService : IDomainEventResolverService
             var attribute = type.GetCustomAttribute<EventKeyAttribute>();
 
             if (attribute is not null)
-                eventTypes.Add(attribute.Key, type);
+            {
+                var key = $"{coreOptions.Business}.{coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
+
+                eventTypes.Add(key, type);
+            }
         }
     }
 
@@ -78,15 +89,7 @@ public class DomainEventResolverService : IDomainEventResolverService
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <returns>The key attribute of the domain event.</returns>
     /// <exception cref="CoreException">Thrown when the event does not have the <see cref="EventKeyAttribute"/>.</exception>
-    public static string GetKeyEvent<TDomainEvent>() where TDomainEvent : IDomainEvent
-    {
-        var attribute = typeof(TDomainEvent).GetCustomAttribute<EventKeyAttribute>();
-
-        if (attribute is null)
-            throw new CoreException($"The event {typeof(TDomainEvent).Name} does not have the KeyAttribute");
-
-        return attribute.Key;
-    }
+    public string GetKeyEvent<TDomainEvent>() where TDomainEvent : IDomainEvent => this.GetKeyEvent(typeof(TDomainEvent));
 
     /// <summary>
     /// Gets the key attribute for the specified type.
@@ -94,7 +97,7 @@ public class DomainEventResolverService : IDomainEventResolverService
     /// <param name="type">The type of the domain event.</param>
     /// <returns>The key attribute of the domain event.</returns>
     /// <exception cref="CoreException">Thrown when the event does not have the <see cref="EventKeyAttribute"/>.</exception>
-    public static string GetKeyEvent(Type type)
+    public string GetKeyEvent(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
 
@@ -103,7 +106,7 @@ public class DomainEventResolverService : IDomainEventResolverService
         if (attribute is null)
             throw new CoreException($"The event {type.Name} does not have the KeyAttribute");
 
-        return attribute.Key;
+        return $"{coreOptions.Business}.{coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
     }
 
 }

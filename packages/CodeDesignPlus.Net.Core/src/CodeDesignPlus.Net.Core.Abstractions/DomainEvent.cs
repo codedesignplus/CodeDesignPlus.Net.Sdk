@@ -43,7 +43,7 @@ public abstract class DomainEvent(
             if (attribute is null)
                 throw new InvalidOperationException($"The event {this.GetType().Name} does not have the {nameof(EventKeyAttribute)} attribute.");
 
-            return attribute.Key;
+            return $"{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
         }
     }
 }

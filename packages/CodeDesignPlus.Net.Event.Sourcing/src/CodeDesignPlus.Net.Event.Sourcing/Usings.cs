@@ -1,3 +1,5 @@
-﻿global using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
-global using System;
-global using System.Linq;
+﻿global using System;
+global using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
+global using CodeDesignPlus.Net.Event.Sourcing.Exceptions;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;

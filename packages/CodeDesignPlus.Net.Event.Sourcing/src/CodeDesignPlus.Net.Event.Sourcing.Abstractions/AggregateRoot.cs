@@ -1,13 +1,12 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 
 /// <summary>
 /// Represents the contract to be implemented by the aggregate root.
 /// </summary>
-public abstract class AggregateRoot : Core.Abstractions.AggregateRoot, IAggregateRoot
+/// <remarks>
+/// Initializes a new instance of the <see cref="AggregateRoot"/> class.
+/// </remarks>
+public abstract class AggregateRoot(Guid id) : Core.Abstractions.AggregateRoot(id), IAggregateRoot
 {
     /// <summary>
     /// The cache of the delegates to create instances of the aggregate root.
@@ -29,15 +28,10 @@ public abstract class AggregateRoot : Core.Abstractions.AggregateRoot, IAggregat
     public long Version { get; private set; } = -1;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AggregateRoot"/> class.
-    /// </summary>
-    protected AggregateRoot(Guid id) : base(id) { }
-
-    /// <summary>
     /// Add a domain event to the list of events that have occurred in the aggregate root.
     /// </summary>
     /// <param name="event">The domain event to add to the list of events that have occurred in the aggregate root.</param>
-    public override void AddEvent(IDomainEvent @event)
+    protected override void AddEvent(IDomainEvent @event)
     {
         @event.Metadata.Add("Version", ++this.Version);
         @event.Metadata.Add("Category", this.Category);

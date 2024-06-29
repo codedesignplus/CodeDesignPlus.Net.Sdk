@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Event.Sourcing.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Test.Exceptions;
 
 public class EventSourcingExceptionTest
 {

@@ -1,11 +1,12 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using CodeDesignPlus.Net.Core.Abstractions.Attributees;
+using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Aggregates;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Events;
 
-[Key("product.added")]
+[EventKey<OrderAggregateRoot>(1, "product-added")]
 public class ProductAddedDomainEvent(
-    Guid aggregateId, 
+    Guid aggregateId,
     string product,
     Guid? eventId = null,
     DateTime? occurredAt = null,
