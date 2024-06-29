@@ -3,6 +3,7 @@ using CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System.Reflection;
+using System.Linq;
 
 namespace CodeDesignPlus.Net.EFCore.Extensions;
 
@@ -21,11 +22,11 @@ public static class EFCoreExtensions
         builder.Property(x => x.Id);
 
         if (typeof(IEntity).IsAssignableFrom(typeof(TEntity)))
-        {            
+        {
             builder.Property(nameof(IEntity.CreatedAt)).IsRequired();
             builder.Property(nameof(IEntity.CreatedBy)).IsRequired();
             builder.Property(nameof(IEntity.UpdatedAt)).IsRequired(false);
-            builder.Property(nameof(IEntity.UpdatedBy)).IsRequired(false);;
+            builder.Property(nameof(IEntity.UpdatedBy)).IsRequired(false);
         }
     }
 
@@ -100,8 +101,6 @@ public static class EFCoreExtensions
     /// <returns>Return true if the type inheritanced is of IEntityTypeConfiguration</returns>
     private static bool IsEntityTypeConfiguration(Type type)
     {
-        return type
-            .GetInterfaces()
-            .Any(x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
+        return Array.Exists(type.GetInterfaces(), x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
     }
 }

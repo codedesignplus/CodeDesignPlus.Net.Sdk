@@ -1,5 +1,5 @@
-﻿using CodeDesignPlus.Net.EFCore.Extensions;
-using CodeDesignPlus.Entities;
+﻿using CodeDesignPlus.Entities;
+using CodeDesignPlus.Net.EFCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

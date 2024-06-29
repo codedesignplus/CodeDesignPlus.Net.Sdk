@@ -1,6 +1,4 @@
-﻿
-
-namespace CodeDesignPlus.Net.Core.Abstractions;
+﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
 /// Represents the metadata of the event.

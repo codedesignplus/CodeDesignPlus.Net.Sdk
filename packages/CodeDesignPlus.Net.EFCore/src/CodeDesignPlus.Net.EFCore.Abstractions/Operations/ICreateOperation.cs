@@ -6,7 +6,7 @@ namespace CodeDesignPlus.Net.EFCore.Abstractions.Operations;
 /// It allows the repository to create a record by assigning the information to the transversal properties of the entity
 /// </summary>
 /// <typeparam name="TEntity">Type of entity to create</typeparam>
-public interface ICreateOperation< TEntity> where TEntity : class, IEntityBase
+public interface ICreateOperation<in TEntity> where TEntity : class, IEntityBase
 {
     /// <summary>
     /// Method to create a record in the database

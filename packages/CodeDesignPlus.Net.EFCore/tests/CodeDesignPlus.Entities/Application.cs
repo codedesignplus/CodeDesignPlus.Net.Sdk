@@ -1,6 +1,6 @@
-﻿using System;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using System;
 using System.Collections.Generic;
-using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Entities
 {

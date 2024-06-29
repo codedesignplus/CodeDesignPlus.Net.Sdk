@@ -1,12 +1,9 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.EFCore.Abstractions.Operations;
+﻿namespace CodeDesignPlus.Net.EFCore.Abstractions.Operations;
 
 /// <summary>
 /// Allows the repository to delete a record by assigning the information to the transversal properties of the entity
 /// </summary>
-/// <typeparam name="TEntity">Type of entity to delete</typeparam>
-public interface IDeleteOperation<TEntity> where TEntity : class, IEntityBase
+public interface IDeleteOperation 
 {
     /// <summary>
     /// Method that deletes a record in the database

@@ -5,9 +5,14 @@ public static class ConfigurationUtil
 {
     public static readonly CoreOptions CoreOptions = new()
     {
-        AppName = nameof(Abstractions.Options.CoreOptions.AppName),
+        AppName = nameof(Core.Abstractions.Options.CoreOptions.AppName),
         Version = "v1",
-        Description = nameof(Abstractions.Options.CoreOptions.Description),
+        Description = nameof(Core.Abstractions.Options.CoreOptions.Description),
+        Contact = new Contact()
+        {
+            Name = nameof(Contact.Name),
+            Email = "codedesignplus@outlook.com"
+        },
     };
 
     public static IConfiguration GetConfiguration()

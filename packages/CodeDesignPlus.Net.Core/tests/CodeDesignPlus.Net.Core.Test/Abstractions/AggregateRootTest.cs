@@ -1,21 +1,38 @@
-﻿namespace CodeDesignPlus.Net.Core.Test;
+﻿using System.Reflection;
+using CodeDesignPlus.Net.Core.Test.Helpers.Domain;
+
+namespace CodeDesignPlus.Net.Core.Test.Abstractions;
 
 public class AggregateRootTest
 {
     [Fact]
-    public async Task AggregateRoot()
+    public void Constructor_Empty_Success()
+    {
+        // Arrange
+        var orderAggregate = new OrderAggregate();
+
+        // Act
+        var events = orderAggregate.GetAndClearEvents();
+
+        // Assert
+        Assert.Empty(events);
+    }
+
+    [Fact]
+    public async Task AggregateRoot_ValidateState_Success()
     {
         // Arrange
         var id = Guid.NewGuid();
         var createBy = Guid.NewGuid();
         var updatedBy = Guid.NewGuid();
+        var tenant = Guid.NewGuid();
 
-        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, createBy);
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
 
         // Act
         orderAggregate.Update("Test 2", "Test Description 2", 20, updatedBy);
 
-        await Task.Delay(1000);
+        await Task.Delay(100);
 
         // Assert
         Assert.Equal(id, orderAggregate.Id);
@@ -24,12 +41,14 @@ public class AggregateRootTest
         Assert.Equal(20, orderAggregate.Price);
         Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.CreatedAt);
         Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.UpdatedAt);
+        Assert.True(orderAggregate.IsActive);
+        Assert.Equal(tenant, orderAggregate.Tenant);
 
-        Thread.Sleep(1000);
-        
+        await Task.Delay(100);
+
         orderAggregate.Delete();
 
-        Thread.Sleep(1000);
+        await Task.Delay(100);
 
         Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.UpdatedAt);
 
@@ -40,23 +59,24 @@ public class AggregateRootTest
     }
 
     [Fact]
-    public void EventBase()
+    public void Event_SerializeAndDeserialize_Success()
     {
         // Arrange
         var id = Guid.NewGuid();
         var createBy = Guid.NewGuid();
-        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, createBy);
+        var tenant = Guid.NewGuid();
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
 
         // Act
-        var domainEvent = (OrderCreatedDomainEvent)orderAggregate.GetAndClearEvents().FirstOrDefault()!;
+        var domainEvent = orderAggregate.GetAndClearEvents()[0] as OrderCreatedDomainEvent;
 
         // Assert
-        var json = JsonConvert.SerializeObject(domainEvent, new EventJsonConvert());
+        var json = JsonConvert.SerializeObject(domainEvent);
 
-        var @event = JsonConvert.DeserializeObject<OrderCreatedDomainEvent>(json, new EventJsonConvert());
+        var @event = JsonConvert.DeserializeObject<OrderCreatedDomainEvent>(json);
 
         Assert.NotNull(@event);
-        Assert.Equal(domainEvent.EventId, @event.EventId);
+        Assert.Equal(domainEvent!.EventId, @event.EventId);
         Assert.Equal(domainEvent.OccurredAt, @event.OccurredAt);
         Assert.Equal(domainEvent.AggregateId, @event.AggregateId);
         Assert.Equal(domainEvent.EventType, @event.EventType);
@@ -72,6 +92,49 @@ public class AggregateRootTest
             Assert.True(@event.Metadata.ContainsKey(item.Key));
             Assert.Equal(item.Value, @event.Metadata[item.Key]);
         }
+    }
+
+    [Fact]
+    public void Aggregate_DomainEventsIsNull_ReturnEmpty()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var createBy = Guid.NewGuid();
+        var tenant = Guid.NewGuid();
+
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
+
+        var domainEventsField = typeof(AggregateRoot).GetField("domainEvents", BindingFlags.NonPublic | BindingFlags.Instance);
+
+        domainEventsField!.SetValue(orderAggregate, null);
+
+        // Act
+        var events = orderAggregate.GetAndClearEvents();
+
+        // Assert
+        Assert.Empty(events);
+    }
+
+    [Fact]
+    public void Aggregate_AddEventWhenDomainEventIsNull_Success()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var createBy = Guid.NewGuid();
+        var tenant = Guid.NewGuid();
+
+        var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
+        
+        var domainEventsField = typeof(AggregateRoot).GetField("domainEvents", BindingFlags.NonPublic | BindingFlags.Instance);
+        domainEventsField!.SetValue(orderAggregate, null);
+
+        // Act
+        orderAggregate.Delete();
+
+        // Assert
+        var events = orderAggregate.GetAndClearEvents();
+
+        Assert.NotEmpty(events);
     }
 
 }

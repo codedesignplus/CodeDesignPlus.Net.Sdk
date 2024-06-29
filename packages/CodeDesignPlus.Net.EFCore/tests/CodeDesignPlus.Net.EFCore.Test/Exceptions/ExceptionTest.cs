@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.EFCore.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.EFCore.Test.Exceptions;
 
 public class EFCoreExceptionTest
 {

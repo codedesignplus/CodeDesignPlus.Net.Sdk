@@ -3,14 +3,22 @@
 /// <summary>
 /// Defines the base structure for entities.
 /// </summary>
-public interface IEntityBase : IBase { }
+public interface IEntityBase
+{
+
+    /// <summary>
+    /// Gets or sets the primary identifier of the record.
+    /// </summary>
+    Guid Id { get; }
+}
 
 
 /// <summary>
 /// Defines the base structure for entities.
 /// </summary>
-public interface IEntity : IEntityBase, IBase
+public interface IEntity : IEntityBase
 {
+
     /// <summary>
     /// Get or sets the is active
     /// </summary>

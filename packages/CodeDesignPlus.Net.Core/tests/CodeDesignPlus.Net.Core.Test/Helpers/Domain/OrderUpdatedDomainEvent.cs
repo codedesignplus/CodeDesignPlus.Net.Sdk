@@ -1,9 +1,6 @@
-﻿
-using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+﻿namespace CodeDesignPlus.Net.Core.Test.Helpers.Domain;
 
-namespace CodeDesignPlus.Net.Core.Test;
-
-[Key("order.updated")]
+[EventKey("order.updated")]
 public class OrderUpdatedDomainEvent(
     Guid id,
     string name,

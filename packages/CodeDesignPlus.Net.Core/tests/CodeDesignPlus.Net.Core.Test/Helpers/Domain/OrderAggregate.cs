@@ -1,22 +1,38 @@
-﻿
-namespace CodeDesignPlus.Net.Core.Test;
+﻿namespace CodeDesignPlus.Net.Core.Test.Helpers.Domain;
 
-public class OrderAggregate(Guid id, string name, string description, decimal price)
-    : AggregateRoot(id)
+public class OrderAggregate : AggregateRoot
 {
-    public string Name { get; private set; } = name;
-    public string Description { get; private set; } = description;
-    public decimal Price { get; private set; } = price;
+    public OrderAggregate() : base()
+    {
+        Name = string.Empty;
+        Description = string.Empty;
+    }
 
-    public static OrderAggregate Create(Guid id, string name, string description, decimal price, Guid createBy)
+    public OrderAggregate(Guid id, string name, string description, decimal price) : base(id)
+    {
+        Name = name;
+        Description = description;
+        Price = price;
+    }
+
+    public string Name { get; private set; }
+    public string Description { get; private set; }
+    public decimal Price { get; private set; }
+
+
+
+
+    public static OrderAggregate Create(Guid id, string name, string description, decimal price, Guid tenant, Guid createBy)
     {
         var aggregate = new OrderAggregate(id, name, description, price)
         {
             CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-            CreatedBy = createBy
+            CreatedBy = createBy,
+            IsActive = true,
+            Tenant = tenant
         };
 
-        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price,DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), createBy, null, metadata: new Dictionary<string, object>
+        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), createBy, null, metadata: new Dictionary<string, object>
         {
             { "MetaKey1", "Value1" }
         }));
@@ -26,19 +42,19 @@ public class OrderAggregate(Guid id, string name, string description, decimal pr
 
     public void Update(string name, string description, decimal price, Guid updatedBy)
     {
-        this.Name = name;
-        this.Description = description;
-        this.Price = price;
-        this.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
-        this.UpdatedBy = updatedBy;
+        Name = name;
+        Description = description;
+        Price = price;
+        UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        UpdatedBy = updatedBy;
 
-        this.AddEvent(new OrderUpdatedDomainEvent(this.Id, name, description, price, this.UpdatedAt, updatedBy));
+        AddEvent(new OrderUpdatedDomainEvent(Id, name, description, price, UpdatedAt, updatedBy));
     }
 
     public void Delete()
     {
-        this.UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
 
-        this.AddEvent(new OrderDeletedDomainEvent(this.Id, this.UpdatedAt));
+        AddEvent(new OrderDeletedDomainEvent(Id, UpdatedAt));
     }
 }

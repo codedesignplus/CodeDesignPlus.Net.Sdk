@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
+﻿namespace CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
 
 /// <summary>
 /// Model that will obtain the request data to paginate the results.

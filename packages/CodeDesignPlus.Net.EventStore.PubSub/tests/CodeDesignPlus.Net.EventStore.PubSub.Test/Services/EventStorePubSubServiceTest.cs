@@ -197,6 +197,7 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
             Core = new
             {
                 AppName = "Test",
+                Version = "v1"
             },
             PubSub = new
             {

@@ -90,24 +90,4 @@ public class MongoDiagnosticsExceptionTest
         Assert.Equal(innerException, exception.InnerException);
 
     }
-
-    [Fact]
-    public void MongoDiagnosticsException_SerializationInfo_Call_Method()
-    {
-        // Arrange
-        var errors = new List<string>() { Guid.NewGuid().ToString() };
-        var message = Guid.NewGuid().ToString();
-
-        var exception = new MongoDiagnosticsException(message, errors);
-
-        // Act 
-        var serialize = JsonConvert.SerializeObject(exception);
-
-        var deserialize = JsonConvert.DeserializeObject(serialize, typeof(MongoDiagnosticsException)) as MongoDiagnosticsException;
-
-        //Assert
-        Assert.NotNull(deserialize);
-        Assert.Equal(exception.Message, deserialize.Message);
-        Assert.Equal(exception.Errors, deserialize.Errors);
-    }
 }

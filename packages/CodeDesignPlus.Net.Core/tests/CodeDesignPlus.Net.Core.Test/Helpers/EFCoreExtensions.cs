@@ -19,7 +19,7 @@ namespace CodeDesignPlus.Net.Core.Test.Helpers
         public static async Task<Pager<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, int currentPage, int pageSize) where TEntity : IEntity
         {
             if (currentPage < 1 || pageSize < 1)
-                return new Pager<TEntity>(0, null, 0, 0);
+                return new Pager<TEntity>(0, null!, 0, 0);
 
             var totalItems = await query.CountAsync();
 

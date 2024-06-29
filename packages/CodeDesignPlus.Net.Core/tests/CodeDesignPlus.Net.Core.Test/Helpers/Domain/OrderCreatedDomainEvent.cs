@@ -1,9 +1,6 @@
-﻿
-using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+﻿namespace CodeDesignPlus.Net.Core.Test.Helpers.Domain;
 
-namespace CodeDesignPlus.Net.Core.Test;
-
-[Key("order.created")]
+[EventKey("order.created")]
 public class OrderCreatedDomainEvent(
     Guid aggregateId,
     string name,

@@ -12,18 +12,14 @@ namespace CodeDesignPlus.Net.EFCore.Operations;
 /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
 /// <param name="authenticatetUser">Information of the authenticated user during the request</param>
 /// <param name="context">Represents a session with the database and can be used to query and save instances of your entities</param>
-public abstract class OperationBase<TEntity>(
-    IUserContext authenticatetUser,
-    DbContext context
-)
-: RepositoryBase(context), IOperationBase<TEntity>
+public abstract class OperationBase<TEntity>(IUserContext authenticatetUser, DbContext context) : RepositoryBase(context), IOperationBase<TEntity>
     where TEntity : class, IEntityBase
 {
     /// <summary>
     /// List of properties that will not be updated
     /// </summary>
     private readonly List<string> blacklist = [
-         nameof(IEntityBase.Id),
+        nameof(IEntityBase.Id),
         nameof(IEntity.CreatedAt),
         nameof(IEntity.CreatedBy),
         nameof(IEntity.UpdatedAt),
@@ -78,12 +74,12 @@ public abstract class OperationBase<TEntity>(
         {
             var properties = typeof(TEntity).GetProperties().Where(x => !this.blacklist.Contains(x.Name)).ToList();
 
-            foreach (var property in properties)
+            foreach (var property in properties.Select(property => property.Name))
             {
-                var value = entity.GetType().GetProperty(property.Name).GetValue(entity);
+                var value = entity.GetType().GetProperty(property).GetValue(entity);
 
                 if (value != null)
-                    entityUpdated.GetType().GetProperty(property.Name).SetValue(entityUpdated, value, null);
+                    entityUpdated.GetType().GetProperty(property).SetValue(entityUpdated, value, null);
             }
 
             await base.Context.SaveChangesAsync(cancellationToken);

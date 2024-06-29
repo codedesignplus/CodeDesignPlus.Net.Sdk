@@ -1,7 +1,7 @@
-﻿using System.Security.Claims;
-using CodeDesignPlus.Net.Security.Abstractions;
+﻿using CodeDesignPlus.Net.Security.Abstractions;
+using System.Security.Claims;
 
-namespace CodeDesignPlus.Net.EFCore.Test;
+namespace CodeDesignPlus.Net.EFCore.Test.Helpers.Models;
 
 public class UserContext : IUserContext
 {

@@ -660,7 +660,8 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
             Core = new {
-                AppName = "CodeDesignPlus.Net.EventStore.Test"
+                AppName = "CodeDesignPlus.Net.EventStore.Test",
+                Version = "v1"
             },
             EventSourcing = new
             {

@@ -43,8 +43,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <returns>Represents an asynchronous operation</returns>
     public Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         return this.ProcessCreateAsync(entity, cancellationToken);
     }

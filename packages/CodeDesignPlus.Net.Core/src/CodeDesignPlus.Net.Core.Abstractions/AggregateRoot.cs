@@ -1,7 +1,4 @@
-﻿
-using System.Collections.Concurrent;
-
-namespace CodeDesignPlus.Net.Core.Abstractions;
+﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
 /// Represents an aggregate root.
@@ -16,7 +13,7 @@ public abstract class AggregateRoot : IAggregateRoot
     /// <summary>
     /// Gets or sets the identifier of the user who created the record.
     /// </summary>
-    public bool IsActive  { get; set; }
+    public bool IsActive { get; set; }
     /// <summary>
     /// Get or sets the creatae at
     /// </summary>
@@ -32,7 +29,7 @@ public abstract class AggregateRoot : IAggregateRoot
     /// <summary>
     /// Get or sets the update by
     /// </summary>
-    public Guid? UpdatedBy { get; set; }    
+    public Guid? UpdatedBy { get; set; }
     /// <summary>
     /// Get or set the tenant identifier.
     /// </summary>
@@ -61,8 +58,8 @@ public abstract class AggregateRoot : IAggregateRoot
     /// Apply the changes that occur in the aggregate root.
     /// </summary>
     /// <param name="event">The domain event to apply the changes.</param>
-    public virtual void AddEvent(IDomainEvent @event)
-    {        
+    protected virtual void AddEvent(IDomainEvent @event)
+    {
         this.domainEvents ??= new ConcurrentDictionary<Guid, IDomainEvent>();
 
         this.domainEvents.TryAdd(@event.EventId, @event);
@@ -76,11 +73,11 @@ public abstract class AggregateRoot : IAggregateRoot
     {
         if (this.domainEvents == null)
             return [];
-            
-        var domainEvents = this.domainEvents.Values.ToList();
+
+        var events = this.domainEvents.Values.ToList();
 
         this.domainEvents.Clear();
 
-        return domainEvents;
+        return events;
     }
 }

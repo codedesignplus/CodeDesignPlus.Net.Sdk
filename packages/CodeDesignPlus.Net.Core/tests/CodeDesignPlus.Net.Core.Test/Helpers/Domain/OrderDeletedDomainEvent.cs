@@ -1,8 +1,6 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+﻿namespace CodeDesignPlus.Net.Core.Test.Helpers.Domain;
 
-namespace CodeDesignPlus.Net.Core.Test;
-
-[Key("order.deleted")]
+[EventKey("order.deleted")]
 public class OrderDeletedDomainEvent(
     Guid id,
     long? deletedAt,

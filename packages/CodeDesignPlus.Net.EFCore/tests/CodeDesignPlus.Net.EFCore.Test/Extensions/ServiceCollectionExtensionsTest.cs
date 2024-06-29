@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.InMemory;
+using CodeDesignPlus.Net.EFCore.Extensions;
 
-namespace CodeDesignPlus.Net.EFCore.Extensions;
+namespace CodeDesignPlus.Net.EFCore.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -74,15 +75,15 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddRepositories<long, int, CodeDesignPlusContextInMemory>();
+        serviceCollection.AddRepositories<CodeDesignPlusContextInMemory>();
 
         // Assert
         var repository = serviceCollection.Where(x => typeof(IRepositoryBase).IsAssignableFrom(x.ServiceType)).ToList();
 
         repository.ForEach(x => Assert.Equal(ServiceLifetime.Transient, x.Lifetime));
     }
-    
-    
+
+
     /// <summary>
     /// Validate that the settings are registered correctly
     /// </summary>

@@ -3,13 +3,19 @@
 /// <summary>
 /// Defines the base structure for DTOs.
 /// </summary>
-public interface IDtoBase : IBase { }
+public interface IDtoBase
+{
+    /// <summary>
+    /// Gets or sets the primary identifier of the record.
+    /// </summary>
+    Guid Id { get; set; }
+}
 
 
 /// <summary>
 /// Defines the base structure for DTOs.
 /// </summary>
-public interface IDto : IDtoBase, IBase
+public interface IDto : IDtoBase
 {
     /// <summary>
     /// Gets or sets the identifier of the user who created the record.

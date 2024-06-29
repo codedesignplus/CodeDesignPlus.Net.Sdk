@@ -20,11 +20,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddEFCore(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(EFCoreOptions.Section);
 
@@ -42,11 +39,9 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Gets all repositories and registers them in the.net core dependency container
     /// </summary>
-    /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-    /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
     /// <typeparam name="TContext">Represents a session with the database and can be used to query and save instances of your entities</typeparam>
     /// <param name="services">The IServiceCollection to add services to.</param>
-    public static void AddRepositories<TKey, TUserKey, TContext>(this IServiceCollection services)
+    public static void AddRepositories<TContext>(this IServiceCollection services)
         where TContext : DbContext
     {
         var assembly = typeof(TContext).GetTypeInfo().Assembly;

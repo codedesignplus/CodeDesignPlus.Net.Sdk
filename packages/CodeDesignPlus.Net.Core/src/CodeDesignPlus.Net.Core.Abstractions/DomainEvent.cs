@@ -1,8 +1,4 @@
-﻿
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions.Attributes;
-
-namespace CodeDesignPlus.Net.Core.Abstractions;
+﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
 /// Represents the domain event that will be used to notify the changes that occur in the domain.
@@ -42,10 +38,10 @@ public abstract class DomainEvent(
     {
         get
         {
-            var attribute = this.GetType().GetCustomAttribute<KeyAttribute>();
+            var attribute = this.GetType().GetCustomAttribute<EventKeyAttribute>();
 
             if (attribute is null)
-                throw new InvalidOperationException($"The event {this.GetType().Name} does not have the {nameof(KeyAttribute)} attribute.");
+                throw new InvalidOperationException($"The event {this.GetType().Name} does not have the {nameof(EventKeyAttribute)} attribute.");
 
             return attribute.Key;
         }

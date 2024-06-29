@@ -3,7 +3,7 @@ using CodeDesignPlus.InMemory;
 using CodeDesignPlus.InMemory.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-namespace CodeDesignPlus.Net.EFCore.Test;
+namespace CodeDesignPlus.Net.EFCore.Test.Repository;
 
 /// <summary>
 /// Unit tests to the RepositoryBase class
