@@ -23,9 +23,9 @@ internal class Parser
     /// Parses the list of tokens and returns the root node of the Abstract Syntax Tree (AST).
     /// </summary>
     /// <returns>The root node of the AST.</returns>
-    public ASTNode Parse()
+    public AstNode Parse()
     {
-        var root = new ASTNode(ASTType.Expression, null, []);
+        var root = new AstNode(AstType.Expression, null, []);
 
         while (position < tokens.Count)
         {
@@ -37,7 +37,7 @@ internal class Parser
 
     private int position;
 
-    private ASTNode ParseExpression()
+    private AstNode ParseExpression()
     {
         var left = ParseCondition();
 
@@ -47,13 +47,13 @@ internal class Parser
             position++;
 
             var right = ParseCondition();
-            left = new ASTNode(ASTType.Operator, logicalOperator, [left, right]);
+            left = new AstNode(AstType.Operator, logicalOperator, [left, right]);
         }
 
         return left;
     }
 
-    private ASTNode ParseCondition()
+    private AstNode ParseCondition()
     {
         if (position + 2 < tokens.Count && tokens[position].Type == TokenType.Property)
         {
@@ -61,7 +61,7 @@ internal class Parser
             var comparisonOperator = tokens[position++].Value;
             var value = tokens[position++].Value;
 
-            return new ASTNode(ASTType.Condition, $"{property}{comparisonOperator}{value}", []);
+            return new AstNode(AstType.Condition, $"{property}{comparisonOperator}{value}", []);
         }
 
         throw new CriteriaException("Invalid condition format");

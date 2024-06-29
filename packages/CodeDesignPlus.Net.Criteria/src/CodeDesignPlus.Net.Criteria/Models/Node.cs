@@ -3,7 +3,7 @@
 /// <summary>
 /// Abstract syntax tree (AST) type.
 /// </summary>
-public enum ASTType
+public enum AstType
 {
     Expression,
     Operator,
@@ -16,4 +16,4 @@ public enum ASTType
 /// <param name="Type">The type of the node.</param>
 /// <param name="Value">The value of the node.</param>
 /// <param name="Children">The children of the node.</param>
-public record ASTNode(ASTType Type, string Value, List<ASTNode> Children);
+public record AstNode(AstType Type, string Value, List<AstNode> Children);

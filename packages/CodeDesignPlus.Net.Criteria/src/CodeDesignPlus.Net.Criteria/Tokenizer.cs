@@ -3,10 +3,10 @@
 /// <summary>
 /// Represents a class that tokenizes an input string into a list of tokens.
 /// </summary>
-internal class Tokenizer
+internal static class Tokenizer
 {
-    private static readonly string[] LogicalOperators = ["and", "or"];
-    private static readonly string[] ComparisonOperators = ["~=", "^=", "$=", "<=", ">=", "=", "<", ">"];
+    private static readonly string[] logicalOperators = ["and", "or"];
+    private static readonly string[] comparisonOperators = ["~=", "^=", "$=", "<=", ">=", "=", "<", ">"];
 
     /// <summary>
     /// Tokenizes the input string.
@@ -19,7 +19,7 @@ internal class Tokenizer
 
         foreach (var part in input.Split('|'))
         {
-            if (LogicalOperators.Contains(part.ToLower()))
+            if (logicalOperators.Contains(part.ToLower()))
             {
                 tokens.Add(new Token(TokenType.LogicalOperator, part.ToLower()));
             }
@@ -39,7 +39,7 @@ internal class Tokenizer
     /// <returns>An enumerable collection of tokens.</returns>
     private static IEnumerable<Token> CreateTokensFromPart(string part)
     {
-        foreach (var compOperator in ComparisonOperators)
+        foreach (var compOperator in comparisonOperators)
         {
             var split = part.Split(new[] { compOperator }, 2, StringSplitOptions.None);
 

@@ -14,6 +14,7 @@
         "net.file.storage",
         "net.xunit",
         "net.logger",
-        "all"
+        "all",
+        "net.criteria"
     ]
 }

@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Reflection;
+using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
+using CodeDesignPlus.Net.Criteria.Exceptions;
+using CodeDesignPlus.Net.Criteria.Models;
 using CodeDesignPlus.Net.Criteria.Test.Helpers;
 
 namespace CodeDesignPlus.Net.Criteria.Test.Extensions;
@@ -47,6 +51,32 @@ public class CriteriaExtensionsTest
 
         // Assert
         Assert.Null(sortByExpression);
+    }
+
+    [Fact]
+    public void GetSortByExpression_ReturnsNotNull_WhenCriteriaOrderByIsNotNull()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { OrderBy = "Name" };
+
+        // Act
+        var sortByExpression = criteria.GetSortByExpression<Order>();
+
+        // Assert
+        Assert.NotNull(sortByExpression);
+    }
+
+    [Fact]
+    public void GetSortByExpression_ReturnsNotNull_WhenCriteriaOrderByIsNotNullAndDescending()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { OrderBy = "Name", OrderType = OrderTypes.Descending};
+
+        // Act
+        var sortByExpression = criteria.GetSortByExpression<Order>();
+
+        // Assert
+        Assert.NotNull(sortByExpression);
     }
 
     [Fact]
@@ -265,4 +295,5 @@ public class CriteriaExtensionsTest
         Assert.NotNull(order);
         Assert.Equal(orderExpected, order);
     }
+
 }

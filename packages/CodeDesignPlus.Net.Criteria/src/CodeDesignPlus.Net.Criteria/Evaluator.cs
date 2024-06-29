@@ -3,7 +3,7 @@
 /// <summary>
 /// Evaluates an abstract syntax tree (AST) and builds an expression to represent the evaluation.
 /// </summary>
-internal class Evaluator
+internal static class Evaluator
 {
     private static readonly string[] Operators = ["~=", "^=", "$=", "<=", ">=", "=", "<", ">"];
 
@@ -13,7 +13,7 @@ internal class Evaluator
     /// <typeparam name="T">The type of the parameter in the expression.</typeparam>
     /// <param name="node">The ASTNode to evaluate.</param>
     /// <returns>An expression representing the evaluation of the ASTNode.</returns>
-    public static Expression<Func<T, bool>> Evaluate<T>(ASTNode node)
+    public static Expression<Func<T, bool>> Evaluate<T>(AstNode node)
     {
         var parameter = Expression.Parameter(typeof(T));
 
@@ -28,13 +28,13 @@ internal class Evaluator
     /// <param name="node">The AST node to build the expression from.</param>
     /// <param name="parameter">The parameter expression to use in the expression.</param>
     /// <returns>The built expression.</returns>
-    private static Expression BuildExpression(ASTNode node, ParameterExpression parameter)
+    private static Expression BuildExpression(AstNode node, ParameterExpression parameter)
     {
         return node.Type switch
         {
-            ASTType.Expression => BuildExpression(node.Children[0], parameter),
-            ASTType.Condition => BuildConditionExpression(node, parameter),
-            ASTType.Operator => BuildLogicalExpression(node, parameter),
+            AstType.Expression => BuildExpression(node.Children[0], parameter),
+            AstType.Condition => BuildConditionExpression(node, parameter),
+            AstType.Operator => BuildLogicalExpression(node, parameter),
             _ => throw new CriteriaException($"Invalid AST node type: {node.Type}"),
         };
     }
@@ -45,7 +45,7 @@ internal class Evaluator
     /// <param name="node">The AST node to build the condition expression from.</param>
     /// <param name="parameter">The parameter expression to use in the expression.</param>
     /// <returns>The built condition expression.</returns>
-    private static Expression BuildConditionExpression(ASTNode node, ParameterExpression parameter)
+    private static Expression BuildConditionExpression(AstNode node, ParameterExpression parameter)
     {
         var (propertyPath, operatorSymbol, value) = SplitCondition(node.Value);
         var property = BuildPropertyExpression(propertyPath, parameter);
@@ -60,7 +60,7 @@ internal class Evaluator
     /// <param name="node">The AST node to build the logical expression from.</param>
     /// <param name="parameter">The parameter expression to use in the expression.</param>
     /// <returns>The built logical expression.</returns>
-    private static BinaryExpression BuildLogicalExpression(ASTNode node, ParameterExpression parameter)
+    private static BinaryExpression BuildLogicalExpression(AstNode node, ParameterExpression parameter)
     {
         var left = BuildExpression(node.Children[0], parameter);
         var right = BuildExpression(node.Children[1], parameter);
