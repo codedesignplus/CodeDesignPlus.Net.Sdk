@@ -37,7 +37,6 @@ public abstract class AggregateRoot(Guid id) : Core.Abstractions.AggregateRoot(i
         @event.Metadata.Add("Category", this.Category);
         @event.Metadata.Add("OccurredAt", @event.OccurredAt);
         @event.Metadata.Add("EventId", @event.EventId);
-        @event.Metadata.Add("EventType", @event.EventType);
 
         base.AddEvent(@event);
 

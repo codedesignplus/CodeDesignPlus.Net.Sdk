@@ -1,10 +1,10 @@
-﻿using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributees;
+using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 
-[Key("product.added")]
+[EventKey<Product>(1, "created")]
 public class ProductAddedToOrderEvent(
     Guid aggregateId,
     int quantity,
@@ -18,7 +18,7 @@ public class ProductAddedToOrderEvent(
     public Product Product { get; set; } = product;
 }
 
-[Key("product.removed")]
+[EventKey<Product>(1, "removed")]
 public class ProductRemovedFromOrderEvent(
     Guid aggregateId,
     Guid productId,
@@ -30,10 +30,10 @@ public class ProductRemovedFromOrderEvent(
     public Guid ProductId { get; } = productId;
 }
 
-[Key("product.quantity.updated")]
+[EventKey<Product>(1, "quantity.updated")]
 public class ProductQuantityUpdatedEvent(
-    Guid aggregateId, 
-    Guid productId, 
+    Guid aggregateId,
+    Guid productId,
     int newQuantity,
     Guid? eventId = null,
     DateTime? occurredAt = null,

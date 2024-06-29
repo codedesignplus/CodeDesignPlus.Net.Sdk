@@ -27,7 +27,6 @@ public class DomainEventTest
         Assert.NotEqual(Guid.Empty, domainEvent.EventId);
         Assert.NotEqual(Guid.Empty, domainEvent.EventId);
         Assert.Equal(aggregateId, domainEvent.AggregateId);
-        Assert.Equal("v1.orderaggregate.created", domainEvent.EventType);
         Assert.Equal(name, domainEvent.Name);
         Assert.Equal(description, domainEvent.Description);
         Assert.Equal(price, domainEvent.Price);
@@ -62,7 +61,6 @@ public class DomainEventTest
         // Assert
         Assert.Equal(eventId, domainEvent.EventId);
         Assert.Equal(aggregateId, domainEvent.AggregateId);
-        Assert.Equal("v1.orderaggregate.created", domainEvent.EventType);
         Assert.Equal(name, domainEvent.Name);
         Assert.Equal(description, domainEvent.Description);
         Assert.Equal(price, domainEvent.Price);
@@ -71,18 +69,5 @@ public class DomainEventTest
         Assert.Equal(updatedAt, domainEvent.UpdatedAt);
         Assert.Equal(occurredAt, domainEvent.OccurredAt);
         Assert.Equal(metadata, domainEvent.Metadata);
-    }
-
-    [Fact]
-    public void EventType_AttributeNotExist_ThrowCoreException()
-    {
-        // Arrange
-        var aggregateId = Guid.NewGuid();
-        var @event = new DaminEventWithEventKey(aggregateId);
-
-        // Act & Assert
-        var exception = Assert.Throws<InvalidOperationException>(() => @event.EventType);
-
-        Assert.Equal("The event DaminEventWithEventKey does not have the EventKeyAttribute attribute.", exception.Message);
     }
 }

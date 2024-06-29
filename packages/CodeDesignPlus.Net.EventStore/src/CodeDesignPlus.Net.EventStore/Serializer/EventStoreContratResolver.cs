@@ -3,17 +3,23 @@ using Newtonsoft.Json.Serialization;
 
 namespace CodeDesignPlus.Net.EventStore.Serializer;
 
+/// <summary>
+/// Custom JSON contract resolver for configuring serialization of domain events.
+/// </summary>
 public class EventStoreContratResolver : EventContractResolver
 {
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EventStoreContratResolver"/> class.
+    /// </summary>
     public EventStoreContratResolver() : base()
     {
     }
 
-    public EventStoreContratResolver(string[] converters) : base(converters)
-    {
-    }
-
+    /// <summary>
+    /// Creates a custom JSON object contract for the specified type.
+    /// </summary>
+    /// <param name="objectType">The type for which to create the JSON object contract.</param>
+    /// <returns>A <see cref="JsonObjectContract"/> for the specified type.</returns>
     protected override JsonObjectContract CreateObjectContract(Type objectType)
     {
         var contract = base.CreateObjectContract(objectType);

@@ -13,6 +13,8 @@ namespace CodeDesignPlus.Net.EventStore.Services;
 /// </summary>
 public class EventStoreService : IEventStoreService
 {
+    private const string GuidInvalid = "The provided aggregate ID cannot be an empty GUID.";
+
     private readonly JsonSerializerSettings settings = new()
     {
         ContractResolver = new EventStoreContratResolver(),
@@ -40,6 +42,8 @@ public class EventStoreService : IEventStoreService
         this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
         this.options = options.Value;
         this.domainEventResolverService = domainEventResolverService ?? throw new ArgumentNullException(nameof(domainEventResolverService));
+
+        this.logger.LogInformation("EventStoreService initialized.");
     }
 
     /// <summary>
@@ -55,7 +59,9 @@ public class EventStoreService : IEventStoreService
             throw new ArgumentNullException(nameof(category));
 
         if (aggregateId == Guid.Empty)
-            throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
+            throw new ArgumentException(GuidInvalid, nameof(aggregateId));
+
+        this.logger.LogDebug("Counting events for category '{category}' and aggregate ID '{aggregateId}'.", category, aggregateId);
 
         return CountEventsInternalAsync(category, aggregateId, cancellationToken);
     }
@@ -101,8 +107,10 @@ public class EventStoreService : IEventStoreService
     public Task AppendEventAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default)
         where TDomainEvent : IDomainEvent
     {
-        if (@event == null)
+        if (EqualityComparer<TDomainEvent>.Default.Equals(@event, default(TDomainEvent)))
             throw new ArgumentNullException(nameof(@event));
+
+        this.logger.LogDebug("Appending event of type '{name}' to category '{category}'.", @event.GetType().Name, category);
 
         return AppendEventInternalAsync(category, @event, version, cancellationToken);
     }
@@ -122,9 +130,11 @@ public class EventStoreService : IEventStoreService
 
         version ??= await GetVersionAsync(category, @event.AggregateId, cancellationToken).ConfigureAwait(false);
 
+        var eventKey = domainEventResolverService.GetKeyDomainEvent(@event.GetType());
+
         var eventData = new EventData(
            @event.EventId,
-           @event.EventType,
+           eventKey,
            true,
            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, this.settings)),
            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata, this.settings)));
@@ -145,7 +155,7 @@ public class EventStoreService : IEventStoreService
             throw new ArgumentNullException(nameof(category));
 
         if (aggregateId == Guid.Empty)
-            throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
+            throw new ArgumentException(GuidInvalid, nameof(aggregateId));
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
@@ -170,7 +180,7 @@ public class EventStoreService : IEventStoreService
             throw new ArgumentNullException(nameof(category));
 
         if (aggregateId == Guid.Empty)
-            throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
+            throw new ArgumentException(GuidInvalid, nameof(aggregateId));
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
@@ -201,7 +211,7 @@ public class EventStoreService : IEventStoreService
             throw new ArgumentNullException(nameof(category));
 
         if (aggregateId == Guid.Empty)
-            throw new ArgumentException("The provided aggregate ID cannot be an empty GUID.", nameof(aggregateId));
+            throw new ArgumentException(GuidInvalid, nameof(aggregateId));
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
@@ -226,7 +236,7 @@ public class EventStoreService : IEventStoreService
     public async Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate, CancellationToken cancellationToken = default)
         where TAggregate : Event.Sourcing.Abstractions.IAggregateRoot
     {
-        if (aggregate == null)
+        if (EqualityComparer<TAggregate>.Default.Equals(aggregate, default(TAggregate)))
             throw new ArgumentNullException(nameof(aggregate));
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
@@ -254,9 +264,11 @@ public class EventStoreService : IEventStoreService
         var events = new List<IDomainEvent>();
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
+
         do
         {
             currentSlice = await connection.ReadStreamEventsForwardAsync(streamName, nextSliceStart, 200, false).ConfigureAwait(false);
+
             nextSliceStart = currentSlice.NextEventNumber;
 
             var items = currentSlice.Events.Select(e =>
@@ -288,16 +300,18 @@ public class EventStoreService : IEventStoreService
         var events = new List<TDomainEvent>();
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
+
+        var key = domainEventResolverService.GetKeyDomainEvent(typeof(TDomainEvent));
+        
         do
         {
-            currentSlice = await connection.ReadStreamEventsForwardAsync($"$et-{typeof(TDomainEvent).Name}", nextSliceStart, 200, true).ConfigureAwait(false);
+            currentSlice = await connection.ReadStreamEventsForwardAsync($"$et-{key}", nextSliceStart, 200, true).ConfigureAwait(false);
             nextSliceStart = currentSlice.NextEventNumber;
 
             events.AddRange(currentSlice.Events.Select(e =>
             {
 
                 var @eventJson = Encoding.UTF8.GetString(e.Event.Data);
-                var metadataJson = Encoding.UTF8.GetString(e.Event.Metadata);
 
                 var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.settings);
 
@@ -318,9 +332,10 @@ public class EventStoreService : IEventStoreService
     public async Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(string category, CancellationToken cancellationToken = default)
        where TDomainEvent : IDomainEvent
     {
-
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
+
+        this.logger.LogDebug("Searching events of type '{name}' in category '{category}'.", typeof(TDomainEvent).Name, category);
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
@@ -328,16 +343,18 @@ public class EventStoreService : IEventStoreService
         StreamEventsSlice currentSlice;
         var nextSliceStart = (long)StreamPosition.Start;
 
+        var key = domainEventResolverService.GetKeyDomainEvent<TDomainEvent>();
+
         do
         {
             currentSlice = await connection.ReadStreamEventsForwardAsync($"$ce-{category}", nextSliceStart, 200, true).ConfigureAwait(false);
             nextSliceStart = currentSlice.NextEventNumber;
 
-            foreach (var e in currentSlice.Events)
+            foreach (var item in currentSlice.Events.Select(x => x.Event))
             {
-                if (e.Event.EventType == typeof(TDomainEvent).Name)
+                if (item.EventType == key)
                 {
-                    var @eventJson = Encoding.UTF8.GetString(e.Event.Data);
+                    var @eventJson = Encoding.UTF8.GetString(item.Data);
 
                     var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.settings);
 

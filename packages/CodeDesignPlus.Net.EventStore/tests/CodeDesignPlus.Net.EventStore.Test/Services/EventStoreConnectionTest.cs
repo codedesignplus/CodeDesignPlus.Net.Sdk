@@ -1,24 +1,21 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.xUnit.Helpers;
-using Moq;
-using O = Microsoft.Extensions.Options;
-using ES = EventStore.ClientAPI;
 using CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
+using Moq;
 using System.Reflection;
-namespace CodeDesignPlus.Net.EventStore.Test;
+using ES = EventStore.ClientAPI;
+using O = Microsoft.Extensions.Options;
+namespace CodeDesignPlus.Net.EventStore.Test.Services;
 
 public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
 {
-    private readonly O.IOptions<CoreOptions> coreOptions = O.Options.Create(new CoreOptions()
-    {
-        AppName = "AppTest"
-    });
+    private readonly IOptions<CoreOptions> coreOptions = O.Options.Create(OptionsUtil.GetCoreOptions());
 
     private readonly EventStoreContainer fixture;
 
     public EventStoreConnectionTest(EventStoreContainer eventStoreContainer)
     {
-        this.fixture = eventStoreContainer;
+        fixture = eventStoreContainer;
     }
 
     [Fact]
@@ -28,7 +25,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
         var logger = new Mock<ILogger<EventStoreConnection>>().Object;
 
         // Act
-        var connection = new EventStoreConnection(this.coreOptions, logger);
+        var connection = new EventStoreConnection(coreOptions, logger);
 
         // Assert
         Assert.NotNull(connection);
@@ -48,7 +45,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     public void Constructor_NullLogger_ThrowsArgumentNullException()
     {
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStoreConnection(this.coreOptions, null));
+        Assert.Throws<ArgumentNullException>(() => new EventStoreConnection(coreOptions, null));
     }
 
     [Fact]
@@ -58,10 +55,10 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
         var logger = new Mock<ILogger<EventStoreConnection>>();
         var server = new Server()
         {
-            ConnectionString = new Uri($"tcp://localhost:{this.fixture.Port}")
+            ConnectionString = new Uri($"tcp://localhost:{fixture.Port}")
         };
 
-        var eventStoreConnection = new EventStoreConnection(this.coreOptions, logger.Object);
+        var eventStoreConnection = new EventStoreConnection(coreOptions, logger.Object);
 
         // Act
         var connection = await eventStoreConnection.InitializeAsync(server);
@@ -77,7 +74,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>();
-        var eventStoreConnection = new EventStoreConnection(this.coreOptions, logger.Object);
+        var eventStoreConnection = new EventStoreConnection(coreOptions, logger.Object);
         var eventArgs = new ES.ClientAuthenticationFailedEventArgs(null, "Reason");
 
         var methodInfo = typeof(EventStoreConnection).GetMethod("AuthenticationFailed", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -94,7 +91,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>();
-        var eventStoreConnection = new EventStoreConnection(this.coreOptions, logger.Object);
+        var eventStoreConnection = new EventStoreConnection(coreOptions, logger.Object);
         var exception = new Exception("Test error");
         var eventArgs = new ES.ClientErrorEventArgs(null, exception);
 
@@ -112,7 +109,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>();
-        var eventStoreConnection = new EventStoreConnection(this.coreOptions, logger.Object);
+        var eventStoreConnection = new EventStoreConnection(coreOptions, logger.Object);
         var eventArgs = new ES.ClientClosedEventArgs(null, "Reason");
 
         var methodInfo = typeof(EventStoreConnection).GetMethod("Closed", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -129,7 +126,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>();
-        var eventStoreConnection = new EventStoreConnection(this.coreOptions, logger.Object);
+        var eventStoreConnection = new EventStoreConnection(coreOptions, logger.Object);
         var eventArgs = new ES.ClientReconnectingEventArgs(null);
 
         var methodInfo = typeof(EventStoreConnection).GetMethod("Reconnecting", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -146,7 +143,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>();
-        var eventStoreConnection = new EventStoreConnection(this.coreOptions, logger.Object);
+        var eventStoreConnection = new EventStoreConnection(coreOptions, logger.Object);
         var eventArgs = new ES.ClientConnectionEventArgs(null, null);
 
         var methodInfo = typeof(EventStoreConnection).GetMethod("Disconnected", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -163,7 +160,7 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>();
-        var eventStoreConnection = new EventStoreConnection(this.coreOptions, logger.Object);
+        var eventStoreConnection = new EventStoreConnection(coreOptions, logger.Object);
         var eventArgs = new ES.ClientConnectionEventArgs(null, null);
 
         var methodInfo = typeof(EventStoreConnection).GetMethod("Connected", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -178,9 +175,9 @@ public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
     [Fact]
     public async Task InitializeAsync_ServerNull_ArgumentNullException()
     {
-         // Arrange
+        // Arrange
         var logger = new Mock<ILogger<EventStoreConnection>>().Object;
-        var connection = new EventStoreConnection(this.coreOptions, logger);
+        var connection = new EventStoreConnection(coreOptions, logger);
 
         // Assert & Act
         await Assert.ThrowsAsync<ArgumentNullException>(() => connection.InitializeAsync(null!));

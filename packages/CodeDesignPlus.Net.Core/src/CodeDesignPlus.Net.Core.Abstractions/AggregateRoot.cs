@@ -38,7 +38,7 @@ public abstract class AggregateRoot : IAggregateRoot
     /// <summary>
     /// The list of events that have occurred in the aggregate root but have not yet been committed to the event store.
     /// </summary>
-    private ConcurrentDictionary<Guid, IDomainEvent> domainEvents = [];
+    private ConcurrentQueue<IDomainEvent> domainEvents = [];
 
     /// <summary>
     /// Default constructor to rehydrate the aggregate root.
@@ -60,9 +60,9 @@ public abstract class AggregateRoot : IAggregateRoot
     /// <param name="event">The domain event to apply the changes.</param>
     protected virtual void AddEvent(IDomainEvent @event)
     {
-        this.domainEvents ??= new ConcurrentDictionary<Guid, IDomainEvent>();
+        this.domainEvents ??= new ConcurrentQueue<IDomainEvent>();
 
-        this.domainEvents.TryAdd(@event.EventId, @event);
+        this.domainEvents.Enqueue(@event);
     }
 
     /// <summary>
@@ -74,7 +74,7 @@ public abstract class AggregateRoot : IAggregateRoot
         if (this.domainEvents == null)
             return [];
 
-        var events = this.domainEvents.Values.ToList();
+        var events = this.domainEvents.ToList();
 
         this.domainEvents.Clear();
 

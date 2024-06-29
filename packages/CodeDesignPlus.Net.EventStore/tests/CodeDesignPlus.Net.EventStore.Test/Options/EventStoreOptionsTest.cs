@@ -21,7 +21,7 @@ public class EventStoreOptionsTest
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public void EventStoreOptions_ValuesInvalid_Invalid(string value)
+    public void EventStoreOptions_ValuesInvalid_Invalid(string? value)
     {
         // Arrange
         var options = new EventStoreOptions

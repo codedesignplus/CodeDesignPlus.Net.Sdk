@@ -35,8 +35,8 @@ public class EventStoreOptions : IValidatableObject
         if (Servers.Count == 0)
             validations.Add(new ValidationResult("The collection of EventStore servers (nodes) to which the application can connect is required.", [nameof(this.Servers)]));
 
-        foreach (var server in this.Servers)
-            Validator.TryValidateObject(server.Value, new ValidationContext(server.Value), validations, true);
+        foreach (var server in this.Servers.Select(x => x.Value))
+            Validator.TryValidateObject(server, new ValidationContext(server), validations, true);
 
         return validations;
     }

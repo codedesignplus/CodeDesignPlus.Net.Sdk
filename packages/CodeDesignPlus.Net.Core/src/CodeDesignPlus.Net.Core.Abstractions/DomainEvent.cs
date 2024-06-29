@@ -30,20 +30,4 @@ public abstract class DomainEvent(
     /// The metadata of the event.
     /// </summary>    
     public Dictionary<string, object> Metadata { get; internal set; } = metadata ?? [];
-
-    /// <summary>
-    /// Gets the type of the event.
-    /// </summary>
-    public string EventType
-    {
-        get
-        {
-            var attribute = this.GetType().GetCustomAttribute<EventKeyAttribute>();
-
-            if (attribute is null)
-                throw new InvalidOperationException($"The event {this.GetType().Name} does not have the {nameof(EventKeyAttribute)} attribute.");
-
-            return $"{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
-        }
-    }
 }

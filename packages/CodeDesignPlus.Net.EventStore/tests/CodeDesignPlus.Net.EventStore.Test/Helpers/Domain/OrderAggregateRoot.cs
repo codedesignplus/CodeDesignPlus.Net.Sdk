@@ -1,8 +1,5 @@
-﻿using System.Reflection;
-using System.Text.Json.Serialization;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
-using StackExchange.Redis;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 
@@ -76,8 +73,6 @@ public class OrderAggregateRoot : AggregateRoot
     {
         if (Status == OrderStatus.Completed)
             throw new InvalidOperationException("La orden ya está completada.");
-
-        this.Status = OrderStatus.Completed;
 
         base.AddEvent(new OrderCompletedEvent(
             Id,

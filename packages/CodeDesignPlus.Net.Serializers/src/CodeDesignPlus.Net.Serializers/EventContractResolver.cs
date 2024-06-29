@@ -19,7 +19,6 @@ public class EventContractResolver : DefaultContractResolver
     {
         this.propertyNamesToIgnore = [
             nameof(IDomainEvent.EventId),
-            nameof(IDomainEvent.EventType),
             nameof(IDomainEvent.OccurredAt),
             nameof(IDomainEvent.Metadata)
         ];

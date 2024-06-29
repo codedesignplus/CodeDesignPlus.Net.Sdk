@@ -21,8 +21,4 @@ public interface IDomainEvent
     /// The metadata of the event.
     /// </summary>
     Dictionary<string, object> Metadata { get; }
-    /// <summary>
-    /// Gets the type of the event.
-    /// </summary>
-    string EventType { get; }
 }

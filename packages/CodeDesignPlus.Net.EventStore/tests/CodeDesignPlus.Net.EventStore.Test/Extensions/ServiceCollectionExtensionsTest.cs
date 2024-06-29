@@ -1,7 +1,7 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CodeDesignPlus.Net.EventStore.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers;
 
-namespace CodeDesignPlus.Net.EventStore.Extensions;
+namespace CodeDesignPlus.Net.EventStore.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -50,7 +50,8 @@ public class ServiceCollectionExtensionsTest
     public void AddEventStore_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
             EventStore = OptionsUtil.EventStoreOptions
         });
 
@@ -71,7 +72,8 @@ public class ServiceCollectionExtensionsTest
     public void AddEventStore_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
             EventStore = OptionsUtil.EventStoreOptions
         });
 

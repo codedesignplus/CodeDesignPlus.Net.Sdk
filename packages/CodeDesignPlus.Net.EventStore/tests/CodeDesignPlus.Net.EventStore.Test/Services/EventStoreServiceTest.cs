@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.Core.Services;
 using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
@@ -9,30 +10,25 @@ using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
+using MO = Microsoft.Extensions.Options;
 using Moq;
 
-namespace CodeDesignPlus.Net.EventStore.Test;
+namespace CodeDesignPlus.Net.EventStore.Test.Services;
 
-public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
+public class EventStoreServiceTest(EventStoreContainer fixture) : IClassFixture<EventStoreContainer>
 {
-    private readonly EventStoreContainer fixture;
-    private readonly IDomainEventResolverService domainEventResolverService;
-
-    public EventStoreServiceTest(EventStoreContainer fixture)
-    {
-        this.fixture = fixture;
-        this.domainEventResolverService = new DomainEventResolverService();
-    }
+    private readonly EventStoreContainer fixture = fixture;
+    private readonly IDomainEventResolverService domainEventResolverService = new DomainEventResolverService(MO.Options.Create(OptionsUtil.GetCoreOptions()));
 
     [Fact]
     public void Constructor_NullEventStoreFactory_ThrowsArgumentNullException()
     {
         // Arrange
         var loggerMock = new Mock<ILogger<EventStoreService>>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStoreService(null!, this.domainEventResolverService, loggerMock.Object, options));
+        Assert.Throws<ArgumentNullException>(() => new EventStoreService(null!, domainEventResolverService, loggerMock.Object, options));
     }
 
     [Fact]
@@ -41,7 +37,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var loggerMock = new Mock<ILogger<EventStoreService>>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
         // Act and Assert
         Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, null!, loggerMock.Object, options));
@@ -52,10 +48,10 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     {
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, null!, options));
+        Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, null!, options));
     }
 
     [Fact]
@@ -66,7 +62,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var loggerMock = new Mock<ILogger<EventStoreService>>();
 
         // Act and Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, null!));
+        Assert.Throws<ArgumentNullException>(() => new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, null!));
     }
 
     [Fact]
@@ -75,10 +71,10 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var loggerMock = new Mock<ILogger<EventStoreService>>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
         // Act
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Assert
         Assert.NotNull(eventStoreService);
@@ -92,9 +88,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var loggerMock = new Mock<ILogger<EventStoreService>>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.CountEventsAsync(category, Guid.NewGuid()));
@@ -106,9 +102,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var loggerMock = new Mock<ILogger<EventStoreService>>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.CountEventsAsync("YourCategory", Guid.Empty));
@@ -157,13 +153,60 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         // Arrange        
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var loggerMock = new Mock<ILogger<EventStoreService>>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
         var aggregate = OrderAggregateRoot.Create(Guid.NewGuid(), Guid.NewGuid(), new Client());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.AppendEventAsync<OrderCreatedEvent>(aggregate.Category, null!));
+    }
+
+    [Fact]
+    public async Task AppendEventAsync_GetVersion_Succes()
+    {
+        // Arrange        
+        var idAggregator = Guid.NewGuid();
+        var idUserCreator = Guid.NewGuid();
+        var idProductUpdate = Guid.NewGuid();
+        var idProductRemove = Guid.NewGuid();
+
+        var client = new Client()
+        {
+            Name = "CodeDesignPlus",
+            Id = Guid.NewGuid()
+        };
+
+        var eventSourcing = GetService();
+
+        var orderExpected = OrderAggregateRoot.Create(idAggregator, idUserCreator, client);
+
+        AddEvents(idProductUpdate, idProductRemove, orderExpected);
+
+        var events = orderExpected.GetAndClearEvents();
+
+        // Act
+        foreach (var @event in events)
+        {
+            await eventSourcing.AppendEventAsync(orderExpected.Category, @event);
+        }
+
+        var version = await eventSourcing.GetVersionAsync(orderExpected.Category, orderExpected.Id);
+
+        orderExpected.AddProduct(new Product()
+        {
+            Id = Guid.NewGuid(),
+            Name = "TV Samsung",
+            Price = 10000
+        }, 1);
+
+        await eventSourcing.AppendEventAsync(orderExpected.Category, orderExpected.GetAndClearEvents()[0], version);
+
+        var versionEnd = await eventSourcing.GetVersionAsync(orderExpected.Category, orderExpected.Id);
+
+        // Assert
+        Assert.Equal(events.Count - 1, version);
+        Assert.Equal(8, versionEnd);
     }
 
     [Fact]
@@ -198,7 +241,7 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
 
         var allEvents = await eventSourcing.LoadEventsAsync(orderExpected.Category, orderExpected.Id);
 
-        var order = OrderAggregateRoot.Rehydrate<OrderAggregateRoot>(orderExpected.Id, allEvents);
+        var order = Event.Sourcing.Abstractions.AggregateRoot.Rehydrate<OrderAggregateRoot>(orderExpected.Id, allEvents);
 
         // Assert
         Assert.Equal(orderExpected.Id, order.Id);
@@ -294,9 +337,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.LoadEventsAsync(null!, Guid.NewGuid()));
@@ -309,9 +352,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.LoadEventsAsync("YourCategory", Guid.Empty));
@@ -320,15 +363,15 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public async Task GetVersionAsync_NullCategory_ThrowsArgumentNullException(string category)
+    public async Task GetVersionAsync_NullCategory_ThrowsArgumentNullException(string? category)
     {
         // Arrange
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.GetVersionAsync(category, Guid.NewGuid()));
@@ -341,9 +384,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         var exception = await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.GetVersionAsync("YourCategory", Guid.Empty));
@@ -354,15 +397,15 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public async Task LoadSnapshotAsync_NullCategory_ThrowsArgumentNullException(string category)
+    public async Task LoadSnapshotAsync_NullCategory_ThrowsArgumentNullException(string? category)
     {
         // Arrange
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.LoadSnapshotAsync<OrderAggregateRoot>(category, Guid.NewGuid()));
@@ -375,9 +418,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentException>(() => eventStoreService.LoadSnapshotAsync<OrderAggregateRoot>("YourCategory", Guid.Empty));
@@ -390,9 +433,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.SaveSnapshotAsync<OrderAggregateRoot>(null!));
@@ -504,7 +547,6 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
                 Assert.Equal(value.AggregateId, @event.AggregateId);
                 Assert.Equal(value.EventId, @event.EventId);
                 Assert.Equal(value.OccurredAt, @event.OccurredAt);
-                Assert.Equal(value.EventType, @event.EventType);
                 Assert.Equal(value.Quantity, @event.Quantity);
                 Assert.Equal(value.Product.Id, @event.Product.Id);
                 Assert.Equal(value.Product.Name, @event.Product.Name);
@@ -518,15 +560,15 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     [Theory]
     [InlineData("")]
     [InlineData(null)]
-    public async Task SearchEventsAsync_NullCategory_ThrowsArgumentNullException(string category)
+    public async Task SearchEventsAsync_NullCategory_ThrowsArgumentNullException(string? category)
     {
         // Arrange
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.SearchEventsAsync<OrderCreatedEvent>(category));
@@ -576,7 +618,6 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
                 Assert.Equal(value.AggregateId, @event.AggregateId);
                 Assert.Equal(value.EventId, @event.EventId);
                 Assert.Equal(value.OccurredAt, @event.OccurredAt);
-                Assert.Equal(value.EventType, @event.EventType);
                 Assert.Equal(value.Quantity, @event.Quantity);
                 Assert.Equal(value.Product.Id, @event.Product.Id);
                 Assert.Equal(value.Product.Name, @event.Product.Name);
@@ -597,9 +638,9 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
         var loggerMock = new Mock<ILogger<EventStoreService>>();
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var connectionMock = new Mock<IEventStoreConnection>();
-        var options = Microsoft.Extensions.Options.Options.Create(new EventSourcingOptions());
+        var options = MO.Options.Create(new EventSourcingOptions());
 
-        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, this.domainEventResolverService, loggerMock.Object, options);
+        var eventStoreService = new EventStoreService(eventStoreFactoryMock.Object, domainEventResolverService, loggerMock.Object, options);
 
         // Act and Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => eventStoreService.SearchEventsAsync(stream));
@@ -649,7 +690,6 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
             Assert.Equal(eventExpected.AggregateId, @event.AggregateId);
             Assert.Equal(eventExpected.EventId, @event.EventId);
             Assert.Equal(eventExpected.OccurredAt, @event.OccurredAt);
-            Assert.Equal(eventExpected.EventType, @event.EventType);
         }
 
         Assert.Empty(orderExpected.GetAndClearEvents());
@@ -659,16 +699,24 @@ public class EventStoreServiceTest : IClassFixture<EventStoreContainer>
     {
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
-            Core = new {
-                AppName = "CodeDesignPlus.Net.EventStore.Test",
-                Version = "v1"
+            Core = new CoreOptions
+            {
+                AppName = "ms-test",
+                Version = "v1",
+                Business = "CodeDesignPlus",
+                Description = "Description Test",
+                Contact = new Contact
+                {
+                    Name = "CodeDesignPlus",
+                    Email = "codedesignplus@outlook.com"
+                }
             },
             EventSourcing = new
             {
                 MainName = "aggregate",
                 SnapshotSuffix = "snapshot"
             },
-            EventStore = OptionsUtil.GetOptions("localhost", this.fixture.Port)
+            EventStore = OptionsUtil.GetOptions("localhost", fixture.Port)
         });
         var serviceCollection = new ServiceCollection();
 

@@ -79,7 +79,6 @@ public class AggregateRootTest
         Assert.Equal(domainEvent!.EventId, @event.EventId);
         Assert.Equal(domainEvent.OccurredAt, @event.OccurredAt);
         Assert.Equal(domainEvent.AggregateId, @event.AggregateId);
-        Assert.Equal(domainEvent.EventType, @event.EventType);
         Assert.Equal(domainEvent.Name, @event.Name);
         Assert.Equal(domainEvent.Description, @event.Description);
         Assert.Equal(domainEvent.Price, @event.Price);
