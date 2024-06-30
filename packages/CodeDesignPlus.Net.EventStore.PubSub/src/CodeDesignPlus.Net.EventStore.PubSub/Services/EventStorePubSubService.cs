@@ -1,7 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.EventStore.Abstractions;
 using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.Serializer;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using EventStore.ClientAPI;
@@ -14,12 +13,6 @@ namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
 
 public class EventStorePubSubService : IEventStorePubSubService
 {
-    private readonly JsonSerializerSettings jsonSettings = new()
-    {
-        ContractResolver = new EventStoreContratResolver([]),
-        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
-    };
-
     private readonly IEventStoreFactory eventStoreFactory;
     private readonly IServiceProvider serviceProvider;
     private readonly ILogger<EventStorePubSubService> logger;
@@ -27,24 +20,24 @@ public class EventStorePubSubService : IEventStorePubSubService
     private readonly PersistentSubscriptionSettings settings;
 
     private readonly IDomainEventResolverService domainEventResolverService;
-    private readonly PubSubOptions pubSubOptions;
 
     public EventStorePubSubService(
         IEventStoreFactory eventStoreFactory,
         IServiceProvider serviceProvider,
         ILogger<EventStorePubSubService> logger,
         IOptions<EventStorePubSubOptions> eventStorePubSubOptions,
-        IOptions<PubSubOptions> pubSubOptions,
         IDomainEventResolverService domainEventResolverService)
     {
-        ArgumentNullException.ThrowIfNull(eventStorePubSubOptions, nameof(eventStorePubSubOptions));
-        ArgumentNullException.ThrowIfNull(pubSubOptions, nameof(pubSubOptions));
+        ArgumentNullException.ThrowIfNull(eventStoreFactory);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(eventStorePubSubOptions);
+        ArgumentNullException.ThrowIfNull(domainEventResolverService);
 
-        this.eventStoreFactory = eventStoreFactory ?? throw new ArgumentNullException(nameof(eventStoreFactory));
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.domainEventResolverService = domainEventResolverService ?? throw new ArgumentNullException(nameof(domainEventResolverService));
-        this.pubSubOptions = pubSubOptions.Value;
+        this.eventStoreFactory = eventStoreFactory;
+        this.serviceProvider = serviceProvider;
+        this.logger = logger;
+        this.domainEventResolverService = domainEventResolverService;
         this.options = eventStorePubSubOptions.Value;
 
         this.settings = PersistentSubscriptionSettings
@@ -54,24 +47,37 @@ public class EventStorePubSubService : IEventStorePubSubService
         this.logger.LogInformation("EventStorePubSubService initialized.");
     }
 
-    public async Task PublishAsync(IDomainEvent @event, CancellationToken token)
+    public async Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, token).ConfigureAwait(false);
+        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var stream = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
         @event.Metadata.Add("OccurredAt", @event.OccurredAt);
         @event.Metadata.Add("EventId", @event.EventId);
-        @event.Metadata.Add("EventType", @event.EventType);
+        @event.Metadata.Add("EventType", stream);
 
         var eventData = new EventData(
             @event.EventId,
-            @event.EventType,
+            stream,
             true,
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, this.jsonSettings)),
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata, this.jsonSettings)));
+           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event)),
+           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata)));
 
         await connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Publish a list of domain events
+    /// </summary>
+    /// <param name="event">Domains event to publish</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <returns>Return a <see cref="Task"/></returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    {
+        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+
+        return Task.WhenAll(tasks);
     }
 
     /// <summary>
@@ -79,13 +85,13 @@ public class EventStorePubSubService : IEventStorePubSubService
     /// </summary>
     /// <typeparam name="TEvent">The type of the event that was received.</typeparam>
     /// <typeparam name="TEventHandler">The type of the event handler that was handling the event.</typeparam>
-    /// <param name="token">The cancellation token.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken token)
+    public async Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, token).ConfigureAwait(false);
+        var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var (user, pass) = this.eventStoreFactory.GetCredentials(EventStoreFactoryConst.Core);
 
@@ -105,16 +111,18 @@ public class EventStorePubSubService : IEventStorePubSubService
         }
         catch (Exception e)
         {
-            this.logger.LogWarning("{message}", e.Message);
+            this.logger.LogWarning(e, "{message}", e.Message);
         }
 
 
-        var subscription = await connection.ConnectToPersistentSubscriptionAsync(
+        await connection.ConnectToPersistentSubscriptionAsync(
                 stream,
                 options.Group,
-                (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, token).ConfigureAwait(false),
+                (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, cancellationToken).ConfigureAwait(false),
                 (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
             ).ConfigureAwait(false);
+
+        this.logger.LogInformation("Subscription to {stream} created.", stream);
     }
 
     /// <summary>
@@ -129,7 +137,7 @@ public class EventStorePubSubService : IEventStorePubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var domainEvent = JsonConvert.DeserializeObject<TEvent>(Encoding.UTF8.GetString(@event.Event.Data), this.jsonSettings);
+        var domainEvent = JsonConvert.DeserializeObject<TEvent>(Encoding.UTF8.GetString(@event.Event.Data));
 
         var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
@@ -151,16 +159,4 @@ public class EventStorePubSubService : IEventStorePubSubService
     }
 
 
-    /// <summary>
-    /// Publish a list of domain events
-    /// </summary>
-    /// <param name="event">Domains event to publish</param>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
-    {
-        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
-
-        return Task.WhenAll(tasks);
-    }
 }

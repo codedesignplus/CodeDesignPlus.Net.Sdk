@@ -1,10 +1,10 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using CodeDesignPlus.Net.Core.Abstractions.Attributees;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
 
-[Key("order.created")]
+[EventKey<OrderAggregateRoot>(1, "created")]
 public class OrderCreatedEvent(
     Guid aggregateId,
     Guid idUserCreator,
@@ -22,7 +22,7 @@ public class OrderCreatedEvent(
     public DateTime DateCreated { get; } = dateCreated;
 }
 
-[Key("name.updated")]
+[EventKey<OrderAggregateRoot>(1, "updated")]
 public class OrderCompletedEvent(
     Guid aggregateId,
     DateTime completionDate,
@@ -34,10 +34,10 @@ public class OrderCompletedEvent(
     public DateTime CompletionDate { get; } = completionDate;
 }
 
-[Key("order.cancelled")]
+[EventKey<OrderAggregateRoot>(1, "cancelled")]
 public class OrderCancelledEvent(
-    Guid aggregateId, 
-    DateTime cancellationDate, 
+    Guid aggregateId,
+    DateTime cancellationDate,
     string reason,
     Guid? eventId = null,
     DateTime? occurredAt = null,

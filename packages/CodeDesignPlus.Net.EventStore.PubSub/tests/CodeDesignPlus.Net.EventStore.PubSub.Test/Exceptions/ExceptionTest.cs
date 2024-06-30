@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Exceptions;
 
 public class EventStorePubSubExceptionTest
 {

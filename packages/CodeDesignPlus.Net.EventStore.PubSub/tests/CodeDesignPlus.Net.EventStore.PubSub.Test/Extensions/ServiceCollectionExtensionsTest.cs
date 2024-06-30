@@ -1,8 +1,7 @@
-﻿using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
+﻿using CodeDesignPlus.Net.EventStore.PubSub.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers;
-using Microsoft.Extensions.DependencyInjection;
 
-namespace CodeDesignPlus.Net.EventStore.PubSub.Extensions;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {

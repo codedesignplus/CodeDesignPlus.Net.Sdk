@@ -1,6 +1,5 @@
 ﻿using CodeDesignPlus.Net.EventStore.Abstractions;
 using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers;
 
