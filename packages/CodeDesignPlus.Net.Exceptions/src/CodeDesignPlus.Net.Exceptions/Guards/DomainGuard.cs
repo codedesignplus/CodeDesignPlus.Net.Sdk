@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace CodeDesignPlus.Net.Exceptions;
+namespace CodeDesignPlus.Net.Exceptions.Guards;
 
 public static class DomainGuard
 {

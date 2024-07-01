@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Exceptions;
+﻿namespace CodeDesignPlus.Net.Exceptions.Guards;
 
 public static class Guard
 {

@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Exceptions;
+﻿namespace CodeDesignPlus.Net.Exceptions.Guards;
 
 public static class InfrastructureGuard
 {
@@ -37,7 +37,7 @@ public static class InfrastructureGuard
     public static void IsEmpty<T>(IEnumerable<T> value, string error) => Guard.IsEmpty(value, Layer.Infrastructure, error);
 
     public static void IsNotEmpty<T>(IEnumerable<T> value, string error) => Guard.IsNotEmpty(value, Layer.Infrastructure, error);
-    
+
     public static void GuidIsEmpty(Guid value, string error) => Guard.GuidIsEmpty(value, Layer.Infrastructure, error);
 
     public static void GuidIsNotEmpty(Guid value, string error) => Guard.GuidIsNotEmpty(value, Layer.Infrastructure, error);
