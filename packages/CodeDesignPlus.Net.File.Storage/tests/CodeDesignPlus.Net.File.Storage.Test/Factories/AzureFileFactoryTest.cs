@@ -1,10 +1,8 @@
 ﻿using Azure.Storage.Files.Shares;
-using CodeDesignPlus.Net.File.Storage.Exceptions;
 using CodeDesignPlus.Net.File.Storage.Factories;
 using CodeDesignPlus.Net.Security.Abstractions;
-using O = Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
+using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Factories
 {
@@ -124,7 +122,7 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
             Assert.True(factory.Client.CanGenerateAccountSasUri);
         }
 
-        
+
         [Fact]
         public void GetContainerClient_Called_Success()
         {

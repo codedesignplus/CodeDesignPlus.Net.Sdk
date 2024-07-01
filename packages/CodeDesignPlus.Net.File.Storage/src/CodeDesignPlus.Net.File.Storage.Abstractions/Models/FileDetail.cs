@@ -10,7 +10,7 @@ public class FileDetail
     public string UriDownload { get; }
     public string UriViewInBrowser { get; }
     public string Provider { get; private set; }
-    
+
     public FileDetail(Uri uri, string target, string file, TypeProviders provider)
     {
         if (provider == TypeProviders.None)

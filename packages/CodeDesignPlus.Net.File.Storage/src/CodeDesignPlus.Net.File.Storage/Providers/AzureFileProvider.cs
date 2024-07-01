@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
+﻿using System.Text;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using Microsoft.Extensions.Hosting;
 using Semver;
@@ -54,13 +55,13 @@ public class AzureFileProvider(
             if (!await directory.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 var pathParts = target.Split('/');
-                var currentPath = string.Empty;
+                var currentPath = new StringBuilder();
 
                 for (int i = 0; i < pathParts.Length; i++)
                 {
-                    currentPath += pathParts[i] + '/';
+                    currentPath.Append(pathParts[i]).Append('/');
 
-                    directory = sharedClient.GetDirectoryClient(currentPath);
+                    directory = sharedClient.GetDirectoryClient(currentPath.ToString());
 
                     await directory.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
                 }

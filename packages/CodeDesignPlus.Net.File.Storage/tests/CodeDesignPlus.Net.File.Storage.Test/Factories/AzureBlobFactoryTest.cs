@@ -1,8 +1,8 @@
-﻿using CodeDesignPlus.Net.File.Storage.Factories;
+﻿using Azure.Storage.Blobs;
+using CodeDesignPlus.Net.File.Storage.Factories;
 using CodeDesignPlus.Net.Security.Abstractions;
-using O = Microsoft.Extensions.Options;
 using Moq;
-using Azure.Storage.Blobs;
+using O = Microsoft.Extensions.Options;
 
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Factories

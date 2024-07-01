@@ -113,7 +113,7 @@ public class AzureBlobProvider(
         });
     }
 
-    protected string GetName(string target, string name)
+    protected static string GetName(string target, string name)
     {
         if (string.IsNullOrEmpty(target))
             return name;

@@ -15,8 +15,8 @@ public class AzureBlobFactory : IAzureBlobFactory
 
     public AzureBlobFactory(IOptions<FileStorageOptions> options, IUserContext userContext)
     {
-        ArgumentNullException.ThrowIfNull(options, nameof(options));
-        ArgumentNullException.ThrowIfNull(userContext, nameof(userContext));
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(userContext);
 
         Options = options.Value;
         UserContext = userContext;

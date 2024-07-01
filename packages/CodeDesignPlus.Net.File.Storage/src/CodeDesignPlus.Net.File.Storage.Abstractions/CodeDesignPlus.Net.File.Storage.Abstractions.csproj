@@ -21,6 +21,12 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.File.Storage.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="mime-types.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="mime-types.json" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\..\LICENSE.md">
       <Pack>True</Pack>
       <PackagePath>

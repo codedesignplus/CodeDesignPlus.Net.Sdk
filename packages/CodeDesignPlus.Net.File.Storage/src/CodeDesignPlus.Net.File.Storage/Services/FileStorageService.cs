@@ -4,22 +4,14 @@ using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 
 namespace CodeDesignPlus.Net.File.Storage.Services;
 
-public class FileStorageService(
-    ILogger<FileStorageService> logger,
-    IOptions<FileStorageOptions> options,
-    IEnumerable<IProvider> providers
-) : IFileStorageService
+public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorageService
 {
-    private readonly ILogger<FileStorageService> logger = logger;
-    private readonly FileStorageOptions options = options.Value;
-    private readonly IEnumerable<IProvider> providers = providers;
-
 
     public Task<Response[]> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
     {
         var tasks = new List<Task<Response>>();
 
-        foreach (var provider in this.providers)
+        foreach (var provider in providers)
         {
             var task = provider.DeleteAsync(file, target, cancellationToken);
 
@@ -31,7 +23,7 @@ public class FileStorageService(
 
     public Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
     {
-        foreach (var provider in this.providers)
+        foreach (var provider in providers)
         {
             var response = provider.DownloadAsync(file, target, cancellationToken);
 
@@ -42,13 +34,13 @@ public class FileStorageService(
         return Task.FromResult((Response)null);
     }
 
-    public Task<Response[]> UploadAsync(Stream stream, string filename, string target, bool renowned, CancellationToken cancellationToken = default)
+    public Task<Response[]> UploadAsync(Stream stream, string file, string target, bool renowned, CancellationToken cancellationToken = default)
     {
         var tasks = new List<Task<Response>>();
 
-        foreach (var provider in this.providers)
+        foreach (var provider in providers)
         {
-            var task = provider.UploadAsync(stream, filename, target, renowned, cancellationToken);
+            var task = provider.UploadAsync(stream, file, target, renowned, cancellationToken);
 
             tasks.Add(task);
         }

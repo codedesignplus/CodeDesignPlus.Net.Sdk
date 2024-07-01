@@ -6,8 +6,8 @@ using CodeDesignPlus.Net.File.Storage.Providers;
 using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Moq;
-using O = Microsoft.Extensions.Options;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Providers;
 
@@ -207,7 +207,7 @@ public class AzureBlobProviderTest
         this.stream.Position = 0;
         Assert.True(result.Success);
         Assert.Equal(stream.Length, result.Stream.Length);
-        Assert.True(result.Stream.Position == 0);
+        Assert.Equal(0, result.Stream.Position);
         Assert.True(Helpers.Extensions.CompareStreams(stream, result.Stream));
     }
 

@@ -3,7 +3,6 @@
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.File.Storage. 
 /// </summary>
-[Serializable]
 public class FileStorageException : Exception
 {
     /// <summary>

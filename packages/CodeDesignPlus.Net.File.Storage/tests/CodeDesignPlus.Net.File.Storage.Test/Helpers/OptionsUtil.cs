@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-
-namespace CodeDesignPlus.Net.File.Storage.Test.Helpers;
+﻿namespace CodeDesignPlus.Net.File.Storage.Test.Helpers;
 
 public static class OptionsUtil
 {

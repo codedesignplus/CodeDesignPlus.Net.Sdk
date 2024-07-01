@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.File.Storage.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.File.Storage.Test.Exceptions;
 
 public class FileStorageExceptionTest
 {

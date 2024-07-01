@@ -1,9 +1,8 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using Moq;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
-namespace CodeDesignPlus.Net.File.Storage.Test.Services;
+namespace CodeDesignPlus.Net.File.Storage.Test;
 
 public class FileStorageServiceTest
 {
@@ -75,7 +74,7 @@ public class FileStorageServiceTest
             localProviderMock.Object
         };
 
-        var service = new FileStorageService(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.UploadAsync(stream, filename, target, renowned, cancellationToken);
@@ -129,7 +128,7 @@ public class FileStorageServiceTest
             localProviderMock.Object
         };
 
-        var service = new FileStorageService(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DownloadAsync(filename, target, cancellationToken);
@@ -189,7 +188,7 @@ public class FileStorageServiceTest
             localProviderMock.Object
         };
 
-        var service = new FileStorageService(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DownloadAsync(filename, target, cancellationToken);
@@ -214,7 +213,7 @@ public class FileStorageServiceTest
 
         var providers = new List<IProvider>();
 
-        var service = new FileStorageService(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DownloadAsync(filename, target, cancellationToken);
@@ -282,7 +281,7 @@ public class FileStorageServiceTest
             localProviderMock.Object
         };
 
-        var service = new FileStorageService(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DeleteAsync(filename, target, cancellationToken);

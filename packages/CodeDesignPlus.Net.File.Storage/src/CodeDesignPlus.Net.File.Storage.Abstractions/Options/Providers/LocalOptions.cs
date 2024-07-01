@@ -1,7 +1,7 @@
-﻿using System.ComponentModel.DataAnnotations;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using System.ComponentModel.DataAnnotations;
 
-namespace CodeDesignPlus.Net.File.Storage.Abstractions;
+namespace CodeDesignPlus.Net.File.Storage.Abstractions.Options.Providers;
 
 public class LocalOptions : IValidatableObject
 {
@@ -11,10 +11,10 @@ public class LocalOptions : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if(!this.Enable)
+        if (!Enable)
             yield break;
-        
-        if (string.IsNullOrWhiteSpace(this.Folder))
-            yield return new ValidationResult("The Folder property is required.", new[] { nameof(this.Folder) });
+
+        if (string.IsNullOrWhiteSpace(Folder))
+            yield return new ValidationResult("The Folder property is required.", new[] { nameof(Folder) });
     }
 }

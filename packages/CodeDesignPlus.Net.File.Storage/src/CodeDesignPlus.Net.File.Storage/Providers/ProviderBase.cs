@@ -3,7 +3,7 @@ using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using Microsoft.Extensions.Hosting;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
-namespace CodeDesignPlus.Net.File.Storage;
+namespace CodeDesignPlus.Net.File.Storage.Providers;
 
 public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
 {
@@ -24,7 +24,7 @@ public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
         }
         catch (Exception ex)
         {
-            this.Logger.LogError(ex, ex.Message);
+            Logger.LogError(ex, "An error occurred while processing the file {filename}", filename);
 
             response.Success = false;
             response.Message = ex.Message;
