@@ -1,6 +1,6 @@
-﻿using System.Text;
+﻿using Microsoft.Extensions.Configuration;
+using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Configuration;
 
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 

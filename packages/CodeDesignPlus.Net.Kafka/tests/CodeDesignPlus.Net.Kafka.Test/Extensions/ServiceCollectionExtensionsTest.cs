@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
-using Confluent.Kafka;
-using CodeDesignPlus.Net.Kafka.Extensions;
+﻿using CodeDesignPlus.Net.Kafka.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Extensions;

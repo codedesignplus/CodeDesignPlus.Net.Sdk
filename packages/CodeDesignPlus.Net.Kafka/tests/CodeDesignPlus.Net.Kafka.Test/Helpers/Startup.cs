@@ -1,25 +1,18 @@
-﻿using CodeDesignPlus.Net.PubSub.Extensions;
-using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
-using Microsoft.AspNetCore.Builder;
+﻿using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.Kafka.Extensions;
+using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
+using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
-using Microsoft.AspNetCore.Http;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.Core;
-using CodeDesignPlus.Net.Core.Extensions;
+using Microsoft.AspNetCore.Builder;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers;
 
 
-public class Startup
+public class Startup(IConfiguration configuration)
 {
-    public static MemoryService MemoryService = new();
-    public IConfiguration Configuration { get; }
+    private static MemoryService memoryService = new();
 
-    public Startup(IConfiguration configuration)
-    {
-        Configuration = configuration;
-    }
+    public static MemoryService MemoryService { get => memoryService; set => memoryService = value; }
 
     public void ConfigureServices(IServiceCollection services)
     {
@@ -30,28 +23,14 @@ public class Startup
                     .SetMinimumLevel(LogLevel.Trace)
                     .UsesScopes();
             })
-            .AddCore(this.Configuration)
-            .AddPubSub(this.Configuration)
+            .AddCore(configuration)
+            .AddPubSub(configuration)
             .AddSingleton<IMemoryService>(x => MemoryService)
-            .AddKafka(this.Configuration);
+            .AddKafka(configuration);
     }
 
-    public void Configure(IApplicationBuilder app)
+    public static void Configure(IApplicationBuilder app)
     {
-        // app.UseRouting();
-
-        // app.UseEndpoints(endpoints =>
-        // {
-        //     endpoints.MapPost("/publish", async context =>
-        //     {
-        //         var pubSub = context.RequestServices.GetRequiredService<IEventBus>();
-        //         await pubSub.PublishAsync(new StartupLogic.StartupMessage()); // Ejemplo de publicación
-
-                
-
-
-        //         await context.Response.WriteAsync("Mensaje publicado!"); // Ejemplo de respuesta
-        //     });
-        // });
+       
     }
 }

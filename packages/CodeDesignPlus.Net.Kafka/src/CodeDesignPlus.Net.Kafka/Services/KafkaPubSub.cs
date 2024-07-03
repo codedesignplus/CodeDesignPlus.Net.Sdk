@@ -18,7 +18,6 @@ public class KafkaPubSub : IKafkaPubSub
     private readonly ILogger<KafkaPubSub> logger;
     private readonly KafkaOptions options;
     private readonly IServiceProvider serviceProvider;
-    private readonly PubSubOptions pubSubOptions;
 
 
     /// <summary>
@@ -28,27 +27,25 @@ public class KafkaPubSub : IKafkaPubSub
     /// <param name="options">Configuration options for Kafka.</param>
     /// <param name="serviceProvider">Provides an instance of a service.</param>
     /// <param name="pubSubOptions">Configuration options for the event bus.</param>
-    public KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolverService domainEventResolverService, IOptions<KafkaOptions> options, IServiceProvider serviceProvider, IOptions<PubSubOptions> pubSubOptions)
+    public KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolverService domainEventResolverService, IOptions<KafkaOptions> options, IServiceProvider serviceProvider)
     {
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(domainEventResolverService);
 
-        if (pubSubOptions == null)
-            throw new ArgumentNullException(nameof(pubSubOptions));
-
-        this.domainEventResolverService = domainEventResolverService ?? throw new ArgumentNullException(nameof(domainEventResolverService));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
+        this.domainEventResolverService = domainEventResolverService;
+        this.logger = logger;
+        this.serviceProvider = serviceProvider;
         this.options = options.Value;
-        this.pubSubOptions = pubSubOptions.Value;
     }
 
     /// <summary>
     /// Publishes an event to Kafka.
     /// </summary>
     /// <param name="event">The event to be published.</param>
-    /// <param name="token">Cancellation token.</param>
-    public async Task PublishAsync(IDomainEvent @event, CancellationToken token)
+    /// <param name="cancellationToken">Cancellation token.</param>
+    public async Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         var type = @event.GetType();
 
@@ -58,14 +55,13 @@ public class KafkaPubSub : IKafkaPubSub
 
         var headers = new Headers
         {
-            { "EventType", Encoding.UTF8.GetBytes(@event.EventType) },
             { "OccurredAt", Encoding.UTF8.GetBytes(@event.OccurredAt.ToString()) },
             { "EventId", Encoding.UTF8.GetBytes(@event.EventId.ToString()) },
         };
 
-        foreach (var item in @event.Metadata)
+        foreach (var item in @event.Metadata.Where(x => x.Value != null))
         {
-            headers.Add(item.Key, Encoding.UTF8.GetBytes(item.Value?.ToString() ?? string.Empty));
+            headers.Add(item.Key, Encoding.UTF8.GetBytes(item.Value.ToString()));
         }
 
         var message = new Message<string, IDomainEvent>
@@ -77,9 +73,22 @@ public class KafkaPubSub : IKafkaPubSub
 
         var producer = this.serviceProvider.GetRequiredService<IProducer<string, IDomainEvent>>();
 
-        await producer.ProduceAsync(topic, message, token).ConfigureAwait(false);
+        await producer.ProduceAsync(topic, message, cancellationToken).ConfigureAwait(false);
 
         this.logger.LogInformation("Event published to Kafka successfully. Event type: {EventType}", @event.GetType().Name);
+    }
+
+    /// <summary>
+    /// Publish a list of domain events
+    /// </summary>
+    /// <param name="event">Domains event to publish</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <returns>Return a <see cref="Task"/></returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    {
+        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+
+        return Task.WhenAll(tasks);
     }
 
     /// <summary>
@@ -92,20 +101,51 @@ public class KafkaPubSub : IKafkaPubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        this.logger.LogInformation("Subscribing to Kafka topic for event type: {EventType}", typeof(TEvent).Name);
-
-        var consumerBuilder = new ConsumerBuilder<string, TEvent>(this.options.ConsumerConfig);
-
-        consumerBuilder.SetValueDeserializer(new JsonSystemTextSerializer<TEvent>());
-
-        using var consumer = consumerBuilder.Build();
-
-        cancellationToken.Register(() =>
-        {
-            consumer.Close();
-        });
-
         var topic = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
+
+        this.logger.LogInformation("{EventType} | Subscribing to Kafka topic {topic} ", typeof(TEvent).Name, topic);
+
+        await WaitTopicCreatedAsync<TEvent>(topic, cancellationToken).ConfigureAwait(false);
+
+        await SubscribeTopicAsync<TEvent, TEventHandler>(topic, cancellationToken).ConfigureAwait(false);
+    }
+
+    internal async Task WaitTopicCreatedAsync<TEvent>(string topic, CancellationToken cancellationToken) where TEvent : IDomainEvent
+    {
+        using var adminClient = new AdminClientBuilder(this.options.AdminClientConfig).Build();
+
+        var attempt = 0;
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var metadata = adminClient.GetMetadata(TimeSpan.FromSeconds(10));
+            bool topicExists = metadata.Topics.Exists(t => t.Topic == topic);
+
+            if (topicExists)
+            {
+                break;
+            }
+
+            attempt++;
+            if (attempt >= this.options.MaxAttempts)
+            {
+                this.logger.LogWarning("{EventType} | The topic {Topic} does not exist after {MaxAttempts} attempts. Exiting.", typeof(TEvent).Name, topic, this.options.MaxAttempts);
+                return; // O manejar según sea apropiado (ej. lanzar una excepción)
+            }
+
+            this.logger.LogInformation("{EventType} | The topic {Topic} does not exist, waiting for it to be created.", typeof(TEvent).Name, topic);
+            await Task.Delay(1000, CancellationToken.None).ConfigureAwait(false);
+        }
+    }
+
+
+    internal async Task SubscribeTopicAsync<TEvent, TEventHandler>(string topic, CancellationToken cancellationToken)
+        where TEvent : IDomainEvent
+        where TEventHandler : IEventHandler<TEvent>
+    {
+        using var consumer = GetConsumer<TEvent>().Build();
+
+        cancellationToken.Register(consumer.Close);
 
         consumer.Subscribe(topic);
 
@@ -113,23 +153,36 @@ public class KafkaPubSub : IKafkaPubSub
         {
             try
             {
-                this.logger.LogInformation("Listener the event {EventType}", typeof(TEvent).Name);
+                this.logger.LogInformation("{EventType} | Listener the event {topic}", typeof(TEvent).Name, topic);
+
                 var value = consumer.Consume(cancellationToken);
 
                 var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
                 await eventHandler.HandleAsync(value.Message.Value, cancellationToken).ConfigureAwait(false);
 
-                this.logger.LogInformation("End Listener the event {EventType}", typeof(TEvent).Name);
+                this.logger.LogInformation("{EventType} | End Listener the event {topic}", typeof(TEvent).Name, topic);
 
             }
             catch (ConsumeException e)
             {
-                this.logger.LogError(e, "An error occurred while consuming a Kafka message for event type: {EventType}", typeof(TEvent).Name);
+                this.logger.LogError(e, "{EventType} | An error occurred while consuming a Kafka message for event topic: {topic}", typeof(TEvent).Name, topic);
+            }
+            catch (Exception e)
+            {
+                this.logger.LogError(e, "{EventType} | An unexpected error occurred for topic: {topic}", typeof(TEvent).Name, topic);
             }
         }
 
-        this.logger.LogInformation("Kafka event listening has stopped for event type: {EventType} due to cancellation request.", typeof(TEvent).Name);
+        this.logger.LogInformation("{EventType} | Kafka event listening has stopped for topic: {topic} due to cancellation request.", typeof(TEvent).Name, topic);
+    }
+
+    internal ConsumerBuilder<string, TEvent> GetConsumer<TEvent>() where TEvent : IDomainEvent
+    {
+        var consumerBuilder = new ConsumerBuilder<string, TEvent>(this.options.ConsumerConfig);
+
+        consumerBuilder.SetValueDeserializer(new JsonSystemTextSerializer<TEvent>());
+        return consumerBuilder;
     }
 
     /// <summary>
@@ -148,19 +201,6 @@ public class KafkaPubSub : IKafkaPubSub
         consumer.Unsubscribe();
 
         return Task.CompletedTask;
-    }
-
-    /// <summary>
-    /// Publish a list of domain events
-    /// </summary>
-    /// <param name="event">Domains event to publish</param>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
-    {
-        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
-
-        return Task.WhenAll(tasks);
     }
 
 }

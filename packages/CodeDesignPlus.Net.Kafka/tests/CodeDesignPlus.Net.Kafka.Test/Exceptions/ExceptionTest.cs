@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Kafka.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Kafka.Test.Exceptions;
 
 public class KafkaExceptionTest
 {

@@ -85,7 +85,7 @@ public sealed class XunitLogger : ILogger
         }
 
         var message = sb.ToString();
-        
+
         try
         {
             _output.WriteLine(message);

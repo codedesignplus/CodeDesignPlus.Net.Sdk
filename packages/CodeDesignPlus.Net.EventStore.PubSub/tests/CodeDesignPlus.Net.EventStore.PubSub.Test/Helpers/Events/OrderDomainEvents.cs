@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Attributees;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;

@@ -6,7 +6,7 @@ namespace CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 
 public static class XunitExtensions
 {
-    public  static bool UsesScopes(this ILoggingBuilder builder)
+    public static bool UsesScopes(this ILoggingBuilder builder)
     {
         var serviceProvider = builder.Services.BuildServiceProvider();
 

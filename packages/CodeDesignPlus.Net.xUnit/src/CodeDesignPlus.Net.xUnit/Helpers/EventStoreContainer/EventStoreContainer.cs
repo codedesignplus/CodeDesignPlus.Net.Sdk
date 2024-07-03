@@ -1,9 +1,6 @@
-﻿using System.Net;
-using System.Net.Sockets;
-using Ductus.FluentDocker.Model.Common;
+﻿using Ductus.FluentDocker.Model.Common;
 using Ductus.FluentDocker.Model.Compose;
 using Ductus.FluentDocker.Services;
-using Ductus.FluentDocker.Services.Extensions;
 using Ductus.FluentDocker.Services.Impl;
 
 namespace CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;

@@ -1,5 +1,4 @@
-﻿using CodeDesignPlus.Net.Serializers;
-using Confluent.Kafka;
+﻿using Confluent.Kafka;
 using Newtonsoft.Json;
 using System.Text;
 
@@ -11,11 +10,6 @@ namespace CodeDesignPlus.Net.Kafka.Serializer;
 /// /// <typeparam name="T">The type of the message to serialize or deserialize.</typeparam>
 public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
 {
-    private readonly JsonSerializerSettings options = new()
-    {
-        ContractResolver = new EventContractResolver([]),
-    };
-
     /// <summary>
     /// Serializes the specified data to a byte array using JSON.
     /// </summary>
@@ -24,10 +18,10 @@ public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
     /// <returns>The serialized byte array, or null if the data is null.</returns>
     public byte[] Serialize(T data, SerializationContext context)
     {
-        if (data == null)
-            return null;
+        if (EqualityComparer<T>.Default.Equals(data, default(T)))
+            return [];
 
-        return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data, this.options));
+        return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
     }
 
     /// <summary>
@@ -42,6 +36,6 @@ public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
         if (isNull)
             return default;
 
-        return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(data), this.options);
+        return JsonConvert.DeserializeObject<T>(Encoding.UTF8.GetString(data));
     }
 }

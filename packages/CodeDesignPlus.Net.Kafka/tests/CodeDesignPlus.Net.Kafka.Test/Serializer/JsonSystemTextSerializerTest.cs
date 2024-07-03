@@ -18,7 +18,7 @@ public class JsonSystemTextSerializerTest
         var result = _serializer.Serialize(data, new SerializationContext());
 
         // Assert
-        Assert.Null(result);
+        Assert.Empty(result);
     }
 
     [Fact]

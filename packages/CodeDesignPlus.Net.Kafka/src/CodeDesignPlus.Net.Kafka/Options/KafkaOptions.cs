@@ -41,4 +41,11 @@ public class KafkaOptions
         GroupId = this.NameMicroservice,
         AutoOffsetReset = AutoOffsetReset.Earliest
     };
+
+    public AdminClientConfig AdminClientConfig => new()
+    {
+        BootstrapServers = this.BootstrapServers
+    };
+
+    public int MaxAttempts { get; set; } = 60;
 }

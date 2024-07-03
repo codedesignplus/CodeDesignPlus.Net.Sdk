@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Net.Kafka.Abstractions;
 /// This interface provides a contract for interacting with a Kafka-based event bus for publishing and subscribing to events.
 /// Implementations of this interface should handle the underlying details of communication with Kafka brokers.
 /// </remarks>
-public interface IKafkaPubSub: IMessage
+public interface IKafkaPubSub : IMessage
 {
-    
+
 }

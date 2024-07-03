@@ -4,7 +4,7 @@ global using CodeDesignPlus.Net.Core.Exceptions;
 global using CodeDesignPlus.Net.Core.Extensions;
 global using CodeDesignPlus.Net.Core.Test.Helpers;
 global using CodeDesignPlus.Net.Core.Test.Helpers.Models;
-global using CodeDesignPlus.Net.Core.Abstractions.Attributees;
+global using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Options;

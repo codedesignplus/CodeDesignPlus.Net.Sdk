@@ -10,4 +10,4 @@ global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using System.Reflection;
 global using Newtonsoft.Json.Linq;
-global using CodeDesignPlus.Net.Core.Abstractions.Attributees;
+global using CodeDesignPlus.Net.Core.Abstractions.Attributes;

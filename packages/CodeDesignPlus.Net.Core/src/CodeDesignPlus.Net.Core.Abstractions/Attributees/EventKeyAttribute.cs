@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Core.Abstractions.Attributees;
+﻿namespace CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
 /// <summary>
 /// Attribute to define the key of the event.
