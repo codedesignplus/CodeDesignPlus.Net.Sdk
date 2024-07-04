@@ -2,7 +2,6 @@
 using CodeDesignPlus.Net.Kafka.Options;
 using CodeDesignPlus.Net.Kafka.Serializer;
 using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using Confluent.Kafka;
 using Microsoft.Extensions.DependencyInjection;
 using System.Text;

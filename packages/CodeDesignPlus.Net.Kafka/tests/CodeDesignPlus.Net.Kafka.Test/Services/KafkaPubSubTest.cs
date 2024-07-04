@@ -1,12 +1,10 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.Core.Services;
 using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
-using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.xUnit;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.KafkaContainer;
 using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 using Confluent.Kafka;
 using Microsoft.AspNetCore.Hosting;
@@ -14,7 +12,6 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using Xunit.Abstractions;
-using CodeDesignPlus.Net.xUnit.Helpers.KafkaContainer;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Services;
 

@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.Logger.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,7 +15,7 @@ namespace CodeDesignPlus.Net.Logger.Extensions;
 /// <summary>
 /// The <see cref="IHostBuilder"/> extensions for Serilog
 /// </summary>
-public static class HostBuilderExtension
+public static class ServiceCollectionExtension
 {
 
     /// <summary>
@@ -25,12 +26,9 @@ public static class HostBuilderExtension
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddLogger(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
-
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        
         var section = configuration.GetSection(LoggerOptions.Section);
 
         if (!section.Exists())
@@ -41,9 +39,7 @@ public static class HostBuilderExtension
             .Bind(section)
             .ValidateDataAnnotations();
 
-
-        var options = section.Get<LoggerOptions>();
-
+        services.AddCore(configuration);
 
         return services;
     }
@@ -79,9 +75,10 @@ public static class HostBuilderExtension
                 )
                 .Enrich.With(new ExceptionEnricher());
 
-            if (!string.IsNullOrEmpty(loggerOptions.Value.OTelEndpoint))
+            if (loggerOptions.Value.Enable)
             {
-                configuration.WriteTo.OpenTelemetry(options => {
+                configuration.WriteTo.OpenTelemetry(options =>
+                {
                     options.Endpoint = loggerOptions.Value.OTelEndpoint;
                     options.Protocol = OtlpProtocol.Grpc;
 
@@ -93,12 +90,16 @@ public static class HostBuilderExtension
 
 
                     options.BatchingOptions.BatchSizeLimit = 10;
-                    //options.BatchingOptions.Period = TimeSpan.FromSeconds(1);
                     options.BatchingOptions.QueueLimit = 10;
 
                     options.ResourceAttributes = new Dictionary<string, object>
                     {
-                        { "service.name", coreOptions.Value.AppName }
+                        { "service.name", coreOptions.Value.AppName },
+                        { "service.version", coreOptions.Value.Version },
+                        { "service.description", coreOptions.Value.Description },
+                        { "service.business", coreOptions.Value.Business },
+                        { "service.contact.name", coreOptions.Value.Contact.Name },
+                        { "service.contact.email", coreOptions.Value.Contact.Email }
                     };
 
                 });

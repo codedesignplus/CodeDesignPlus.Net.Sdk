@@ -31,6 +31,6 @@ public class Startup(IConfiguration configuration)
 
     public static void Configure(IApplicationBuilder app)
     {
-       
+
     }
 }
