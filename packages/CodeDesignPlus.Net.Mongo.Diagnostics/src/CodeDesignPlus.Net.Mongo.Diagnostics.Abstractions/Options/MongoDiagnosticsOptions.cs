@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Options;
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Mongo.Diagnostics

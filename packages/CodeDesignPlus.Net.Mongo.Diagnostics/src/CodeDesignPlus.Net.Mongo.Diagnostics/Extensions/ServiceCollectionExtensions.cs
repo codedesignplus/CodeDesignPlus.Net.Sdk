@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Options;
+using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
 using CodeDesignPlus.Net.Mongo.Diagnostics.Services;
 using CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber;
 using Microsoft.Extensions.Configuration;
@@ -21,11 +21,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddMongoDiagnostics(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(MongoDiagnosticsOptions.Section);
 
@@ -41,6 +38,27 @@ public static class ServiceCollectionExtensions
 
         if (options.Enable)
         {
+            services.AddSingleton<IActivityService, ActivitySourceService>();
+            services.AddSingleton<DiagnosticsActivityEventSubscriber>();
+        }
+
+        return services;
+    }
+
+    public static IServiceCollection AddMongoDiagnostics(this IServiceCollection services, Action<MongoDiagnosticsOptions> setupAction)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(setupAction);
+
+        var options = new MongoDiagnosticsOptions();
+        setupAction(options);
+
+        if (options.Enable)
+        {
+            services.AddOptions<MongoDiagnosticsOptions>()
+                    .Configure(setupAction)
+                    .ValidateDataAnnotations();
+
             services.AddSingleton<IActivityService, ActivitySourceService>();
             services.AddSingleton<DiagnosticsActivityEventSubscriber>();
         }

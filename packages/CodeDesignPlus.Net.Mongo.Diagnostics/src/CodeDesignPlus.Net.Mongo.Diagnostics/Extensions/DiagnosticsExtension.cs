@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Options;
+﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
 using CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver.Core.Configuration;

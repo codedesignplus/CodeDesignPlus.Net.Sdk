@@ -4,7 +4,7 @@ public static class ConfigurationUtil
 {
     public static readonly MongoDiagnosticsOptions MongoDiagnosticsOptions = new()
     {
-        Enable = true,
+        Enable = false,
     };
 
     public static IConfiguration GetConfiguration()

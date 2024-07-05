@@ -2,7 +2,7 @@
 global using System.Text.Json;
 global using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions;
 global using CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions;
-global using CodeDesignPlus.Net.Mongo.Diagnostics.Options;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
 global using CodeDesignPlus.Net.Mongo.Diagnostics.Services;
 global using CodeDesignPlus.Net.Mongo.Diagnostics.Test.Helpers;
 global using CodeDesignPlus.Net.Mongo.Diagnostics.Test.Helpers.Models;

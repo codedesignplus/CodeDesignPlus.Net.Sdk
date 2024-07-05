@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Options;
+using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
 using MongoDB.Driver.Core.Events;
 using System.Diagnostics;
 using System.Net;

@@ -11,7 +11,7 @@ public class ServiceCollectionExtensionsTest
         ServiceCollection? serviceCollection = null;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongoDiagnostics(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongoDiagnostics(configuration: null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
@@ -24,7 +24,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongoDiagnostics(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongoDiagnostics(configuration: null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
@@ -43,6 +43,35 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.Equal($"The section {MongoDiagnosticsOptions.Section} is required.", exception.Message);
+    }
+
+
+    [Fact]
+    public void AddMongoDiagnostics_CheckServices_Success()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddMongoDiagnostics(x =>
+        {
+            x.Enable = true;
+            x.EnableCommandText = true;
+        });
+
+        // Assert
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var options = serviceProvider.GetService<IOptions<MongoDiagnosticsOptions>>();
+
+        Assert.NotNull(options);
+
+        //var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IMongoDiagnosticsService));
+
+        // Assert.NotNull(libraryService);
+        // Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
+        // Assert.Equal(typeof(MongoDiagnosticsService), libraryService.ImplementationType);
     }
 
     //[Fact]

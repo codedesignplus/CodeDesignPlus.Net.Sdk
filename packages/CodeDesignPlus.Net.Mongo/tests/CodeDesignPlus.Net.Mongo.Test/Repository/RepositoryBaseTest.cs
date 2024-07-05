@@ -1,4 +1,6 @@
-﻿using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
+﻿using System.Security.Cryptography.X509Certificates;
+using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
+using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
 using MongoDB.Driver;
@@ -365,6 +367,70 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
 
         Assert.Null(result);
         this.loggerMock.VerifyLogging("Failed to execute transaction", LogLevel.Error);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithSubDocuments_Success()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name=Order 1|and|description~=Order|and|client.name^=Client"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var result = await repository.MatchingAsync<Order>(criteria, cancellationToken);
+
+        // Assert
+        var order = orders.FirstOrDefault(x => x.Name == "Order 1");
+
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Contains(result, x => x.Id == order.Id);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithSubCollections_Success()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name=Product 1|and|description~=Product"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+        var order = orders.First(x => x.Name == "Order 1");
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var result = await repository.MatchingAsync<Order>(order.Id, criteria, x => x.Products, cancellationToken);
+
+        // Assert
+
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Contains(result, x => x.Id == order.Id);
     }
 
     private static ServiceProvider GetServiceProvider(IMongoClient mongoClient, IMongoCollection<Client> collection)

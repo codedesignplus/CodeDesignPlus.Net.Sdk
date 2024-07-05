@@ -1,10 +1,11 @@
 ﻿using CodeDesignPlus.Net.Mongo.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
 using MongoDB.Driver;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
-public class ServiceCollectionExtensionsTest
+public class ServiceCollectionExtensionsTest(MongoContainer container): IClassFixture<MongoContainer>
 {
     [Fact]
     public void AddMongo_ServiceCollectionIsNull_ArgumentNullException()
@@ -13,7 +14,7 @@ public class ServiceCollectionExtensionsTest
         ServiceCollection? serviceCollection = null;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongo(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongo<StartupFake>(null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
@@ -26,7 +27,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongo(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddMongo<StartupFake>(null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
@@ -41,7 +42,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<Mongo.Exceptions.MongoException>(() => serviceCollection.AddMongo(configuration));
+        var exception = Assert.Throws<Mongo.Exceptions.MongoException>(() => serviceCollection.AddMongo<StartupFake>(configuration));
 
         // Assert
         Assert.Equal($"The section {MongoOptions.Section} is required.", exception.Message);
@@ -51,12 +52,14 @@ public class ServiceCollectionExtensionsTest
     public void AddMongo_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { MongoDiagnostics = new { Enable = false }, Mongo = OptionsUtil.MongoOptions });
+        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.GetOptions(container.Port) });
 
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddMongo(configuration);
+        serviceCollection.AddMongo<StartupFake>(configuration);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
 
         // Assert
         var mongoClient = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IMongoClient));
@@ -64,18 +67,24 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(mongoClient);
         Assert.Equal(ServiceLifetime.Singleton, mongoClient.Lifetime);
         Assert.NotNull(mongoClient.ImplementationFactory);
+
+        // Assert
+        var client = serviceProvider.GetService<IMongoClient>();
+
+        Assert.NotNull(client);
+        Assert.IsType<MongoClient>(client);
     }
 
     [Fact]
     public void AddMongo_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { MongoDiagnostics = new { Enable = false }, Mongo = OptionsUtil.MongoOptions });
+        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.MongoOptions });
 
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddMongo(configuration);
+        serviceCollection.AddMongo<StartupFake>(configuration);
 
         // Assert
         var serviceProvider = serviceCollection.BuildServiceProvider();
