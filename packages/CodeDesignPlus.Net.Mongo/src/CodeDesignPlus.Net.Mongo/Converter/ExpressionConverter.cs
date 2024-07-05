@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
-using MongoDB.Bson;
+﻿using MongoDB.Bson;
+using System.Linq.Expressions;
 
-namespace CodeDesignPlus.Net.Mongo;
+namespace CodeDesignPlus.Net.Mongo.Converter;
 
 public class ExpressionConverter(ParameterExpression parameter, string alias) : ExpressionVisitor
 {

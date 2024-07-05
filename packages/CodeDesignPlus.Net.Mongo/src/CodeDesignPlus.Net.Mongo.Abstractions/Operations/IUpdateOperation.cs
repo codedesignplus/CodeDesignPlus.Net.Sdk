@@ -6,7 +6,7 @@ namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 /// Allows the repository to update a record by assigning the information to the transversal properties of the entity
 /// </summary>
 /// <typeparam name="TEntity">Type of entity to update</typeparam>
-public interface IUpdateOperation<TEntity> where TEntity : class, IEntityBase
+public interface IUpdateOperation<in TEntity> where TEntity : class, IEntityBase
 {
     /// <summary>
     /// Method that updates a record in the database

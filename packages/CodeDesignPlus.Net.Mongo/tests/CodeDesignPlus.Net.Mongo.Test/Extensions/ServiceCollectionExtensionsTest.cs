@@ -1,6 +1,6 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
+﻿using CodeDesignPlus.Net.Mongo.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers;
 using MongoDB.Driver;
-using CodeDesignPlus.Net.Mongo.Extensions;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 

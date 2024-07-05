@@ -1,8 +1,8 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
-using MongoDB.Driver;
-using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
-using Moq;
+﻿using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+using MongoDB.Driver;
+using Moq;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Repository;
 

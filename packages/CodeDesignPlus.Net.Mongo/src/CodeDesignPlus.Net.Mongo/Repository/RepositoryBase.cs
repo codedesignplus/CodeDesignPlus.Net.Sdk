@@ -1,13 +1,14 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
-using C = CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
-using CodeDesignPlus.Net.Mongo.Abstractions.Options;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
-using CodeDesignPlus.Net.Criteria.Extensions;
 using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
-using System.Linq.Expressions;
+using CodeDesignPlus.Net.Criteria.Extensions;
+using CodeDesignPlus.Net.Mongo.Abstractions.Options;
+using CodeDesignPlus.Net.Mongo.Converter;
+using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization;
+using MongoDB.Driver;
+using System.Linq.Expressions;
+using C = CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
 
 namespace CodeDesignPlus.Net.Mongo.Repository;
 
@@ -17,7 +18,7 @@ namespace CodeDesignPlus.Net.Mongo.Repository;
 public abstract class RepositoryBase : IRepositoryBase
 {
     private readonly IServiceProvider serviceProvider;
-    private readonly ILogger<RepositoryBase> logger;
+    private readonly ILogger logger;
     private readonly MongoOptions mongoOptions;
 
     /// <summary>
@@ -26,7 +27,7 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <param name="serviceProvider">The IServiceProvider to add services to the container.</param>
     /// <param name="mongoOptions">The options to configure a MongoDB.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger<RepositoryBase> logger)
+    protected RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger logger)
     {
         this.serviceProvider = serviceProvider;
         this.logger = logger;
@@ -171,7 +172,7 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <param name="process">The function that represents the transactional operation.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public async Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken = default)
+    public async Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken)
     {
         var client = this.serviceProvider.GetRequiredService<IMongoClient>();
 
@@ -263,9 +264,9 @@ public abstract class RepositoryBase : IRepositoryBase
             new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}"))
         };
 
-        var result = await collection.Aggregate<BsonDocument>(pipeline, cancellationToken: cancellationToken).ToListAsync(cancellationToken).ConfigureAwait(false);
+        var result = await collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-        return result.Select(doc => BsonSerializer.Deserialize<TEntity>(doc)).ToList();
+        return result.Current.Select(doc => BsonSerializer.Deserialize<TEntity>(doc)).ToList();
     }
 
 
@@ -279,7 +280,7 @@ public abstract class RepositoryBase : IRepositoryBase
         var query = collection.Find(filter ?? (x => true));
 
         if (sortBy != null)
-            if (criteria.Order.OrderType == OrderTypes.Ascending)
+            if (criteria.OrderType == OrderTypes.Ascending)
                 query = query.SortBy(sortBy);
             else
                 query = query.SortByDescending(sortBy);

@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Mongo.Abstractions.Options;
-
-namespace CodeDesignPlus.Net.Mongo.Test.Helpers;
+﻿namespace CodeDesignPlus.Net.Mongo.Test.Helpers;
 
 public static class OptionsUtil
 {

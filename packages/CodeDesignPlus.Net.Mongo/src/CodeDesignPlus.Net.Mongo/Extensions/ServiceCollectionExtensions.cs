@@ -1,7 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Mongo.Abstractions.Options;
 using CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
@@ -21,12 +20,9 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddMongo(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
-
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        
         var section = configuration.GetSection(MongoOptions.Section);
 
         if (!section.Exists())
@@ -38,8 +34,6 @@ public static class ServiceCollectionExtensions
             .AddOptions<MongoOptions>()
             .Bind(section)
             .ValidateDataAnnotations();
-
-        //services.AddMongoDiagnostics(configuration);
 
         services.AddSingleton<IMongoClient>((serviceProvider) =>
         {
