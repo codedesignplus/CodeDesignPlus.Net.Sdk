@@ -23,7 +23,7 @@ public class ExpressionConverterTest
         };
 
         var expression2 = criteria.GetFilterExpression<Order>();
-        var converter = new ExpressionToBsonDocumentConverter(parameter, alias);
+        var converter = new ExpressionConverter(parameter, alias);
 
         // Act
         var result = converter.Convert(expression2);
@@ -48,7 +48,7 @@ public class ExpressionConverterTest
         var parameter = Expression.Parameter(typeof(Order), "x");
         var alias = "alias";
         var expression = Expression.NotEqual(Expression.Property(parameter, "Id"), Expression.Constant(guid));
-        var converter = new ExpressionToBsonDocumentConverter(parameter, alias);
+        var converter = new ExpressionConverter(parameter, alias);
 
         // Act
         var exception = Assert.Throws<Mongo.Exceptions.MongoException>(() => converter.Convert(expression));
@@ -65,7 +65,7 @@ public class ExpressionConverterTest
         var parameter = Expression.Parameter(typeof(Order), "x");
         var alias = "alias";
         var expression = Expression.LessThan(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
-        var converter = new ExpressionToBsonDocumentConverter(parameter, alias);
+        var converter = new ExpressionConverter(parameter, alias);
 
         // Act
         var result = converter.Convert(expression);
@@ -89,7 +89,7 @@ public class ExpressionConverterTest
         var parameter = Expression.Parameter(typeof(Order), "x");
         var alias = "alias";
         var expression = Expression.LessThanOrEqual(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
-        var converter = new ExpressionToBsonDocumentConverter(parameter, alias);
+        var converter = new ExpressionConverter(parameter, alias);
 
         // Act
         var result = converter.Convert(expression);
@@ -113,7 +113,7 @@ public class ExpressionConverterTest
         var parameter = Expression.Parameter(typeof(Order), "x");
         var alias = "alias";
         var expression = Expression.GreaterThan(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
-        var converter = new ExpressionToBsonDocumentConverter(parameter, alias);
+        var converter = new ExpressionConverter(parameter, alias);
 
         // Act
         var result = converter.Convert(expression);
@@ -137,7 +137,7 @@ public class ExpressionConverterTest
         var parameter = Expression.Parameter(typeof(Order), "x");
         var alias = "alias";
         var expression = Expression.GreaterThanOrEqual(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
-        var converter = new ExpressionToBsonDocumentConverter(parameter, alias);
+        var converter = new ExpressionConverter(parameter, alias);
 
         // Act
         var result = converter.Convert(expression);
@@ -168,7 +168,7 @@ public class ExpressionConverterTest
 
         var expression2 = criteria.GetFilterExpression<Order>();
 
-        var converter = new ExpressionToBsonDocumentConverter(parameter, null!);
+        var converter = new ExpressionConverter(parameter, null!);
 
         // Act
         var result = converter.Convert(expression2);
@@ -208,7 +208,7 @@ public class ExpressionConverterTest
 
         var expression2 = criteria.GetFilterExpression<Order>();
 
-        var converter = new ExpressionToBsonDocumentConverter(parameter, null!);
+        var converter = new ExpressionConverter(parameter, null!);
 
         // Act
         var result = converter.Convert(expression2);
@@ -238,7 +238,7 @@ public class ExpressionConverterTest
     public void GetFieldName_InvalidExpression_ThrowsMongoException()
     {
         // Arrange
-        var converterType = typeof(ExpressionToBsonDocumentConverter);
+        var converterType = typeof(ExpressionConverter);
         var methodInfo = converterType.GetMethod("GetFieldName", BindingFlags.NonPublic | BindingFlags.Static);
         var invalidExpression = Expression.Constant(5);
 
@@ -256,7 +256,7 @@ public class ExpressionConverterTest
     public void GetConstantValue_InvalidExpression_ThrowsMongoException()
     {
         // Arrange
-        var converterType = typeof(ExpressionToBsonDocumentConverter);
+        var converterType = typeof(ExpressionConverter);
         var methodInfo = converterType.GetMethod("GetConstantValue", BindingFlags.NonPublic | BindingFlags.Static);
         var invalidExpression = Expression.Parameter(typeof(int), "x"); // Using a parameter expression to trigger the exception
 
