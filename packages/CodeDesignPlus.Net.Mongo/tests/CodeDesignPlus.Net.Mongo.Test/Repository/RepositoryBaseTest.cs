@@ -1,5 +1,8 @@
-﻿using System.Security.Cryptography.X509Certificates;
+﻿using System.Linq.Expressions;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
+using CodeDesignPlus.Net.Mongo.Repository;
 using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
@@ -402,6 +405,121 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     }
 
     [Fact]
+    public async Task MatchingAsync_CheckFiltersWithProjection_Success()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name=Order 1|and|description~=Order|and|client.name^=Client"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var result = await repository.MatchingAsync<Order, Order>(criteria, x => new Order()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Description = x.Description,
+        }, cancellationToken);
+
+        // Assert
+        var order = orders.First(x => x.Name == "Order 1");
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Contains(result, x => x.Id == order.Id);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithProjection_SortAsc()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name^=Order",
+            OrderType = Net.Core.Abstractions.Models.Criteria.OrderTypes.Ascending,
+            OrderBy = "Total"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var data = await repository.MatchingAsync<Order, Order>(criteria, x => new Order()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Description = x.Description,
+            Total = x.Total
+        }, cancellationToken);
+
+        // Assert
+        var result = data.First();
+        var order = orders.First();
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.Equal(result.Id, order.Id);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithProjection_SortDesc()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name^=Order",
+            OrderType = Net.Core.Abstractions.Models.Criteria.OrderTypes.Descending,
+            OrderBy = "Total"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var data = await repository.MatchingAsync<Order, Order>(criteria, x => new Order()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Description = x.Description,
+            Total = x.Total
+        }, cancellationToken);
+
+        // Assert
+        var result = data.First();
+        var order = orders.Last();
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.Equal(result.Name, order.Name);
+    }
+
+
+    [Fact]
     public async Task MatchingAsync_CheckFiltersWithSubCollections_Success()
     {
         // Arrange
@@ -412,25 +530,54 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
-            Filters = "name=Product 1|and|description~=Product"
+            Filters = "name=Product 1"
         };
 
         var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
 
         var orders = OrderData.GetOrders();
         var order = orders.First(x => x.Name == "Order 1");
+        var product = order.Products.First(x => x.Name == "Product 1");
 
         await repository.CreateRangeAsync(orders, cancellationToken);
 
         // Act
-        var result = await repository.MatchingAsync<Order>(order.Id, criteria, x => x.Products, cancellationToken);
+        var result = await repository.MatchingAsync<Order, Product>(order.Id, criteria, x => x.Products, cancellationToken);
 
         // Assert
-
         Assert.NotNull(order);
+        Assert.NotNull(product);
         Assert.NotNull(result);
         Assert.NotEmpty(result);
-        Assert.Contains(result, x => x.Id == order.Id);
+        Assert.Contains(result, x => x.Id == product.Id);
+    }
+
+    [Fact]
+    public void GetPropertyName_InvalidExpression_ThrowsMongoException()
+    {
+        // Arrange
+        var repositoryType = typeof(RepositoryBase);
+        var methodInfo = repositoryType
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .FirstOrDefault(m => m.Name == "GetPropertyName" && m.IsGenericMethodDefinition);
+
+        if (methodInfo == null)
+            throw new InvalidOperationException("No se encontró el método 'GetPropertyName'.");
+
+        // Crear una expresión inválida (una constante en lugar de un MemberExpression)
+        Expression<Func<Order, bool>> invalidExpression = x => x.Name == "Test" && x.Description == "Test";
+
+        // Crear un método cerrado (closed method) a partir del método genérico
+        var closedMethod = methodInfo.MakeGenericMethod(typeof(Order), typeof(bool));
+
+        // Act
+        var exception = Record.Exception(() => closedMethod.Invoke(null, [invalidExpression]));
+
+        // Assert
+        Assert.NotNull(exception);
+        Assert.IsType<TargetInvocationException>(exception);
+        Assert.IsType<Mongo.Exceptions.MongoException>(exception.InnerException);
+        Assert.Equal("The expression must be a MemberExpression.", exception.InnerException.Message);
     }
 
     private static ServiceProvider GetServiceProvider(IMongoClient mongoClient, IMongoCollection<Client> collection)

@@ -1,5 +1,7 @@
-﻿using MongoDB.Bson;
+﻿using System;
 using System.Linq.Expressions;
+using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace CodeDesignPlus.Net.Mongo.Converter;
 
@@ -20,15 +22,11 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
         var left = node.Left;
         var right = node.Right;
 
-        var fieldName = GetFieldName(left);
-        var value = GetConstantValue(right);
-
-        var aliasedFieldName = $"$${alias}.{fieldName}";
 
         switch (node.NodeType)
         {
             case ExpressionType.Equal:
-                filterDocument.Add(new BsonElement("$eq", new BsonArray { aliasedFieldName, value }));
+                filterDocument.Add(new BsonElement("$eq", new BsonArray {  $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
                 break;
             case ExpressionType.AndAlso:
                 var leftAnd = new ExpressionConverter(parameter, alias).Convert(left);
@@ -41,19 +39,19 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
                 filterDocument.Add("$or", new BsonArray { leftOr, rightOr });
                 break;
             case ExpressionType.LessThan:
-                filterDocument.Add(new BsonElement("$lt", new BsonArray { aliasedFieldName, value }));
+                filterDocument.Add(new BsonElement("$lt", new BsonArray { $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
                 break;
             case ExpressionType.LessThanOrEqual:
-                filterDocument.Add(new BsonElement("$lte", new BsonArray { aliasedFieldName, value }));
+                filterDocument.Add(new BsonElement("$lte", new BsonArray {  $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
                 break;
             case ExpressionType.GreaterThan:
-                filterDocument.Add(new BsonElement("$gt", new BsonArray { aliasedFieldName, value }));
+                filterDocument.Add(new BsonElement("$gt", new BsonArray {  $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
                 break;
             case ExpressionType.GreaterThanOrEqual:
-                filterDocument.Add(new BsonElement("$gte", new BsonArray { aliasedFieldName, value }));
+                filterDocument.Add(new BsonElement("$gte", new BsonArray {  $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
                 break;
             default:
-                throw new NotSupportedException($"Operador binario no soportado: {node.NodeType}");
+                throw new Exceptions.MongoException($"The operator '{node.NodeType}' is not supported.");
         }
 
         return node;
@@ -64,14 +62,15 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
         if (expression is MemberExpression memberExpression)
             return memberExpression.Member.Name;
 
-        throw new NotSupportedException("Solo se soportan expresiones de miembro para nombres de campos.");
+        throw new Exceptions.MongoException("Only member expressions for field names are supported.");
     }
-
+    
     private static BsonValue GetConstantValue(Expression expression)
     {
         if (expression is ConstantExpression constantExpression)
             return BsonValue.Create(constantExpression.Value);
 
-        throw new NotSupportedException("Solo se soportan expresiones constantes para valores.");
+        throw new Exceptions.MongoException("Only constant expressions for values are supported.");
     }
+
 }

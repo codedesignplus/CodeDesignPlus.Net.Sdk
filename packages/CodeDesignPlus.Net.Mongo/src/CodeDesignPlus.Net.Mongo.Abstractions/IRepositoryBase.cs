@@ -107,5 +107,7 @@ public interface IRepositoryBase
     /// <param name="criteria">The criteria to filter the records.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    Task<List<TEntity>> MatchingAsync<TEntity>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TEntity>>> projection, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+        where TProjection : class, IEntityBase;
 }

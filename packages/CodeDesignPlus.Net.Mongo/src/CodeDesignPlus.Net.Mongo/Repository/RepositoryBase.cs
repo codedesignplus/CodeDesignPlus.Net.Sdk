@@ -236,16 +236,17 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <param name="criteria">The criteria to filter the records.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation</returns>
-    public async Task<List<TEntity>> MatchingAsync<TEntity>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TEntity>>> projection, CancellationToken cancellationToken)
+    public async Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
+        where TProjection : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
 
         var propertyName = GetPropertyName(projection);
 
-        var filterCriteria = criteria.GetFilterExpression<TEntity>();
+        var filterCriteria = criteria.GetFilterExpression<TProjection>();
 
-        var bsonFilter = GetBsonDocument(filterCriteria, "x");
+        var bsonFilter = GetBsonDocument(filterCriteria, "entity");
 
         var pipeline = new[]
         {
@@ -264,9 +265,15 @@ public abstract class RepositoryBase : IRepositoryBase
             new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}"))
         };
 
-        var result = await collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var cursor = await collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var resultList = new List<BsonDocument>();
 
-        return result.Current.Select(doc => BsonSerializer.Deserialize<TEntity>(doc)).ToList();
+        while (await cursor.MoveNextAsync(cancellationToken))
+        {
+            resultList.AddRange(cursor.Current);
+        }
+
+        return resultList.Select(doc => BsonSerializer.Deserialize<TProjection>(doc)).ToList();
     }
 
 
@@ -277,7 +284,7 @@ public abstract class RepositoryBase : IRepositoryBase
         var filter = criteria.GetFilterExpression<TEntity>();
         var sortBy = criteria.GetSortByExpression<TEntity>();
 
-        var query = collection.Find(filter ?? (x => true));
+        var query = collection.Find(filter);
 
         if (sortBy != null)
             if (criteria.OrderType == OrderTypes.Ascending)
@@ -294,7 +301,7 @@ public abstract class RepositoryBase : IRepositoryBase
         if (projection.Body is MemberExpression memberExpression)
             return memberExpression.Member.Name;
         else
-            throw new ArgumentException("La expresión debe ser una MemberExpression");
+            throw new Exceptions.MongoException("The expression must be a MemberExpression.");
     }
 
     public static BsonDocument GetBsonDocument<TEntity>(Expression<Func<TEntity, bool>> expression, string alias)
