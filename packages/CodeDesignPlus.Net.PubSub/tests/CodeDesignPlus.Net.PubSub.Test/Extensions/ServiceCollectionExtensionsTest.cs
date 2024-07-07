@@ -1,6 +1,8 @@
 ﻿using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using Microsoft.Extensions.Hosting;
+using CodeDesignPlus.Net.PubSub.Diagnostics;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Extensions;
 
@@ -13,7 +15,20 @@ public class ServiceCollectionExtensionsTest
         ServiceCollection? serviceCollection = null;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(configuration: null));
+
+        // Assert
+        Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
+    }
+
+    [Fact]
+    public void AddPubSubOverride_ServiceCollectionIsNull_ArgumentNullException()
+    {
+        // Arrange
+        ServiceCollection? serviceCollection = null;
+
+        // Act
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(setupOptions: null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
@@ -26,10 +41,23 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(configuration: null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
+    }
+
+    [Fact]
+    public void AddPubSubOverride_ConfigurationIsNull_ArgumentNullException()
+    {
+        // Arrange
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(setupOptions: null));
+
+        // Assert
+        Assert.Equal("Value cannot be null. (Parameter 'setupOptions')", exception.Message);
     }
 
     [Fact]
@@ -85,11 +113,63 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
+        var activity = services.FirstOrDefault(x => typeof(IActivityService).IsAssignableFrom(x.ImplementationType));
+
+        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueueService).IsAssignableFrom(x.ImplementationType));
+        var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
-
         Assert.Equal(typeof(PubSub.Services.PubSub), pubSub.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, pubSub.Lifetime);
+
+        Assert.NotNull(activity);
+        Assert.Equal(typeof(ActivitySourceService), activity.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, activity.Lifetime);
+
+        Assert.NotNull(eventQueue);
+        Assert.Equal(typeof(EventQueueService), eventQueue.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, eventQueue.Lifetime);
+
+        Assert.NotEmpty(hostServices);
+        Assert.Contains(hostServices, x => x.ImplementationType == typeof(EventQueueBackgroundService));
+    }
+
+    [Fact]
+    public void AddPubSubOverride_RegisterServices_ServicesBase()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        // Act 
+        services.AddPubSub(x =>
+        {
+            x.UseQueue = true;
+            x.SecondsWaitQueue = 4;
+            x.EnableDiagnostic = true;
+        });
+
+        // Assert
+        var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
+        var activity = services.FirstOrDefault(x => typeof(IActivityService).IsAssignableFrom(x.ImplementationType));
+
+        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueueService).IsAssignableFrom(x.ImplementationType));
+        var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
+
+        Assert.NotNull(pubSub);
+        Assert.Equal(typeof(PubSub.Services.PubSub), pubSub.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, pubSub.Lifetime);
+
+        Assert.NotNull(activity);
+        Assert.Equal(typeof(ActivitySourceService), activity.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, activity.Lifetime);
+
+        Assert.NotNull(eventQueue);
+        Assert.Equal(typeof(EventQueueService), eventQueue.ImplementationType);
+        Assert.Equal(ServiceLifetime.Singleton, eventQueue.Lifetime);
+
+        Assert.NotEmpty(hostServices);
+        Assert.Contains(hostServices, x => x.ImplementationType == typeof(EventQueueBackgroundService));
     }
 
     /// <summary>
@@ -151,7 +231,7 @@ public class ServiceCollectionExtensionsTest
         var eventHandler = new UserRegisteredEventHandler();
 
         // Act
-        var success = eventHandler.GetType().IsAssignableGenericFrom(typeof(IQueueService<,>));
+        var success = eventHandler.GetType().IsAssignableGenericFrom(typeof(IQueueService<>));
 
         // Assert
         Assert.False(success);

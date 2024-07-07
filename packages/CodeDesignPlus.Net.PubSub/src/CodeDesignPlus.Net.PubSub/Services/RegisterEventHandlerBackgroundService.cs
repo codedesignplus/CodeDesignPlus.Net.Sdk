@@ -22,8 +22,11 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : Back
     /// <param name="logger">Service for logging.</param>
     public RegisterEventHandlerBackgroundService(IMessage message, ILogger<RegisterEventHandlerBackgroundService<TEventHandler, TEvent>> logger)
     {
-        this.message = message ?? throw new ArgumentNullException(nameof(message));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(message);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        this.message = message;
+        this.logger = logger;
 
         this.logger.LogInformation("EventHandlerBackgroundService for EventHandler: {TEventHandler} and Event: {TEvent} has been initialized.", typeof(TEventHandler).Name, typeof(TEvent).Name);
     }

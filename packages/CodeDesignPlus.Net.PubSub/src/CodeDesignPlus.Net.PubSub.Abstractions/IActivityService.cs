@@ -17,7 +17,7 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions
         bool TryGetActivity(int id, out Activity activity);
         bool RemoveActivity(int id, out Activity activity);
 
-        void Inject(Activity activity, IDomainEvent domain);
+        void Inject(Activity activity, IDomainEvent domainEvent);
         PropagationContext Extract(IDomainEvent domainEvent);
     }
 }

@@ -22,11 +22,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddPubSub(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(PubSubOptions.Section);
 
@@ -41,15 +38,47 @@ public static class ServiceCollectionExtensions
         var options = section.Get<PubSubOptions>();
 
         services.AddSingleton<IPubSub, Services.PubSub>();
-        services.AddSingleton<IActivityService, ActivitySourceService>();
 
-        services.AddEventsHandlers(options);
+        services.AddEventsHandlers();
 
         if (options.UseQueue)
         {
             services.AddSingleton<IEventQueueService, EventQueueService>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
         }
+
+        if (options.EnableDiagnostic)
+            services.AddSingleton<IActivityService, ActivitySourceService>();
+
+        return services;
+    }
+
+    public static IServiceCollection AddPubSub(this IServiceCollection services, Action<PubSubOptions> setupOptions)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(setupOptions);
+
+        var pubSubOptions = new PubSubOptions();
+
+        setupOptions(pubSubOptions);
+
+        services
+            .AddOptions<PubSubOptions>()
+            .Configure(setupOptions)
+            .ValidateDataAnnotations();
+
+        services.AddSingleton<IPubSub, Services.PubSub>();
+
+        services.AddEventsHandlers();
+
+        if (pubSubOptions.UseQueue)
+        {
+            services.AddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
+        }
+
+        if (pubSubOptions.EnableDiagnostic)
+            services.AddSingleton<IActivityService, ActivitySourceService>();
 
         return services;
     }
@@ -60,9 +89,8 @@ public static class ServiceCollectionExtensions
     /// Adds the event handlers that implement the CodeDesignPlus.PubSub.Abstractions.IEventHandler interface
     /// </summary>
     /// <param name="services">A reference to this instance after the operation has completed.</param>
-    /// <param name="pubSubOptions">The event bus options</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, PubSubOptions pubSubOptions)
+    private static IServiceCollection AddEventsHandlers(this IServiceCollection services)
     {
         var eventsHandlers = PubSubExtensions.GetEventHandlers();
 

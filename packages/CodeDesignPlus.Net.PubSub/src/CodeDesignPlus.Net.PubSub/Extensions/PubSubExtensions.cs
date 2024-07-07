@@ -16,9 +16,7 @@ public static class PubSubExtensions
     /// <returns>Return true if type implemented <paramref name="interface"/></returns>
     public static bool IsAssignableGenericFrom(this Type type, Type @interface)
     {
-        return type
-            .GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == @interface);
+        return Array.Exists(type.GetInterfaces(), x => x.IsGenericType && x.GetGenericTypeDefinition() == @interface);
     }
 
     /// <summary>
@@ -66,9 +64,7 @@ public static class PubSubExtensions
     /// </example>
     public static Type GetInterfaceEventHandlerGeneric(this Type eventHandler)
     {
-        return eventHandler
-            .GetInterfaces()
-            .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
+        return Array.Find(eventHandler.GetInterfaces(), x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
     }
 
     /// <summary>
@@ -91,8 +87,6 @@ public static class PubSubExtensions
     /// </example>
     public static Type GetEventType(this Type interfaceEventHandlerGeneric)
     {
-        return interfaceEventHandlerGeneric
-            .GetGenericArguments()
-            .FirstOrDefault(x => x.IsClass && !x.IsAbstract && typeof(IDomainEvent).IsAssignableFrom(x));
+        return Array.Find(interfaceEventHandlerGeneric.GetGenericArguments(), x => x.IsClass && !x.IsAbstract && typeof(IDomainEvent).IsAssignableFrom(x));
     }
 }

@@ -6,7 +6,7 @@ namespace CodeDesignPlus.Net.PubSub.Test.Helpers.Events
     /// <summary>
     /// Evento de integración usado cuando es creado un usuarios
     /// </summary>
-    [Key("user.registered.domain.event")]
+    [EventKey<UserEntity>(1, "created")]
     public class UserRegisteredEvent : DomainEvent
     {
         public UserRegisteredEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null!) 

@@ -44,10 +44,10 @@ public interface IFake
 /// Fake event to check method <see cref="ServiceCollectionExtensions.AddEventsHandlers{TStartupLogic}(Microsoft.Extensions.DependencyInjection.IServiceCollection)"/>
 /// in unit test <see cref="ServiceCollectionExtensionsTest.AddEventHandlers_Services_HandlersQueueAndService"/>
 /// </summary>
-[Key("fake.event.domain.event")]
+[EventKey<UserEntity>(1, "fake.event")]
 public abstract class FakeEvent : DomainEvent
 {
-    protected FakeEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null)
+    protected FakeEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object>? metadata = null)
         : base(aggregateId, eventId, occurredAt, metadata)
     {
     }
@@ -72,10 +72,10 @@ public class FakeEventHandler : IEventHandler<FakeEvent>
 }
 
 
-[Key("event.failed.domain.event")]
+[EventKey<UserEntity>(1, "event.failed")]
 public class EventFailed : DomainEvent
 {
-    public EventFailed(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null)
+    public EventFailed(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object>? metadata = null)
         : base(aggregateId, eventId, occurredAt, metadata)
     {
     }

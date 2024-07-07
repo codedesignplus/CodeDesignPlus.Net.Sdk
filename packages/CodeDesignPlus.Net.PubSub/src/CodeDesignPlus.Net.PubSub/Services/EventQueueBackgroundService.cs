@@ -18,8 +18,11 @@ namespace CodeDesignPlus.Net.PubSub.Services
         /// <param name="logger">The logger to manage the logs.</param>
         public EventQueueBackgroundService(IEventQueueService queueService, ILogger<EventQueueBackgroundService> logger)
         {
-            this.queueService = queueService ?? throw new ArgumentNullException(nameof(queueService));
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            ArgumentNullException.ThrowIfNull(queueService);
+            ArgumentNullException.ThrowIfNull(logger);
+
+            this.queueService = queueService ;
+            this.logger = logger ;
 
             this.logger.LogInformation("EventQueueBackgroundService has been initialized.");
         }

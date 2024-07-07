@@ -5,6 +5,9 @@ public static class ConfigurationUtil
     public static readonly PubSubOptions PubSubOptions = new()
     {
         UseQueue = true,
+        EnableDiagnostic = true,
+        SecondsWaitQueue = 2,
+        RegisterAutomaticHandlers = true
     };
 
     public static IConfiguration GetConfiguration()

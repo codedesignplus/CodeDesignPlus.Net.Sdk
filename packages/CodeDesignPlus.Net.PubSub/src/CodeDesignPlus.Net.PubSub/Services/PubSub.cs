@@ -4,18 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace CodeDesignPlus.Net.PubSub.Services
 {
-    public class PubSub : IPubSub
+    public class PubSub(IMessage meessage, IOptions<PubSubOptions> options, IServiceProvider serviceProvider) : IPubSub
     {
-        private readonly IMessage message;
-        private readonly IOptions<PubSubOptions> options;
-        private readonly IServiceProvider serviceProvider;
-
-        public PubSub(IMessage meessage, IOptions<PubSubOptions> options, IServiceProvider serviceProvider)
-        {
-            this.message = meessage;
-            this.options = options;
-            this.serviceProvider = serviceProvider;
-        }
+        private readonly IMessage message = meessage;
+        private readonly IOptions<PubSubOptions> options = options;
+        private readonly IServiceProvider serviceProvider = serviceProvider;
 
         public Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
         {

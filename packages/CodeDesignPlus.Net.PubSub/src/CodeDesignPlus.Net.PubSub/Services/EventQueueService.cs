@@ -15,16 +15,13 @@ namespace CodeDesignPlus.Net.PubSub.Services
 
         public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IMessage message, IActivityService activityService)
         {
-            if (options == null)
-                throw new ArgumentNullException(nameof(options));
+            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(options);
+            ArgumentNullException.ThrowIfNull(message);
 
-            ArgumentNullException.ThrowIfNull(activityService, nameof(activityService));
-
-            this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            this.logger = logger;
             this.message = message;
-
             this.options = options.Value;
-
             this.activityService = activityService;
 
             this.logger.LogDebug("EventQueueService initialized.");
@@ -42,9 +39,9 @@ namespace CodeDesignPlus.Net.PubSub.Services
 
             if (!exist)
             {
-                var activity = this.activityService.StartActivity("EventQueueService.EnqueueAsync", ActivityKind.Internal);
+                var activity = this.activityService?.StartActivity("EventQueueService.EnqueueAsync", ActivityKind.Internal);
 
-                this.activityService.Inject(activity, @event);
+                this.activityService?.Inject(activity, @event);
 
                 activity?.AddTag("event.type", @event.GetType().Name);
                 activity?.AddTag("event.id", @event.EventId.ToString());
@@ -79,9 +76,9 @@ namespace CodeDesignPlus.Net.PubSub.Services
                     {
                         this.logger.LogDebug("Dequeueing event of type {TEvent}.", @event.GetType().Name);
 
-                        var parentContext = this.activityService.Extract(@event);
+                        var parentContext = this.activityService?.Extract(@event);
 
-                        var activity = this.activityService.StartActivity("EventQueueService.DequeueAsync", ActivityKind.Internal, parentContext);
+                        var activity = this.activityService?.StartActivity("EventQueueService.DequeueAsync", ActivityKind.Internal, parentContext);
 
                         activity?.AddTag("event.type", @event.GetType().Name);
                         activity?.AddTag("event.id", @event.EventId.ToString());

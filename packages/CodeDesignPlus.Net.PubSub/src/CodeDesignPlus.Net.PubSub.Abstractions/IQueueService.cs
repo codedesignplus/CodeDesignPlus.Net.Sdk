@@ -5,10 +5,8 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions
     /// <summary>
     /// Service that allows to manage a queue of events
     /// </summary>
-    /// <typeparam name="TEventHandler">The event handler (Callback)</typeparam>
     /// <typeparam name="TEvent">The domain event to manage</typeparam>
-    public interface IQueueService<TEventHandler, in TEvent>
-        where TEventHandler : IEventHandler<TEvent>
+    public interface IQueueService<in TEvent>
         where TEvent : IDomainEvent
     {
      
