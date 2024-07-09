@@ -10,9 +10,7 @@ public abstract class DockerCompose : IDisposable
     protected ICompositeService CompositeService;
     protected IHostService DockerHost;
     protected bool EnableGetPort = false;
-
     protected int InternalPort { get; set; }
-
     public string Ip { get; private set; }
     public int Port { get; private set; }
 
@@ -35,6 +33,9 @@ public abstract class DockerCompose : IDisposable
                 this.Ip = endpoint.Address.ToString();
                 this.Port = endpoint.Port;
             }
+
+
+            Thread.Sleep(2000);
         }
         catch
         {

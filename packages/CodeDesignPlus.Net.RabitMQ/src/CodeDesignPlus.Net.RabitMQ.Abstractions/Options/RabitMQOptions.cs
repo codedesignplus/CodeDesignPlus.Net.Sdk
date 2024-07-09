@@ -18,13 +18,16 @@ public class RabitMQOptions : IValidatableObject
     public bool Enable { get; set; }
     [Required]
     public string Host { get; set; }
-
+    [Range(1, 65535)]
     public int Port { get; set; }
-
     [Required]
     public string UserName { get; set; }
     [Required]
     public string Password { get; set; }
+    [Range(1000, 5000)]
+    public int RetryInterval { get; set; } = 1000;
+    [Range(1, 10)]
+    public int MaxRetry { get; set; } = 10;
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -37,14 +40,13 @@ public class RabitMQOptions : IValidatableObject
 
         if (this.Enable)
         {
-            if (string.IsNullOrEmpty(UserName))
-                results.Add(new ValidationResult($"The {nameof(this.UserName)} field is required."));
+            Validator.TryValidateProperty(this.Host, new ValidationContext(this, null, null) { MemberName = nameof(this.Host) }, results);
+            Validator.TryValidateProperty(this.Port, new ValidationContext(this, null, null) { MemberName = nameof(this.Port) }, results);
+            Validator.TryValidateProperty(this.UserName, new ValidationContext(this, null, null) { MemberName = nameof(this.UserName) }, results);
+            Validator.TryValidateProperty(this.Password, new ValidationContext(this, null, null) { MemberName = nameof(this.Password) }, results);
+            Validator.TryValidateProperty(this.RetryInterval, new ValidationContext(this, null, null) { MemberName = nameof(this.RetryInterval) }, results);
+            Validator.TryValidateProperty(this.MaxRetry, new ValidationContext(this, null, null) { MemberName = nameof(this.MaxRetry) }, results);
 
-            Validator.TryValidateProperty(
-                this.UserName,
-                new ValidationContext(this, null, null) { MemberName = nameof(this.UserName) },
-                results
-            );
         }
 
         return results;

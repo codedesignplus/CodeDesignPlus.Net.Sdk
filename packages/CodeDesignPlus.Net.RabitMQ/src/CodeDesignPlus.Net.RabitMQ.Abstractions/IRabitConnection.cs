@@ -2,7 +2,7 @@
 
 namespace CodeDesignPlus.Net.RabitMQ.Abstractions
 {
-    public interface IRabitConnection
+    public interface IRabitConnection: IDisposable
     {
         IConnection Connection { get; }
     }

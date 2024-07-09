@@ -1,7 +1,22 @@
-﻿namespace CodeDesignPlus.Net.RabitMQ.Test.Helpers;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+
+namespace CodeDesignPlus.Net.RabitMQ.Test.Helpers;
 
 public static class ConfigurationUtil
 {
+    public static readonly CoreOptions CoreOptions = new()
+    {
+        AppName = "test-rabbitmq",
+        Business = "CodeDesignPlus",
+        Description = "Test RabitMQ",
+        Version = "v1",
+        Contact = new Contact()
+        {
+            Name = "CodeDesignPlus",
+            Email = "codedesignplus@outlook.com"
+        }
+    };
+
     public static readonly RabitMQOptions RabitMQOptions = new()
     {
         Enable = true,

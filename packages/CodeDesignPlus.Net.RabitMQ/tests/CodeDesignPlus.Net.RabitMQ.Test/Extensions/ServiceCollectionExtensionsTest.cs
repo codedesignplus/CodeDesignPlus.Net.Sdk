@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using CodeDesignPlus.Net.RabitMQ.Extensions;
+using Microsoft.Extensions.DependencyInjection;
 
-namespace CodeDesignPlus.Net.RabitMQ.Extensions;
+namespace CodeDesignPlus.Net.RabitMQ.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {

@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "0:5672"   
+      - "0:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: usr_codedesignplus
+      RABBITMQ_DEFAULT_PASS: Temporal1

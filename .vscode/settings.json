@@ -16,6 +16,7 @@
         "net.logger",
         "all",
         "net.criteria",
-        "net.exceptions"
+        "net.exceptions",
+        "net.rabbitmq"
     ]
 }
