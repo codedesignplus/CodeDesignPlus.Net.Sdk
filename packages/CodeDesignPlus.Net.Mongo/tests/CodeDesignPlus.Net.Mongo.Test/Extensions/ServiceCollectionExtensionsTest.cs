@@ -5,7 +5,7 @@ using MongoDB.Driver;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
-public class ServiceCollectionExtensionsTest(MongoContainer container): IClassFixture<MongoContainer>
+public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassFixture<MongoContainer>
 {
     [Fact]
     public void AddMongo_ServiceCollectionIsNull_ArgumentNullException()

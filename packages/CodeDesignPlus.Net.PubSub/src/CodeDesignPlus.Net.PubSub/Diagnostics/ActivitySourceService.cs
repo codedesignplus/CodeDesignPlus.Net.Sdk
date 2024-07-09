@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CodeDesignPlus.Net.Core.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
+using System.Collections.Concurrent;
+using System.Diagnostics;
+
+//https://github.com/open-telemetry/opentelemetry-dotnet/blob/main/examples/MicroserviceExample/Utils/Messaging/MessageReceiver.cs
 
 namespace CodeDesignPlus.Net.PubSub.Diagnostics
 {
@@ -52,7 +49,7 @@ namespace CodeDesignPlus.Net.PubSub.Diagnostics
             return this.activityMap.TryGetValue(id, out activity);
         }
 
-        public void Inject(Activity activity, IDomainEvent domainEvent)
+        public void Inject<TDomainEvent>(Activity activity, TDomainEvent domainEvent) where TDomainEvent : IDomainEvent
         {
             ActivityContext contextToInject = default;
 
@@ -65,18 +62,19 @@ namespace CodeDesignPlus.Net.PubSub.Diagnostics
                 contextToInject = Activity.Current.Context;
             }
 
-            this.propagator.Inject(new PropagationContext(contextToInject, Baggage.Current), domainEvent, this.InjectTraceContextIntoBasicProperties);
+            this.propagator.Inject(new PropagationContext(contextToInject, Baggage.Current), domainEvent, InjectTraceContextIntoBasicProperties);
         }
 
-        public PropagationContext Extract(IDomainEvent domainEvent)
+        public PropagationContext Extract<TDomainEvent>(TDomainEvent domainEvent) where TDomainEvent : IDomainEvent
         {
-            var parentContext = this.propagator.Extract(default, domainEvent, this.ExtractTraceContextFromBasicProperties);
+            var parentContext = this.propagator.Extract(default, domainEvent, ExtractTraceContextFromBasicProperties);
+
             Baggage.Current = parentContext.Baggage;
 
             return parentContext;
         }
 
-        private IEnumerable<string> ExtractTraceContextFromBasicProperties(IDomainEvent @event, string key)
+        internal static IEnumerable<string> ExtractTraceContextFromBasicProperties<TDomainEvent>(TDomainEvent @event, string key) where TDomainEvent : IDomainEvent
         {
 
             if (@event.Metadata.TryGetValue(key, out var value))
@@ -87,8 +85,10 @@ namespace CodeDesignPlus.Net.PubSub.Diagnostics
             return [];
         }
 
-        private void InjectTraceContextIntoBasicProperties(IDomainEvent domainEvent, string key, string value)
+        internal static void InjectTraceContextIntoBasicProperties<TDomainEvent>(TDomainEvent domainEvent, string key, string value) where TDomainEvent : IDomainEvent
         {
+
+            Console.WriteLine($"Injecting {key}: {value}");
             domainEvent.Metadata.Add(key, value);
         }
     }

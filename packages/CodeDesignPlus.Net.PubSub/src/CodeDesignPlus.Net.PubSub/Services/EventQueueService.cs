@@ -29,11 +29,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
 
         public Task EnqueueAsync(IDomainEvent @event, CancellationToken cancellationToken)
         {
-            if (@event == null)
-            {
-                this.logger.LogError("Attempted to enqueue a null event.");
-                throw new ArgumentNullException(nameof(@event));
-            }
+            ArgumentNullException.ThrowIfNull(@event);
 
             var exist = this.queue.Any(x => x.Equals(@event));
 
@@ -64,14 +60,10 @@ namespace CodeDesignPlus.Net.PubSub.Services
 
         public async Task DequeueAsync(CancellationToken token)
         {
-            this.logger.LogDebug("DequeueAsync started.");
-
             while (!token.IsCancellationRequested)
             {
                 try
                 {
-
-
                     if (this.queue.TryDequeue(out IDomainEvent @event))
                     {
                         this.logger.LogDebug("Dequeueing event of type {TEvent}.", @event.GetType().Name);
@@ -104,7 +96,7 @@ namespace CodeDesignPlus.Net.PubSub.Services
                 }
             }
 
-            this.logger.LogDebug("DequeueAsync stopped due to cancellation token.");
+            this.logger.LogWarning("DequeueAsync stopped due to cancellation token.");
         }
     }
 }

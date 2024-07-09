@@ -1,7 +1,7 @@
 ﻿using CodeDesignPlus.Net.Mongo.Abstractions;
 using CodeDesignPlus.Net.Mongo.Repository;
 
-namespace CodeDesignPlus.Net.Mongo.Test;
+namespace CodeDesignPlus.Net.Mongo.Test.Helpers;
 
 
 public class OrderRepository : RepositoryBase, IOrderRepository

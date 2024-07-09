@@ -1,7 +1,7 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using Microsoft.Extensions.Hosting;
 
-namespace CodeDesignPlus.Net.PubSub;
+namespace CodeDesignPlus.Net.PubSub.Services;
 
 /// <summary>
 /// Provides a background service for handling events with a specified event handler.
@@ -28,7 +28,7 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : Back
         this.message = message;
         this.logger = logger;
 
-        this.logger.LogInformation("EventHandlerBackgroundService for EventHandler: {TEventHandler} and Event: {TEvent} has been initialized.", typeof(TEventHandler).Name, typeof(TEvent).Name);
+        this.logger.LogInformation("RegisterEventHandlerBackgroundService for EventHandler: {TEventHandler} and Event: {TEvent} has been initialized.", typeof(TEventHandler).Name, typeof(TEvent).Name);
     }
 
     /// <summary>
@@ -38,9 +38,9 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : Back
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        this.logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
+        logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
 
-        Task.Run(() => this.message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken).ConfigureAwait(false), stoppingToken);
+        Task.Run(() => message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken).ConfigureAwait(false), stoppingToken);
 
         return Task.CompletedTask;
     }

@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 
-namespace CodeDesignPlus.Net.PubSub.Test;
+namespace CodeDesignPlus.Net.PubSub.Test.Helpers;
 
 /// <summary>
 /// Implementación por defecto del servicio <see cref="IStartupServices"/>

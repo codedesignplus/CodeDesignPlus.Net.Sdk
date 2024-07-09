@@ -1,5 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 
 namespace CodeDesignPlus.Net.PubSub.Services
 {
@@ -21,8 +20,8 @@ namespace CodeDesignPlus.Net.PubSub.Services
             ArgumentNullException.ThrowIfNull(queueService);
             ArgumentNullException.ThrowIfNull(logger);
 
-            this.queueService = queueService ;
-            this.logger = logger ;
+            this.queueService = queueService;
+            this.logger = logger;
 
             this.logger.LogInformation("EventQueueBackgroundService has been initialized.");
         }

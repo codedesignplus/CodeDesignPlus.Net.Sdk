@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.PubSub.Test.Exceptions
+﻿namespace CodeDesignPlus.Net.PubSub.Test.Exceptions
 {
     /// <summary>
     /// Pruebas unitarias a la clase <see cref="EventIsNotRegisteredException"/>

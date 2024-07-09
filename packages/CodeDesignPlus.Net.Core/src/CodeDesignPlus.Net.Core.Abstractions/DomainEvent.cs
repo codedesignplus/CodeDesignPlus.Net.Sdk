@@ -29,5 +29,5 @@ public abstract class DomainEvent(
     /// <summary>
     /// The metadata of the event.
     /// </summary>    
-    public Dictionary<string, object> Metadata { get; internal set; } = metadata ?? [];
+    public Dictionary<string, object> Metadata { get; set; } = metadata ?? [];
 }

@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 
-namespace CodeDesignPlus.Net.Mongo.Test;
+namespace CodeDesignPlus.Net.Mongo.Test.Helpers;
 
 public class OrderData
 {

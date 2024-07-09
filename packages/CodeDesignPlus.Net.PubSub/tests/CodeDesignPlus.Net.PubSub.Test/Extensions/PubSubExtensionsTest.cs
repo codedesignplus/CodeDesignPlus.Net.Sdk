@@ -1,5 +1,5 @@
-﻿using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
-using CodeDesignPlus.Net.PubSub.Extensions;
+﻿using CodeDesignPlus.Net.PubSub.Extensions;
+using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Extensions;
 

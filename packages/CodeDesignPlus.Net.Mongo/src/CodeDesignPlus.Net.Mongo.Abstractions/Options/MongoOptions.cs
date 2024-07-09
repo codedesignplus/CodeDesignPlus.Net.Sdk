@@ -1,5 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
+using System.ComponentModel.DataAnnotations;
 
 namespace CodeDesignPlus.Net.Mongo.Abstractions.Options;
 
@@ -59,9 +59,9 @@ public class MongoOptions : IValidatableObject
                 new ValidationContext(this, null, null) { MemberName = nameof(this.ConnectionString) },
                 results
             );
-            
-            if(this.Diagnostic.Enable)
-                 Validator.TryValidateObject(this.Diagnostic, new ValidationContext(this.Diagnostic), results, true);
+
+            if (this.Diagnostic.Enable)
+                Validator.TryValidateObject(this.Diagnostic, new ValidationContext(this.Diagnostic), results, true);
         }
 
         return results;

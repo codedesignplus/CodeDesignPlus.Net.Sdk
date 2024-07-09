@@ -1,11 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using OpenTelemetry.Context.Propagation;
-using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CodeDesignPlus.Net.PubSub.Abstractions
 {
@@ -17,7 +12,7 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions
         bool TryGetActivity(int id, out Activity activity);
         bool RemoveActivity(int id, out Activity activity);
 
-        void Inject(Activity activity, IDomainEvent domainEvent);
-        PropagationContext Extract(IDomainEvent domainEvent);
+        void Inject<TDomainEvent>(Activity activity, TDomainEvent domainEvent) where TDomainEvent : IDomainEvent;
+        PropagationContext Extract<TDomainEvent>(TDomainEvent domainEvent) where TDomainEvent : IDomainEvent;
     }
 }

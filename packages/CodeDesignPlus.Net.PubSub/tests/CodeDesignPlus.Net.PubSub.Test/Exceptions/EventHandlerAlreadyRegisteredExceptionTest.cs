@@ -1,5 +1,4 @@
 ﻿using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
-using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Exceptions
 {

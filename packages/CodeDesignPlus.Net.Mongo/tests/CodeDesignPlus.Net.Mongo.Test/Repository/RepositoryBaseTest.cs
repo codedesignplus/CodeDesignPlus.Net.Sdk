@@ -1,13 +1,11 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
-using CodeDesignPlus.Net.Mongo.Repository;
+﻿using CodeDesignPlus.Net.Mongo.Repository;
 using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
 using MongoDB.Driver;
 using Moq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Repository;
 

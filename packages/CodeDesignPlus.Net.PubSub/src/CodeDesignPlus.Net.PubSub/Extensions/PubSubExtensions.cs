@@ -1,5 +1,4 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.PubSub.Exceptions;
 
 namespace CodeDesignPlus.Net.PubSub.Extensions;
 

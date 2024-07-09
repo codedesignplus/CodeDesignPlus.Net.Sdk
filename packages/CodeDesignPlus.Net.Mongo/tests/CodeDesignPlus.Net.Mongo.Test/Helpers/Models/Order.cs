@@ -2,9 +2,9 @@
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 
-public class Order: IEntity
+public class Order : IEntity
 {
-    public Guid Id { get; set; }    
+    public Guid Id { get; set; }
     public required string Name { get; set; }
     public string? Description { get; set; }
     public decimal Total { get; set; }

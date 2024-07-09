@@ -1,8 +1,7 @@
-﻿using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
+﻿using CodeDesignPlus.Net.PubSub.Diagnostics;
 using CodeDesignPlus.Net.PubSub.Extensions;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
 using Microsoft.Extensions.Hosting;
-using CodeDesignPlus.Net.PubSub.Diagnostics;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Extensions;
 
@@ -119,7 +118,7 @@ public class ServiceCollectionExtensionsTest
         var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
-        Assert.Equal(typeof(PubSub.Services.PubSub), pubSub.ImplementationType);
+        Assert.Equal(typeof(PubSub.Services.PubSubService), pubSub.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, pubSub.Lifetime);
 
         Assert.NotNull(activity);
@@ -157,7 +156,7 @@ public class ServiceCollectionExtensionsTest
         var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
-        Assert.Equal(typeof(PubSub.Services.PubSub), pubSub.ImplementationType);
+        Assert.Equal(typeof(PubSub.Services.PubSubService), pubSub.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, pubSub.Lifetime);
 
         Assert.NotNull(activity);

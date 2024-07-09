@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
 
         var options = section.Get<PubSubOptions>();
 
-        services.AddSingleton<IPubSub, Services.PubSub>();
+        services.AddSingleton<IPubSub, Services.PubSubService>();
 
         services.AddEventsHandlers();
 
@@ -67,7 +67,7 @@ public static class ServiceCollectionExtensions
             .Configure(setupOptions)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IPubSub, Services.PubSub>();
+        services.AddSingleton<IPubSub, Services.PubSubService>();
 
         services.AddEventsHandlers();
 

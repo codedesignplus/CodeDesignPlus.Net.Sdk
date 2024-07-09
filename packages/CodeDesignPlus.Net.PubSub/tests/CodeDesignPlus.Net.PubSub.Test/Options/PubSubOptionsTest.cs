@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-
-namespace CodeDesignPlus.Net.PubSub.Test.Options;
+﻿namespace CodeDesignPlus.Net.PubSub.Test.Options;
 
 public class PubSubOptionsTest
 {
@@ -43,7 +41,7 @@ public class PubSubOptionsTest
         Assert.Equal(secondsExpected, options.SecondsWaitQueue);
     }
 
-    
+
     [Theory]
     [InlineData(0)]
     [InlineData(11)]

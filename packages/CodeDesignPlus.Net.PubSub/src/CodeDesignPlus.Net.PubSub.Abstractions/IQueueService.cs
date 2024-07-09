@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions
     public interface IQueueService<in TEvent>
         where TEvent : IDomainEvent
     {
-     
+
         /// <summary>
         /// Add an object to the end of the concurrent queue.
         /// </summary>
