@@ -79,7 +79,7 @@
     <None Update="Helpers\ObservabilityContainer\configs\*.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\RabitMQContainer\*.yml">
+    <None Update="Helpers\RabbitMQContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

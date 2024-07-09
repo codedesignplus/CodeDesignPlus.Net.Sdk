@@ -197,13 +197,13 @@
         <mxCell id="-YHXVxjGIGFMavkAMuD4-63" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0;entryDx=0;entryDy=0;" parent="1" source="-YHXVxjGIGFMavkAMuD4-58" target="16" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="-YHXVxjGIGFMavkAMuD4-58" value="CodeDesignPlus.Net.RabitMQ.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="-YHXVxjGIGFMavkAMuD4-58" value="CodeDesignPlus.Net.RabbitMQ.Abstractions" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="2500" y="600" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="-YHXVxjGIGFMavkAMuD4-59" style="edgeStyle=none;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" parent="1" source="-YHXVxjGIGFMavkAMuD4-60" target="-YHXVxjGIGFMavkAMuD4-58" edge="1">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="-YHXVxjGIGFMavkAMuD4-60" value="CodeDesignPlus.Net.RabitMQ" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+        <mxCell id="-YHXVxjGIGFMavkAMuD4-60" value="CodeDesignPlus.Net.RabbitMQ" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
           <mxGeometry x="2500" y="510" width="335" height="40" as="geometry" />
         </mxCell>
         <mxCell id="nyNpSCcb7WUscE8Xwj8W-68" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" edge="1" parent="1" source="nyNpSCcb7WUscE8Xwj8W-58" target="nyNpSCcb7WUscE8Xwj8W-67">
@@ -432,7 +432,7 @@
         <mxCell id="cGfZ4m_1OQph45fpy9En-6" value="Kafka" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="440" y="230" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="cGfZ4m_1OQph45fpy9En-7" value="RabitMQ" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="cGfZ4m_1OQph45fpy9En-7" value="RabbitMQ" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="580" y="230" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="cGfZ4m_1OQph45fpy9En-8" value="Redis" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
@@ -487,7 +487,7 @@
         <mxCell id="cGfZ4m_1OQph45fpy9En-36" value="Kafka" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="440" y="750" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="cGfZ4m_1OQph45fpy9En-37" value="RabitMQ" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="cGfZ4m_1OQph45fpy9En-37" value="RabbitMQ" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="580" y="750" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="cGfZ4m_1OQph45fpy9En-38" value="Redis" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
@@ -564,7 +564,7 @@
         <mxCell id="cGfZ4m_1OQph45fpy9En-60" value="Kafka" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="440" y="-560" width="120" height="60" as="geometry" />
         </mxCell>
-        <mxCell id="cGfZ4m_1OQph45fpy9En-61" value="RabitMQ" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
+        <mxCell id="cGfZ4m_1OQph45fpy9En-61" value="RabbitMQ" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
           <mxGeometry x="580" y="-560" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="cGfZ4m_1OQph45fpy9En-62" value="Redis" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">

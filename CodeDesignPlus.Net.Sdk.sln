@@ -175,17 +175,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{9FA751FE
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.PubSub.Test", "packages\CodeDesignPlus.Net.PubSub\tests\CodeDesignPlus.Net.PubSub.Test\CodeDesignPlus.Net.PubSub.Test.csproj", "{8A799128-00F3-4491-A11C-49E7B36B06DA}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.RabitMQ", "CodeDesignPlus.Net.RabitMQ", "{8B9BC2B6-5375-4634-BA39-3104E86252CD}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.RabbitMQ", "CodeDesignPlus.Net.RabbitMQ", "{8B9BC2B6-5375-4634-BA39-3104E86252CD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D8BF22F9-ADAD-4EEB-B90D-0A9E8B3B94F7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.RabitMQ", "packages\CodeDesignPlus.Net.RabitMQ\src\CodeDesignPlus.Net.RabitMQ\CodeDesignPlus.Net.RabitMQ.csproj", "{C3EE254C-89B6-4091-8CEC-5F04A85A3311}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.RabbitMQ", "packages\CodeDesignPlus.Net.RabbitMQ\src\CodeDesignPlus.Net.RabbitMQ\CodeDesignPlus.Net.RabbitMQ.csproj", "{C3EE254C-89B6-4091-8CEC-5F04A85A3311}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.RabitMQ.Abstractions", "packages\CodeDesignPlus.Net.RabitMQ\src\CodeDesignPlus.Net.RabitMQ.Abstractions\CodeDesignPlus.Net.RabitMQ.Abstractions.csproj", "{293E91EE-6CCD-4B08-B23D-72BDD089582F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.RabbitMQ.Abstractions", "packages\CodeDesignPlus.Net.RabbitMQ\src\CodeDesignPlus.Net.RabbitMQ.Abstractions\CodeDesignPlus.Net.RabbitMQ.Abstractions.csproj", "{293E91EE-6CCD-4B08-B23D-72BDD089582F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{42BF9AC3-DABE-4279-B59C-CD4B6DCFB111}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.RabitMQ.Test", "packages\CodeDesignPlus.Net.RabitMQ\tests\CodeDesignPlus.Net.RabitMQ.Test\CodeDesignPlus.Net.RabitMQ.Test.csproj", "{FCA28730-5988-4882-8F4D-F000D488C109}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.RabbitMQ.Test", "packages\CodeDesignPlus.Net.RabbitMQ\tests\CodeDesignPlus.Net.RabbitMQ.Test\CodeDesignPlus.Net.RabbitMQ.Test.csproj", "{FCA28730-5988-4882-8F4D-F000D488C109}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.Redis", "CodeDesignPlus.Net.Redis", "{2034F32C-B4C1-4471-9075-CE65E66CC509}"
 EndProject
