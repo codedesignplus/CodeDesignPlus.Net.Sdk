@@ -28,7 +28,7 @@ public static class ConfigurationUtil
 
     public static IConfiguration GetConfiguration()
     {
-        return GetConfiguration(new AppSettings()
+        return GetConfiguration(new 
         {
             RabbitMQ = RabbitMQOptions
         });

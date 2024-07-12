@@ -50,6 +50,8 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services
 
             if (!isConnected)
                 throw new Exceptions.RabbitMQException("Failed to connect to the RabbitMQ server", errors);
+
+            logger.LogInformation("RabbitMQ Connection established successfully.");
         }
 
 

@@ -14,7 +14,9 @@ public class RabbitConnectionTest(RabbitMQContainer container) : IClassFixture<R
         Port = container.Port,
         UserName = "usr_codedesignplus",
         Password = "Temporal1",
-        Enable = true
+        Enable = true,
+        MaxRetry = 10,
+        RetryInterval = 1000
     });
 
     private readonly IOptions<CoreOptions> coreOptions = O.Options.Create(Helpers.ConfigurationUtil.CoreOptions);
@@ -51,6 +53,7 @@ public class RabbitConnectionTest(RabbitMQContainer container) : IClassFixture<R
         // Assert
         Assert.NotNull(result);
         Assert.True(result.IsOpen, "The connection is not open");
+        logger.VerifyLogging("RabbitMQ Connection established successfully.", LogLevel.Information, Times.Once());
     }
 
     [Fact]

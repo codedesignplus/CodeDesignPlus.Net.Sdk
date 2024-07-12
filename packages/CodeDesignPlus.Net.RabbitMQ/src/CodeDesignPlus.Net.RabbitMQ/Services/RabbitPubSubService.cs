@@ -1,10 +1,14 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.RabbitMQ.Attributes;
 using CodeDesignPlus.Net.RabbitMQ.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Collections.Concurrent;
+using System.Reflection;
 using System.Text;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Services;
@@ -21,17 +25,36 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
     private readonly IServiceProvider serviceProvider;
     private readonly IDomainEventResolverService domainEventResolverService;
     private readonly IRabbitConnection rabitConnection;
+    private readonly CoreOptions coreOptions;
     private bool disposed = false;
     private readonly IModel channel;
-
-    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IRabbitConnection rabitConnection)
+    private readonly IBasicProperties properties;
+    private readonly ConcurrentDictionary<string, string> consumerTags = new();
+    private readonly Dictionary<string, object> argumentsQueue = new()
     {
+        { "x-message-ttl", 1000 },
+        { "x-ha-policy", "all" }
+    };
+
+
+    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IRabbitConnection rabitConnection, IOptions<CoreOptions> coreOptions)
+    {
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(domainEventResolverService);
+        ArgumentNullException.ThrowIfNull(rabitConnection);
+        ArgumentNullException.ThrowIfNull(coreOptions);
+
         this.logger = logger;
         this.serviceProvider = serviceProvider;
         this.domainEventResolverService = domainEventResolverService;
         this.rabitConnection = rabitConnection;
+        this.coreOptions = coreOptions.Value;
 
         this.channel = this.rabitConnection.Connection.CreateModel();
+
+        this.properties = channel.CreateBasicProperties();
+        properties.Persistent = true;
 
         this.logger.LogInformation("RabitPubSubService initialized.");
     }
@@ -57,7 +80,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
     {
         var exchangeName = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
+        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
 
         var message = JsonConvert.SerializeObject(@event);
 
@@ -66,7 +89,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         channel.BasicPublish(
             exchange: exchangeName,
             routingKey: string.Empty,
-            basicProperties: null,
+            basicProperties: properties,
             body: body
         );
 
@@ -79,45 +102,87 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        var queueNameAttribute = typeof(TEventHandler).GetCustomAttribute<QueueNameAttribute>();
+        var queueName = queueNameAttribute.GetQueueName(coreOptions.AppName, coreOptions.Business, coreOptions.Version);
 
         var exchangeName = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
 
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout);
-
-        var queueName = channel.QueueDeclare(exclusive: false, autoDelete: false).QueueName;
-        channel.QueueBind(queue: queueName, exchange: exchangeName, routingKey: string.Empty);
+        ConfigQueue(queueName, exchangeName);
+        ConfigQueueDlx(queueName, exchangeName);
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
-
         var eventConsumer = new EventingBasicConsumer(channel);
 
-        eventConsumer.Received += async (model, ea) =>
+        eventConsumer.Received += async (_, ea) => await RecivedEvent<TEvent, TEventHandler>(ea, cancellationToken);
+
+        var consumerTag = channel.BasicConsume(queue: queueName, autoAck: false, consumer: eventConsumer);
+        consumerTags.TryAdd($"{typeof(TEventHandler).FullName}", consumerTag);
+
+
+        return Task.CompletedTask;
+    }
+
+    public async Task RecivedEvent<TEvent, TEventHandler>(BasicDeliverEventArgs eventArguments, CancellationToken cancellationToken)
+        where TEvent : IDomainEvent
+        where TEventHandler : IEventHandler<TEvent>
+    {
+        try
         {
-            var body = ea.Body.ToArray();
+            this.logger.LogDebug("Processing event: {TEvent}.", typeof(TEvent).Name);
+
+            var body = eventArguments.Body.ToArray();
+
             var message = Encoding.UTF8.GetString(body);
 
             var @event = JsonConvert.DeserializeObject<TEvent>(message);
-
-            if (@event is null)
-                throw new RabbitMQException($"The event {typeof(TEvent).Name} could not be deserialized.");
 
             var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
             await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
 
-            channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
-        };
+            channel.BasicAck(deliveryTag: eventArguments.DeliveryTag, multiple: false);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error processing event: {TEvent}.", typeof(TEvent).Name);
 
-        channel.BasicConsume(queue: queueName, autoAck: false, consumer: eventConsumer);
-
-        return Task.CompletedTask;
+            channel.BasicNack(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: false);
+        }
     }
+
+    private void ConfigQueue(string queue, string exchangeName)
+    {
+        argumentsQueue["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName);
+        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
+        channel.QueueDeclare(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: argumentsQueue);
+        channel.QueueBind(queue: queue, exchange: exchangeName, routingKey: string.Empty);
+    }
+
+    private void ConfigQueueDlx(string queue, string exchangeName)
+    {
+        exchangeName = GetExchangeNameDlx(exchangeName);
+        queue = GetQueueNameDlx(queue);
+
+        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
+        channel.QueueDeclare(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        channel.QueueBind(queue: queue, exchange: exchangeName, routingKey: string.Empty);
+    }
+
+    public static string GetExchangeNameDlx(string exchangeName) => $"{exchangeName}.dlx";
+    public static string GetQueueNameDlx(string queueName) => $"{queueName}.dlx";
 
     public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        var key = $"{typeof(TEventHandler).FullName}";
+
+        if (consumerTags.TryRemove(key, out string consumerTag))
+        {
+            channel.BasicCancel(consumerTag);
+            logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);
+        }
 
         return Task.CompletedTask;
     }
@@ -128,12 +193,9 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         {
             if (disposing)
             {
-                // Liberar recursos administrados
-                this.channel?.Dispose();
-                this.rabitConnection?.Dispose();
+                this.channel.Dispose();
+                this.rabitConnection.Dispose();
             }
-
-            // No hay recursos no administrados en esta clase
 
             disposed = true;
         }
