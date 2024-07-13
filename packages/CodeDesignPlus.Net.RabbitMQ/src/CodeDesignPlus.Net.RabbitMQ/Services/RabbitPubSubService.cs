@@ -1,49 +1,38 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
 using CodeDesignPlus.Net.RabbitMQ.Attributes;
-using CodeDesignPlus.Net.RabbitMQ.Exceptions;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using System.Collections.Concurrent;
 using System.Reflection;
 using System.Text;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Services;
 
-/// <summary>
-/// Default implementation of the <see cref="IRabbitPubSubService"/>
-/// </summary>
 public class RabbitPubSubService : IRabbitPubSubService, IDisposable
 {
-    /// <summary>
-    /// Logger Service
-    /// </summary>
     private readonly ILogger<RabbitPubSubService> logger;
     private readonly IServiceProvider serviceProvider;
     private readonly IDomainEventResolverService domainEventResolverService;
     private readonly IRabbitConnection rabitConnection;
     private readonly CoreOptions coreOptions;
+    private readonly Dictionary<string, object> argumentsQueue;
     private bool disposed = false;
+    private string consumerTag;
     private readonly IModel channel;
-    private readonly IBasicProperties properties;
-    private readonly ConcurrentDictionary<string, string> consumerTags = new();
-    private readonly Dictionary<string, object> argumentsQueue = new()
-    {
-        { "x-message-ttl", 1000 },
-        { "x-ha-policy", "all" }
-    };
 
 
-    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IRabbitConnection rabitConnection, IOptions<CoreOptions> coreOptions)
+    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IRabbitConnection rabitConnection, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(domainEventResolverService);
         ArgumentNullException.ThrowIfNull(rabitConnection);
         ArgumentNullException.ThrowIfNull(coreOptions);
+        ArgumentNullException.ThrowIfNull(rabbitMQOptions);
 
         this.logger = logger;
         this.serviceProvider = serviceProvider;
@@ -51,10 +40,9 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         this.rabitConnection = rabitConnection;
         this.coreOptions = coreOptions.Value;
 
-        this.channel = this.rabitConnection.Connection.CreateModel();
+        this.argumentsQueue = rabbitMQOptions.Value.QueueArguments.GetArguments();
 
-        this.properties = channel.CreateBasicProperties();
-        properties.Persistent = true;
+        this.channel = this.rabitConnection.Connection.CreateModel();
 
         this.logger.LogInformation("RabitPubSubService initialized.");
     }
@@ -86,6 +74,16 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
 
         var body = Encoding.UTF8.GetBytes(message);
 
+        var properties = channel.CreateBasicProperties();
+        properties.Persistent = true;
+        properties.AppId = coreOptions.AppName;
+        properties.Type = @event.GetType().Name;
+        properties.Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        properties.MessageId = @event.EventId.ToString();
+        properties.CorrelationId = Guid.NewGuid().ToString();
+        properties.ContentEncoding = "utf-8";
+        properties.ContentType = "application/json";
+
         channel.BasicPublish(
             exchange: exchangeName,
             routingKey: string.Empty,
@@ -116,9 +114,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
 
         eventConsumer.Received += async (_, ea) => await RecivedEvent<TEvent, TEventHandler>(ea, cancellationToken);
 
-        var consumerTag = channel.BasicConsume(queue: queueName, autoAck: false, consumer: eventConsumer);
-        consumerTags.TryAdd($"{typeof(TEventHandler).FullName}", consumerTag);
-
+        this.consumerTag = channel.BasicConsume(queue: queueName, autoAck: false, consumer: eventConsumer);
 
         return Task.CompletedTask;
     }
@@ -176,9 +172,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var key = $"{typeof(TEventHandler).FullName}";
-
-        if (consumerTags.TryRemove(key, out string consumerTag))
+        if (!string.IsNullOrEmpty(consumerTag))
         {
             channel.BasicCancel(consumerTag);
             logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);

@@ -16,7 +16,7 @@ public static class DataAnnotationsExtensions
         Validator.TryValidateObject(data, validationContext, results, true);
 
         if (data is IValidatableObject @object)
-            @object.Validate(validationContext);
+            results.AddRange(@object.Validate(validationContext));
 
         return results;
     }

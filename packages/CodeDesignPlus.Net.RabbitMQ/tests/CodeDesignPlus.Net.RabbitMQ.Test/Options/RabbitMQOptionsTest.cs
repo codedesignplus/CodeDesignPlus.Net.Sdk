@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.RabbitMQ.Test.Options;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
+
+namespace CodeDesignPlus.Net.RabbitMQ.Test.Options;
 
 public class RabbitMQOptionsTest
 {

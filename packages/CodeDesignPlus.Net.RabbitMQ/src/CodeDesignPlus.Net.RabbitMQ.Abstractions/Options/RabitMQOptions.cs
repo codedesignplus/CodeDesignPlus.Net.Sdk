@@ -28,6 +28,7 @@ public class RabbitMQOptions : IValidatableObject
     public int RetryInterval { get; set; } = 1000;
     [Range(1, 10)]
     public int MaxRetry { get; set; } = 10;
+    public QueueArguments QueueArguments { get; set; } = new();
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -47,6 +48,9 @@ public class RabbitMQOptions : IValidatableObject
             Validator.TryValidateProperty(this.RetryInterval, new ValidationContext(this, null, null) { MemberName = nameof(this.RetryInterval) }, results);
             Validator.TryValidateProperty(this.MaxRetry, new ValidationContext(this, null, null) { MemberName = nameof(this.MaxRetry) }, results);
 
+            if (this.QueueArguments != null)
+                results.AddRange(this.QueueArguments.Validate(new ValidationContext(this.QueueArguments)));
+            
         }
 
         return results;
