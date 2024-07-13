@@ -25,14 +25,13 @@ public class RedisOptions : IValidatableObject
     {
         var result = new List<ValidationResult>();
 
-        if (!this.Instances.Any())
-            result.Add(new ValidationResult("The Instances list must not be empty.", new string[] { nameof(this.Instances) }));
+        if (Instances.Count == 0)
+            result.Add(new ValidationResult("The Instances list must not be empty.", [nameof(this.Instances)]));
 
 
-        foreach (var instance in this.Instances.Select(x => x.Value).Where(x => x.CreateConfiguration().Ssl))
+        foreach (var instance in this.Instances.Where(x => x.Value.CreateConfiguration().Ssl && string.IsNullOrEmpty(x.Value.Certificate)))
         {
-            if (string.IsNullOrEmpty(instance.Certificate))
-                result.Add(new ValidationResult("The Certificate is required.", new string[] { nameof(Instance.Certificate) }));
+                result.Add(new ValidationResult("The Certificate is required.", [nameof(Instance.Certificate)]));
         }
 
         return result;

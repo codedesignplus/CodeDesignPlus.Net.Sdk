@@ -3,6 +3,8 @@ using CodeDesignPlus.Net.Redis.Options;
 using CodeDesignPlus.Net.Redis.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using CodeDesignPlus.Net.Core.Extensions;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.Redis.Extensions;
 
@@ -19,32 +21,24 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddRedis(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
-
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        
         var redisSection = configuration.GetSection(RedisOptions.Section);
-        var coreSection = configuration.GetSection(CoreOptions.Section);
 
         if (!redisSection.Exists())
             throw new Exceptions.RedisException($"The section {RedisOptions.Section} is required.");
-
-        if (!coreSection.Exists())
-            throw new Exceptions.RedisException($"The section {CoreOptions.Section} is required.");
-
-        var options = coreSection.Get<CoreOptions>();
 
         services
             .AddOptions<RedisOptions>()
             .Bind(redisSection)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IRedisService, RedisService>();
-        services.AddSingleton<IRedisServiceFactory, RedisServiceFactory>();
+        services.AddCore(configuration);
+        services.TryAddSingleton<IRedisService, RedisService>();
+        services.TryAddSingleton<IRedisServiceFactory, RedisServiceFactory>();
 
-        services.AddSingleton<IConnectionMultiplexer>((serviceProvider) =>
+        services.AddSingleton((serviceProvider) =>
         {
             var connection = serviceProvider.GetService<IRedisServiceFactory>().Create(FactoryConst.RedisCore).Connection;
 

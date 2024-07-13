@@ -1,5 +1,7 @@
 ﻿using CodeDesignPlus.Net.xUnit.Helpers;
 using CodeDesignPlus.Net.Redis.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
+using Moq;
 
 namespace CodeDesignPlus.Net.Redis.Test.Extensions;
 
@@ -89,6 +91,42 @@ public class ServiceCollectionExtensionsTest
 
         Assert.NotNull(options);
         Assert.NotNull(value);
+    }
+
+    [Fact]
+    public void AddRedis_CheckFactory_ReturnRedisInstance()
+    {
+        // Arrange
+        var redisFactoryMock = new Mock<IRedisServiceFactory>();
+        var redisServiceMock = new Mock<IRedisService>();
+        var connectionMock = new Mock<StackExchange.Redis.IConnectionMultiplexer>();
+        
+        redisFactoryMock
+            .Setup(x => x.Create(It.IsAny<string>()))
+            .Returns(redisServiceMock.Object);
+
+        redisServiceMock.SetupGet(x => x.Connection).Returns(connectionMock.Object);
+
+        var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
+
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddLogging();
+
+        // Act
+        serviceCollection.AddRedis(configuration);
+
+        serviceCollection.Remove(serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisServiceFactory))!);
+        serviceCollection.Remove(serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisService))!);
+        serviceCollection.AddSingleton(x => redisFactoryMock.Object);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        var connectionMultiplexer = serviceProvider.GetService<StackExchange.Redis.IConnectionMultiplexer>();
+
+        // Assert
+        Assert.NotNull(connectionMultiplexer);
+        Assert.Equal(connectionMock.Object, connectionMultiplexer);
+        redisFactoryMock.Verify(x => x.Create(It.IsAny<string>()), Times.Once);
     }
 
 

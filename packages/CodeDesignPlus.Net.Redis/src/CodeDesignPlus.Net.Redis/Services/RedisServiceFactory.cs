@@ -18,21 +18,30 @@ public class RedisServiceFactory : IRedisServiceFactory
     /// Configuration options for Redis.
     /// </summary>
     private readonly RedisOptions options;
+    private readonly ILogger<RedisServiceFactory> logger;
 
     /// <summary>
     /// Instances of <see cref="IRedisService"/> that have been created and initialized.
     /// </summary>
-    private ConcurrentDictionary<string, IRedisService> instances = new();
+    private readonly ConcurrentDictionary<string, IRedisService> instances = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RedisServiceFactory"/> class.
     /// </summary>
     /// <param name="serviceProvider">The service provider to retrieve service instances.</param>
     /// <param name="options">The options configuration for Redis.</param>
-    public RedisServiceFactory(IServiceProvider serviceProvider, IOptions<RedisOptions> options)
+    /// <param name="logger">The logger to write diagnostic information.</param>
+    public RedisServiceFactory(IServiceProvider serviceProvider, IOptions<RedisOptions> options, ILogger<RedisServiceFactory> logger)
     {
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        this.options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(logger);
+
+        this.serviceProvider = serviceProvider;
+        this.options = options.Value;
+        this.logger = logger;
+
+        this.logger.LogInformation("RedisServiceFactory has been initialized");
     }
 
     /// <summary>
@@ -47,7 +56,7 @@ public class RedisServiceFactory : IRedisServiceFactory
         if (string.IsNullOrEmpty(name))
             throw new ArgumentNullException(nameof(name));
 
-        if (!this.options.Instances.ContainsKey(name))
+        if (!options.Instances.TryGetValue(name, out Instance value))
             throw new Exceptions.RedisException($"The redis instance with the name {name} has not been registered");
 
         if (this.instances.TryGetValue(name, out var service))
@@ -55,11 +64,12 @@ public class RedisServiceFactory : IRedisServiceFactory
 
         service = this.serviceProvider.GetRequiredService<IRedisService>();
 
-        service.Initialize(options.Instances[name]);
+        service.Initialize(value);
 
-        if (this.instances.TryAdd(name, service))
-            return service;
+        this.instances.TryAdd(name, service);
 
-        throw new Exceptions.RedisException($"The redis instance with the name {name} has not been initilized");
+        this.logger.LogInformation("Redis instance {name} has been added to the factory", name);
+
+        return service;
     }
 }

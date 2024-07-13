@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Core.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace CodeDesignPlus.Net.Core.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -26,7 +28,7 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IDomainEventResolverService, DomainEventResolverService>();
+        services.TryAddSingleton<IDomainEventResolverService, DomainEventResolverService>();
 
         return services;
     }

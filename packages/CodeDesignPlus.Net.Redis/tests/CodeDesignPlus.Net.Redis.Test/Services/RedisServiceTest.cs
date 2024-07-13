@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Security.Cryptography.X509Certificates;
 using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.Server;
+using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
 using Moq;
 using StackExchange.Redis;
 
