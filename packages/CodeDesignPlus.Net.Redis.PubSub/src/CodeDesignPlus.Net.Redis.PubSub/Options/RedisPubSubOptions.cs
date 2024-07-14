@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Options;
 
@@ -16,4 +17,8 @@ public class RedisPubSubOptions
     /// Get or sets the Enable
     /// </summary>
     public bool Enable { get; set; }
+    /// <summary>
+    /// Get or sets the PubSub options
+    /// </summary>
+    public PubSubOptions PubSub { get; set; } = new ();
 }

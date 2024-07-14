@@ -19,13 +19,6 @@ public class RedisPubSubService : IRedisPubSubService
     private readonly IRedisService redisService;
     private readonly IDomainEventResolverService domainEventResolverService;
     private readonly IServiceProvider serviceProvider;
-    private readonly PubSubOptions pubSubOptions;
-    private readonly RedisPubSubOptions options;
-
-    private readonly JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings
-    {
-        ContractResolver = new EventContractResolver([])
-    };
 
     /// <summary>
     /// Initialize a new instance of the <see cref="RedisPubSubService"/>
@@ -33,34 +26,22 @@ public class RedisPubSubService : IRedisPubSubService
     /// <param name="redisServiceFactory">Service that management connection with Redis Server</param>
     /// <param name="serviceProvider">Service provider</param>
     /// <param name="logger">Service logger</param>
-    /// <param name="pubSubOptions">The event bus options</param>
     public RedisPubSubService(
         IRedisServiceFactory redisServiceFactory,
         IServiceProvider serviceProvider,
         ILogger<RedisPubSubService> logger,
-        IOptions<RedisPubSubOptions> options,
-        IOptions<PubSubOptions> pubSubOptions,
         IDomainEventResolverService domainEventResolverService)
     {
-        if (redisServiceFactory == null)
-            throw new ArgumentNullException(nameof(redisServiceFactory));
+        ArgumentNullException.ThrowIfNull(redisServiceFactory);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(domainEventResolverService);
 
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
-
-        if (pubSubOptions == null)
-            throw new ArgumentNullException(nameof(pubSubOptions));
-
-        if (domainEventResolverService == null)
-            throw new ArgumentNullException(nameof(domainEventResolverService));
-
-        this.options = options.Value;
         this.redisService = redisServiceFactory.Create(FactoryConst.RedisPubSub);
 
         this.domainEventResolverService = domainEventResolverService;
-        this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        this.pubSubOptions = pubSubOptions.Value;
+        this.serviceProvider = serviceProvider;
+        this.logger = logger;
 
         this.logger.LogInformation("RedisPubSubService initialized.");
     }
@@ -70,17 +51,29 @@ public class RedisPubSubService : IRedisPubSubService
     /// Posts a message to the given channel.
     /// </summary>
     /// <param name="event">The event to publish.</param>
-    /// <param name="token">The cancellation token that will be assigned to the new task.</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
     /// <returns>Return a <see cref="Task"/></returns>
     /// <exception cref="ArgumentNullException">@event is null</exception>
-    public Task PublishAsync(IDomainEvent @event, CancellationToken token)
+    public Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
-        if (@event == null)
-            throw new ArgumentNullException(nameof(@event));
+        ArgumentNullException.ThrowIfNull(@event);
 
         this.logger.LogInformation("Publishing event: {TEvent}.", @event.GetType().Name);
 
-        return this.PrivatePublishAsync<long>(@event, token);
+        return this.PrivatePublishAsync<long>(@event);
+    }
+
+    /// <summary>
+    /// Publish a list of domain events
+    /// </summary>
+    /// <param name="event">Domains event to publish</param>
+    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <returns>Return a <see cref="Task"/></returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    {
+        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+
+        return Task.WhenAll(tasks);
     }
 
     /// <summary>
@@ -88,13 +81,12 @@ public class RedisPubSubService : IRedisPubSubService
     /// </summary>
     /// <typeparam name="TResult">Type result (long)</typeparam>
     /// <param name="event">The event to publish.</param>
-    /// <param name="token">The cancellation token that will be assigned to the new task.</param>
     /// <returns>The number of clients that received the message.</returns>
-    private async Task<TResult> PrivatePublishAsync<TResult>(object @event, CancellationToken token)
+    private async Task<TResult> PrivatePublishAsync<TResult>(object @event)
     {
         var channel = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        var message = JsonConvert.SerializeObject(@event, this.jsonSerializerSettings);
+        var message = JsonConvert.SerializeObject(@event);
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
@@ -159,18 +151,4 @@ public class RedisPubSubService : IRedisPubSubService
 
         return Task.CompletedTask;
     }
-
-    /// <summary>
-    /// Publish a list of domain events
-    /// </summary>
-    /// <param name="event">Domains event to publish</param>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
-    {
-        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
-
-        return Task.WhenAll(tasks);
-    }
-
 }

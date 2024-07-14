@@ -37,18 +37,18 @@ public static class ServiceCollectionExtensions
 
         var options = section.Get<PubSubOptions>();
 
-        services.AddSingleton<IPubSub, Services.PubSubService>();
+        services.TryAddSingleton<IPubSub, Services.PubSubService>();
 
         services.AddEventsHandlers();
 
         if (options.UseQueue)
         {
-            services.AddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddSingleton<IEventQueueService, EventQueueService>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
         }
 
         if (options.EnableDiagnostic)
-            services.AddSingleton<IActivityService, ActivitySourceService>();
+            services.TryAddSingleton<IActivityService, ActivitySourceService>();
 
         return services;
     }
@@ -106,7 +106,7 @@ public static class ServiceCollectionExtensions
             var eventHandlerBackgroundType = typeof(RegisterEventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), eventHandlerBackgroundType));
 
-            services.AddSingleton(eventHandler);
+            services.TryAddSingleton(eventHandler);
         }
 
         return services;

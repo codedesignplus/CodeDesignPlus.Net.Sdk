@@ -57,7 +57,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisPubSub_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { RedisPubSub = new { Enable = true } });
+        var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
 
         var serviceCollection = new ServiceCollection();
 
@@ -76,7 +76,8 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisPubSub_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { RedisPubSub = OptionsUtil.RedisPubSubOptions });
+        var redisPubSubOptions = OptionsUtil.RedisPubSubOptions(true);
+        var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
 
         var serviceCollection = new ServiceCollection();
 
@@ -92,6 +93,10 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(OptionsUtil.RedisPubSubOptions.Enable, value.Enable);
+        Assert.Equal(redisPubSubOptions.Enable, value.Enable);
+        Assert.Equal(redisPubSubOptions.PubSub.UseQueue, value.PubSub.UseQueue);
+        Assert.Equal(redisPubSubOptions.PubSub.EnableDiagnostic, value.PubSub.EnableDiagnostic);
+        Assert.Equal(redisPubSubOptions.PubSub.RegisterAutomaticHandlers, value.PubSub.RegisterAutomaticHandlers);
+        Assert.Equal(redisPubSubOptions.PubSub.SecondsWaitQueue, value.PubSub.SecondsWaitQueue);
     }
 }
