@@ -76,6 +76,8 @@ public static class ServiceCollectionExtensions
 
         var securityOptions = configuration.GetSection(SecurityOptions.Section).Get<SecurityOptions>();
 
+        var certificate = securityOptions.GetCertificate();
+
         authenticationBuilder
             .AddJwtBearer(
                 JwtBearerDefaults.AuthenticationScheme,
@@ -94,11 +96,11 @@ public static class ServiceCollectionExtensions
                         SignatureValidator = (token, _) => new JsonWebToken(token)
                     };
 
-                    if (securityOptions.Certificate != null)
+                    if (certificate != null)
                     {
-                        x.TokenValidationParameters.ValidateIssuerSigningKey = true;
+                        x.TokenValidationParameters.ValidateIssuerSigningKey = false;
                         x.TokenValidationParameters.RequireSignedTokens = true;
-                        x.TokenValidationParameters.IssuerSigningKey = new X509SecurityKey(securityOptions.Certificate);
+                        x.TokenValidationParameters.IssuerSigningKey = new X509SecurityKey(certificate);
                     }
 
                     x.IncludeErrorDetails = securityOptions.IncludeErrorDetails;

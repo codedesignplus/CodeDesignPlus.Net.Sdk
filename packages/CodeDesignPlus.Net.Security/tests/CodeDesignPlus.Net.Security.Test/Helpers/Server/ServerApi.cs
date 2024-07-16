@@ -11,26 +11,15 @@ public class ServerApi
 {
     public readonly TestServer Server;
 
-    public ServerApi()
+    public ServerApi(Action<JwtBearerOptions>? options = null)
     {
         var configuration = ConfigurationUtil.GetConfiguration(new { Security = OptionsUtil.SercurityOptionsLocalhost });
-
+       
         this.Server = new TestServer(new WebHostBuilder()
             .UseConfiguration(configuration)
             .ConfigureServices(x =>
             {
-                x.AddSecurity(configuration, x =>
-                {
-                    x.Events = new JwtBearerEvents
-                    {
-                        OnAuthenticationFailed = context =>
-                        {
-                            // Log the error
-                            Console.WriteLine(context.Exception);
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
+                x.AddSecurity(configuration, options);
                 x.AddRouting();
             })
             .Configure(x =>

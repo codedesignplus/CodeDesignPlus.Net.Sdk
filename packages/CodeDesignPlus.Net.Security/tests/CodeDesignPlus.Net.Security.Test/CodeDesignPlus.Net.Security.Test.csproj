@@ -34,4 +34,12 @@
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Security\CodeDesignPlus.Net.Security.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.xUnit\src\CodeDesignPlus.Net.xUnit\CodeDesignPlus.Net.xUnit.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Helpers\Certificates\" />
+  </ItemGroup>
+   <ItemGroup>
+    <None Update="Helpers\Certificates\identity.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
 </Project>

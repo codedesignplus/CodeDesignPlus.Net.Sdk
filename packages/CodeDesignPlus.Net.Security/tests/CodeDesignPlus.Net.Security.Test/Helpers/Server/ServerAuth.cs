@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 using IdentityModel.Client;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
@@ -15,6 +16,10 @@ public class ServerAuth
 
     public ServerAuth()
     {
+
+        var path = Path.Combine(AppContext.BaseDirectory, "Helpers", "Certificates", "identity.pfx");
+        var cert = new X509Certificate2(path, "Temporal1");
+
         var builder = new WebHostBuilder()
             .ConfigureServices((context, services) =>
             {
@@ -49,7 +54,7 @@ public class ServerAuth
                         }
                     ])
                     .AddProfileService<CustomProfileService>()
-                    .AddDeveloperSigningCredential();
+                    .AddSigningCredential(cert);
 
                 services.AddLogging(config =>
                 {
@@ -59,8 +64,6 @@ public class ServerAuth
             })
             .Configure(app =>
             {
-                var loggerFactory = app.ApplicationServices.GetRequiredService<ILoggerFactory>();
-
                 app.UseRouting();
                 app.UseIdentityServer();
                 app.UseAuthorization();
@@ -98,7 +101,7 @@ public class ServerAuth
         if (tokenResponse.IsError)
             throw new Exception(tokenResponse.Error);
 
-        if(string.IsNullOrEmpty(tokenResponse.AccessToken))
+        if (string.IsNullOrEmpty(tokenResponse.AccessToken))
             throw new Exception("The access token is empty.");
 
         return tokenResponse.AccessToken;

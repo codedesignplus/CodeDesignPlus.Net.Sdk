@@ -6,8 +6,8 @@ public static class OptionsUtil
     {
         Authority = "https://localhost:5001",
         Applications = ["CodeDesignPlus.Net.Security.Test"],
-        CertificatePassword = "123456",
-        CertificatePath = "certificate.pfx",
+        CertificatePath = "Helpers/Certificates/identity.pfx",
+        CertificatePassword = "Temporal1",
         IncludeErrorDetails = true,
         RequireHttpsMetadata = false,
         ValidateAudience = false,
@@ -38,7 +38,9 @@ public static class OptionsUtil
         ValidateIssuer = false,
         ValidateLifetime = false,
         ValidIssuer = "http://localhost",
-        ValidAudiences = ["api1"]
+        ValidAudiences = ["api1"],
+        CertificatePath = "Helpers/Certificates/identity.pfx",
+        CertificatePassword = "Temporal1"
     };
 
 }

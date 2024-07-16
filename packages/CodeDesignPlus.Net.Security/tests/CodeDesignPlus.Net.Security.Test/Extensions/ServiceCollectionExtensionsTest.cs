@@ -13,14 +13,6 @@ namespace CodeDesignPlus.Net.Security.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
-    private readonly ServerAuth serverAuth;
-    private readonly ServerApi serverApi;
-
-    public ServiceCollectionExtensionsTest()
-    {
-        this.serverAuth = new ServerAuth();
-        this.serverApi = new ServerApi();
-    }
 
     [Fact]
     public void AddSecurity_ServiceCollectionIsNull_ArgumentNullException()
@@ -107,11 +99,13 @@ public class ServiceCollectionExtensionsTest
     public async Task Middleware_Authentication_JwtBearer()
     {
         // Arrange
-        var accessToken = await this.serverAuth.GetAccessTokenAsync();
-        var serverApi = this.serverApi.Server;
+        var serverAuth = new ServerAuth();
+        var serverApi = new ServerApi();
+
+        var accessToken = await serverAuth.GetAccessTokenAsync();
 
         // Act
-        var client = serverApi.CreateClient();
+        var client = serverApi.Server.CreateClient();
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -123,6 +117,51 @@ public class ServiceCollectionExtensionsTest
         var info = JsonSerializer.Deserialize<UserInfo>(json);
 
         // Assert
+        Assert.NotNull(client);
+        Assert.NotNull(response);
+        Assert.NotNull(info);
+        Assert.NotNull(info.User);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal("Jaramillo Jaramillo Lina Marcela", info.User.Name);
+        Assert.Equal("Jaramillo Jaramillo", info!.User.FirstName);
+        Assert.Equal("Lina Marcela", info!.User.LastName);
+        Assert.Equal("Bogotá", info!.User.City);
+        Assert.Equal("Colombia", info!.User.Country);
+        Assert.Equal("111611", info!.User.PostalCode);
+        Assert.Equal("Calle Siempre Viva", info!.User.StreetAddress);
+        Assert.Equal("Bogotá D.C", info!.User.State);
+        Assert.Equal("Arquitecto", info!.User.JobTitle);
+        Assert.Equal("802b1e5c-6e40-4e01-8095-c735b4c9959e", info.User.IdUser);
+        Assert.Contains("codedesignplus@outlook.com", info!.User.Emails);
+    }
+
+    [Fact]
+    public async Task Middleware_CheckOptions_JwtBearer()
+    {
+        // Arrange
+        var optionsIsInvoke = false;
+        var serverAuth = new ServerAuth();
+        var serverApi = new ServerApi(x =>
+        {
+            optionsIsInvoke = true;
+        });
+
+        var accessToken = await serverAuth.GetAccessTokenAsync();
+
+        // Act
+        var client = serverApi.Server.CreateClient();
+
+        var request = new HttpRequestMessage(HttpMethod.Get, "/");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+        var response = await client.SendAsync(request);
+
+        var json = await response.Content.ReadAsStringAsync();
+
+        var info = JsonSerializer.Deserialize<UserInfo>(json);
+
+        // Assert
+        Assert.True(optionsIsInvoke);
         Assert.NotNull(client);
         Assert.NotNull(response);
         Assert.NotNull(info);

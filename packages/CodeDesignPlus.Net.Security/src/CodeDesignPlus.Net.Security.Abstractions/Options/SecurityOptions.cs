@@ -51,10 +51,6 @@ public class SecurityOptions
     [Required]
     public IEnumerable<string> ValidAudiences { get; set; }
     /// <summary>
-    /// Gets or sets the certificate to use in the authentication
-    /// </summary>
-    public X509Certificate2 Certificate { get; set; }
-    /// <summary>
     /// Gets or sets the applications to use in the authentication
     /// </summary>
     public string[] Applications { get; set; } = [];
@@ -66,4 +62,21 @@ public class SecurityOptions
     /// Gets or sets the password of the certificate to use in the authentication
     /// </summary>
     public string CertificatePassword { get; set; }
+
+    /// <summary>
+    /// Get the certificate to use in the authentication
+    /// </summary>
+    /// <returns>The certificate to use in the authentication</returns>
+    public X509Certificate2 GetCertificate()
+    {
+        if (string.IsNullOrEmpty(this.CertificatePath))
+            return null;
+
+        var path = Path.Combine(AppContext.BaseDirectory, this.CertificatePath);
+
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"The certificate file not found in the path: {path}");
+
+        return new X509Certificate2(this.CertificatePath, this.CertificatePassword);
+    }
 }

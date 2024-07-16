@@ -21,7 +21,7 @@ public class SecurityOptionsTest
             ValidateIssuer = false,
             ValidateLifetime = false,
             ValidIssuer = "https://localhost:5001",
-            ValidAudiences = new string[] { "CodeDesignPlus.Net.Security.Test" }
+            ValidAudiences = ["CodeDesignPlus.Net.Security.Test"]
         };
 
         // Act
@@ -40,5 +40,56 @@ public class SecurityOptionsTest
         Assert.False(options.ValidateLifetime);
         Assert.Equal("https://localhost:5001", options.ValidIssuer);
         Assert.Contains("CodeDesignPlus.Net.Security.Test", options.ValidAudiences);
+    }
+
+    [Fact]
+    public void GetCertificate_NullPath_ReturnNull()
+    {
+        // Arrange
+        var options = new SecurityOptions()
+        {
+            CertificatePath = null,
+        };
+
+        // Act
+        var result = options.GetCertificate();
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public void GetCertificate_FileNotExist_ThrowFileNotFoundException()
+    {
+        // Arrange
+        var options = new SecurityOptions()
+        {
+            CertificatePath = "folder/certificate.pfx",
+        };
+        
+        var path = Path.Combine(AppContext.BaseDirectory, options.CertificatePath);
+
+        // Act
+        var exception = Assert.Throws<FileNotFoundException>(() => options.GetCertificate());
+
+        // Assert
+        Assert.Equal($"The certificate file not found in the path: {path}", exception.Message);
+    }
+
+    [Fact]
+    public void GetCertificate_Success()
+    {
+        // Arrange
+        var options = new SecurityOptions()
+        {
+            CertificatePath = "Helpers/Certificates/identity.pfx",
+            CertificatePassword = "Temporal1"
+        };
+
+        // Act
+        var result = options.GetCertificate();
+
+        // Assert
+        Assert.NotNull(result);
     }
 }
