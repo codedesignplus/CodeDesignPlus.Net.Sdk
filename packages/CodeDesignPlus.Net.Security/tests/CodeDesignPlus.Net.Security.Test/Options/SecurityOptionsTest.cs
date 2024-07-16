@@ -1,5 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
-using CodeDesignPlus.Net.xUnit.Helpers;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.Security.Test.Options;
 

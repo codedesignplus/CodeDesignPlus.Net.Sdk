@@ -1,17 +1,27 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using CodeDesignPlus.Net.Security.Extensions;
+using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 using CodeDesignPlus.Net.xUnit.Helpers;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
+using Moq;
+using System.Net;
+using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication;
 
-namespace CodeDesignPlus.Net.Security.Extensions;
+namespace CodeDesignPlus.Net.Security.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
+    private readonly ServerAuth serverAuth;
+    private readonly ServerApi serverApi;
+
+    public ServiceCollectionExtensionsTest()
+    {
+        this.serverAuth = new ServerAuth();
+        this.serverApi = new ServerApi();
+    }
+
     [Fact]
     public void AddSecurity_ServiceCollectionIsNull_ArgumentNullException()
     {
@@ -97,83 +107,14 @@ public class ServiceCollectionExtensionsTest
     public async Task Middleware_Authentication_JwtBearer()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Security = OptionsUtil.SecurityOptionsAzure });
-
-        var server = new TestServer(new WebHostBuilder()
-            .UseConfiguration(configuration)
-            .ConfigureServices(x =>
-            {
-                x.AddSecurity(configuration, x =>
-                {
-                    x.Events = new JwtBearerEvents
-                    {
-                        OnAuthenticationFailed = context =>
-                        {
-                            // Log the error
-                            Console.WriteLine(context.Exception);
-                            return Task.CompletedTask;
-                        }
-                    };
-                });
-                x.AddRouting();
-            })
-            .Configure(x =>
-            {
-                x.UseRouting();
-                x.UseAuth();
-
-                x.UseEndpoints(endpoints =>
-                {
-                    endpoints.MapGet("/", async context =>
-                    {
-                        var userContext = context.RequestServices.GetRequiredService<IUserContext>();
-
-                        var claims = context.User.Claims.ToDictionary(x => x.Type, x => x.Value);
-
-                        var info = new
-                        {
-                            User = new
-                            {
-                                userContext.IdUser,
-                                userContext.Name,
-                                userContext.FirstName,
-                                userContext.LastName,
-                                userContext.City,
-                                userContext.Country,
-                                userContext.PostalCode,
-                                userContext.StreetAddress,
-                                userContext.State,
-                                userContext.JobTitle,
-                                userContext.Emails,
-                                userContext.Tenant,
-                                userContext.IsApplication,
-                                userContext.IsAuthenticated
-                            },
-                            Claims = claims
-                        };
-
-                        var json = JsonSerializer.Serialize(info);
-
-                        var data = Encoding.UTF8.GetBytes(json);
-
-                        await context.Response.Body.WriteAsync(data);
-                    }).RequireAuthorization();
-
-                    endpoints.Map("/insecure", async context =>
-                    {
-                        var data = Encoding.UTF8.GetBytes("Insecure!");
-
-                        await context.Response.Body.WriteAsync(data);
-                    }).AllowAnonymous();
-                });
-            })
-        );
+        var accessToken = await this.serverAuth.GetAccessTokenAsync();
+        var serverApi = this.serverApi.Server;
 
         // Act
-        var client = server.CreateClient();
+        var client = serverApi.CreateClient();
 
         var request = new HttpRequestMessage(HttpMethod.Get, "/");
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", "eyJhbGciOiJSUzI1NiIsImtpZCI6Ilg1ZVhrNHh5b2pORnVtMWtsMll0djhkbE5QNC1jNTdkTzZRR1RWQndhTmsiLCJ0eXAiOiJKV1QifQ.eyJ2ZXIiOiIxLjAiLCJpc3MiOiJodHRwczovL2NvZGVkZXNpZ25wbHVzLmIyY2xvZ2luLmNvbS8zNDYxZTMxMS1hNjZlLTQ2YWItYWZkZi0yYmJmYjcyYTVjYjAvdjIuMC8iLCJzdWIiOiI4MDJiMWU1Yy02ZTQwLTRlMDEtODA5NS1jNzM1YjRjOTk1OWUiLCJhdWQiOiI3ZjJhZWExMC1iNjNjLTQ0Y2UtODU4MC03OGFiM2U1MTg5YWEiLCJleHAiOjE3MDQ4NTU3NTcsIm5vbmNlIjoiZGVmYXVsdE5vbmNlIiwiaWF0IjoxNzA0ODUyMTU3LCJhdXRoX3RpbWUiOjE3MDQ4NTIxNTcsIm9pZCI6IjgwMmIxZTVjLTZlNDAtNGUwMS04MDk1LWM3MzViNGM5OTU5ZSIsImNpdHkiOiJCb2dvdMOhIiwiY291bnRyeSI6IkNvbG9tYmlhIiwiZ2l2ZW5fbmFtZSI6IldpbHpvbiBDYW1pbG8iLCJmYW1pbHlfbmFtZSI6Ikxpc2Nhbm8gR2FsaW5kbyIsIm5hbWUiOiJXaWx6b24gQ2FtaWxvIExpc2Nhbm8gR2FsaW5kbyIsInBvc3RhbENvZGUiOiIxMTE2MTEiLCJzdHJlZXRBZGRyZXNzIjoiQ2FsbGUgM2EgIyA1M2MtMTMiLCJzdGF0ZSI6IkJvZ290w6EgRC5DIiwiam9iVGl0bGUiOiJBcnF1aXRlY3RvIiwiZW1haWxzIjpbImNvZGVkZXNpZ25wbHVzQG91dGxvb2suY29tIl0sInRmcCI6IkIyQ18xX3NpZ25pbiIsIm5iZiI6MTcwNDg1MjE1N30.JOktTfq1VIqxzgAKyAd8mI_46GLhnm20XFyDWOU1fIJGSlHJSKPcg1vCsircLBwfgrtU4vXmUfqz2tg5UTGxNc6LTwuKTkFWbjwN-qq5TQnkjpPudW6EoYkOb7ilij-y9qPMA_9fa7mWdn3vv_LqDyJAvqXwrFUXh-uSHtU4kl1U7IcWzPQHTqE6klGmFYvcbc0Dh_p-I1B714styX8a8DgjPe_HGEwNVR9kEf_CDc4eUk0O7P3ayvUUNw99SmyAQuwOo7fsHLAED8D6Sqg5Wc3rfSPKhsJWHUpMFKUl-B40HQtYSz9pRd6KFoOzGgpJqkUnywyPaB5gxINrtiob2Q");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 
         var response = await client.SendAsync(request);
 
@@ -185,16 +126,70 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(client);
         Assert.NotNull(response);
         Assert.NotNull(info);
+        Assert.NotNull(info.User);
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        Assert.Equal("Wilzon Camilo Liscano Galindo", info!.User.Name);
-        Assert.Equal("Wilzon Camilo", info!.User.FirstName);
-        Assert.Equal("Liscano Galindo", info!.User.LastName);
+        Assert.Equal("Jaramillo Jaramillo Lina Marcela", info.User.Name);
+        Assert.Equal("Jaramillo Jaramillo", info!.User.FirstName);
+        Assert.Equal("Lina Marcela", info!.User.LastName);
         Assert.Equal("Bogotá", info!.User.City);
         Assert.Equal("Colombia", info!.User.Country);
         Assert.Equal("111611", info!.User.PostalCode);
-        Assert.Equal("Calle 3a # 53c-13", info!.User.StreetAddress);
+        Assert.Equal("Calle Siempre Viva", info!.User.StreetAddress);
         Assert.Equal("Bogotá D.C", info!.User.State);
         Assert.Equal("Arquitecto", info!.User.JobTitle);
+        Assert.Equal("802b1e5c-6e40-4e01-8095-c735b4c9959e", info.User.IdUser);
         Assert.Contains("codedesignplus@outlook.com", info!.User.Emails);
+    }
+
+    [Theory]
+    [InlineData(typeof(SecurityTokenExpiredException), "Token-Expired", "Token has expired")]
+    [InlineData(typeof(SecurityTokenInvalidAudienceException), "Token-InvalidAudience", "Invalid audience")]
+    [InlineData(typeof(SecurityTokenInvalidIssuerException), "Token-InvalidIssuer", "Invalid issuer")]
+    [InlineData(typeof(SecurityTokenValidationException), "Token-Validation", "Token validation failed")]
+    [InlineData(typeof(SecurityTokenException), "Token-Exception", "General token exception")]
+    [InlineData(typeof(Exception), "Internal Error", "An internal error occurred.")]
+    public async Task AuthenticationFailed_ShouldHandleExceptions(Type exceptionType, string expectedHeader, string expectedMessage)
+    {
+        // Arrange
+        var exception = (Exception)Activator.CreateInstance(exceptionType, expectedMessage)!;
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Response.Body = new MemoryStream();
+
+        var context = CreateAuthenticationFailedContext(httpContext, exception);
+
+        // Act
+        await ServiceCollectionExtensions.AuthenticationFailed(context);
+
+        // Assert
+        Assert.Contains(httpContext.Response.Headers, x => x.Key == expectedHeader && x.Value == "true");
+        Assert.Equal(StatusCodes.Status401Unauthorized, httpContext.Response.StatusCode);
+
+
+        httpContext.Response.Body.Seek(0, SeekOrigin.Begin);
+        var responseBody = await GetResponseBodyAsync(httpContext.Response.Body);
+
+        var responseJson = JsonSerializer.Deserialize<Response>(responseBody)!;
+
+        Assert.NotNull(responseJson);
+        Assert.Equal(expectedMessage, responseJson.Message);
+    }
+
+    private static AuthenticationFailedContext CreateAuthenticationFailedContext(HttpContext httpContext, Exception exception)
+    {
+        var scheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
+
+        var authenticationFailedContext = new AuthenticationFailedContext(httpContext, scheme, new JwtBearerOptions())
+        {
+            Exception = exception
+        };
+
+        return authenticationFailedContext;
+    }
+
+    private static async Task<string> GetResponseBodyAsync(Stream body)
+    {
+        using var reader = new StreamReader(body, Encoding.UTF8);
+        return await reader.ReadToEndAsync();
     }
 }

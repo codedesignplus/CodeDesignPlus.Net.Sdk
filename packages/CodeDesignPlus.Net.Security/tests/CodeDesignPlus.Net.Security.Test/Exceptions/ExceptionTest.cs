@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Security.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Security.Test.Exceptions;
 
 public class SecurityExceptionTest
 {

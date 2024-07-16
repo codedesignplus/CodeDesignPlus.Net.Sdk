@@ -1,11 +1,19 @@
-﻿using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using O = Microsoft.Extensions.Options;
+using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 
 namespace CodeDesignPlus.Net.Security.Test.Services;
 
 public class UserContextTest
 {
+    private readonly ServerAuth serverAuth;
+
+    public UserContextTest()
+    {
+        this.serverAuth = new ServerAuth();
+    }
+
     [Fact]
     public void State_Guids_Success()
     {
@@ -49,6 +57,52 @@ public class UserContextTest
     }
 
     [Fact]
+    public void GetHeader_Guid_Success()
+    {
+        // Arrange
+        var tenantExpected = Guid.NewGuid();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("X-Tenant", tenantExpected.ToString());
+
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = httpContext
+        };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+
+        // Act
+        var tenant = userContext.GetHeader<Guid>("X-Tenant");
+
+        // Assert
+        Assert.Equal(tenantExpected, tenant);
+    }
+
+    [Fact]
+    public void GetHeader_ChangeTypeWithInteger_Success()
+    {
+        // Arrange
+        var planExpected = 1;
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("X-Plan", planExpected.ToString());
+
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = httpContext
+        };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+
+        // Act
+        var plan = userContext.GetHeader<int>("X-Plan");
+
+        // Assert
+        Assert.Equal(planExpected, plan);
+    }
+
+    [Fact]
     public void GetHeader_NotExistHeader_ReturnNull()
     {
         // Arrange
@@ -82,5 +136,16 @@ public class UserContextTest
 
         // Assert
         Assert.Null(idUser);
+    }
+
+    [Fact]
+    public async Task GetPasswordToken_ShouldReturnAccessToken()
+    {
+        var accessToken = await serverAuth.GetAccessTokenAsync();
+        Assert.NotNull(accessToken);
+
+        var claims = ServerAuth.GetClaims(accessToken);
+
+        Assert.Contains(claims, c => c.Type == "given_name" && c.Value == "Jaramillo Jaramillo");
     }
 }

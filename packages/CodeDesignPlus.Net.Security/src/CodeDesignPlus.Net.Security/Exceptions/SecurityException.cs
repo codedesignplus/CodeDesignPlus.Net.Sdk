@@ -3,7 +3,6 @@
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.Security. 
 /// </summary>
-[Serializable]
 public class SecurityException : Exception
 {
     /// <summary>

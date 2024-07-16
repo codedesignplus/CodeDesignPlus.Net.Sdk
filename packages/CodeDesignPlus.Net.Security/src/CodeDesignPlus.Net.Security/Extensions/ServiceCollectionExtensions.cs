@@ -1,6 +1,4 @@
-﻿using System.Linq;
-using System.Text.Json;
-using CodeDesignPlus.Net.Security.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
 using CodeDesignPlus.Net.Security.Exceptions;
 using CodeDesignPlus.Net.Security.Services;
 using Microsoft.AspNetCore.Authentication;
@@ -11,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.JsonWebTokens;
 using Microsoft.IdentityModel.Tokens;
+using System.Text.Json;
 
 namespace CodeDesignPlus.Net.Security.Extensions;
 
@@ -28,11 +27,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration, Action<JwtBearerOptions> options = null)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(SecurityOptions.Section);
 
@@ -120,26 +116,13 @@ public static class ServiceCollectionExtensions
         return authenticationBuilder;
     }
 
-    private static async Task AuthenticationFailed(AuthenticationFailedContext context)
+    internal static async Task AuthenticationFailed(AuthenticationFailedContext context)
     {
         var exception = context.Exception;
 
-        var exceptionMessages = new Dictionary<Type, (string Header, string Message)>
-        {
-            { typeof(SecurityTokenExpiredException), ("Token-Expired", exception.Message) },
-            { typeof(SecurityTokenInvalidAudienceException), ("Token-InvalidAudience", exception.Message) },
-            { typeof(SecurityTokenInvalidIssuerException), ("Token-InvalidIssuer", exception.Message) },
-            { typeof(SecurityTokenValidationException), ("Token-Validation", exception.Message) },
-            { typeof(SecurityTokenException), ("Token-Exception", exception.Message) }
-        };
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = "application/json";
 
-        if (exceptionMessages.TryGetValue(exception.GetType(), out var values))
-        {
-            context.Response.Headers.Append(values.Header, "true");
-            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            context.Response.ContentType = "application/json";
-
-            await context.Response.WriteAsync(JsonSerializer.Serialize(new { values.Message }));
-        }
+        await context.HandleTokenException(exception);
     }
 }

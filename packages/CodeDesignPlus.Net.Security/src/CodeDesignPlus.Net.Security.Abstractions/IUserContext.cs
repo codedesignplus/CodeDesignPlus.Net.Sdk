@@ -66,7 +66,7 @@ public interface IUserContext
     /// <summary>
     /// Gets the claims-principal with the user information
     /// </summary>
-    ClaimsPrincipal User { get; }    
+    ClaimsPrincipal User { get; }
     /// <summary>
     /// Gets the claim value of the authenticated user
     /// </summary>
