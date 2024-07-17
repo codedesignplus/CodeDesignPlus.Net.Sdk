@@ -1,10 +1,10 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
-namespace CodeDesignPlus.Net.Serializers.Test;
+namespace CodeDesignPlus.Net.Serializers.Test.Helpers.DomainEvents;
 
-[Key("user.created")]
-public class UserCreatedDomainEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null) 
+[EventKey("UserEntity", 1, "created")]
+public class UserCreatedDomainEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object>? metadata = null)
     : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
     public string? Name { get; set; }

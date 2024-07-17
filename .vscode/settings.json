@@ -17,6 +17,7 @@
         "all",
         "net.criteria",
         "net.exceptions",
-        "net.rabbitmq"
+        "net.rabbitmq",
+        "net.serializers"
     ]
 }

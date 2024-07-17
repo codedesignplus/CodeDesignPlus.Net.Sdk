@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Serializers.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Serializers.Test.Exceptions;
 
 public class SerializersExceptionTest
 {

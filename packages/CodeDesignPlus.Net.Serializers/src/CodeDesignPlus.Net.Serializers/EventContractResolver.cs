@@ -1,7 +1,7 @@
-﻿using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.Serializers;
 
@@ -24,6 +24,9 @@ public class EventContractResolver : DefaultContractResolver
         ];
     }
 
+    /// <summary>
+    /// Resolves contracts for events during serialization and deserialization.
+    /// </summary>
     public EventContractResolver(string[] propertyNamesToIgnore)
     {
         this.propertyNamesToIgnore = propertyNamesToIgnore;
@@ -41,8 +44,7 @@ public class EventContractResolver : DefaultContractResolver
 
         if (!property.Writable)
         {
-            var hasPrivateSetter = (member as PropertyInfo)?.GetSetMethod(true) != null;
-            property.Writable = hasPrivateSetter;
+            property.Writable = (member as PropertyInfo).GetSetMethod(true) != null;
         }
 
         if (!typeof(DomainEvent).IsAssignableFrom(member.DeclaringType))
