@@ -1,10 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.EFCore.Abstractions.Operations;
-using CodeDesignPlus.Net.EFCore.Repository;
-using CodeDesignPlus.Net.Security.Abstractions;
-using Microsoft.EntityFrameworkCore;
-
-namespace CodeDesignPlus.Net.EFCore.Operations;
+﻿namespace CodeDesignPlus.Net.EFCore.Operations;
 
 /// <summary>
 /// It allows the repository to create, update and delete a record by assigning the information to the transversal properties of the entity

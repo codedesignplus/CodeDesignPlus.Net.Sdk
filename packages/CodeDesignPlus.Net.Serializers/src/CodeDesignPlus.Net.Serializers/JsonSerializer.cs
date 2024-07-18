@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Serializers;
+﻿namespace CodeDesignPlus.Net.Serializers;
 
 public static class JsonSerializer
 {
@@ -11,7 +9,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value)
     {
-        return JsonConvert.SerializeObject(value);
+        return JsonSerializer.Serialize(value);
     }
 
     /// <summary>
@@ -22,7 +20,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, JsonSerializerSettings settings)
     {
-        return JsonConvert.SerializeObject(value, settings);
+        return JsonSerializer.Serialize(value, settings);
     }
 
     /// <summary>
@@ -33,7 +31,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, Formatting formatting)
     {
-        return JsonConvert.SerializeObject(value, formatting);
+        return JsonSerializer.Serialize(value, formatting);
     }
 
     /// <summary>
@@ -45,7 +43,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, Formatting formatting, JsonSerializerSettings settings)
     {
-        return JsonConvert.SerializeObject(value, formatting, settings);
+        return JsonSerializer.Serialize(value, formatting, settings);
     }
 
     /// <summary>
@@ -56,7 +54,7 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static T Deserialize<T>(string json)
     {
-        return JsonConvert.DeserializeObject<T>(json);
+        return JsonSerializer.Deserialize<T>(json);
     }
 
     /// <summary>
@@ -68,7 +66,7 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static T Deserialize<T>(string json, JsonSerializerSettings settings)
     {
-        return JsonConvert.DeserializeObject<T>(json, settings);
+        return JsonSerializer.Deserialize<T>(json, settings);
     }
 
     /// <summary>
@@ -79,7 +77,7 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static object Deserialize(string json, Type type)
     {
-        return JsonConvert.DeserializeObject(json, type);
+        return JsonSerializer.Deserialize(json, type);
     }
 
     /// <summary>
@@ -91,6 +89,6 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static object Deserialize(string json, Type type, JsonSerializerSettings settings)
     {
-        return JsonConvert.DeserializeObject(json, type, settings);
+        return JsonSerializer.Deserialize(json, type, settings);
     }
 }

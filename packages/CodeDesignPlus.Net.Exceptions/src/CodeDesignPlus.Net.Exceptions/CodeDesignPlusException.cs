@@ -1,5 +1,4 @@
-﻿
-namespace CodeDesignPlus.Net.Exceptions;
+﻿namespace CodeDesignPlus.Net.Exceptions;
 
 public class CodeDesignPlusException : Exception
 {

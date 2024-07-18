@@ -1,14 +1,12 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Extensions;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;
-using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
-using CodeDesignPlus.Net.RabbitMQ.Extensions;
-using Moq;
-using RabbitMQ.Client;
-using O = Microsoft.Extensions.Options;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Core.Extensions;
+using CodeDesignPlus.Net.RabbitMQ.Extensions;
+using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
+using Moq;
+using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Services;
 
@@ -123,7 +121,7 @@ public class RabbitPubSubServiceIntegrationTest : IClassFixture<RabbitMQContaine
         await rabbitPubSubService.PublishAsync([domainEvent], CancellationToken.None);
 
         await Task.Delay(2000);
-        
+
         // Assert
         Assert.DoesNotContain(idAggregate, memoryHandler.Memory.Keys);
         loggerMock.VerifyLogging($"Unsubscribed from event: {typeof(UserCreatedDomainEvent).Name}.", LogLevel.Information, Times.Once());

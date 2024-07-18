@@ -1,10 +1,4 @@
-﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver.Core.Configuration;
-using MongoDB.Driver.Core.Events;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Extensions
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Extensions
 {
     /// <summary>
     /// Extension methods for the diagnostics

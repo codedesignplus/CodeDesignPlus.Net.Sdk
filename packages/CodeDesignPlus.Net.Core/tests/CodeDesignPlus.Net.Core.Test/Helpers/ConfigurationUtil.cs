@@ -1,4 +1,5 @@
-﻿
+﻿using CodeDesignPlus.Net.Serializers;
+
 namespace CodeDesignPlus.Net.Core.Test.Helpers;
 
 public static class ConfigurationUtil
@@ -26,7 +27,7 @@ public static class ConfigurationUtil
 
     public static IConfiguration GetConfiguration(object? appSettings = null)
     {
-        var json = JsonConvert.SerializeObject(appSettings);
+        var json = JsonSerializer.Serialize(appSettings);
 
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 

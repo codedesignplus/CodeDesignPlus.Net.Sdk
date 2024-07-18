@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.EFCore.Abstractions.Operations;
+﻿namespace CodeDesignPlus.Net.EFCore.Abstractions.Operations;
 
 /// <summary>
 /// Allows the repository to update a record by assigning the information to the transversal properties of the entity

@@ -5,7 +5,7 @@ namespace CodeDesignPlus.Net.Logger.Test.Exceptions;
 
 public class LoggerExceptionTest
 {
-      [Fact]
+    [Fact]
     public void LoggerException_DefaultValues_EmptyLoggerException()
     {
         // Arrange & Act

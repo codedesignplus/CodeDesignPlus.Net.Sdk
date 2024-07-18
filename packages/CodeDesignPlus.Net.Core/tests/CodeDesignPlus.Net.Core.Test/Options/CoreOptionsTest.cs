@@ -50,7 +50,7 @@ public class CoreOptionsTest
         Assert.Contains(results, x => x.ErrorMessage == "The Contact field is required.");
     }
 
-    
+
     [Fact]
     public void CoreOptions_VersionRegex_FailedValidation()
     {

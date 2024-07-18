@@ -47,7 +47,7 @@ public class EventQueueBackgroundServiceTest
         // Act
         await eventQueueBackgroundService.StartAsync(cancellationTokenSource.Token);
 
-        await Task.Delay(2000); 
+        await Task.Delay(2000);
 
         cancellationTokenSource.Cancel();
 

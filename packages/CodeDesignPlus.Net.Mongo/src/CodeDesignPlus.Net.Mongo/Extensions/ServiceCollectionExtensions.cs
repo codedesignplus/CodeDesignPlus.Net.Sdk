@@ -1,10 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Mongo.Abstractions.Options;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
-
+﻿
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
 /// <summary>

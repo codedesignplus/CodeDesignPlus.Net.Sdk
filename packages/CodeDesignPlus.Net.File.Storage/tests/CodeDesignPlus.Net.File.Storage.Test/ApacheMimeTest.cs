@@ -9,7 +9,7 @@ public class ApacheMimeTest
         // Arrange
         var apacheMimes = ApacheMime.ApacheMimes;
 
-        
+
         var apacheMimes2 = ApacheMime.ApacheMimes;
 
         // Act

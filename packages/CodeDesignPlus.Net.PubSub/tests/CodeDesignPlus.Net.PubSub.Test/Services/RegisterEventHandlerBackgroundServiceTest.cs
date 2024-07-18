@@ -30,38 +30,38 @@ public class RegisterEventHandlerBackgroundServiceTest
     [Fact]
     public void Constructor_ThrowsArgumentNullException_WhenLoggerIsNull()
     {
-       // Assert
-       Assert.Throws<ArgumentNullException>(() =>
-       {
-           // Act
-           var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockPubSub.Object, null);
-       });
+        // Assert
+        Assert.Throws<ArgumentNullException>(() =>
+        {
+            // Act
+            var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockPubSub.Object, null);
+        });
     }
 
     [Fact]
     public void Constructor_Succeeds_WhenAllDependenciesAreProvided()
     {
-       // Act
-       var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>( _mockPubSub.Object, _mockLogger.Object);
+        // Act
+        var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockPubSub.Object, _mockLogger.Object);
 
-       // Assert 
-       Assert.NotNull(service);
-       _mockLogger.VerifyLogging($"RegisterEventHandlerBackgroundService for EventHandler: {typeof(UserRegisteredEventHandler).Name} and Event: {typeof(UserRegisteredEvent).Name} has been initialized.", LogLevel.Information);
+        // Assert 
+        Assert.NotNull(service);
+        _mockLogger.VerifyLogging($"RegisterEventHandlerBackgroundService for EventHandler: {typeof(UserRegisteredEventHandler).Name} and Event: {typeof(UserRegisteredEvent).Name} has been initialized.", LogLevel.Information);
     }
 
     [Fact]
     public async Task ExecuteAsync_RegistersSubscriptionAndStartsListening()
     {
-       // Arrange
-       var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>( _mockPubSub.Object, _mockLogger.Object);
+        // Arrange
+        var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(_mockPubSub.Object, _mockLogger.Object);
 
-       // Act
-       await service.StartAsync(CancellationToken.None);
+        // Act
+        await service.StartAsync(CancellationToken.None);
 
-       // Assert
-       _mockPubSub.Verify(eb => eb.SubscribeAsync<UserRegisteredEvent, UserRegisteredEventHandler>(It.IsAny<CancellationToken>()), Times.Once);
+        // Assert
+        _mockPubSub.Verify(eb => eb.SubscribeAsync<UserRegisteredEvent, UserRegisteredEventHandler>(It.IsAny<CancellationToken>()), Times.Once);
 
-       // Additional: Check if logs are written. This is an example for one of the log messages:
-       _mockLogger.VerifyLogging($"Starting execution of {typeof(UserRegisteredEventHandler).Name} for event type {typeof(UserRegisteredEvent).Name}.", LogLevel.Information);
+        // Additional: Check if logs are written. This is an example for one of the log messages:
+        _mockLogger.VerifyLogging($"Starting execution of {typeof(UserRegisteredEventHandler).Name} for event type {typeof(UserRegisteredEvent).Name}.", LogLevel.Information);
     }
 }

@@ -1,11 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Reflection;
-using System.Linq;
-
-namespace CodeDesignPlus.Net.EFCore.Extensions;
+﻿namespace CodeDesignPlus.Net.EFCore.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore

@@ -1,5 +1,4 @@
-﻿using CodeDesignPlus.Net.Serializers;
-using Newtonsoft.Json.Serialization;
+﻿
 
 namespace CodeDesignPlus.Net.EventStore.Serializer;
 
@@ -20,7 +19,7 @@ public class EventStoreContratResolver : EventContractResolver
     /// </summary>
     /// <param name="objectType">The type for which to create the JSON object contract.</param>
     /// <returns>A <see cref="JsonObjectContract"/> for the specified type.</returns>
-    protected override JsonObjectContract CreateObjectContract(Type objectType)
+    protected override Newtonsoft.Json.Serialization.JsonObjectContract CreateObjectContract(Type objectType)
     {
         var contract = base.CreateObjectContract(objectType);
 

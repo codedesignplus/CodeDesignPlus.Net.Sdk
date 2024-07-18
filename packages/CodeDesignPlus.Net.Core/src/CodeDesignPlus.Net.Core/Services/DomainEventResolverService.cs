@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
-namespace CodeDesignPlus.Net.Core.Services;
+﻿namespace CodeDesignPlus.Net.Core.Services;
 
 /// <summary>
 /// Service to resolve domain events.

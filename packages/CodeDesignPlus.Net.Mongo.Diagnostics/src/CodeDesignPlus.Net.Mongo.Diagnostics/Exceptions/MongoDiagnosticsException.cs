@@ -1,11 +1,8 @@
-﻿using System.Runtime.Serialization;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions;
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.Mongo.Diagnostics. 
 /// </summary>
-[Serializable]
 public class MongoDiagnosticsException : Exception
 {
     /// <summary>

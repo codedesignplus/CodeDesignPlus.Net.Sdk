@@ -1,6 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
-using CodeDesignPlus.Net.PubSub.Abstractions;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events
 {

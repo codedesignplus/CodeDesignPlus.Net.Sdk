@@ -1,17 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
-using CodeDesignPlus.Net.Security.Exceptions;
-using CodeDesignPlus.Net.Security.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.JsonWebTokens;
-using Microsoft.IdentityModel.Tokens;
-using System.Text.Json;
-
-namespace CodeDesignPlus.Net.Security.Extensions;
+﻿namespace CodeDesignPlus.Net.Security.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore

@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 public static class DataAnnotationsExtensions

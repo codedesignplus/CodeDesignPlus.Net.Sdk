@@ -10,8 +10,8 @@ using CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 using CodeDesignPlus.Net.EventStore.Test.Helpers.Events;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
-using MO = Microsoft.Extensions.Options;
 using Moq;
+using MO = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Services;
 

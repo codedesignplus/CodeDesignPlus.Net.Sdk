@@ -1,5 +1,19 @@
-﻿global using CodeDesignPlus.Net.Kafka.Abstractions;
+﻿global using System;
+global using System.ComponentModel.DataAnnotations;
+global using System.Text;
+global using System.Threading.Tasks;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Logging;
 global using Microsoft.Extensions.Options;
-global using System;
-global using System.Threading.Tasks;
+global using CodeDesignPlus.Net.Core.Abstractions;
+global using CodeDesignPlus.Net.Kafka.Abstractions;
+global using CodeDesignPlus.Net.Kafka.Options;
+global using CodeDesignPlus.Net.Kafka.Serializer;
+global using CodeDesignPlus.Net.Kafka.Services;
+global using CodeDesignPlus.Net.PubSub.Abstractions;
+global using CodeDesignPlus.Net.Serializers;
+global using Confluent.Kafka;
+global using Confluent.Kafka.Extensions.Diagnostics;
+

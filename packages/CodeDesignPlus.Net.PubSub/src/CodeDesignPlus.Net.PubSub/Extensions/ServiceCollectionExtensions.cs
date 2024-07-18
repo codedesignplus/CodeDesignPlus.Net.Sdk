@@ -1,13 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.PubSub.Diagnostics;
-using CodeDesignPlus.Net.PubSub.Exceptions;
-using CodeDesignPlus.Net.PubSub.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-
-namespace CodeDesignPlus.Net.PubSub.Extensions;
+﻿namespace CodeDesignPlus.Net.PubSub.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore

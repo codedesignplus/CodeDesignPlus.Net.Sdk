@@ -21,7 +21,7 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Event.Sourcing.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">

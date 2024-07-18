@@ -3,7 +3,7 @@
 namespace CodeDesignPlus.Net.EventStore.Test.Helpers.Domain;
 
 
-public class OrderProduct 
+public class OrderProduct
 {
     public required Product Product { get; set; }
     public int Quantity { get; set; }

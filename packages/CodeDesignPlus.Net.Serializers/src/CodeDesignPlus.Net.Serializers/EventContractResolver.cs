@@ -1,9 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using System.Reflection;
-
-namespace CodeDesignPlus.Net.Serializers;
+﻿namespace CodeDesignPlus.Net.Serializers;
 
 /// <summary>
 /// Contract resolver for the serialization of domain events.

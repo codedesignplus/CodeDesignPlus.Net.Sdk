@@ -1,11 +1,4 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
-using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.Exceptions;
-using CodeDesignPlus.Net.EventStore.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.EventStore.Extensions;
+﻿namespace CodeDesignPlus.Net.EventStore.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -22,7 +15,7 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
-        
+
         var section = configuration.GetSection(EventStoreOptions.Section);
 
         if (!section.Exists())

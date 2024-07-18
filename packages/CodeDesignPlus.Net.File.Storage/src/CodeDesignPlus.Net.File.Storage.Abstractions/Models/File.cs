@@ -1,6 +1,4 @@
-﻿using Semver;
-
-namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 public class File
 {

@@ -1,12 +1,4 @@
-﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Services;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver.Core.Configuration;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore

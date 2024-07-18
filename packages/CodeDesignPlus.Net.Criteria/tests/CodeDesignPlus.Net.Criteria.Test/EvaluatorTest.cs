@@ -1,7 +1,7 @@
-﻿using System.Linq.Expressions;
-using System.Reflection;
-using CodeDesignPlus.Net.Criteria.Exceptions;
+﻿using CodeDesignPlus.Net.Criteria.Exceptions;
 using CodeDesignPlus.Net.Criteria.Models;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.Criteria.Test;
 

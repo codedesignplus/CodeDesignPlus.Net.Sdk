@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Serializers;
 using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Logger.Test.Helpers;

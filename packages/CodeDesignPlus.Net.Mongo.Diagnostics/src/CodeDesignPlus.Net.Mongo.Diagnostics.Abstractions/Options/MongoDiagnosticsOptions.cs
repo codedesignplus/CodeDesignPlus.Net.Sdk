@@ -3,7 +3,7 @@
 /// <summary>
 /// Options to setting of the Mongo.Diagnostics
 /// </summary>
-public class MongoDiagnosticsOptions 
+public class MongoDiagnosticsOptions
 {
     /// <summary>
     /// Name of the setions used in the appsettings

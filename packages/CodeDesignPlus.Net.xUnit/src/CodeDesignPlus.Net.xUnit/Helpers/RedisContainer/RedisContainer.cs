@@ -1,11 +1,6 @@
 ﻿using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Options;
 using CodeDesignPlus.Net.Redis.Services;
-using Ductus.FluentDocker.Model.Common;
-using Ductus.FluentDocker.Model.Compose;
-using Ductus.FluentDocker.Services;
-using Ductus.FluentDocker.Services.Impl;
-using Moq;
 
 namespace CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
 

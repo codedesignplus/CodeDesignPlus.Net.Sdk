@@ -1,20 +1,16 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.Metrics;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Observability.Abstractions.Options;
 using CodeDesignPlus.Net.Observability.Exceptions;
 using CodeDesignPlus.Net.Observability.Services;
+using Confluent.Kafka.Extensions.OpenTelemetry;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
-using MongoDB.Driver.Core.Extensions.DiagnosticSources;
-using CodeDesignPlus.Net.Redis.Abstractions;
-using Confluent.Kafka.Extensions.OpenTelemetry;
-using OpenTelemetry.Context.Propagation;
+using System.Diagnostics;
+using System.Diagnostics.Metrics;
 
 namespace CodeDesignPlus.Net.Observability.Extensions;
 
@@ -59,7 +55,8 @@ public static class ServiceCollectionExtensions
         var otel = services.AddOpenTelemetry();
 
         // Configure OpenTelemetry Resources with the application name
-        otel.ConfigureResource(resource => {
+        otel.ConfigureResource(resource =>
+        {
             resource.AddService(serviceName: coreOptions.AppName);
         });
 
@@ -110,7 +107,7 @@ public static class ServiceCollectionExtensions
             tracing.AddConsoleExporter();
         });
 
-        
+
 
 
         return services;

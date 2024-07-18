@@ -1,11 +1,4 @@
-﻿using Azure.Storage.Blobs.Models;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-using Microsoft.Extensions.Hosting;
-using Semver;
-
-namespace CodeDesignPlus.Net.File.Storage.Providers;
+﻿namespace CodeDesignPlus.Net.File.Storage.Providers;
 
 public class AzureBlobProvider(
     IAzureBlobFactory factory,
@@ -15,7 +8,7 @@ public class AzureBlobProvider(
 {
     private readonly IAzureBlobFactory factory = factory.Create();
 
-    public Task<Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
@@ -43,7 +36,7 @@ public class AzureBlobProvider(
         });
     }
 
-    public Task<Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
+    public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
@@ -92,7 +85,7 @@ public class AzureBlobProvider(
         });
     }
 
-    public Task<Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {

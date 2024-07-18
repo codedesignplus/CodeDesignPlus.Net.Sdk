@@ -1,16 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.Core.Extensions;
-using CodeDesignPlus.Net.Logger.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Serilog;
-using Serilog.Exceptions;
-using Serilog.Exceptions.Core;
-using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
-using Serilog.Sinks.OpenTelemetry;
-
-namespace CodeDesignPlus.Net.Logger.Extensions;
+﻿namespace CodeDesignPlus.Net.Logger.Extensions;
 
 /// <summary>
 /// The <see cref="IHostBuilder"/> extensions for Serilog
@@ -28,7 +16,7 @@ public static class ServiceCollectionExtension
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
-        
+
         var section = configuration.GetSection(LoggerOptions.Section);
 
         if (!section.Exists())

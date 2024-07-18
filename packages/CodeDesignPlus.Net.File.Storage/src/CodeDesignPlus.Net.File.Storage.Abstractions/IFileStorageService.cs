@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
-
-namespace CodeDesignPlus.Net.File.Storage.Abstractions;
+﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions;
 
 public interface IFileStorageService
 {

@@ -30,7 +30,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
     <ProjectReference Include="..\CodeDesignPlus.Net.RabbitMQ.Abstractions\CodeDesignPlus.Net.RabbitMQ.Abstractions.csproj" />
   </ItemGroup>
 

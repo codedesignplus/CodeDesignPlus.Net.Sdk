@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Redis.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Redis.Test.Exceptions;
 
 public class RedisExceptionTest
 {

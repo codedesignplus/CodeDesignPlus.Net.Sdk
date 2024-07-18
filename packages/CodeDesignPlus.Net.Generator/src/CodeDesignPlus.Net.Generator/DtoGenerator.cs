@@ -1,11 +1,10 @@
 ﻿
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
 
 namespace CodeDesignPlus.Net.Generator
 {
@@ -22,7 +21,7 @@ namespace CodeDesignPlus.Net.Generator
 
         public void Execute(GeneratorExecutionContext context)
         {
-           // Debugger.Launch();
+            // Debugger.Launch();
 
             // Obtener todos los árboles de sintaxis del proyecto principal
             var syntaxTrees = context.Compilation.SyntaxTrees;

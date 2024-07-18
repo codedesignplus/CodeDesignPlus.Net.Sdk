@@ -1,9 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using Microsoft.EntityFrameworkCore;
-using System.Data;
-using System.Linq.Expressions;
-
-namespace CodeDesignPlus.Net.EFCore.Repository;
+﻿namespace CodeDesignPlus.Net.EFCore.Repository;
 
 /// <summary>
 /// This interface implement the most concurrent methods with the database

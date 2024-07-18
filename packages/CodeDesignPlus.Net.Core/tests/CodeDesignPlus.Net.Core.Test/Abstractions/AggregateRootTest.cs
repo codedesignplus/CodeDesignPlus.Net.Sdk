@@ -1,5 +1,6 @@
-﻿using System.Reflection;
-using CodeDesignPlus.Net.Core.Test.Helpers.Domain;
+﻿using CodeDesignPlus.Net.Core.Test.Helpers.Domain;
+using CodeDesignPlus.Net.Serializers;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.Core.Test.Abstractions;
 
@@ -71,9 +72,9 @@ public class AggregateRootTest
         var domainEvent = orderAggregate.GetAndClearEvents()[0] as OrderCreatedDomainEvent;
 
         // Assert
-        var json = JsonConvert.SerializeObject(domainEvent);
+        var json = JsonSerializer.Serialize(domainEvent);
 
-        var @event = JsonConvert.DeserializeObject<OrderCreatedDomainEvent>(json);
+        var @event = JsonSerializer.Deserialize<OrderCreatedDomainEvent>(json);
 
         Assert.NotNull(@event);
         Assert.Equal(domainEvent!.EventId, @event.EventId);
@@ -123,7 +124,7 @@ public class AggregateRootTest
         var tenant = Guid.NewGuid();
 
         var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
-        
+
         var domainEventsField = typeof(AggregateRoot).GetField("domainEvents", BindingFlags.NonPublic | BindingFlags.Instance);
         domainEventsField!.SetValue(orderAggregate, null);
 

@@ -1,14 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Kafka.Options;
-using CodeDesignPlus.Net.Kafka.Services;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using Confluent.Kafka;
-using Confluent.Kafka.Extensions.Diagnostics;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace CodeDesignPlus.Net.Kafka.Extensions;
+﻿namespace CodeDesignPlus.Net.Kafka.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore

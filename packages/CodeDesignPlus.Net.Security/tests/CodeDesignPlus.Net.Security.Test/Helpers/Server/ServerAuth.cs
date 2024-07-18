@@ -1,11 +1,11 @@
-﻿using System.Security.Claims;
-using System.Security.Cryptography.X509Certificates;
-using IdentityModel.Client;
+﻿using IdentityModel.Client;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
+using System.Security.Claims;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CodeDesignPlus.Net.Security.Test.Helpers.Server;
 

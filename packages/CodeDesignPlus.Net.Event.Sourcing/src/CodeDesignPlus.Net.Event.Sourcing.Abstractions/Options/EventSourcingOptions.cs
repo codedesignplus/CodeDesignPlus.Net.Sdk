@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Event.Sourcing

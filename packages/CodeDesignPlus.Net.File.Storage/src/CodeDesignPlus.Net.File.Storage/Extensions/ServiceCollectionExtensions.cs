@@ -1,14 +1,4 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-using CodeDesignPlus.Net.File.Storage.Exceptions;
-using CodeDesignPlus.Net.File.Storage.Factories;
-using CodeDesignPlus.Net.File.Storage.Providers;
-using CodeDesignPlus.Net.File.Storage.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.File.Storage.Extensions;
+﻿namespace CodeDesignPlus.Net.File.Storage.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -25,7 +15,7 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
-        
+
         var section = configuration.GetSection(FileStorageOptions.Section);
 
         if (!section.Exists())

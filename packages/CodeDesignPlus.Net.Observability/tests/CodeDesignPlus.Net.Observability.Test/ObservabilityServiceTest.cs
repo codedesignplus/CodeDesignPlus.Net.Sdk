@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Observability.Services;
-using Microsoft.Extensions.Logging;
-using Moq;
+﻿using Moq;
 
 namespace CodeDesignPlus.Net.Observability.Test;
 

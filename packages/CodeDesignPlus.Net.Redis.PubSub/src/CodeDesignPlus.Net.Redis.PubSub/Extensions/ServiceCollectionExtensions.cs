@@ -1,15 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Extensions;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.Redis.PubSub.Exceptions;
-using CodeDesignPlus.Net.Redis.PubSub.Options;
-using CodeDesignPlus.Net.Redis.PubSub.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using CodeDesignPlus.Net.Redis.Extensions;
-using CodeDesignPlus.Net.PubSub.Extensions;
-
-namespace CodeDesignPlus.Net.Redis.PubSub.Extensions;
+﻿namespace CodeDesignPlus.Net.Redis.PubSub.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -43,7 +32,8 @@ public static class ServiceCollectionExtensions
         {
             services.AddCore(configuration);
             services.AddRedis(configuration);
-            services.AddPubSub(x => {
+            services.AddPubSub(x =>
+            {
                 x.UseQueue = options.PubSub.UseQueue;
                 x.EnableDiagnostic = options.PubSub.EnableDiagnostic;
                 x.RegisterAutomaticHandlers = options.PubSub.RegisterAutomaticHandlers;

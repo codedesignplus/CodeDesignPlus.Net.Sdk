@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using CodeDesignPlus.Net.xUnit.Helpers;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
 using Moq;
 using O = Microsoft.Extensions.Options;
 

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Redis.PubSub.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Redis.PubSub.Test.Exceptions;
 
 public class RedisPubSubExceptionTest
 {

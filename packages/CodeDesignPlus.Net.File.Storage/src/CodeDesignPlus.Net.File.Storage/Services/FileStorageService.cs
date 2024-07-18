@@ -1,15 +1,11 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-
-namespace CodeDesignPlus.Net.File.Storage.Services;
+﻿namespace CodeDesignPlus.Net.File.Storage.Services;
 
 public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorageService
 {
 
-    public Task<Response[]> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response[]> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
     {
-        var tasks = new List<Task<Response>>();
+        var tasks = new List<Task<M.Response>>();
 
         foreach (var provider in providers)
         {
@@ -21,7 +17,7 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
         return Task.WhenAll(tasks);
     }
 
-    public Task<Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
     {
         foreach (var provider in providers)
         {
@@ -31,12 +27,12 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
                 return response;
         }
 
-        return Task.FromResult((Response)null);
+        return Task.FromResult((M.Response)null);
     }
 
-    public Task<Response[]> UploadAsync(Stream stream, string file, string target, bool renowned, CancellationToken cancellationToken = default)
+    public Task<M.Response[]> UploadAsync(Stream stream, string file, string target, bool renowned, CancellationToken cancellationToken = default)
     {
-        var tasks = new List<Task<Response>>();
+        var tasks = new List<Task<M.Response>>();
 
         foreach (var provider in providers)
         {

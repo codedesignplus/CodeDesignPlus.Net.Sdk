@@ -1,12 +1,4 @@
-﻿
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.Serializer;
-using EventStore.ClientAPI;
-using Newtonsoft.Json;
-using System.Text;
-
-namespace CodeDesignPlus.Net.EventStore.Services;
+﻿namespace CodeDesignPlus.Net.EventStore.Services;
 
 /// <summary>
 /// Provides services for interacting with EventStore.
@@ -15,10 +7,10 @@ public class EventStoreService : IEventStoreService
 {
     private const string GuidInvalid = "The provided aggregate ID cannot be an empty GUID.";
 
-    private readonly JsonSerializerSettings settings = new()
+    private readonly Newtonsoft.Json.JsonSerializerSettings settings = new()
     {
         ContractResolver = new EventStoreContratResolver(),
-        ConstructorHandling = ConstructorHandling.AllowNonPublicDefaultConstructor
+        ConstructorHandling = Newtonsoft.Json.ConstructorHandling.AllowNonPublicDefaultConstructor
     };
 
     private readonly IEventStoreFactory eventStoreFactory;
@@ -80,8 +72,8 @@ public class EventStoreService : IEventStoreService
         var stream = GetAggregateName(category, aggregateId);
 
         long count = 0;
-        StreamEventsSlice currentSlice;
-        long nextSliceStart = StreamPosition.Start;
+        ES.StreamEventsSlice currentSlice;
+        long nextSliceStart = ES.StreamPosition.Start;
         const int pageSize = 4096;
 
         do
@@ -132,12 +124,12 @@ public class EventStoreService : IEventStoreService
 
         var eventKey = domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        var eventData = new EventData(
+        var eventData = new ES.EventData(
            @event.EventId,
            eventKey,
            true,
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event, this.settings)),
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata, this.settings)));
+           Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event, this.settings)),
+           Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event.Metadata, this.settings)));
 
         await connection.AppendToStreamAsync(GetAggregateName(category, @event.AggregateId), (long)version, eventData).ConfigureAwait(false);
     }
@@ -159,9 +151,9 @@ public class EventStoreService : IEventStoreService
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
-        var slice = await connection.ReadStreamEventsBackwardAsync(GetAggregateName(category, aggregateId), StreamPosition.End, 1, false).ConfigureAwait(false);
+        var slice = await connection.ReadStreamEventsBackwardAsync(GetAggregateName(category, aggregateId), ES.StreamPosition.End, 1, false).ConfigureAwait(false);
 
-        if (slice.Status == SliceReadStatus.StreamNotFound || slice.Events.Length == 0)
+        if (slice.Status == ES.SliceReadStatus.StreamNotFound || slice.Events.Length == 0)
             return -1;
 
         return slice.Events[0].OriginalEventNumber;
@@ -191,7 +183,7 @@ public class EventStoreService : IEventStoreService
             {
                 var type = domainEventResolverService.GetDomainEventType(e.Event.EventType);
 
-                var @event = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Event.Data), type, this.settings);
+                var @event = JsonSerializer.Deserialize(Encoding.UTF8.GetString(e.Event.Data), type, this.settings);
 
                 return @event as IDomainEvent;
             });
@@ -215,14 +207,14 @@ public class EventStoreService : IEventStoreService
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
-        var streamEvents = await connection.ReadStreamEventsBackwardAsync(this.GetSnapshotName(category, aggregateId), StreamPosition.End, 1, false).ConfigureAwait(false);
+        var streamEvents = await connection.ReadStreamEventsBackwardAsync(this.GetSnapshotName(category, aggregateId), ES.StreamPosition.End, 1, false).ConfigureAwait(false);
 
-        if (streamEvents.Status == SliceReadStatus.StreamNotFound || streamEvents.Events.Length == 0)
+        if (streamEvents.Status == ES.SliceReadStatus.StreamNotFound || streamEvents.Events.Length == 0)
             return default;
 
         var json = Encoding.UTF8.GetString(streamEvents.Events[0].Event.Data);
 
-        return JsonConvert.DeserializeObject<TAggregate>(json, this.settings);
+        return JsonSerializer.Deserialize<TAggregate>(json, this.settings);
     }
 
     /// <summary>
@@ -241,11 +233,11 @@ public class EventStoreService : IEventStoreService
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
-        var serializedAggregate = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(aggregate, this.settings));
+        var serializedAggregate = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(aggregate, this.settings));
 
-        var eventData = new EventData(Guid.NewGuid(), "snapshot", true, serializedAggregate, null);
+        var eventData = new ES.EventData(Guid.NewGuid(), "snapshot", true, serializedAggregate, null);
 
-        await connection.AppendToStreamAsync(this.GetSnapshotName(aggregate.Category, aggregate.Id), ExpectedVersion.Any, eventData).ConfigureAwait(false);
+        await connection.AppendToStreamAsync(this.GetSnapshotName(aggregate.Category, aggregate.Id), ES.ExpectedVersion.Any, eventData).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -262,8 +254,8 @@ public class EventStoreService : IEventStoreService
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var events = new List<IDomainEvent>();
-        StreamEventsSlice currentSlice;
-        var nextSliceStart = (long)StreamPosition.Start;
+        ES.StreamEventsSlice currentSlice;
+        var nextSliceStart = (long)ES.StreamPosition.Start;
 
         do
         {
@@ -275,7 +267,7 @@ public class EventStoreService : IEventStoreService
             {
                 var type = domainEventResolverService.GetDomainEventType(e.Event.EventType);
 
-                var @event = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Event.Data), type, this.settings);
+                var @event = JsonSerializer.Deserialize(Encoding.UTF8.GetString(e.Event.Data), type, this.settings);
 
                 return @event as IDomainEvent;
             });
@@ -298,11 +290,11 @@ public class EventStoreService : IEventStoreService
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var events = new List<TDomainEvent>();
-        StreamEventsSlice currentSlice;
-        var nextSliceStart = (long)StreamPosition.Start;
+        ES.StreamEventsSlice currentSlice;
+        var nextSliceStart = (long)ES.StreamPosition.Start;
 
         var key = domainEventResolverService.GetKeyDomainEvent(typeof(TDomainEvent));
-        
+
         do
         {
             currentSlice = await connection.ReadStreamEventsForwardAsync($"$et-{key}", nextSliceStart, 200, true).ConfigureAwait(false);
@@ -313,7 +305,7 @@ public class EventStoreService : IEventStoreService
 
                 var @eventJson = Encoding.UTF8.GetString(e.Event.Data);
 
-                var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.settings);
+                var @event = JsonSerializer.Deserialize<TDomainEvent>(@eventJson, this.settings);
 
                 return @event;
             }));
@@ -340,8 +332,8 @@ public class EventStoreService : IEventStoreService
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var events = new List<TDomainEvent>();
-        StreamEventsSlice currentSlice;
-        var nextSliceStart = (long)StreamPosition.Start;
+        ES.StreamEventsSlice currentSlice;
+        var nextSliceStart = (long)ES.StreamPosition.Start;
 
         var key = domainEventResolverService.GetKeyDomainEvent<TDomainEvent>();
 
@@ -356,7 +348,7 @@ public class EventStoreService : IEventStoreService
                 {
                     var @eventJson = Encoding.UTF8.GetString(item.Data);
 
-                    var @event = JsonConvert.DeserializeObject<TDomainEvent>(@eventJson, this.settings);
+                    var @event = JsonSerializer.Deserialize<TDomainEvent>(@eventJson, this.settings);
 
                     events.Add(@event);
                 }

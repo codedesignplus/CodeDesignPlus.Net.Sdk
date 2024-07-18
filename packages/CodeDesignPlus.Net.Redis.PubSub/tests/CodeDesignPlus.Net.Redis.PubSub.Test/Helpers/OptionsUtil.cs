@@ -1,5 +1,4 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Options;
 

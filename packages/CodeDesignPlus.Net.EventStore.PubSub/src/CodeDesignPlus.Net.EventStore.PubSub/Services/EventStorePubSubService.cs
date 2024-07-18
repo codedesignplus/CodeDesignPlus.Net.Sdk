@@ -2,11 +2,10 @@
 using CodeDesignPlus.Net.EventStore.Abstractions;
 using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using EventStore.ClientAPI;
 using EventStore.ClientAPI.SystemData;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+using CodeDesignPlus.Net.Serializers;
 using System.Text;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
@@ -61,8 +60,8 @@ public class EventStorePubSubService : IEventStorePubSubService
             @event.EventId,
             stream,
             true,
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event)),
-           Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(@event.Metadata)));
+           Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event)),
+           Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event.Metadata)));
 
         await connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData).ConfigureAwait(false);
     }
@@ -137,7 +136,7 @@ public class EventStorePubSubService : IEventStorePubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var domainEvent = JsonConvert.DeserializeObject<TEvent>(Encoding.UTF8.GetString(@event.Event.Data));
+        var domainEvent = JsonSerializer.Deserialize<TEvent>(Encoding.UTF8.GetString(@event.Event.Data));
 
         var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 

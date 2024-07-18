@@ -1,7 +1,4 @@
-﻿using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.Exceptions;
-using System.Collections.Concurrent;
-using ES = EventStore.ClientAPI;
+﻿
 
 namespace CodeDesignPlus.Net.EventStore.Services;
 

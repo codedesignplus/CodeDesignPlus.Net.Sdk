@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using CodeDesignPlus.Net.Security.Test.Helpers.Server;
+using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
 using O = Microsoft.Extensions.Options;
-using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 
 namespace CodeDesignPlus.Net.Security.Test.Services;
 

@@ -1,7 +1,7 @@
-﻿using System.Globalization;
-using CodeDesignPlus.Net.Serializers.Test.Helpers;
+﻿using CodeDesignPlus.Net.Serializers.Test.Helpers;
 using CodeDesignPlus.Net.Serializers.Test.Helpers.DomainEvents;
-using Newtonsoft.Json;
+using CodeDesignPlus.Net.Serializers;
+using System.Globalization;
 
 namespace CodeDesignPlus.Net.Serializers.Test;
 

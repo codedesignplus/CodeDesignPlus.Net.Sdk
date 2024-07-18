@@ -1,11 +1,4 @@
-﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
-using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
-using MongoDB.Driver.Core.Events;
-using System.Diagnostics;
-using System.Net;
-using System.Reflection;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber
 {
     /// <summary>
     /// Subscriber for the MongoDB driver events

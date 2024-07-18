@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-
-namespace CodeDesignPlus.Net.Kafka.Abstractions;
+﻿namespace CodeDesignPlus.Net.Kafka.Abstractions;
 
 /// <summary>
 /// Represents an interface for a Kafka Event Bus, extending the generic PubSub interface.

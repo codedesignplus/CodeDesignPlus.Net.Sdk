@@ -1,7 +1,5 @@
 ﻿namespace CodeDesignPlus.Net.Serializers.Test.Helpers;
 
-using System.Text.Json;
-
 public class JsonValidator
 {
     public static bool IsValidJson(string jsonString)
@@ -13,10 +11,10 @@ public class JsonValidator
 
         try
         {
-            JsonDocument.Parse(jsonString);
+            System.Text.Json.JsonDocument.Parse(jsonString);
             return true;
         }
-        catch (JsonException)
+        catch ( System.Text.Json.JsonException)
         {
             return false;
         }

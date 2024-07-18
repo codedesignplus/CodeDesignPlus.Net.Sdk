@@ -1,15 +1,15 @@
 ﻿
+using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.Logger.Extensions;
 using CodeDesignPlus.Net.Logger.Options;
 using CodeDesignPlus.Net.Logger.Test.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.ObservabilityContainer;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
+using CodeDesignPlus.Net.Serializers;
 using Serilog.Events;
 using Serilog.Sinks.InMemory;
-using CodeDesignPlus.Net.xUnit.Helpers.ObservabilityContainer;
-using CodeDesignPlus.Net.Core.Extensions;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
-using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Logger.Test.Extensions;
 
@@ -169,7 +169,7 @@ public class ServiceCollectionExtensionTest : IClassFixture<ObservabilityContain
 
         var content = await response.Content.ReadAsStringAsync();
 
-        var jsonResponse = JsonConvert.DeserializeObject<RootObject>(content);
+        var jsonResponse = JsonSerializer.Deserialize<RootObject>(content);
 
         Assert.NotNull(jsonResponse);
         Assert.Equal("success", jsonResponse.Status);
@@ -178,7 +178,7 @@ public class ServiceCollectionExtensionTest : IClassFixture<ObservabilityContain
         var jsonValues = jsonResponse.Data.Result.FirstOrDefault()!.Values.FirstOrDefault();
 
         Assert.NotNull(jsonValues);
-        var responseLog = JsonConvert.DeserializeObject<LogEntry>(jsonValues.LastOrDefault()!);
+        var responseLog = JsonSerializer.Deserialize<LogEntry>(jsonValues.LastOrDefault()!);
 
 
         Assert.NotNull(responseLog);

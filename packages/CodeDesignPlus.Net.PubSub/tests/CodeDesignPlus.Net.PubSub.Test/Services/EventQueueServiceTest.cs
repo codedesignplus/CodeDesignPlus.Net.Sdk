@@ -1,8 +1,8 @@
-﻿using System.Collections.Concurrent;
-using CodeDesignPlus.Net.Core.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.xUnit.Helpers;
 using Moq;
+using System.Collections.Concurrent;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Services;
 

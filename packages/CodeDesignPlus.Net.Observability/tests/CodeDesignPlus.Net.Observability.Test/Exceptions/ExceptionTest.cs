@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Observability.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Observability.Test.Exceptions;
 
 public class ObservabilityExceptionTest
 {

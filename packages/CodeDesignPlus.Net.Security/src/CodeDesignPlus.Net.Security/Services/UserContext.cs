@@ -1,7 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
-using Microsoft.AspNetCore.Http;
-
-namespace CodeDesignPlus.Net.Security.Services;
+﻿namespace CodeDesignPlus.Net.Security.Services;
 
 /// <summary>
 /// Provide the information of the authenticated user during the request

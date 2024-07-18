@@ -1,10 +1,4 @@
-﻿using System.Linq;
-using System.Text.Json;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Http;
-using Microsoft.IdentityModel.Tokens;
-
-namespace CodeDesignPlus.Net.Security.Extensions;
+﻿namespace CodeDesignPlus.Net.Security.Extensions;
 
 public static class AuthenticationFailedContextExtensions
 {

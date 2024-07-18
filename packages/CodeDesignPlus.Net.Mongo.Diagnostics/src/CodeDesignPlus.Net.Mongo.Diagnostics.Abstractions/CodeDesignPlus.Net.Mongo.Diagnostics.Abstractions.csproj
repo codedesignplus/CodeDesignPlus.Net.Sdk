@@ -19,6 +19,9 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
+  <ItemGroup>  
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
+  </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">
       <Pack>True</Pack>

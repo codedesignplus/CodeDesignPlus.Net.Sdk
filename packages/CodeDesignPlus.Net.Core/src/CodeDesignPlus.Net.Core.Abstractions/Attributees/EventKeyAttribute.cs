@@ -29,5 +29,5 @@ public class EventKeyAttribute(string entity, ushort version, string @event) : A
 /// <param name="version">The version of the event.</param>
 /// <param name="event">The name of the event.</param>
 [AttributeUsage(AttributeTargets.Class)]
-public class EventKeyAttribute<TAggregate>(ushort version, string @event) 
+public class EventKeyAttribute<TAggregate>(ushort version, string @event)
     : EventKeyAttribute(typeof(TAggregate).Name, version, @event) where TAggregate : IEntityBase;

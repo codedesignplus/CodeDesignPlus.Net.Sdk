@@ -1,9 +1,9 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using CodeDesignPlus.Net.Security.Extensions;
+﻿using CodeDesignPlus.Net.Security.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 
 namespace CodeDesignPlus.Net.Security.Test.Helpers.Server;
 
@@ -14,7 +14,7 @@ public class ServerApi
     public ServerApi(Action<JwtBearerOptions>? options = null)
     {
         var configuration = ConfigurationUtil.GetConfiguration(new { Security = OptionsUtil.SercurityOptionsLocalhost });
-       
+
         this.Server = new TestServer(new WebHostBuilder()
             .UseConfiguration(configuration)
             .ConfigureServices(x =>

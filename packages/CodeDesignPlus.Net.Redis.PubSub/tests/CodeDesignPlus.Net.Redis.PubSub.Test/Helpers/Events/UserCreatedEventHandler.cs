@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Memory;
-using Newtonsoft.Json;
+using CodeDesignPlus.Net.Serializers;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events
 {
@@ -10,7 +10,7 @@ namespace CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events
         {
             memory.UserEventTrace.Add(data);
 
-            logger.LogDebug("Invoked Event: {data}", JsonConvert.SerializeObject(data));
+            logger.LogDebug("Invoked Event: {data}", JsonSerializer.Serialize(data));
 
             return Task.CompletedTask;
         }

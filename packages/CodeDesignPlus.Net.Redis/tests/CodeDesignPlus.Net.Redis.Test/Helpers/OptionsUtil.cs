@@ -6,14 +6,15 @@ public static class OptionsUtil
     {
         Instances = new Dictionary<string, Instance>() {
             { "test", new Instance() {ConnectionString = "localhost:6379,ssl=false"} },
-            
+
             { "Core", new Instance() {ConnectionString = "localhost:6379,ssl=false"} }
         }
     };
 
     public static readonly object AppSettings = new
     {
-        Core = new {
+        Core = new
+        {
             AppName = "test"
         },
         Redis = RedisOptions

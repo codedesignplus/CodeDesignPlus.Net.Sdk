@@ -1,6 +1,5 @@
 ﻿namespace CodeDesignPlus.Net.Criteria.Exceptions;
 
-
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.Criteria. 
 /// </summary>

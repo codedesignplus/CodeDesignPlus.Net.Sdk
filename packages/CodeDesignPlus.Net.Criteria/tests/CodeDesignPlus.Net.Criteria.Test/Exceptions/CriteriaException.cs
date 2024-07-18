@@ -1,5 +1,4 @@
 ﻿using CodeDesignPlus.Net.Criteria.Exceptions;
-using Xunit;
 
 namespace CodeDesignPlus.Net.Criteria.Test.Exceptions;
 

@@ -1,8 +1,4 @@
-﻿using CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber;
-using System.Collections.Concurrent;
-using System.Diagnostics;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Services
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Services
 {
     public class ActivitySourceService : IActivityService
     {

@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace CodeDesignPlus.Net.Core.Extensions;
+﻿namespace CodeDesignPlus.Net.Core.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore

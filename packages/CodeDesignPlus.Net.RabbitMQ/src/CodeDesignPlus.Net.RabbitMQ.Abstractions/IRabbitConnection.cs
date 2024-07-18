@@ -1,9 +1,7 @@
-﻿using RabbitMQ.Client;
+﻿namespace CodeDesignPlus.Net.RabbitMQ.Abstractions;
 
-namespace CodeDesignPlus.Net.RabbitMQ.Abstractions
+public interface IRabbitConnection : IDisposable
 {
-    public interface IRabbitConnection : IDisposable
-    {
-        IConnection Connection { get; }
-    }
+    IConnection Connection { get; }
 }
+

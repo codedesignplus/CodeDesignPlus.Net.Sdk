@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Entities;
 using CodeDesignPlus.Net.RabbitMQ.Attributes;
+using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Entities;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;
 
@@ -11,7 +11,7 @@ public class UserCreatedDomainEventHandler(IMemoryHandler memoryHandler) : IEven
     {
         memoryHandler.Memory.Add(data.AggregateId, data);
 
-        if(data.Name == "Throw Exception")
+        if (data.Name == "Throw Exception")
             throw new Exception("Custom Error");
 
         return Task.CompletedTask;

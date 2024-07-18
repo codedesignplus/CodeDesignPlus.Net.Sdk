@@ -1,5 +1,3 @@
-using System.Security.Claims;
-
 namespace CodeDesignPlus.Net.Security.Abstractions;
 
 /// <summary>

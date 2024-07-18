@@ -3,7 +3,7 @@
 /// <summary>
 /// Allows the repository to delete a record by assigning the information to the transversal properties of the entity
 /// </summary>
-public interface IDeleteOperation 
+public interface IDeleteOperation
 {
     /// <summary>
     /// Method that deletes a record in the database

@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using ES = EventStore.ClientAPI;
-namespace CodeDesignPlus.Net.EventStore.Services;
+﻿namespace CodeDesignPlus.Net.EventStore.Services;
 
 /// <summary>
 /// Provides an implementation for connecting to an EventStore instance using specified configuration options.
@@ -59,7 +57,7 @@ public class EventStoreConnection : IEventStoreConnection
 
         return connection;
     }
-    
+
     /// <summary>
     /// Handles authentication failure events from the EventStore client.
     /// Logs the authentication failure reason using ILogger.

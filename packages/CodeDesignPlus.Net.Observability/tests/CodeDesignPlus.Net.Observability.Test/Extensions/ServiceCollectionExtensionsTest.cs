@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.Observability.Extensions;
+﻿namespace CodeDesignPlus.Net.Observability.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {

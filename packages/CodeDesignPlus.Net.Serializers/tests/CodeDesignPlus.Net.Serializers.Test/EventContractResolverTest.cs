@@ -1,7 +1,8 @@
-﻿using System.Reflection;
-using CodeDesignPlus.Net.Serializers.Test.Helpers.DomainEvents;
-using Newtonsoft.Json;
+﻿using CodeDesignPlus.Net.Serializers.Test.Helpers.DomainEvents;
+using CodeDesignPlus.Net.Serializers;
 using Newtonsoft.Json.Serialization;
+using System.Reflection;
+using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Serializers.Test;
 
@@ -34,9 +35,9 @@ public class EventContractResolverTest
             ContractResolver = new EventContractResolver([])
         };
 
-        var json = JsonConvert.SerializeObject(userCreatedDomainEvent, jsonSerializerSettings);
+        var json = JsonSerializer.Serialize(userCreatedDomainEvent, jsonSerializerSettings);
 
-        var userCreatedDomainEventDeserialized = JsonConvert.DeserializeObject<UserCreatedDomainEvent>(json, jsonSerializerSettings);
+        var userCreatedDomainEventDeserialized = JsonSerializer.Deserialize<UserCreatedDomainEvent>(json, jsonSerializerSettings);
 
         // Assert
         Assert.NotNull(userCreatedDomainEventDeserialized);
@@ -76,9 +77,9 @@ public class EventContractResolverTest
             ContractResolver = new EventContractResolver()
         };
 
-        var json = JsonConvert.SerializeObject(userCreatedDomainEvent, jsonSerializerSettings);
+        var json = JsonSerializer.Serialize(userCreatedDomainEvent, jsonSerializerSettings);
 
-        var userCreatedDomainEventDeserialized = JsonConvert.DeserializeObject<UserCreatedDomainEvent>(json, jsonSerializerSettings);
+        var userCreatedDomainEventDeserialized = JsonSerializer.Deserialize<UserCreatedDomainEvent>(json, jsonSerializerSettings);
 
         // Assert
         Assert.NotNull(userCreatedDomainEventDeserialized);
@@ -96,7 +97,7 @@ public class EventContractResolverTest
     {
         // Arrange
         var eventContractResolver = new EventContractResolver();
-        
+
         var methodInfo = typeof(EventContractResolver).GetMethod("ResolvePropertyName", BindingFlags.NonPublic | BindingFlags.Instance);
 
         // Act

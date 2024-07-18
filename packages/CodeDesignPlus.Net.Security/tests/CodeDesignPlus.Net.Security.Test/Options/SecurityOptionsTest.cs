@@ -66,7 +66,7 @@ public class SecurityOptionsTest
         {
             CertificatePath = "folder/certificate.pfx",
         };
-        
+
         var path = Path.Combine(AppContext.BaseDirectory, options.CertificatePath);
 
         // Act

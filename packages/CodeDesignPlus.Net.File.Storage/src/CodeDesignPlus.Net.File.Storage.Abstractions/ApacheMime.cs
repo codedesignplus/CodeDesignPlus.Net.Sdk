@@ -1,8 +1,4 @@
-﻿using System.Collections.ObjectModel;
-using System.Reflection;
-using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.File.Storage.Abstractions;
+﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions;
 
 /// <summary>
 ///  https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
@@ -28,7 +24,7 @@ public class ApacheMime
 
             var result = reader.ReadToEnd();
 
-            apacheMimes = JsonConvert.DeserializeObject<List<ApacheMime>>(result);
+            apacheMimes = JsonSerializer.Deserialize<List<ApacheMime>>(result);
 
             return new ReadOnlyCollection<ApacheMime>(apacheMimes);
 

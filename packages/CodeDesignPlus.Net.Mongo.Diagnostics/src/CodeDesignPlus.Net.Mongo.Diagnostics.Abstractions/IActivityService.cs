@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions
 {
     public interface IActivityService
     {

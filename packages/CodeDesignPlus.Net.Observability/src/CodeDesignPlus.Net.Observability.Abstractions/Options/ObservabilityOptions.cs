@@ -27,7 +27,7 @@ public class ObservabilityOptions : IValidatableObject
     /// </summary>
     [EmailAddress]
     public string Email { get; set; }
-    
+
     public Uri Endpoint { get; set; }
 
     /// <summary>

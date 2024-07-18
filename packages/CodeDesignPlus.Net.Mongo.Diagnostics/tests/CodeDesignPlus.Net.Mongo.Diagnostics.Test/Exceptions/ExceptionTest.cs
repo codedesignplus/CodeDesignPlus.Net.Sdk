@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Test.Exceptions;
 
 public class MongoDiagnosticsExceptionTest
 {

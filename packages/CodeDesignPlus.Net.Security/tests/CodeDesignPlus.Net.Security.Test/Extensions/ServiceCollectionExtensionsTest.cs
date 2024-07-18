@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using CodeDesignPlus.Net.Security.Extensions;
+﻿using CodeDesignPlus.Net.Security.Extensions;
 using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
-using Moq;
 using System.Net;
 using System.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication;
 
 namespace CodeDesignPlus.Net.Security.Test.Extensions;
 

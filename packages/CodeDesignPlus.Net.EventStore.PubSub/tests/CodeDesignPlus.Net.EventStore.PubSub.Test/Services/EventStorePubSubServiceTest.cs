@@ -4,11 +4,8 @@ using CodeDesignPlus.Net.EventStore.Abstractions;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 using CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
 using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Moq;
@@ -149,7 +146,7 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
     {
         // This server create the stream with the same name as the event type
         _ = BuildTestServer(true, testOutput);
-        
+
         // This generate catch exception because the stream already exist
         var testServer = BuildTestServer(true, testOutput);
 

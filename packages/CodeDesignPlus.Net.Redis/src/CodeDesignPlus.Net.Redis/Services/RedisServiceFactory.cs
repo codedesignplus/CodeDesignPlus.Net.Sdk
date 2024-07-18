@@ -1,8 +1,4 @@
-﻿using CodeDesignPlus.Net.Redis.Options;
-using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Concurrent;
-
-namespace CodeDesignPlus.Net.Redis.Services;
+﻿namespace CodeDesignPlus.Net.Redis.Services;
 
 /// <summary>
 /// Factory for creating and initializing instances of <see cref="IRedisService"/> based on provided configuration.

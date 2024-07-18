@@ -1,7 +1,7 @@
-﻿using System.Text;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Logger.Options;
-using Newtonsoft.Json;
+using CodeDesignPlus.Net.Serializers;
+using System.Text;
 
 namespace CodeDesignPlus.Net.Logger.Test.Helpers;
 
@@ -28,7 +28,7 @@ public class OptionsUtil
 
     public static IConfiguration GetConfiguration()
     {
-        return GetConfiguration(new 
+        return GetConfiguration(new
         {
             Core = CoreOptions,
             Logger = loggerOptions
@@ -37,7 +37,7 @@ public class OptionsUtil
 
     public static IConfiguration GetConfiguration(object? appSettings = null)
     {
-        var json = JsonConvert.SerializeObject(appSettings);
+        var json = JsonSerializer.Serialize(appSettings);
 
         var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
 

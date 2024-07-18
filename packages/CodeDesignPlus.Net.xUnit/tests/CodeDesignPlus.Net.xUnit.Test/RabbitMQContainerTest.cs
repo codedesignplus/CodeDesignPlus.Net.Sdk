@@ -23,7 +23,7 @@ public class RabbitMQContainerTest(RabbitMQContainer container) : IClassFixture<
 
         // Act
         Exception connectionException = null!;
-        
+
         try
         {
             using var connection = factory.CreateConnection();

@@ -43,7 +43,7 @@ public static class OptionsUtil
         {
             AppName = "AppTest",
             Version = "1.0.0",
-            Description= "Description Test",
+            Description = "Description Test",
             Business = "Business Test",
             Contact = new Contact()
             {

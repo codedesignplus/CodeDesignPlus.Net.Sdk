@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Core.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.Core.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Core
@@ -15,7 +13,7 @@ public class CoreOptions : IValidatableObject
     /// Gets or sets the business
     /// </summary>
     [Required]
-    public required string Business { get; set;}
+    public required string Business { get; set; }
     /// <summary>
     /// Gets or sets the name
     /// </summary>

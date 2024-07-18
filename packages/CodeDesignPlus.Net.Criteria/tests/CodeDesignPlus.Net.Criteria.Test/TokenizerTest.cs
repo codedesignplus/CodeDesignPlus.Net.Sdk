@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using CodeDesignPlus.Net.Criteria.Models;
+﻿using CodeDesignPlus.Net.Criteria.Models;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.Criteria.Test;
 

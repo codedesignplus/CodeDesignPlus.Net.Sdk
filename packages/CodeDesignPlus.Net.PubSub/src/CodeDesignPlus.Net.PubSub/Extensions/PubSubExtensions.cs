@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.PubSub.Extensions;
+﻿namespace CodeDesignPlus.Net.PubSub.Extensions;
 
 /// <summary>
 /// Provides extension methods related to the PubSub functionality.

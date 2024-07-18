@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the RabbitMQ
@@ -50,7 +48,7 @@ public class RabbitMQOptions : IValidatableObject
 
             if (this.QueueArguments != null)
                 results.AddRange(this.QueueArguments.Validate(new ValidationContext(this.QueueArguments)));
-            
+
         }
 
         return results;

@@ -1,14 +1,9 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Extensions;
-using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;
-using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
-using CodeDesignPlus.Net.RabbitMQ.Extensions;
 using Moq;
 using RabbitMQ.Client;
 using O = Microsoft.Extensions.Options;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Services;
 
@@ -130,7 +125,7 @@ public class RabbitPubSubServiceTest
         var rabbitMQOptions = new Mock<IOptions<RabbitMQOptions>>();
 
         rabbitMQOptions.SetupGet(r => r.Value).Returns(new RabbitMQOptions());
-        
+
         channelMock.Setup(c => c.CreateBasicProperties()).Returns(Mock.Of<IBasicProperties>());
         connection.Setup(c => c.CreateModel()).Returns(channelMock.Object);
         rabbitConnectionMock.SetupGet(r => r.Connection).Returns(connection.Object);
@@ -166,7 +161,7 @@ public class RabbitPubSubServiceTest
         var rabbitMQOptions = new Mock<IOptions<RabbitMQOptions>>();
 
         rabbitMQOptions.SetupGet(r => r.Value).Returns(new RabbitMQOptions());
-        
+
         channelMock.Setup(c => c.CreateBasicProperties()).Returns(Mock.Of<IBasicProperties>());
         connection.Setup(c => c.CreateModel()).Returns(channelMock.Object);
         rabbitConnectionMock.SetupGet(r => r.Connection).Returns(connection.Object);

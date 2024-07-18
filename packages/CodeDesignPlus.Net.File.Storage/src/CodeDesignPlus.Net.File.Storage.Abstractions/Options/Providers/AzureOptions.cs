@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.File.Storage.Abstractions.Options.Providers;
+﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions.Options.Providers;
 
 public abstract class AzureOptions
 {

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
-using CodeDesignPlus.Net.Criteria.Exceptions;
-using CodeDesignPlus.Net.Criteria.Models;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
 using CodeDesignPlus.Net.Criteria.Test.Helpers;
 
 namespace CodeDesignPlus.Net.Criteria.Test.Extensions;
@@ -70,7 +66,7 @@ public class CriteriaExtensionsTest
     public void GetSortByExpression_ReturnsNotNull_WhenCriteriaOrderByIsNotNullAndDescending()
     {
         // Arrange
-        var criteria = new MC.Criteria { OrderBy = "Name", OrderType = OrderTypes.Descending};
+        var criteria = new MC.Criteria { OrderBy = "Name", OrderType = OrderTypes.Descending };
 
         // Act
         var sortByExpression = criteria.GetSortByExpression<Order>();

@@ -1,21 +1,14 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Services;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.PubSub.Extensions;
 using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Memory;
-using CodeDesignPlus.Net.Redis.Extensions;
-using CodeDesignPlus.Net.PubSub.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using StackExchange.Redis;
 using O = Microsoft.Extensions.Options;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core;
-using CodeDesignPlus.Net.Core.Services;
-using CodeDesignPlus.Net.Core.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
-using System.Security.Cryptography;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Services;
 
@@ -130,7 +123,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
             .ReturnsAsync(number)
             .Callback<RedisChannel, RedisValue, CommandFlags>((channel, value, commandFlags) =>
             {
-                @eventSend = Newtonsoft.Json.JsonConvert.DeserializeObject<UserCreatedEvent>(value!);
+                @eventSend = JsonSerializer.Deserialize<UserCreatedEvent>(value!);
             });
 
         var redisService = new Mock<IRedisService>();

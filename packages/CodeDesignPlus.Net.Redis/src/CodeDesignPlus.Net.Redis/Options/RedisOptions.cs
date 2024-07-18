@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Redis.Options;
+﻿namespace CodeDesignPlus.Net.Redis.Options;
 
 /// <summary>
 /// Configuration options for the Redis service 
@@ -31,7 +29,7 @@ public class RedisOptions : IValidatableObject
 
         foreach (var instance in this.Instances.Where(x => x.Value.CreateConfiguration().Ssl && string.IsNullOrEmpty(x.Value.Certificate)))
         {
-                result.Add(new ValidationResult("The Certificate is required.", [nameof(Instance.Certificate)]));
+            result.Add(new ValidationResult("The Certificate is required.", [nameof(Instance.Certificate)]));
         }
 
         return result;

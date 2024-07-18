@@ -1,7 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using Microsoft.Extensions.Hosting;
-
-namespace CodeDesignPlus.Net.PubSub.Services;
+﻿namespace CodeDesignPlus.Net.PubSub.Services;
 
 /// <summary>
 /// Provides a background service for handling events with a specified event handler.

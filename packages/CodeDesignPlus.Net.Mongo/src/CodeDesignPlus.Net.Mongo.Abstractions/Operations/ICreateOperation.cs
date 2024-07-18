@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
+﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 
 /// <summary>
 /// It allows the repository to create a record by assigning the information to the transversal properties of the entity

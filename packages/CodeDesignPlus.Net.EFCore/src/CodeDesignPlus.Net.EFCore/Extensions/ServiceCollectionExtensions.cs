@@ -1,11 +1,4 @@
-﻿using CodeDesignPlus.Net.EFCore.Abstractions.Options;
-using CodeDesignPlus.Net.EFCore.Exceptions;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
-
-namespace CodeDesignPlus.Net.EFCore.Extensions;
+﻿namespace CodeDesignPlus.Net.EFCore.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore

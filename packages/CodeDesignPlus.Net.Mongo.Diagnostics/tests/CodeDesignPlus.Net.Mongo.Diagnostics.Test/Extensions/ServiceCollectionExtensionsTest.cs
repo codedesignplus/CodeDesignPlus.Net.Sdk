@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
+﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {

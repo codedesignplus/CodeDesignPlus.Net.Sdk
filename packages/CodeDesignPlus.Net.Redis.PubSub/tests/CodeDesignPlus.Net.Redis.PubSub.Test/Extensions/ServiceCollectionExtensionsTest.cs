@@ -1,12 +1,4 @@
-﻿using O = Microsoft.Extensions.Options;
-using CodeDesignPlus.Net.Redis.PubSub.Extensions;
-using Moq;
-using CodeDesignPlus.Net.Redis.Abstractions;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using StackExchange.Redis;
-using CodeDesignPlus.Net.Core.Abstractions;
+﻿using CodeDesignPlus.Net.Redis.PubSub.Extensions;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Extensions;
 

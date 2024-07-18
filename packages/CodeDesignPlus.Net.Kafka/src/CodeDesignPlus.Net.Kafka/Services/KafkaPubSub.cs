@@ -1,12 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Kafka.Options;
-using CodeDesignPlus.Net.Kafka.Serializer;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using Confluent.Kafka;
-using Microsoft.Extensions.DependencyInjection;
-using System.Text;
-
-namespace CodeDesignPlus.Net.Kafka.Services;
+﻿namespace CodeDesignPlus.Net.Kafka.Services;
 
 /// <summary>
 /// Provides the default implementation for the <see cref="IKafkaService"/> interface.

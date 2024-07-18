@@ -21,9 +21,8 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Mongo.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Mongo.Diagnostics\src\CodeDesignPlus.Net.Mongo.Diagnostics\CodeDesignPlus.Net.Mongo.Diagnostics.csproj" />
     <ProjectReference Include="..\CodeDesignPlus.Net.Mongo.Abstractions\CodeDesignPlus.Net.Mongo.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Criteria\src\CodeDesignPlus.Net.Criteria\CodeDesignPlus.Net.Criteria.csproj" />
+    
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">

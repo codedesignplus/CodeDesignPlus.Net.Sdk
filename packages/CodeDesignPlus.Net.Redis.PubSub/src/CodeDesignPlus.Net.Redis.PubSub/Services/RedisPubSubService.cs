@@ -1,14 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.Redis.Abstractions;
-using CodeDesignPlus.Net.Redis.PubSub.Options;
-using CodeDesignPlus.Net.Serializers;
-using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using StackExchange.Redis;
-
-namespace CodeDesignPlus.Net.Redis.PubSub.Services;
+﻿namespace CodeDesignPlus.Net.Redis.PubSub.Services;
 
 /// <summary>
 /// Default implementation of the <see cref="IRedisPubSubService"/>
@@ -86,7 +76,7 @@ public class RedisPubSubService : IRedisPubSubService
     {
         var channel = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        var message = JsonConvert.SerializeObject(@event);
+        var message = JsonSerializer.Serialize(@event);
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
@@ -125,7 +115,7 @@ public class RedisPubSubService : IRedisPubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var @event = JsonConvert.DeserializeObject<TEvent>(value);
+        var @event = JsonSerializer.Deserialize<TEvent>(value);
 
         var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 

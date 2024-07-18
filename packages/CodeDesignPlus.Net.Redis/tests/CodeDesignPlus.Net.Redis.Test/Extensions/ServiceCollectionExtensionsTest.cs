@@ -1,6 +1,5 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.Redis.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
+﻿using CodeDesignPlus.Net.Redis.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers;
 using Moq;
 
 namespace CodeDesignPlus.Net.Redis.Test.Extensions;
@@ -100,7 +99,7 @@ public class ServiceCollectionExtensionsTest
         var redisFactoryMock = new Mock<IRedisServiceFactory>();
         var redisServiceMock = new Mock<IRedisService>();
         var connectionMock = new Mock<StackExchange.Redis.IConnectionMultiplexer>();
-        
+
         redisFactoryMock
             .Setup(x => x.Create(It.IsAny<string>()))
             .Returns(redisServiceMock.Object);

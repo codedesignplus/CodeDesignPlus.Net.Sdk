@@ -1,10 +1,4 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-using CodeDesignPlus.Net.Security.Abstractions;
-using Microsoft.Extensions.Hosting;
-
-namespace CodeDesignPlus.Net.File.Storage.Providers;
+﻿namespace CodeDesignPlus.Net.File.Storage.Providers;
 
 public class LocalProvider(
     IOptions<FileStorageOptions> options,
@@ -16,7 +10,7 @@ public class LocalProvider(
     private readonly IUserContext UserContext = userContext;
     private readonly FileStorageOptions options = options.Value;
 
-    public Task<Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return ProcessAsync(options.Local.Enable, filename, TypeProviders.LocalProvider, async (file, response) =>
         {
@@ -45,7 +39,7 @@ public class LocalProvider(
         });
     }
 
-    public Task<Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
+    public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
     {
         return ProcessAsync(options.Local.Enable, filename, TypeProviders.LocalProvider, async (file, response) =>
         {
@@ -55,7 +49,7 @@ public class LocalProvider(
 
             await stream.CopyToAsync(fileStream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            file.Detail = new FileDetail(options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
+            file.Detail = new M.FileDetail(options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
 
             response.Success = System.IO.File.Exists(path);
 
@@ -63,7 +57,7 @@ public class LocalProvider(
         });
     }
 
-    public Task<Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return ProcessAsync(options.Local.Enable, filename, TypeProviders.LocalProvider, (file, response) =>
         {

@@ -1,9 +1,4 @@
-﻿using Ductus.FluentDocker.Model.Common;
-using Ductus.FluentDocker.Model.Compose;
-using Ductus.FluentDocker.Services;
-using Ductus.FluentDocker.Services.Impl;
-
-namespace CodeDesignPlus.Net.xUnit.Helpers.KafkaContainer;
+﻿namespace CodeDesignPlus.Net.xUnit.Helpers.KafkaContainer;
 
 public class KafkaContainer : DockerCompose
 {

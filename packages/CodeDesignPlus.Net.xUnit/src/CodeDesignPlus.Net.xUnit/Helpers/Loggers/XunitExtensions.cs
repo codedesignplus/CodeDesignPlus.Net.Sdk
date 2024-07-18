@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging.Console;
-
-namespace CodeDesignPlus.Net.xUnit.Helpers.Loggers;
+﻿namespace CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 
 public static class XunitExtensions
 {

@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
-
-namespace CodeDesignPlus.Net.EventStore.Abstractions;
+﻿namespace CodeDesignPlus.Net.EventStore.Abstractions;
 
 /// <summary>
 /// Interface that defines the methods to be implemented by the event store service.

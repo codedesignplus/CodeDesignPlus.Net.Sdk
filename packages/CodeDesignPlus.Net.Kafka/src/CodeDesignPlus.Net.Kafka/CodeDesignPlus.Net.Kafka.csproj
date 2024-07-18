@@ -30,7 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Kafka.Abstractions\CodeDesignPlus.Net.Kafka.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">

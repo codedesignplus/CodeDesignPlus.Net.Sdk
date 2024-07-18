@@ -21,10 +21,7 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Redis.PubSub.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Redis\src\CodeDesignPlus.Net.Redis\CodeDesignPlus.Net.Redis.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub\CodeDesignPlus.Net.PubSub.csproj" />
     <ProjectReference Include="..\CodeDesignPlus.Net.Redis.PubSub.Abstractions\CodeDesignPlus.Net.Redis.PubSub.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">

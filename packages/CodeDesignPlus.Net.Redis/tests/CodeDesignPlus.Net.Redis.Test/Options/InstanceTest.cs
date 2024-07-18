@@ -1,6 +1,6 @@
-﻿using System.Security.Authentication;
-using CodeDesignPlus.Net.xUnit.Helpers;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
 using StackExchange.Redis;
+using System.Security.Authentication;
 
 namespace CodeDesignPlus.Net.Redis.Test.Options;
 

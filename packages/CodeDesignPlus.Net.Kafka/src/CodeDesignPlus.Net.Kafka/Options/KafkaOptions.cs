@@ -1,7 +1,4 @@
-﻿using Confluent.Kafka;
-using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Kafka.Options;
+﻿namespace CodeDesignPlus.Net.Kafka.Options;
 
 /// <summary>
 /// Options to setting of the Kafka

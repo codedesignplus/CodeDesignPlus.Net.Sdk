@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography.X509Certificates;
-
-namespace CodeDesignPlus.Net.Security.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.Security.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Security

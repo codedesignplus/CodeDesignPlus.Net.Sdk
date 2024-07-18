@@ -1,2 +1,14 @@
 ﻿global using Microsoft.Extensions.Options;
 global using System;
+global using CodeDesignPlus.Net.Core.Abstractions.Options;
+global using CodeDesignPlus.Net.Core.Extensions;
+global using CodeDesignPlus.Net.Logger.Options;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Hosting;
+global using Serilog;
+global using Serilog.Exceptions;
+global using Serilog.Exceptions.Core;
+global using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
+global using Serilog.Sinks.OpenTelemetry;
+global using System.ComponentModel.DataAnnotations;

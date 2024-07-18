@@ -1,6 +1,4 @@
-﻿using Ductus.FluentDocker.Services;
-using Ductus.FluentDocker.Services.Extensions;
-
+﻿
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 public abstract class DockerCompose : IDisposable

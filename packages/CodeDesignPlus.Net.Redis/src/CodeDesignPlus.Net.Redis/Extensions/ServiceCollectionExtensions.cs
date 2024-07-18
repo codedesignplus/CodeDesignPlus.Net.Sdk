@@ -1,12 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.Redis.Options;
-using CodeDesignPlus.Net.Redis.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Core.Extensions;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace CodeDesignPlus.Net.Redis.Extensions;
+﻿namespace CodeDesignPlus.Net.Redis.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -23,7 +15,7 @@ public static class ServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
-        
+
         var redisSection = configuration.GetSection(RedisOptions.Section);
 
         if (!redisSection.Exists())

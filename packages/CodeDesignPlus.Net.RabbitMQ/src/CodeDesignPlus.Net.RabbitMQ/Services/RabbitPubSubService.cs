@@ -4,7 +4,7 @@ using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
 using CodeDesignPlus.Net.RabbitMQ.Attributes;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
+using CodeDesignPlus.Net.Serializers;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Reflection;
@@ -70,7 +70,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
 
         channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
 
-        var message = JsonConvert.SerializeObject(@event);
+        var message = JsonSerializer.Serialize(@event);
 
         var body = Encoding.UTF8.GetBytes(message);
 
@@ -131,7 +131,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
 
             var message = Encoding.UTF8.GetString(body);
 
-            var @event = JsonConvert.DeserializeObject<TEvent>(message);
+            var @event = JsonSerializer.Deserialize<TEvent>(message);
 
             var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 

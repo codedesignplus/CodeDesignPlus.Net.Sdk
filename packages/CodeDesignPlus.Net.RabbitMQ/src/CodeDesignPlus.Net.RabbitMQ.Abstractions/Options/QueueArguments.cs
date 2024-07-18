@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
 
 public class QueueArguments : IValidatableObject
 {
@@ -83,7 +81,7 @@ public class QueueArguments : IValidatableObject
 
         if (this.OverflowRejectPublish.HasValue && this.OverflowRejectPublish.Value < 0)
             results.Add(new ValidationResult("The field OverflowRejectPublish must be greater than or equal to zero.", [nameof(this.OverflowRejectPublish)]));
-            
+
         ValidateExtraArguments(results);
 
         return results;

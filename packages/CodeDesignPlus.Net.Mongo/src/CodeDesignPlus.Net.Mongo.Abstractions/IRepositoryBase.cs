@@ -1,9 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using MongoDB.Driver;
-using System.Linq.Expressions;
-using C = CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
-
-namespace CodeDesignPlus.Net.Mongo.Abstractions;
+﻿namespace CodeDesignPlus.Net.Mongo.Abstractions;
 
 /// <summary>
 /// Exposes the base methods to carray out the most concurrent operations with the database
