@@ -15,7 +15,7 @@
     "all:format": "npx nx run-many --all --skip-nx-cache --target format",
     "all:build": "npx nx run-many --all --skip-nx-cache --target build",
     "all:test": "npx nx run-many --all --skip-nx-cache --target test",
-    "all:sonarqube": "npx nx run-many --all --skip-nx-cache --target sonarqube",
+    "all:sonarqube": "npx nx run-many --all --skip-nx-cache --target sonarqube --parallel 1",
     "all-cache:restore": "npx nx run-many --all --target restore",
     "all-cache:format": "npx nx run-many --all --target format",
     "all-cache:build": "npx nx run-many --all --target build",
