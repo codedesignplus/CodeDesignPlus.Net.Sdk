@@ -50,7 +50,7 @@ public class ServiceCollectionExtensionsTest
     public void AddKafka_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Kafka = OptionUtils.KafkaOptions });
+        var configuration = ConfigurationUtil.GetConfiguration(new { Core = OptionUtils.CoreOptions, Kafka = OptionUtils.KafkaOptions });
 
         var serviceCollection = new ServiceCollection();
 
@@ -69,7 +69,7 @@ public class ServiceCollectionExtensionsTest
     public void AddKafka_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Kafka = OptionUtils.KafkaOptions });
+        var configuration = ConfigurationUtil.GetConfiguration(new { Core = OptionUtils.CoreOptions, Kafka = OptionUtils.KafkaOptions });
 
         var serviceCollection = new ServiceCollection();
 

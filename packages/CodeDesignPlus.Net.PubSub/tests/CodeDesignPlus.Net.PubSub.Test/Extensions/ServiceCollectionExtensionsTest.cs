@@ -2,6 +2,7 @@
 using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
 using Microsoft.Extensions.Hosting;
+using Moq;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Extensions;
 
@@ -25,9 +26,10 @@ public class ServiceCollectionExtensionsTest
     {
         // Arrange
         ServiceCollection? serviceCollection = null;
+        var configuration = Mock.Of<IConfiguration>();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(setupOptions: null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(configuration: configuration, setupOptions: null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
@@ -51,9 +53,24 @@ public class ServiceCollectionExtensionsTest
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
+        var configuration = Mock.Of<IConfiguration>();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(setupOptions: null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(configuration: null, setupOptions: x => {}));
+
+        // Assert
+        Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
+    }
+
+    [Fact]
+    public void AddPubSubOverride_SetupOptionsIsNull_ArgumentNullException()
+    {
+        // Arrange
+        var serviceCollection = new ServiceCollection();
+        var configuration = Mock.Of<IConfiguration>();
+
+        // Act
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(configuration: configuration, setupOptions: null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'setupOptions')", exception.Message);
@@ -141,7 +158,7 @@ public class ServiceCollectionExtensionsTest
         var configuration = ConfigurationUtil.GetConfiguration();
 
         // Act 
-        services.AddPubSub(x =>
+        services.AddPubSub(configuration, x =>
         {
             x.UseQueue = true;
             x.SecondsWaitQueue = 4;

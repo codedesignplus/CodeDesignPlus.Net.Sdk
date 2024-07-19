@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.RabbitMQ.Attributes;
+﻿namespace CodeDesignPlus.Net.RabbitMQ.Attributes;
 
 [AttributeUsage(AttributeTargets.Class)]
 public class QueueNameAttribute(string entity, string action) : Attribute

@@ -1,6 +1,6 @@
 ﻿global using CodeDesignPlus.Net.Redis.PubSub.Abstractions;
 global using CodeDesignPlus.Net.Redis.PubSub.Exceptions;
-global using CodeDesignPlus.Net.Redis.PubSub.Options;
+global using CodeDesignPlus.Net.Redis.PubSub.Abstractions.Options;
 global using CodeDesignPlus.Net.Redis.PubSub.Services;
 global using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers;
 global using CodeDesignPlus.Net.xUnit.Helpers;

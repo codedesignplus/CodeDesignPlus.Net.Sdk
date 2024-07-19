@@ -8,7 +8,7 @@ public class RabbitMQContainerTest(RabbitMQContainer container) : IClassFixture<
 {
 
     [Fact]
-    public void CheckConnectionServer()
+    public async Task CheckConnectionServer()
     {
         var host = "localhost";
         var port = container.Port;
@@ -26,6 +26,7 @@ public class RabbitMQContainerTest(RabbitMQContainer container) : IClassFixture<
 
         try
         {
+            await Task.Delay(10000);
             using var connection = factory.CreateConnection();
 
             // Assert

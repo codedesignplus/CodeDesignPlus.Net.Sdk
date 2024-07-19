@@ -52,6 +52,7 @@ public class ServiceCollectionExtensionsTest
         // Arrange
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
+            Core = OptionsUtil.CoreOptions,
             EventSourcing = OptionsUtil.Options
         });
 

@@ -55,7 +55,10 @@ public class EventStoreOptionsTest
     {
         // Arrange
         var options = new EventStoreOptions
-        {
+        {            
+            FrequencySnapshot = 15,
+            MainName = "aggregate-custom",
+            SnapshotSuffix = "snapshot-custom",
             Servers = new Dictionary<string, Server>
             {
                 {
@@ -77,4 +80,34 @@ public class EventStoreOptionsTest
         Assert.Empty(results);
     }
 
+    [Fact]
+    public void EventStoreOptions_FrequencySnapshot_Invalid()
+    {
+        // Arrange
+        var options = new EventStoreOptions
+        {
+            FrequencySnapshot = 600,
+            MainName = "aggregate-custom",
+            SnapshotSuffix = "snapshot-custom",
+            Servers = new Dictionary<string, Server>
+            {
+                {
+                    "server1",
+                    new Server
+                    {
+                        ConnectionString = new Uri("tcp://localhost:1113"),
+                        User = "admin",
+                        Password = "changeit"
+                    }
+                }
+            }
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.NotEmpty(results);
+        Assert.Contains(results, x => x.ErrorMessage == "The field FrequencySnapshot must be between 1 and 500." && x.MemberNames.Contains("FrequencySnapshot"));
+    }
 }

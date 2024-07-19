@@ -2,6 +2,7 @@
   <PropertyGroup>
 		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{0F99E746-64FC-424D-8F4F-8ECAC49B8F26}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>

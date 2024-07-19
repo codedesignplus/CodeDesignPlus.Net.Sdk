@@ -28,9 +28,10 @@ public static class ServiceCollectionExtensions
 
         var options = section.Get<PubSubOptions>();
 
-        services.TryAddSingleton<IPubSub, Services.PubSubService>();
-
-        services.AddEventsHandlers();
+        services
+            .AddCore(configuration)
+            .AddEventsHandlers()
+            .TryAddSingleton<IPubSub, PubSubService>();
 
         if (options.UseQueue)
         {
@@ -44,9 +45,10 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
-    public static IServiceCollection AddPubSub(this IServiceCollection services, Action<PubSubOptions> setupOptions)
+    public static IServiceCollection AddPubSub(this IServiceCollection services, IConfiguration configuration, Action<PubSubOptions> setupOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
         ArgumentNullException.ThrowIfNull(setupOptions);
 
         var pubSubOptions = new PubSubOptions();
@@ -58,18 +60,23 @@ public static class ServiceCollectionExtensions
             .Configure(setupOptions)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IPubSub, Services.PubSubService>();
+        services
+           .AddCore(configuration)
+           .AddEventsHandlers()
+           .TryAddSingleton<IPubSub, PubSubService>();
+
+        services.TryAddSingleton<IPubSub, PubSubService>();
 
         services.AddEventsHandlers();
 
         if (pubSubOptions.UseQueue)
         {
-            services.AddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddSingleton<IEventQueueService, EventQueueService>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
         }
 
         if (pubSubOptions.EnableDiagnostic)
-            services.AddSingleton<IActivityService, ActivitySourceService>();
+            services.TryAddSingleton<IActivityService, ActivitySourceService>();
 
         return services;
     }

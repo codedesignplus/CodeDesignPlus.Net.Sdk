@@ -11,6 +11,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Hosting;
 global using CodeDesignPlus.Net.Core.Abstractions;
+global using CodeDesignPlus.Net.Core.Extensions;
 global using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 global using CodeDesignPlus.Net.PubSub.Diagnostics;
 global using CodeDesignPlus.Net.PubSub.Exceptions;

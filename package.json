@@ -20,7 +20,7 @@
     "all-cache:format": "npx nx run-many --all --target format",
     "all-cache:build": "npx nx run-many --all --target build",
     "all-cache:test": "npx nx run-many --all --target test",
-    "all-cache:sonarqube": "npx nx run-many --all --target sonarqube"
+    "all-cache:sonarqube": "npx nx run-many --all --target sonarqube --parallel 1"
   },
   "private": true,
   "dependencies": {

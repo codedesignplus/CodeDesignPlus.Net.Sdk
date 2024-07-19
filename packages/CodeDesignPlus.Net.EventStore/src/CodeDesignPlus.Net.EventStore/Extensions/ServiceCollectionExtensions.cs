@@ -26,10 +26,19 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IEventStoreConnection, EventStoreConnection>();
-        services.AddSingleton<IEventStoreFactory, EventStoreFactory>();
-        services.AddSingleton<IEventStoreService, EventStoreService>();
-        services.AddSingleton<IEventSourcingService, EventStoreService>();
+        var eventStoreOptions = section.Get<EventStoreOptions>();
+
+        services.AddEventSourcing(configuration, x =>
+        {
+            x.FrequencySnapshot = eventStoreOptions.FrequencySnapshot;
+            x.MainName = eventStoreOptions.MainName;
+            x.SnapshotSuffix = eventStoreOptions.SnapshotSuffix;
+        });
+        
+        services.TryAddSingleton<IEventStoreConnection, EventStoreConnection>();
+        services.TryAddSingleton<IEventStoreFactory, EventStoreFactory>();
+        services.TryAddSingleton<IEventStoreService, EventStoreService>();
+        services.TryAddSingleton<IEventSourcingService, EventStoreService>();
 
         return services;
     }

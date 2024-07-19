@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-
-namespace CodeDesignPlus.Net.EventStore.PubSub.Abstractions;
+﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Abstractions;
 
 /// <summary>
 /// This services is the example

@@ -13,6 +13,8 @@ global using CodeDesignPlus.Net.Kafka.Options;
 global using CodeDesignPlus.Net.Kafka.Serializer;
 global using CodeDesignPlus.Net.Kafka.Services;
 global using CodeDesignPlus.Net.PubSub.Abstractions;
+global using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+global using CodeDesignPlus.Net.PubSub.Extensions;
 global using CodeDesignPlus.Net.Serializers;
 global using Confluent.Kafka;
 global using Confluent.Kafka.Extensions.Diagnostics;

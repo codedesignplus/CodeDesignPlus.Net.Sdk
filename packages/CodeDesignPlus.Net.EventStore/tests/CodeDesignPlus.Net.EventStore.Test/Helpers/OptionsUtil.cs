@@ -4,6 +4,19 @@ namespace CodeDesignPlus.Net.EventStore.Test.Helpers;
 
 public static class OptionsUtil
 {
+    public static readonly CoreOptions CoreOptions = new()
+    {
+        AppName = "xunit-event-store",
+        Description = "The xunit test for the event store library",
+        Version = "v1",
+        Business = "CodeDesignPlus",
+        Contact = new()
+        {
+            Name = "CodeDesignPlus",
+            Email = "CodeDesignPlus@outlook.com"
+        }
+    };
+
     public static readonly EventStoreOptions EventStoreOptions = new()
     {
         Servers = new Dictionary<string, Server>()

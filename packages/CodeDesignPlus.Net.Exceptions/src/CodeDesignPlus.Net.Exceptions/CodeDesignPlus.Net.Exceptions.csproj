@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{A8FD24D7-B4D0-416A-B6B5-2593DBCC8140}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
 		<Authors>CodeDesignPlus</Authors>

@@ -35,13 +35,10 @@ public static class OptionsUtil
     public static RedisPubSubOptions RedisPubSubOptions(bool useQueue) => new()
     {
         Enable = true,
-        PubSub = new()
-        {
-            UseQueue = useQueue,
-            EnableDiagnostic = true,
-            RegisterAutomaticHandlers = true,
-            SecondsWaitQueue = 5
-        }
+        UseQueue = useQueue,
+        EnableDiagnostic = true,
+        RegisterAutomaticHandlers = true,
+        SecondsWaitQueue = 5
     };
 
     public static object AppSettings => new

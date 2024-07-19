@@ -1,12 +1,4 @@
-﻿using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.PubSub.Exceptions;
-using CodeDesignPlus.Net.EventStore.PubSub.Services;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace CodeDesignPlus.Net.EventStore.PubSub.Extensions;
+﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -38,8 +30,15 @@ public static class ServiceCollectionExtensions
 
         if (options.Enabled)
         {
+            services.AddEventStore(configuration);
+            services.AddPubSub(configuration, x => {
+                x.EnableDiagnostic = options.EnableDiagnostic;
+                x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
+                x.SecondsWaitQueue = options.SecondsWaitQueue;
+                x.UseQueue = options.UseQueue;
+            });
             services.TryAddSingleton<IMessage, EventStorePubSubService>();
-            services.AddSingleton<IEventStorePubSubService, EventStorePubSubService>();
+            services.TryAddSingleton<IEventStorePubSubService, EventStorePubSubService>();
         }
 
         return services;

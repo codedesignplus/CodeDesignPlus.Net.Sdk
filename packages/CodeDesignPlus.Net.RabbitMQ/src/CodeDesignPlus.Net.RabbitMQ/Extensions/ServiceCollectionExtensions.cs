@@ -1,12 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
-using CodeDesignPlus.Net.RabbitMQ.Exceptions;
-using CodeDesignPlus.Net.RabbitMQ.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
-namespace CodeDesignPlus.Net.RabbitMQ.Extensions;
+﻿namespace CodeDesignPlus.Net.RabbitMQ.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -38,9 +30,16 @@ public static class ServiceCollectionExtensions
 
         if (options.Enable)
         {
+            services.AddPubSub(configuration, x =>
+            {
+                x.EnableDiagnostic = options.EnableDiagnostic;
+                x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
+                x.SecondsWaitQueue = options.SecondsWaitQueue;
+                x.UseQueue = options.UseQueue;
+            });
             services.TryAddSingleton<IMessage, RabbitPubSubService>();
-            services.AddSingleton<IRabbitPubSubService, RabbitPubSubService>();
-            services.AddSingleton<IRabbitConnection, RabbitConnection>();
+            services.TryAddSingleton<IRabbitPubSubService, RabbitPubSubService>();
+            services.TryAddSingleton<IRabbitConnection, RabbitConnection>();
         }
 
         return services;

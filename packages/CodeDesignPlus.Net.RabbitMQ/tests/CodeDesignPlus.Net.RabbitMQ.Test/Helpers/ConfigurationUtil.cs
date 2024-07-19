@@ -30,6 +30,7 @@ public static class ConfigurationUtil
     {
         return GetConfiguration(new
         {
+            Core = CoreOptions,
             RabbitMQ = RabbitMQOptions
         });
     }

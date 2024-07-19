@@ -52,6 +52,7 @@ public class ServiceCollectionExtensionsTest
         // Arrange
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
+            Core = OptionsUtil.CoreOptions,
             EventStore = OptionsUtil.EventStoreOptions
         });
 
@@ -74,6 +75,7 @@ public class ServiceCollectionExtensionsTest
         // Arrange
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
+            Core = OptionsUtil.CoreOptions,
             EventStore = OptionsUtil.EventStoreOptions
         });
 

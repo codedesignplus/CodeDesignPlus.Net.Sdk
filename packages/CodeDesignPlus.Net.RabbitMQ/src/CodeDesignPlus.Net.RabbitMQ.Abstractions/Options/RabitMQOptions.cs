@@ -3,12 +3,12 @@
 /// <summary>
 /// Options to setting of the RabbitMQ
 /// </summary>
-public class RabbitMQOptions : IValidatableObject
+public class RabbitMQOptions : PubSubOptions, IValidatableObject
 {
     /// <summary>
     /// Name of the setions used in the appsettings
     /// </summary>
-    public static readonly string Section = "RabbitMQ";
+    public static new readonly string Section = "RabbitMQ";
 
     /// <summary>
     /// Get or sets the Enable

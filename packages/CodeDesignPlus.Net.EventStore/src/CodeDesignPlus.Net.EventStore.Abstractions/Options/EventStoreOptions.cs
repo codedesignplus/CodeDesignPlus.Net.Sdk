@@ -3,12 +3,12 @@
 /// <summary>
 /// Options to setting of the EventStore
 /// </summary>
-public class EventStoreOptions : IValidatableObject
+public class EventStoreOptions : EventSourcingOptions,  IValidatableObject
 {
     /// <summary>
     /// Name of the setions used in the appsettings
     /// </summary>
-    public static readonly string Section = "EventStore";
+    public static new readonly string Section = "EventStore";
 
     /// <summary>
     /// Gets or sets the collection of EventStore servers (nodes) to which the application can connect.

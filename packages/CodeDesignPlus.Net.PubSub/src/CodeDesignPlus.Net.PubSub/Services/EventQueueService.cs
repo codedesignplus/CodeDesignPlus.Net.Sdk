@@ -8,7 +8,7 @@ public class EventQueueService : IEventQueueService
     private readonly PubSubOptions options;
     private readonly IActivityService activityService;
 
-    public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IMessage message, IActivityService activityService)
+    public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IMessage message, IActivityService activityService = null)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(options);

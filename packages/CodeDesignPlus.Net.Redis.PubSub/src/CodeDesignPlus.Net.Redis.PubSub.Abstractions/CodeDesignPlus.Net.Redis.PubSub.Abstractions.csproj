@@ -1,5 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+    <ProjectGuid>{917F303B-52CF-4731-A84A-29D5F859F110}</ProjectGuid>
 		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>

@@ -175,7 +175,7 @@ public class EventQueueServiceTest
     }
 
     [Fact]
-    public void DequeueAsync_UnhandledException_WriteError()
+    public async Task DequeueAsync_UnhandledException_WriteError()
     {
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
@@ -192,6 +192,8 @@ public class EventQueueServiceTest
 
         // Act
         _ = Task.Run(() => eventQueueService.DequeueAsync(cancellationTokenSource.Token));
+
+        await Task.Delay(TimeSpan.FromSeconds(2));
 
         // Assert
         loggerMock.VerifyLogging("Error processing event.", LogLevel.Error, Times.AtLeastOnce());

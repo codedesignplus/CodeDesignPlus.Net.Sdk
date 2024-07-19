@@ -31,19 +31,25 @@ public static class ServiceCollectionExtensions
 
         if (options.Enable)
         {
+            services.AddPubSub(configuration, x =>
+            {
+                x.EnableDiagnostic = options.EnableDiagnostic;
+                x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
+                x.SecondsWaitQueue = options.SecondsWaitQueue;
+                x.UseQueue = options.UseQueue;
+            });
             services.TryAddSingleton<IMessage, KafkaPubSub>();
-            services.AddSingleton<IKafkaPubSub, KafkaPubSub>();
+            services.TryAddSingleton<IKafkaPubSub, KafkaPubSub>();
 
-            services.AddSingleton(x =>
+            services.TryAddSingleton(x =>
             {
                 var producerBuilder = new ProducerBuilder<string, IDomainEvent>(options.ProducerConfig);
 
-                producerBuilder.SetValueSerializer(new Serializer.JsonSystemTextSerializer<IDomainEvent>());
+                producerBuilder.SetValueSerializer(new JsonSystemTextSerializer<IDomainEvent>());
 
                 return producerBuilder.BuildWithInstrumentation();
             });
         }
-
 
         return services;
     }

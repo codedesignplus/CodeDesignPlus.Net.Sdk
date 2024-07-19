@@ -85,7 +85,7 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 
-        _ = Task.Run(() => pubSub.PublishAsync([@event], CancellationToken.None));
+        await pubSub.PublishAsync([@event], CancellationToken.None);
 
         UserCreatedEvent? userEvent;
 

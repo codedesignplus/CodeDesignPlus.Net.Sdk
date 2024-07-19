@@ -25,9 +25,7 @@ public class Startup(IConfiguration configuration)
                     .UsesScopes();
             })
             .AddCore(this.Configuration)
-            .AddPubSub(this.Configuration)
             .AddSingleton<IMemoryService>(x => MemoryService)
-            .AddEventSourcing(this.Configuration)
             .AddEventStore(this.Configuration)
             .AddEventStorePubSub(this.Configuration);
     }

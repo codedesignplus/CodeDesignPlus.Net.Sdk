@@ -3,12 +3,12 @@
 /// <summary>
 /// Options to setting of the Kafka
 /// </summary>
-public class KafkaOptions
+public class KafkaOptions: PubSubOptions
 {
     /// <summary>
     /// Name of the setions used in the appsettings
     /// </summary>
-    public static readonly string Section = "Kafka";
+    public static new readonly string Section = "Kafka";
 
     /// <summary>
     /// Get or sets the Enable

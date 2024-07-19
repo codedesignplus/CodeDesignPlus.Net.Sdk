@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.Abstractions;
+using CodeDesignPlus.Net.EventStore.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.PubSub.Abstractions;
@@ -242,16 +243,7 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
                     Email = "codedesignplus@outlook.com"
                 }
             },
-            PubSub = new
-            {
-                EnableQueue = enableQueue,
-            },
-            EventSourcing = new
-            {
-                MainName = "aggregate",
-                SnapshotSuffix = "snapshot"
-            },
-            EventStore = new
+            EventStore = new EventStoreOptions()
             {
                 Servers = new Dictionary<string, Server>()
                 {
@@ -265,11 +257,11 @@ public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
                     }
                 }
             },
-            EventStorePubSub = new
+            EventStorePubSub = new EventStorePubSubOptions
             {
                 Enabled = true,
                 Group = "testGroup",
-                ListenerEvents = true
+                UseQueue = enableQueue 
             }
         });
 

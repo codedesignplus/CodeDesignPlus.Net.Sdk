@@ -1,14 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.EventStore.Abstractions;
-using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using EventStore.ClientAPI;
-using EventStore.ClientAPI.SystemData;
-using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Serializers;
-using System.Text;
-
-namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
+﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
 
 public class EventStorePubSubService : IEventStorePubSubService
 {

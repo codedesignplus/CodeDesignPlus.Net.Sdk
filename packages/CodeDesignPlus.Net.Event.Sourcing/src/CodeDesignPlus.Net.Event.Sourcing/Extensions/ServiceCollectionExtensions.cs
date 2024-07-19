@@ -26,6 +26,28 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
+        services.AddCore(configuration);
+
+        return services;
+    }
+
+    public static IServiceCollection AddEventSourcing(this IServiceCollection services, IConfiguration configuration, Action<EventSourcingOptions> setupOptions)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(setupOptions);
+
+        var section = new EventSourcingOptions();
+
+        setupOptions(section);
+
+        services
+            .AddOptions<EventSourcingOptions>()
+            .Configure(setupOptions)
+            .ValidateDataAnnotations();
+
+        services.AddCore(configuration);
+
         return services;
     }
 

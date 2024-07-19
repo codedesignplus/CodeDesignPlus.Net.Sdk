@@ -1,8 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
-using RabbitMQ.Client;
-
-namespace CodeDesignPlus.Net.RabbitMQ.Services
+﻿namespace CodeDesignPlus.Net.RabbitMQ.Services
 {
     public class RabbitConnection : IRabbitConnection
     {

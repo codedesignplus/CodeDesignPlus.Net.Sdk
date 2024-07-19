@@ -1,16 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
-using CodeDesignPlus.Net.RabbitMQ.Attributes;
-using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Serializers;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System.Reflection;
-using System.Text;
-
-namespace CodeDesignPlus.Net.RabbitMQ.Services;
+﻿namespace CodeDesignPlus.Net.RabbitMQ.Services;
 
 public class RabbitPubSubService : IRabbitPubSubService, IDisposable
 {

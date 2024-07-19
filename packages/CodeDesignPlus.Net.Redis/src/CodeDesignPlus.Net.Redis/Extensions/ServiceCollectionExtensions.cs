@@ -30,7 +30,7 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IRedisService, RedisService>();
         services.TryAddSingleton<IRedisServiceFactory, RedisServiceFactory>();
 
-        services.AddSingleton((serviceProvider) =>
+        services.TryAddSingleton((serviceProvider) =>
         {
             var connection = serviceProvider.GetService<IRedisServiceFactory>().Create(FactoryConst.RedisCore).Connection;
 

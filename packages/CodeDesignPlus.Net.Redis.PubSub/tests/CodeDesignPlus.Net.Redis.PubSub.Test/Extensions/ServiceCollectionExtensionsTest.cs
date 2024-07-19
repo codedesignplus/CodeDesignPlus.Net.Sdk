@@ -86,9 +86,9 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(value);
 
         Assert.Equal(redisPubSubOptions.Enable, value.Enable);
-        Assert.Equal(redisPubSubOptions.PubSub.UseQueue, value.PubSub.UseQueue);
-        Assert.Equal(redisPubSubOptions.PubSub.EnableDiagnostic, value.PubSub.EnableDiagnostic);
-        Assert.Equal(redisPubSubOptions.PubSub.RegisterAutomaticHandlers, value.PubSub.RegisterAutomaticHandlers);
-        Assert.Equal(redisPubSubOptions.PubSub.SecondsWaitQueue, value.PubSub.SecondsWaitQueue);
+        Assert.Equal(redisPubSubOptions.UseQueue, value.UseQueue);
+        Assert.Equal(redisPubSubOptions.EnableDiagnostic, value.EnableDiagnostic);
+        Assert.Equal(redisPubSubOptions.RegisterAutomaticHandlers, value.RegisterAutomaticHandlers);
+        Assert.Equal(redisPubSubOptions.SecondsWaitQueue, value.SecondsWaitQueue);
     }
 }

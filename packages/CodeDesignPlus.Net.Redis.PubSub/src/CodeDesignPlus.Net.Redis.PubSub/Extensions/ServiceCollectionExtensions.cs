@@ -30,14 +30,13 @@ public static class ServiceCollectionExtensions
 
         if (options.Enable)
         {
-            services.AddCore(configuration);
             services.AddRedis(configuration);
-            services.AddPubSub(x =>
+            services.AddPubSub(configuration, x =>
             {
-                x.UseQueue = options.PubSub.UseQueue;
-                x.EnableDiagnostic = options.PubSub.EnableDiagnostic;
-                x.RegisterAutomaticHandlers = options.PubSub.RegisterAutomaticHandlers;
-                x.SecondsWaitQueue = options.PubSub.SecondsWaitQueue;
+                x.UseQueue = options.UseQueue;
+                x.EnableDiagnostic = options.EnableDiagnostic;
+                x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
+                x.SecondsWaitQueue = options.SecondsWaitQueue;
             });
             services.TryAddSingleton<IMessage, RedisPubSubService>();
             services.TryAddSingleton<IRedisPubSubService, RedisPubSubService>();
