@@ -6,6 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
+using CodeDesignPlus.Net.Generator.Extensions;
+using CodeDesignPlus.Net.Generator.Core;
+
 namespace CodeDesignPlus.Net.Generator
 {
     [Generator]
@@ -27,15 +30,12 @@ namespace CodeDesignPlus.Net.Generator
             var assembly = context.Compilation.References
                 .Select(r => context.Compilation.GetAssemblyOrModuleSymbol(r))
                 .OfType<IAssemblySymbol>()
-                .FirstOrDefault(a => a?.Name == applicationReference.Name);
-
-            if (assembly is null)
-                return;
+                .First(x => x.Name == applicationReference.Name);
 
             var allTypes = assembly.GlobalNamespace.GetNamespaceTypes().ToList();
 
             var commands = allTypes
-                .Where(t => t.GetAttributes().Any(attr => attr.AttributeClass?.Name == "DtoGeneratorAttribute"))
+                .Where(t => t.GetAttributes().Any(attr => attr.AttributeClass.Name == "DtoGeneratorAttribute"))
                 .ToList();
 
             GenerateDtos(context, commands);
@@ -47,7 +47,7 @@ namespace CodeDesignPlus.Net.Generator
 
             foreach (var command in commands)
             {
-                var dtoName = command.ContainingType != null ? $"{command.ContainingType.Name}Dto" : Regex.Replace(command.Name, PATTERN, "Dto");
+                var dtoName = command.ContainingType != null ? $"{command.ContainingType.Name}Dto" : Regex.Replace(command.Name, PATTERN, "Dto", RegexOptions.None, System.TimeSpan.FromSeconds(1));
 
                 codeBuilder.AppendLine($"namespace CodeDesignPlus.Microservice.Api.Dtos");
                 codeBuilder.AppendLine("{");

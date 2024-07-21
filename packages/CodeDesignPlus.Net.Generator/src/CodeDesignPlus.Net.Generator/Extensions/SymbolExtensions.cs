@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 
-namespace CodeDesignPlus.Net.Generator
+namespace CodeDesignPlus.Net.Generator.Extensions
 {
 
     public static class SymbolExtensions
@@ -32,11 +32,6 @@ namespace CodeDesignPlus.Net.Generator
             foreach (var nestedType in type.GetTypeMembers())
             {
                 yield return nestedType;
-
-                foreach (var childNestedType in nestedType.GetAllNestedTypes())
-                {
-                    yield return childNestedType;
-                }
             }
         }
 

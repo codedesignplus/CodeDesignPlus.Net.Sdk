@@ -2,6 +2,6 @@
 
 namespace CodeDesignPlus.Net.Generator.Attributes
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = false)]
     public class DtoGeneratorAttribute : Attribute { }
 }
