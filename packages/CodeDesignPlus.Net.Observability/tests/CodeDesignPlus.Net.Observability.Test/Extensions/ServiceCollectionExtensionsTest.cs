@@ -1,4 +1,7 @@
-﻿namespace CodeDesignPlus.Net.Observability.Extensions;
+﻿using Moq;
+using Microsoft.Extensions.Hosting;
+
+namespace CodeDesignPlus.Net.Observability.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -9,7 +12,7 @@ public class ServiceCollectionExtensionsTest
         ServiceCollection? serviceCollection = null;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddObservability(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddObservability(null, null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
@@ -22,10 +25,24 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddObservability(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddObservability(configuration: null, environment: null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
+    }
+
+    [Fact]
+    public void AddObservability_EnvironmentIsNull_ArgumentNullException()
+    {
+        // Arrange
+        var serviceCollection = new ServiceCollection();
+        var options = xUnit.Helpers.ConfigurationUtil.GetConfiguration(Test.Helpers.ConfigurationUtil.ObservabilityOptions);
+
+        // Act
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddObservability(options, null));
+
+        // Assert
+        Assert.Equal("Value cannot be null. (Parameter 'environment')", exception.Message);
     }
 
     [Fact]
@@ -33,59 +50,14 @@ public class ServiceCollectionExtensionsTest
     {
         // Arrange
         var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration(new object() { });
+        var environment = Mock.Of<IHostEnvironment>();
 
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<ObservabilityException>(() => serviceCollection.AddObservability(configuration));
+        var exception = Assert.Throws<ObservabilityException>(() => serviceCollection.AddObservability(configuration, environment));
 
         // Assert
         Assert.Equal($"The section {ObservabilityOptions.Section} is required.", exception.Message);
     }
-
-    // [Fact]
-    // public void AddObservability_CheckServices_Success()
-    // {
-    //     // Arrange
-    //     var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration();
-
-    //     var serviceCollection = new ServiceCollection();
-
-    //     // Act
-    //     serviceCollection.AddObservability(configuration);
-
-    //     // Assert
-    //     var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IObservabilityService));
-
-    //     Assert.NotNull(libraryService);
-    //     Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-    //     Assert.Equal(typeof(ObservabilityService), libraryService.ImplementationType);
-    // }
-
-    // [Fact]
-    // public void AddObservability_SameOptions_Success()
-    // {
-    //     // Arrange
-    //     var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration();
-
-    //     var serviceCollection = new ServiceCollection();
-
-    //     // Act
-    //     serviceCollection.AddObservability(configuration);
-
-    //     // Assert
-    //     var serviceProvider = serviceCollection.BuildServiceProvider();
-
-    //     var options = serviceProvider.GetService<IOptions<ObservabilityOptions>>();
-    //     var value = options?.Value;
-
-    //     Assert.NotNull(options);
-    //     Assert.NotNull(value);
-
-    //     Assert.Equal(ConfigurationUtil.ObservabilityOptions.Name, value.Name);
-    //     Assert.Equal(ConfigurationUtil.ObservabilityOptions.Email, value.Email);
-    //     Assert.Equal(ConfigurationUtil.ObservabilityOptions.Enable, value.Enable);
-    // }
-
-
 }

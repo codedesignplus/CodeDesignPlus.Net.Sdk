@@ -19,6 +19,7 @@
         "net.exceptions",
         "net.rabbitmq",
         "net.serializers",
-        "net.generator"
+        "net.generator",
+        "net.observability"
     ]
 }

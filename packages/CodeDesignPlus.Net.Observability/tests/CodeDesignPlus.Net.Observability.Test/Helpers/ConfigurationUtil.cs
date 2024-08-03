@@ -5,7 +5,21 @@ public static class ConfigurationUtil
     public static readonly ObservabilityOptions ObservabilityOptions = new()
     {
         Enable = true,
-        Name = nameof(Abstractions.Options.ObservabilityOptions.Name),
-        Email = $"{nameof(Abstractions.Options.ObservabilityOptions.Name)}@codedesignplus.com"
+        ServerOtel = new Uri("http://localhost:4317"),
+        Metrics = new Metrics()
+        {
+            Enable = true,
+            AspNetCore = true
+        },
+        Trace = new Trace()
+        {
+            Enable = true,
+            AspNetCore = true,
+            CodeDesignPlusSdk = true,
+            Redis = true,
+            Kafka = true,
+            SqlClient = true,
+            GrpcClient = true
+        }
     };
 }

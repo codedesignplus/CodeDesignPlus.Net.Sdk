@@ -17,18 +17,9 @@ public class ObservabilityOptions : IValidatableObject
     /// Get or sets the Enable
     /// </summary>
     public bool Enable { get; set; }
-    /// <summary>
-    /// Gets or sets the name
-    /// </summary>
-    [Required]
-    public string Name { get; set; }
-    /// <summary>
-    /// Gets or sets the name
-    /// </summary>
-    [EmailAddress]
-    public string Email { get; set; }
-
-    public Uri Endpoint { get; set; }
+    public Uri ServerOtel { get; set; }
+    public Metrics Metrics { get; set; }
+    public Trace Trace { get; set; }
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -39,16 +30,10 @@ public class ObservabilityOptions : IValidatableObject
     {
         var results = new List<ValidationResult>();
 
-        if (this.Enable)
+        if(Enable)
         {
-            if (string.IsNullOrEmpty(Email))
-                results.Add(new ValidationResult($"The {nameof(this.Email)} field is required."));
-
-            Validator.TryValidateProperty(
-                this.Email,
-                new ValidationContext(this, null, null) { MemberName = nameof(this.Email) },
-                results
-            );
+            if (ServerOtel is null)
+                results.Add(new ValidationResult("The ServerOtel field is required.", [nameof(ServerOtel)]));
         }
 
         return results;

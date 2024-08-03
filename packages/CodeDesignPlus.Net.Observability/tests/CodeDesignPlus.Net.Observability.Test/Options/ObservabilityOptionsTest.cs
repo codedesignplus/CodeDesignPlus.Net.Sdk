@@ -10,7 +10,23 @@ public class ObservabilityOptionsTest
         // Arrange
         var options = new ObservabilityOptions()
         {
-            Name = Guid.NewGuid().ToString()
+            Enable = true,
+            ServerOtel = new Uri("http://localhost:4317"),
+            Metrics = new Metrics()
+            {
+                Enable = true,
+                AspNetCore = true
+            },
+            Trace = new Trace()
+            {
+                Enable = true,
+                AspNetCore = true,
+                CodeDesignPlusSdk = true,
+                Redis = true,
+                Kafka = true,
+                SqlClient = true,
+                GrpcClient = true
+            }
         };
 
         // Act
@@ -21,51 +37,19 @@ public class ObservabilityOptionsTest
     }
 
     [Fact]
-    public void ObservabilityOptions_NameIsRequired_FailedValidation()
-    {
-        // Arrange
-        var options = new ObservabilityOptions();
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
-    }
-
-    [Fact]
-    public void ObservabilityOptions_EmailIsRequired_FailedValidation()
+    public void ObservabilityOptions_ServerOtelIsRequired_FailedValidation()
     {
         // Arrange
         var options = new ObservabilityOptions()
         {
             Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = null
+            ServerOtel = null
         };
 
         // Act
         var results = options.Validate();
 
         // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
-    }
-
-    [Fact]
-    public void ObservabilityOptions_EmailIsInvalid_FailedValidation()
-    {
-        // Arrange
-        var options = new ObservabilityOptions()
-        {
-            Enable = true,
-            Name = Guid.NewGuid().ToString(),
-            Email = "asdfasdfsdfgs"
-        };
-
-        // Act
-        var results = options.Validate();
-
-        // Assert
-        Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
+        Assert.Contains(results, x => x.ErrorMessage == "The ServerOtel field is required.");
     }
 }
