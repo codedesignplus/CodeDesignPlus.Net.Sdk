@@ -30,11 +30,8 @@ public class ObservabilityOptions : IValidatableObject
     {
         var results = new List<ValidationResult>();
 
-        if(Enable)
-        {
-            if (ServerOtel is null)
-                results.Add(new ValidationResult("The ServerOtel field is required.", [nameof(ServerOtel)]));
-        }
+        if (Enable && ServerOtel is null)
+            results.Add(new ValidationResult("The ServerOtel field is required.", [nameof(ServerOtel)]));
 
         return results;
     }

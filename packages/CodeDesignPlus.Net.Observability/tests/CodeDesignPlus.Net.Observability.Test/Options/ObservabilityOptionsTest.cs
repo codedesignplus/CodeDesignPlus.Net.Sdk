@@ -52,4 +52,20 @@ public class ObservabilityOptionsTest
         // Assert
         Assert.Contains(results, x => x.ErrorMessage == "The ServerOtel field is required.");
     }
+
+    [Fact]
+    public void ObservabilityOptions_IsNotEnable_SuccessValidation()
+    {
+        // Arrange
+        var options = new ObservabilityOptions()
+        {
+            Enable = false
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Empty(results);
+    }
 }
