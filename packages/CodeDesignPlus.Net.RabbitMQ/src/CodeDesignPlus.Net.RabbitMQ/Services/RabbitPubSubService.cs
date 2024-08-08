@@ -1,36 +1,31 @@
 ﻿namespace CodeDesignPlus.Net.RabbitMQ.Services;
 
-public class RabbitPubSubService : IRabbitPubSubService, IDisposable
+public class RabbitPubSubService : IRabbitPubSubService
 {
     private readonly ILogger<RabbitPubSubService> logger;
     private readonly IServiceProvider serviceProvider;
     private readonly IDomainEventResolverService domainEventResolverService;
-    private readonly IRabbitConnection rabitConnection;
     private readonly CoreOptions coreOptions;
+    private readonly IChannelProvider channelProvider;
     private readonly Dictionary<string, object> argumentsQueue;
-    private bool disposed = false;
-    private string consumerTag;
-    private readonly IModel channel;
 
 
-    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IRabbitConnection rabitConnection, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions)
+    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IChannelProvider channelProvider, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(domainEventResolverService);
-        ArgumentNullException.ThrowIfNull(rabitConnection);
         ArgumentNullException.ThrowIfNull(coreOptions);
         ArgumentNullException.ThrowIfNull(rabbitMQOptions);
+        ArgumentNullException.ThrowIfNull(channelProvider);
 
         this.logger = logger;
         this.serviceProvider = serviceProvider;
         this.domainEventResolverService = domainEventResolverService;
-        this.rabitConnection = rabitConnection;
         this.coreOptions = coreOptions.Value;
+        this.channelProvider = channelProvider;
 
         this.argumentsQueue = rabbitMQOptions.Value.QueueArguments.GetArguments();
-
-        this.channel = this.rabitConnection.Connection.CreateModel();
 
         this.logger.LogInformation("RabitPubSubService initialized.");
     }
@@ -54,9 +49,9 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
 
     private Task PrivatePublishAsync(IDomainEvent @event)
     {
-        var exchangeName = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
+        var channel = this.channelProvider.GetChannelPublish(@event.GetType());
 
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
+        var exchangeName = this.channelProvider.ExchangeDeclare(@event.GetType());
 
         var message = JsonSerializer.Serialize(@event);
 
@@ -88,26 +83,30 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        var channel = this.channelProvider.GetChannelConsumer<TEvent, TEventHandler>();
+
         var queueNameAttribute = typeof(TEventHandler).GetCustomAttribute<QueueNameAttribute>();
         var queueName = queueNameAttribute.GetQueueName(coreOptions.AppName, coreOptions.Business, coreOptions.Version);
 
         var exchangeName = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
 
-        ConfigQueue(queueName, exchangeName);
-        ConfigQueueDlx(queueName, exchangeName);
+        ConfigQueue(channel, queueName, exchangeName);
+        ConfigQueueDlx(channel, queueName, exchangeName);
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
         var eventConsumer = new EventingBasicConsumer(channel);
 
-        eventConsumer.Received += async (_, ea) => await RecivedEvent<TEvent, TEventHandler>(ea, cancellationToken);
+        eventConsumer.Received += async (_, ea) => await RecivedEvent<TEvent, TEventHandler>(channel, ea, cancellationToken);
 
-        this.consumerTag = channel.BasicConsume(queue: queueName, autoAck: false, consumer: eventConsumer);
+        var consumerTag = channel.BasicConsume(queue: queueName, autoAck: false, consumer: eventConsumer);
+
+        this.channelProvider.SetConsumerTag<TEvent, TEventHandler>(consumerTag);
 
         return Task.CompletedTask;
     }
 
-    public async Task RecivedEvent<TEvent, TEventHandler>(BasicDeliverEventArgs eventArguments, CancellationToken cancellationToken)
+    public async Task RecivedEvent<TEvent, TEventHandler>(IModel channel, BasicDeliverEventArgs eventArguments, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -135,7 +134,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         }
     }
 
-    private void ConfigQueue(string queue, string exchangeName)
+    private void ConfigQueue(IModel channel, string queue, string exchangeName)
     {
         argumentsQueue["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName);
         channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
@@ -143,7 +142,7 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         channel.QueueBind(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 
-    private void ConfigQueueDlx(string queue, string exchangeName)
+    private static void ConfigQueueDlx(IModel channel, string queue, string exchangeName)
     {
         exchangeName = GetExchangeNameDlx(exchangeName);
         queue = GetQueueNameDlx(queue);
@@ -160,37 +159,15 @@ public class RabbitPubSubService : IRabbitPubSubService, IDisposable
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        var consumerTag = this.channelProvider.GetConsumerTag<TEvent, TEventHandler>();
+
         if (!string.IsNullOrEmpty(consumerTag))
         {
+            var channel = this.channelProvider.GetChannelConsumer<TEvent, TEventHandler>();
             channel.BasicCancel(consumerTag);
             logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);
         }
 
         return Task.CompletedTask;
-    }
-
-    protected virtual void Dispose(bool disposing)
-    {
-        if (!disposed)
-        {
-            if (disposing)
-            {
-                this.channel.Dispose();
-                this.rabitConnection.Dispose();
-            }
-
-            disposed = true;
-        }
-    }
-
-    public void Dispose()
-    {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
-
-    ~RabbitPubSubService()
-    {
-        Dispose(false);
     }
 }

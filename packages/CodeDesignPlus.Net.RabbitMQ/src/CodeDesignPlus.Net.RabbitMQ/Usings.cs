@@ -24,3 +24,5 @@ global using CodeDesignPlus.Net.Serializers;
 global using RabbitMQ.Client;
 global using RabbitMQ.Client.Events;
 
+global using System.Collections.Concurrent;
+global using CodeDesignPlus.Net.PubSub.Abstractions;

@@ -40,6 +40,8 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IMessage, RabbitPubSubService>();
             services.TryAddSingleton<IRabbitPubSubService, RabbitPubSubService>();
             services.TryAddSingleton<IRabbitConnection, RabbitConnection>();
+            services.TryAddSingleton<IChannelProvider, ChannelProvider>();
+            services.AddHostedService<InitializeBackgroundService>();
         }
 
         return services;

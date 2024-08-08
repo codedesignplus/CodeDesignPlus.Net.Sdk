@@ -46,13 +46,13 @@ public class RabbitPubSubServiceIntegrationTest : IClassFixture<RabbitMQContaine
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
         var domainEventResolverService = serviceProvider.GetRequiredService<IDomainEventResolverService>();
-        var rabbitConnection = serviceProvider.GetRequiredService<IRabbitConnection>();
+        var channelProvider = serviceProvider.GetRequiredService<IChannelProvider>();
         var coreOptions = serviceProvider.GetRequiredService<O.IOptions<CoreOptions>>();
         var rabbitMQOptions = serviceProvider.GetRequiredService<O.IOptions<RabbitMQOptions>>();
         this.memoryHandler = serviceProvider.GetRequiredService<IMemoryHandler>();
 
 
-        rabbitPubSubService = new RabbitPubSubService(loggerMock.Object, serviceProvider, domainEventResolverService, rabbitConnection, coreOptions, rabbitMQOptions);
+        rabbitPubSubService = new RabbitPubSubService(loggerMock.Object, serviceProvider, domainEventResolverService, channelProvider, coreOptions, rabbitMQOptions);
     }
 
     [Fact]
