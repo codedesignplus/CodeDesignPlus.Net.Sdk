@@ -94,7 +94,7 @@ public class KafkaPubSub : IKafkaPubSub
     {
         var topic = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
-        this.logger.LogInformation("{EventType} | Subscribing to Kafka topic {topic} ", typeof(TEvent).Name, topic);
+        this.logger.LogInformation("{EventType} | Subscribing to Kafka topic {Topic} ", typeof(TEvent).Name, topic);
 
         await WaitTopicCreatedAsync<TEvent>(topic, cancellationToken).ConfigureAwait(false);
 
@@ -121,10 +121,12 @@ public class KafkaPubSub : IKafkaPubSub
             if (attempt >= this.options.MaxAttempts)
             {
                 this.logger.LogWarning("{EventType} | The topic {Topic} does not exist after {MaxAttempts} attempts. Exiting.", typeof(TEvent).Name, topic, this.options.MaxAttempts);
-                return; // O manejar según sea apropiado (ej. lanzar una excepción)
+                
+                return; 
             }
 
             this.logger.LogInformation("{EventType} | The topic {Topic} does not exist, waiting for it to be created.", typeof(TEvent).Name, topic);
+
             await Task.Delay(1000, CancellationToken.None).ConfigureAwait(false);
         }
     }
@@ -144,7 +146,7 @@ public class KafkaPubSub : IKafkaPubSub
         {
             try
             {
-                this.logger.LogInformation("{EventType} | Listener the event {topic}", typeof(TEvent).Name, topic);
+                this.logger.LogInformation("{EventType} | Listener the event {Topic}", typeof(TEvent).Name, topic);
 
                 var value = consumer.Consume(cancellationToken);
 
@@ -152,20 +154,13 @@ public class KafkaPubSub : IKafkaPubSub
 
                 await eventHandler.HandleAsync(value.Message.Value, cancellationToken).ConfigureAwait(false);
 
-                this.logger.LogInformation("{EventType} | End Listener the event {topic}", typeof(TEvent).Name, topic);
-
-            }
-            catch (ConsumeException e)
-            {
-                this.logger.LogError(e, "{EventType} | An error occurred while consuming a Kafka message for event topic: {topic}", typeof(TEvent).Name, topic);
+                this.logger.LogInformation("{EventType} | End Listener the event {Topic}", typeof(TEvent).Name, topic);
             }
             catch (Exception e)
             {
-                this.logger.LogError(e, "{EventType} | An unexpected error occurred for topic: {topic}", typeof(TEvent).Name, topic);
+                this.logger.LogError(e, "{EventType} | An error occurred while consuming a Kafka message for event topic: {Topic}", typeof(TEvent).Name, topic);
             }
         }
-
-        this.logger.LogInformation("{EventType} | Kafka event listening has stopped for topic: {topic} due to cancellation request.", typeof(TEvent).Name, topic);
     }
 
     internal ConsumerBuilder<string, TEvent> GetConsumer<TEvent>() where TEvent : IDomainEvent

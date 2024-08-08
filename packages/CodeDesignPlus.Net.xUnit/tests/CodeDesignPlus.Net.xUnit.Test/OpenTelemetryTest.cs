@@ -72,7 +72,7 @@ public class OpenTelemetryTest : IClassFixture<OpenTelemetryContainer>
     }
 
     [Fact]
-    public async Task Temp()
+    public async Task CheckService()
     {
         var response = await client.GetAsync("/api/test");
 
