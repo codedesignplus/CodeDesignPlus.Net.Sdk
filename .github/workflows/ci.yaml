@@ -1,0 +1,150 @@
+name: Continuous Integration
+
+on:
+  push:
+    branches:
+      - main
+      - rc
+      - dev
+      - feature/*
+env:
+  IS_RELEASE: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
+  IS_RC: ${{ github.ref == 'refs/heads/rc' }}
+  IS_BETA: ${{ github.ref == 'refs/heads/dev' }}
+jobs:
+  build:
+    name: Build .Net
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      repository-projects: write
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: npm
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+    
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Restore Packages
+        run: pnpm run affected:restore
+
+      - name: Build Packages
+        run: npm run affected:build
+
+    #   - name: Lint
+    #     id: npm-lint
+    #     run: npm run lint
+
+    #   - name: Bundle
+    #     id: npm-bundle
+    #     run: npm run bundle
+
+    #   - name: Set Permissions Unit Test
+    #     run: |
+    #       echo $(pwd)
+    #       mkdir $(pwd)/__tests__/temp
+    #       mkdir $(pwd)/coverage
+    #       chmod -R 777 ${{github.workspace}}/__tests__
+    #       chmod -R 777 ${{github.workspace}}/coverage
+
+    #       git config --global user.email "codedesignplus@outlook.com"
+    #       git config --global user.name "CodeDesignPlus"
+    #       git config --global init.defaultBranch main
+          
+    #   - name: Test
+    #     id: npm-ci-test
+    #     run: npm run test
+
+    #   - name: Test Local Action
+    #     id: test-action
+    #     uses: ./
+    #     with:
+    #       folder: ${{github.workspace}}
+    #       release-branch: 'main'
+    #       release-candidate-branch: 'rc'
+    #       beta-branch: 'dev'
+    #       major-identifier: 'breaking'
+    #       minor-identifier: 'feat' 
+    #       prefix: 'v'
+    #       dir-affected: ./
+    #       previous-version: true
+    #       new-version: true
+
+    #   - name: Print Output
+    #     id: output
+    #     run: | 
+    #       echo Previous Tag "${{ steps.test-action.outputs.previous-tag }}"
+    #       echo Previous Version "${{ steps.test-action.outputs.previous-version }}"
+    #       echo Previous Version Prefix "${{ steps.test-action.outputs.previous-version-prefix }}"
+    #       echo New Version "${{steps.test-action.outputs.new-version}}"
+    #       echo New Version Prefix "${{steps.test-action.outputs.new-version-prefix}}"
+
+    #   - name: SonarCloud Scan
+    #     uses: SonarSource/sonarcloud-github-action@master
+    #     env:
+    #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+    #     with:
+    #       args: >
+    #         -Dsonar.projectVersion=${{ steps.test-action.outputs.new-version-prefix }}
+    #         -Dsonar.organization=codedesignplus
+    #         -Dsonar.projectKey=CodeDesignPlus.Actions.GitVersion.Key
+    #         -Dsonar.projectName=CodeDesignPlus.Actions.GitVersion
+    #         -Dsonar.test.exclusions=__tests__/**
+    #         -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+    #         -Dsonar.sources=src
+    #         -Dsonar.tests=__tests__
+
+    #   - name: SonarQube Quality Gate check
+    #     id: sonarqube-quality-gate-check
+    #     uses: sonarsource/sonarqube-quality-gate-action@master
+    #     timeout-minutes: 5
+    #     env:
+    #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #       SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+    #   - name: Push tag
+    #     id: push_tag
+    #     if: env.IS_RELEASE == 'true' || env.IS_RC == 'true' || env.IS_BETA == 'true'
+    #     uses: mathieudutour/github-tag-action@v6.1
+    #     with:
+    #       custom_tag: ${{ steps.test-action.outputs.new-version }}
+    #       github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    #   - name: Build Changelog
+    #     if: env.IS_RELEASE == 'true' || env.IS_RC == 'true'
+    #     id: build_changelog
+    #     uses: mikepenz/release-changelog-builder-action@v4
+    #     with:
+    #       configuration: "${{ github.workspace }}/.github/settings/configuration.json"          
+    #       fromTag: ${{ steps.test-action.outputs.previous-version-prefix }}
+    #       toTag: ${{ steps.test-action.outputs.new-version-prefix }}
+    #     env:
+    #       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+    #   - name: Create GitHub Release
+    #     if: env.IS_RELEASE == 'true' || env.IS_RC == 'true'
+    #     uses: mikepenz/action-gh-release@v1
+    #     with:
+    #       token: ${{ secrets.GITHUB_TOKEN }}
+    #       tag_name: ${{ steps.test-action.outputs.new-version-prefix }}
+    #       name: "actions/codedesignplus-git-version@${{ steps.test-action.outputs.new-version-prefix }}"
+    #       body: ${{ steps.build_changelog.outputs.changelog }} # esto usará el changelog generado anteriormente
+    #       prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'dev') }}
+          
