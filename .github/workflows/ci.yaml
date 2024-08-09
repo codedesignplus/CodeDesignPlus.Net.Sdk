@@ -30,15 +30,31 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 8
-    
+            
+      - name: Setup .NET SDK 🚧
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Sonar Scanner .Net
+        run: dotnet tool update -g dotnet-sonarscanner
+  
       - name: Install Dependencies
         run: pnpm install
 
-      - name: Restore Packages
-        run: pnpm run affected:restore
+      - name: Run Affected
+        run: |
+          if [[ "${{ env.IS_RELEASE }}" == "true" ]]; then
+            pnpm run affected
+          else
+            pnpm run affected
+          fi
 
-      - name: Build Packages
-        run: npm run affected:build
+    #   - name: Restore Packages
+    #     run: pnpm run affected:restore
+
+    #   - name: Build Packages
+    #     run: npm run affected:build
 
     #   - name: Lint
     #     id: npm-lint

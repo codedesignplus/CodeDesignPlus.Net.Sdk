@@ -2,8 +2,8 @@
   "name": "codedesignplus",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {
-    "affected": "npx nx show projects --affected --head=HEAD --base=remotes/origin/main",
+  "scripts": {    
+    "affected": "npx nx show projects --affected --head=HEAD --base=remotes/origin/main~1",
     "affected:restore": "npx nx affected --target restore",
     "affected:format": "npx nx affected --target format",
     "affected:build": "npx nx affected --target build",
