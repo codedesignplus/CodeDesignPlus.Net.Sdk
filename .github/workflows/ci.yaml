@@ -57,8 +57,8 @@ jobs:
       - name: .Net Pack
         run: npm run affected:pack
 
-      - name: .Net Push
-        run: npm run affected:push
+    #   - name: .Net Push
+    #     run: npm run affected:push
         
       - name: SemVer
         id: git-semver
