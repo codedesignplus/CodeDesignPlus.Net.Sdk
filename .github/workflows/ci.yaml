@@ -43,18 +43,13 @@ jobs:
         run: pnpm install
 
       - name: Run Affected
-        run: |
-          if [[ "${{ env.IS_RELEASE }}" == "true" ]]; then
-            pnpm run affected
-          else
-            pnpm run affected
-          fi
+        run: pnpm run affected
 
-    #   - name: Restore Packages
-    #     run: pnpm run affected:restore
+      - name: Restore Packages
+        run: pnpm run affected:restore
 
-    #   - name: Build Packages
-    #     run: npm run affected:build
+      - name: Build Packages
+        run: npm run affected:build
 
     #   - name: Lint
     #     id: npm-lint
