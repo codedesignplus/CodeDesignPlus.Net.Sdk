@@ -37,6 +37,13 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Install Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          legacy: true
+             
+      - run: docker-compose --version
+
       - name: Install Sonar Scanner .Net
         run: dotnet tool update -g dotnet-sonarscanner
   
