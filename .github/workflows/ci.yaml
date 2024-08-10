@@ -1,6 +1,7 @@
 name: Continuous Integration
 
 on:
+  workflow_dispatch:
   push:
     branches:
       - main
@@ -60,7 +61,7 @@ jobs:
     #   - name: .Net Push
     #     run: npm run affected:push
         
-      - name: SemVer
+      - name: SemVer 
         id: git-semver
         uses: codedesignplus/semver-git-version@v0.1.10
         with:
