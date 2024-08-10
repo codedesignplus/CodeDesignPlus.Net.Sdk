@@ -12,6 +12,7 @@ env:
   IS_RELEASE: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
   IS_RC: ${{ github.ref == 'refs/heads/rc' }}
   IS_BETA: ${{ github.ref == 'refs/heads/dev' }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 jobs:
   build:
     name: Build .Net
