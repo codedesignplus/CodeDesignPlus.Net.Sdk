@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{9D92DD5E-362D-41D3-966E-8F79913F50FD}</ProjectGuid>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<Authors>CodeDesignPlus</Authors>
+		<Description>{Description}</Description>
+		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageId>CodeDesignPlus.Net.Observability</PackageId>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</PackageProjectUrl>
+		<PackageTags>{tags}</PackageTags>
+		<PackageIcon>logo.png</PackageIcon>
+		<Version>$(Version)</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Observability.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Redis\src\CodeDesignPlus.Net.Redis.Abstractions\CodeDesignPlus.Net.Redis.Abstractions.csproj" />
+		<ProjectReference Include="..\CodeDesignPlus.Net.Observability.Abstractions\CodeDesignPlus.Net.Observability.Abstractions.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>
+			</PackagePath>
+		</None>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>
+			</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.9.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.9.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.13" />
+	</ItemGroup>
+</Project>

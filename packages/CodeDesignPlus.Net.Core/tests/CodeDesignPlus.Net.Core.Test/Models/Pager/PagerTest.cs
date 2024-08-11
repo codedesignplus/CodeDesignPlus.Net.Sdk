@@ -28,7 +28,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
         /// <summary>
         /// Gets the data
         /// </summary>
-        private readonly List<FakeEntity> data = new List<FakeEntity>();
+        private readonly List<FakeEntity> data = [];
 
         /// <summary>
         /// Valida la clase Pager cuando tiene valores por defecto en sus parametros
@@ -40,7 +40,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
             var pager = new Pager<FakeEntity>(TOTAL_ITEMS, this.data);
 
             // Assert
-            this.AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
+            AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
         }
 
 
@@ -54,7 +54,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
             var pager = new Pager<FakeEntity>(TOTAL_ITEMS, data, -10);
 
             // Assert
-            this.AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
+            AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
         }
 
         /// <summary>
@@ -71,7 +71,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
             var pager = new Pager<FakeEntity>(TOTAL_ITEMS, data, currentPages + 1);
 
             // Assert
-            this.AssertPager(TOTAL_ITEMS, currentPages, PAGE_SIZE, MAX_PAGES, pager, this.data);
+            AssertPager(TOTAL_ITEMS, currentPages, PAGE_SIZE, MAX_PAGES, pager, this.data);
         }
 
         /// <summary>
@@ -87,7 +87,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
             var pager = new Pager<FakeEntity>(totalItems, data);
 
             // Assert
-            this.AssertPager(totalItems, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
+            AssertPager(totalItems, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
         }
 
         /// <summary>
@@ -100,7 +100,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
             var pager = new Pager<FakeEntity>(TOTAL_ITEMS, data);
 
             // Assert
-            this.AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
+            AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, this.data);
         }
 
         /// <summary>
@@ -116,7 +116,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
             var pager = new Pager<FakeEntity>(TOTAL_ITEMS, data, currentPage);
 
             // Assert
-            this.AssertPager(TOTAL_ITEMS, currentPage, PAGE_SIZE, MAX_PAGES, pager, this.data);
+            AssertPager(TOTAL_ITEMS, currentPage, PAGE_SIZE, MAX_PAGES, pager, this.data);
             Assert.Equal(currentPage - 5, pager.StartPage);
             Assert.Equal(currentPage + 4, pager.EndPage);
         }
@@ -134,7 +134,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
             var pager = new Pager<FakeEntity>(TOTAL_ITEMS, data, currentPage);
 
             // Assert
-            this.AssertPager(TOTAL_ITEMS, currentPage, PAGE_SIZE, MAX_PAGES, pager, this.data);
+            AssertPager(TOTAL_ITEMS, currentPage, PAGE_SIZE, MAX_PAGES, pager, this.data);
             Assert.Equal(currentPage - 5, pager.StartPage);
             Assert.Equal(currentPage + 4, pager.EndPage);
         }
@@ -158,19 +158,19 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
                 entities.Add(new FakeEntity()
                 {
                     Name = $"Fake - {i}",
-                    State = true,
-                    IdUserCreator = Guid.NewGuid().ToString("D"),
-                    DateCreated = DateTime.Now,
+                    IsActive = true,
+                    CreatedBy = Guid.NewGuid(),
+                    CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 });
             }
             await fakeContext.FakeEntity.AddRangeAsync(entities);
             await fakeContext.SaveChangesAsync();
 
             // Act
-            var pager = await fakeContext.FakeEntity.Where(x => x.State).ToPageAsync(CURRENT_PAGE, PAGE_SIZE);
+            var pager = await fakeContext.FakeEntity.Where(x => x.IsActive).ToPageAsync(CURRENT_PAGE, PAGE_SIZE);
 
             // Assert
-            this.AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, entities);
+            AssertPager(TOTAL_ITEMS, CURRENT_PAGE, PAGE_SIZE, MAX_PAGES, pager, entities);
         }
 
         /// <summary>
@@ -181,7 +181,7 @@ namespace CodeDesignPlus.Net.Core.Test.Models.Pager
         /// <param name="pageSize">Numero de registros en la pagina</param>
         /// <param name="maxPages">Numero de paginas a retornar</param>
         /// <param name="pager">Objeto pager a validar</param>
-        private void AssertPager(int totalItems, int currentPage, int pageSize, int maxPages, Pager<FakeEntity> pager, List<FakeEntity> data)
+        private static void AssertPager(int totalItems, int currentPage, int pageSize, int maxPages, Pager<FakeEntity> pager, List<FakeEntity> data)
         {
             var startIndex = (currentPage - 1) * pageSize;
             var endIndex = Math.Min(startIndex + pageSize - 1, totalItems - 1);

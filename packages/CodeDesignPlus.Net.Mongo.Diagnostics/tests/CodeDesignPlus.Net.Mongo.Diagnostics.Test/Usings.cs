@@ -1,0 +1,10 @@
+﻿global using CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.Options;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Exceptions;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Test.Helpers;
+global using CodeDesignPlus.Net.Mongo.Diagnostics.Test.Helpers.Models;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Options;
+global using System.Text;
+global using CodeDesignPlus.Net.Serializers;
+global using Xunit;

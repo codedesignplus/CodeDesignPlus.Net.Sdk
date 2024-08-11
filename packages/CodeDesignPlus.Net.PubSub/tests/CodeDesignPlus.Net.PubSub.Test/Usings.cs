@@ -1,0 +1,13 @@
+﻿global using CodeDesignPlus.Net.PubSub.Abstractions;
+global using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+global using CodeDesignPlus.Net.PubSub.Exceptions;
+global using CodeDesignPlus.Net.PubSub.Services;
+global using CodeDesignPlus.Net.PubSub.Test.Helpers;
+global using CodeDesignPlus.Net.PubSub.Test.Helpers.Models;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using System.Text;
+global using CodeDesignPlus.Net.Serializers;
+global using Xunit;

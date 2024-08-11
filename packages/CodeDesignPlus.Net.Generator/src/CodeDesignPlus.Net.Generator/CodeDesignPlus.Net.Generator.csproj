@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+	<TargetFramework>netstandard2.0</TargetFramework>
+	<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+		<Authors>CodeDesignPlus</Authors>
+		<Description>{Description}</Description>
+		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageId>CodeDesignPlus.Net.Generator</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Generator.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Generator.git</PackageProjectUrl>
+		<PackageTags>{tags}</PackageTags>
+		<PackageIcon>logo.png</PackageIcon>
+    <Version>$(Version)</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Generator.xml</DocumentationFile>
+	</PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Microsoft.CodeAnalysis" Version="4.10.0.0" />
+	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.10.0" PrivateAssets="all" />
+	<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+		<None Include="..\..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+		  <Pack>True</Pack>
+		  <PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+</Project>

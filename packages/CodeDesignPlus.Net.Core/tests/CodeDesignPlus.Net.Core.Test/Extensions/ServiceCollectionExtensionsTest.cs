@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Core.Extensions;
+﻿namespace CodeDesignPlus.Net.Core.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -44,25 +44,6 @@ public class ServiceCollectionExtensionsTest
     }
 
     [Fact]
-    public void AddCore_CheckServices_Success()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
-
-        var serviceCollection = new ServiceCollection();
-
-        // Act
-        serviceCollection.AddCore(configuration);
-
-        // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(ICoreService));
-
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(CoreService), libraryService.ImplementationType);
-    }
-
-    [Fact]
     public void AddCore_SameOptions_Success()
     {
         // Arrange
@@ -82,9 +63,7 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.CoreOptions.Name, value.Name);
-        Assert.Equal(ConfigurationUtil.CoreOptions.Email, value.Email);
-        Assert.Equal(ConfigurationUtil.CoreOptions.Enable, value.Enable);
+        Assert.Equal(ConfigurationUtil.CoreOptions.AppName, value.AppName);
     }
 
 

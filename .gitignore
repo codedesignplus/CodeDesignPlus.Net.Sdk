@@ -43,3 +43,12 @@ Thumbs.db
 **/obj
 **/doc[sS]
 **/.vs
+.env
+
+.scannerwork
+.nx
+.$packages.drawio.bkp
+
+.sonarqube
+
+pnpm-lock.yaml

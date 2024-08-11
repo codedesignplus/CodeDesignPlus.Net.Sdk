@@ -1,0 +1,10 @@
+﻿global using CodeDesignPlus.Net.Redis.Abstractions;
+global using CodeDesignPlus.Net.Redis.Exceptions;
+global using CodeDesignPlus.Net.Redis.Options;
+global using CodeDesignPlus.Net.Redis.Services;
+global using CodeDesignPlus.Net.Redis.Test.Helpers;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using CodeDesignPlus.Net.Serializers;
+global using Xunit;

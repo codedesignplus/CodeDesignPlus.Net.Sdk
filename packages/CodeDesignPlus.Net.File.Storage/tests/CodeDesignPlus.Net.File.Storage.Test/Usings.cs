@@ -1,0 +1,10 @@
+﻿global using CodeDesignPlus.Net.File.Storage.Abstractions;
+global using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
+global using CodeDesignPlus.Net.File.Storage.Exceptions;
+global using CodeDesignPlus.Net.File.Storage.Services;
+global using CodeDesignPlus.Net.File.Storage.Test.Helpers;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using System.Text;
+global using Xunit;

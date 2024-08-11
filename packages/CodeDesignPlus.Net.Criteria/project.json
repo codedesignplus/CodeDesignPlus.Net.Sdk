@@ -1,0 +1,74 @@
+{
+  "name": "CodeDesignPlus.Net.Criteria",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/CodeDesignPlus.Net.Criteria",
+  "targets": {
+    "restore": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.Criteria.sln"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.Criteria.sln"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Criteria.sln"
+      },
+      "configurations": {
+        "production": {
+          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Criteria.sln --configuration Release"
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Criteria.sln"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Criteria.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+        }
+      }
+    },
+    "sonarqube": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "args": "--org=codedesignplus --project=CodeDesignPlus.Net.Criteria --server=https://sonarcloud.io/",
+        "commands": [
+          "dotnet test {projectRoot}/{args.project}.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover",
+          "dotnet sonarscanner begin /o:{args.org} /k:{args.project} /d:sonar.host.url={args.server} /d:sonar.coverage.exclusions=\"**/CodeDesignPlus.Net.Core**,**Tests*.cs\" /d:sonar.cs.opencover.reportsPaths={projectRoot}/tests/{args.project}.Test/coverage.opencover.xml",
+          "dotnet build {projectRoot}/{args.project}.sln",
+          "dotnet sonarscanner end"
+        ],
+        "parallel": false
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Criteria.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.Criteria"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.Criteria/*.nupkg --source {args.source} --api-key {args.token}"
+      }
+    }
+  }
+}
