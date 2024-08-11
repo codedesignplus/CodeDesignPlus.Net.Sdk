@@ -1,5 +1,25 @@
 {
     "conventionalCommits.scopes": [
-        "net.core"
+        "net.core",
+        "net.pubsub",
+        "net.event.sourcing",
+        "net.redis",
+        "net.redis.pubsub",
+        "net.kafka",
+        "net.event.store",
+        "net.eventstore.pubsub",
+        "net.efcore",
+        "net.mongo",
+        "net.security",
+        "net.file.storage",
+        "net.xunit",
+        "net.logger",
+        "all",
+        "net.criteria",
+        "net.exceptions",
+        "net.rabbitmq",
+        "net.serializers",
+        "net.generator",
+        "net.observability"
     ]
 }

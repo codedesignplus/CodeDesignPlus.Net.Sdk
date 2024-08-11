@@ -1,0 +1,12 @@
+﻿global using CodeDesignPlus.Net.Security.Abstractions;
+global using CodeDesignPlus.Net.Security.Abstractions.Options;
+global using CodeDesignPlus.Net.Security.Exceptions;
+global using CodeDesignPlus.Net.Security.Services;
+global using CodeDesignPlus.Net.Security.Test.Helpers;
+global using CodeDesignPlus.Net.Security.Test.Helpers.Models;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using System.Text;
+global using CodeDesignPlus.Net.Serializers;
+global using Xunit;
