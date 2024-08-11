@@ -11,6 +11,7 @@ public abstract class DockerCompose : IDisposable
     protected int InternalPort { get; set; }
     public string Ip { get; private set; }
     public int Port { get; private set; }
+    public bool IsRunning { get; }
 
     public DockerCompose()
     {
@@ -31,6 +32,8 @@ public abstract class DockerCompose : IDisposable
                 this.Ip = endpoint.Address.ToString();
                 this.Port = endpoint.Port;
             }
+
+            IsRunning = true;
 
 
             Thread.Sleep(2000);

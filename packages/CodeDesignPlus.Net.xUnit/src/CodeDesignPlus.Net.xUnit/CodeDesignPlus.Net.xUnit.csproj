@@ -88,5 +88,8 @@
     <None Update="Helpers\OpenTelemetry\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Helpers\SqlServer\*.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

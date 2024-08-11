@@ -58,6 +58,8 @@ public class RegisterEventHandlerBackgroundServiceTest
         // Act
         await service.StartAsync(CancellationToken.None);
 
+        await Task.Delay(1000);
+
         // Assert
         _mockPubSub.Verify(eb => eb.SubscribeAsync<UserRegisteredEvent, UserRegisteredEventHandler>(It.IsAny<CancellationToken>()), Times.Once);
 

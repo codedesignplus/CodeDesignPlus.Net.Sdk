@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Entities;
 using CodeDesignPlus.InMemory;
 using CodeDesignPlus.InMemory.Repositories;
+using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodeDesignPlus.Net.EFCore.Test.Repository;
@@ -8,7 +9,7 @@ namespace CodeDesignPlus.Net.EFCore.Test.Repository;
 /// <summary>
 /// Unit tests to the RepositoryBase class
 /// </summary>
-public class RepositoryBaseTest
+public class RepositoryBaseTest(SqlServerContainer sqlServerContainer): IClassFixture<SqlServerContainer>
 {
     /// <summary>
     /// Validate that an exception is thrown when the argument is null
@@ -643,7 +644,9 @@ public class RepositoryBaseTest
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var options = builder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=UnitTestTransaction;Trusted_Connection=True;MultipleActiveResultSets=true").Options;
+        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false";
+
+        var options = builder.UseSqlServer(connectionString).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 
@@ -689,7 +692,9 @@ public class RepositoryBaseTest
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var options = builder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=UnitTestTransaction;Trusted_Connection=True;MultipleActiveResultSets=true").Options;
+        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false";
+
+        var options = builder.UseSqlServer(connectionString).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 

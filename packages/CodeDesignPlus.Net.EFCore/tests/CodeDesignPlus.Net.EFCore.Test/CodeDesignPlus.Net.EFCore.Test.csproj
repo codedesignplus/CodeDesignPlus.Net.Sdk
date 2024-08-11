@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.EFCore\CodeDesignPlus.Net.EFCore.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.xUnit\src\CodeDesignPlus.Net.xUnit\CodeDesignPlus.Net.xUnit.csproj" />
     <ProjectReference Include="..\CodeDesignPlus.InMemory\CodeDesignPlus.InMemory.csproj" />
   </ItemGroup>
 </Project>
