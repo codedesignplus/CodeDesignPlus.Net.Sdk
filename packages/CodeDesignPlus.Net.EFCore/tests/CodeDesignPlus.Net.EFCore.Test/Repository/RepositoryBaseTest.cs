@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Net.EFCore.Test.Repository;
 /// <summary>
 /// Unit tests to the RepositoryBase class
 /// </summary>
-public class RepositoryBaseTest(SqlServerContainer sqlServerContainer): IClassFixture<SqlServerContainer>
+public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassFixture<SqlServerContainer>
 {
     /// <summary>
     /// Validate that an exception is thrown when the argument is null
@@ -644,9 +644,12 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer): IClassFi
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false";
+        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
 
-        var options = builder.UseSqlServer(connectionString).Options;
+        var options = builder.UseSqlServer(connectionString, x =>
+        {
+            x.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+        }).Options;
 
         var context = new CodeDesignPlusContextInMemory(options);
 
@@ -692,10 +695,13 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer): IClassFi
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false";
+        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
 
-        var options = builder.UseSqlServer(connectionString).Options;
-
+        var options = builder.UseSqlServer(connectionString, x =>
+        {
+            x.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
+        }).Options;
+        
         var context = new CodeDesignPlusContextInMemory(options);
 
         context.Database.EnsureDeleted();
