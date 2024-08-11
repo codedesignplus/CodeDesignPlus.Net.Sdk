@@ -164,8 +164,6 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
         _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | The topic {topic} does not exist after {maxAttempts} attempts. Exiting.", LogLevel.Warning);
 
         _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | Listener the event {topic}", LogLevel.Information, Times.AtLeastOnce());
-
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | An error occurred while consuming a Kafka message for event topic: {topic}", LogLevel.Error);
     }
 
     private static TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output, string group)

@@ -644,7 +644,7 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
+        var connectionString = $"Server={sqlServerContainer.Ip},{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
 
         var options = builder.UseSqlServer(connectionString, x =>
         {
@@ -695,13 +695,13 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
+        var connectionString = $"Server={sqlServerContainer.Ip},{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
 
         var options = builder.UseSqlServer(connectionString, x =>
         {
             x.EnableRetryOnFailure(5, TimeSpan.FromSeconds(2), null);
         }).Options;
-        
+
         var context = new CodeDesignPlusContextInMemory(options);
 
         context.Database.EnsureDeleted();
