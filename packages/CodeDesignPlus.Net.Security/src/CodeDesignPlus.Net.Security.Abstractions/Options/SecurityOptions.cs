@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Security.Cryptography.X509Certificates;
-
-namespace CodeDesignPlus.Net.Security.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.Security.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Security
@@ -17,6 +14,10 @@ public class SecurityOptions
     /// </summary>
     public string Authority { get; set; }
     /// <summary>
+    /// Gets or sets the client id to use in the authentication
+    /// </summary>
+    public string ClientId { get; set; }
+    /// <summary>
     /// Gets or sets the audience to use in the authentication
     /// </summary>
     public bool IncludeErrorDetails { get; set; }
@@ -24,10 +25,6 @@ public class SecurityOptions
     /// Gets or sets the audience to use in the authentication
     /// </summary>
     public bool RequireHttpsMetadata { get; set; }
-    /// <summary>
-    /// Gets or sets a value indicating whether tokens must have an 'aud' claim matching the audience in the options.
-    /// </summary>
-    public bool RequireSignedTokens { get; set; }
     /// <summary>
     /// Gets or sets a value indicating whether the token signature must be validated.
     /// </summary>
@@ -41,10 +38,6 @@ public class SecurityOptions
     /// </summary>
     public bool ValidateLifetime { get; set; }
     /// <summary>
-    /// Gets or sets a value indicating whether the token signature will be validated during token validation.
-    /// </summary>
-    public bool ValidateIssuerSigningKey { get; set; }
-    /// <summary>
     /// Gets or sets the valid issuer that will be used to check against the token's issuer.
     /// </summary>
     [Required]
@@ -54,10 +47,6 @@ public class SecurityOptions
     /// </summary>
     [Required]
     public IEnumerable<string> ValidAudiences { get; set; }
-    /// <summary>
-    /// Gets or sets the certificate to use in the authentication
-    /// </summary>
-    public X509Certificate2 Certificate { get; set; }
     /// <summary>
     /// Gets or sets the applications to use in the authentication
     /// </summary>
@@ -70,4 +59,21 @@ public class SecurityOptions
     /// Gets or sets the password of the certificate to use in the authentication
     /// </summary>
     public string CertificatePassword { get; set; }
+
+    /// <summary>
+    /// Get the certificate to use in the authentication
+    /// </summary>
+    /// <returns>The certificate to use in the authentication</returns>
+    public X509Certificate2 GetCertificate()
+    {
+        if (string.IsNullOrEmpty(this.CertificatePath))
+            return null;
+
+        var path = Path.Combine(AppContext.BaseDirectory, this.CertificatePath);
+
+        if (!File.Exists(path))
+            throw new FileNotFoundException($"The certificate file not found in the path: {path}");
+
+        return new X509Certificate2(this.CertificatePath, this.CertificatePassword);
+    }
 }

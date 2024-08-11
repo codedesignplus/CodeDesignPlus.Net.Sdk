@@ -1,5 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
+  <PropertyGroup>  
+    <ProjectGuid>{E2CEBBAF-6DF7-41E9-815D-9AD4CF90C844}</ProjectGuid>
+		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
@@ -21,6 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">
@@ -34,8 +37,8 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
   </ItemGroup>

@@ -8,7 +8,8 @@ public class EventStorePubSubOptionsTest
     public void EventStorePubSubOptions_DefaultValues_Valid()
     {
         // Arrange
-        var options = new EventStorePubSubOptions(){
+        var options = new EventStorePubSubOptions()
+        {
             Group = "Group"
         };
 

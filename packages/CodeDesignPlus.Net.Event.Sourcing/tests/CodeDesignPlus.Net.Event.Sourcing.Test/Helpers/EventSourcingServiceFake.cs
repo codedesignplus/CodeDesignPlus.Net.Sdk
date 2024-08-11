@@ -1,49 +1,51 @@
 ﻿
+using CodeDesignPlus.Net.Core.Abstractions;
+
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 
-public class EventSourcingServiceFake<TUserKey> : IEventSourcingService<TUserKey>
+public class EventSourcingServiceFake : IEventSourcingService
 {
-    public Task AppendEventAsync<TDomainEvent>(TDomainEvent @event, Metadata<TUserKey> metadata) where TDomainEvent : IDomainEvent
+    public Task AppendEventAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public Task<long> CountEventsAsync(string category, Guid aggregateId)
+    public Task<long> CountEventsAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<long> GetVersionAsync(string category, Guid aggregateId)
+    public Task<long> GetVersionAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(IDomainEvent, Metadata<TUserKey>)>> LoadEventsAsync(string category, Guid aggregateId)
+    public Task<IEnumerable<IDomainEvent>> LoadEventsAsync(string category, Guid aggregateId, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId) where TAggregate : IAggregateRoot<TUserKey>
+    public Task<TAggregate> LoadSnapshotAsync<TAggregate>(string category, Guid aggregateId, CancellationToken cancellationToken = default) where TAggregate : Sourcing.Abstractions.IAggregateRoot
     {
         throw new NotImplementedException();
     }
 
-    public Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate) where TAggregate : IAggregateRoot<TUserKey>
+    public Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate, CancellationToken cancellationToken = default) where TAggregate : Sourcing.Abstractions.IAggregateRoot
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(IDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync(string streamName)
+    public Task<IEnumerable<IDomainEvent>> SearchEventsAsync(string streamName, CancellationToken cancellationToken = default)
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(TDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync<TDomainEvent>() where TDomainEvent : IDomainEvent
+    public Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(CancellationToken cancellationToken = default) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }
 
-    public Task<IEnumerable<(TDomainEvent, Metadata<TUserKey>)>> SearchEventsAsync<TDomainEvent>(string category) where TDomainEvent : IDomainEvent
+    public Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(string category, CancellationToken cancellationToken = default) where TDomainEvent : IDomainEvent
     {
         throw new NotImplementedException();
     }

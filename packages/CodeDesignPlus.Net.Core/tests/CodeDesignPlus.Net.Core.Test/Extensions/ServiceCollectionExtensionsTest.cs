@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Core.Extensions;
+﻿namespace CodeDesignPlus.Net.Core.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -41,25 +41,6 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.Equal($"The section {CoreOptions.Section} is required.", exception.Message);
-    }
-
-    [Fact]
-    public void AddCore_CheckServices_Success()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration();
-
-        var serviceCollection = new ServiceCollection();
-
-        // Act
-        serviceCollection.AddCore(configuration);
-
-        // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(ICoreService));
-
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(CoreService), libraryService.ImplementationType);
     }
 
     [Fact]

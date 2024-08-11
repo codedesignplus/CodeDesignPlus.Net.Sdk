@@ -1,13 +1,4 @@
-﻿using System.Reflection;
-using CodeDesignPlus.Net.PubSub.Exceptions;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.PubSub.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Hosting;
-
-namespace CodeDesignPlus.Net.PubSub.Extensions;
+﻿namespace CodeDesignPlus.Net.PubSub.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -22,11 +13,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddPubSub(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(PubSubOptions.Section);
 
@@ -38,26 +26,69 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<ISubscriptionManager, SubscriptionManager>();
+        var options = section.Get<PubSubOptions>();
 
-        var pubSub = PubSubExtensions.GetPubSub() ?? throw new EventNotImplementedException();
-        
-        services.AddSingleton(typeof(IPubSub), pubSub);
+        services
+            .AddCore(configuration)
+            .AddEventsHandlers()
+            .TryAddSingleton<IPubSub, PubSubService>();
 
-        services.AddEventsHandlers(section.Get<PubSubOptions>());
+        if (options.UseQueue)
+        {
+            services.TryAddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
+        }
+
+        if (options.EnableDiagnostic)
+            services.TryAddSingleton<IActivityService, ActivitySourceService>();
 
         return services;
     }
 
-   
+    public static IServiceCollection AddPubSub(this IServiceCollection services, IConfiguration configuration, Action<PubSubOptions> setupOptions)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(setupOptions);
+
+        var pubSubOptions = new PubSubOptions();
+
+        setupOptions(pubSubOptions);
+
+        services
+            .AddOptions<PubSubOptions>()
+            .Configure(setupOptions)
+            .ValidateDataAnnotations();
+
+        services
+           .AddCore(configuration)
+           .AddEventsHandlers()
+           .TryAddSingleton<IPubSub, PubSubService>();
+
+        services.TryAddSingleton<IPubSub, PubSubService>();
+
+        services.AddEventsHandlers();
+
+        if (pubSubOptions.UseQueue)
+        {
+            services.TryAddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
+        }
+
+        if (pubSubOptions.EnableDiagnostic)
+            services.TryAddSingleton<IActivityService, ActivitySourceService>();
+
+        return services;
+    }
+
+
 
     /// <summary>
     /// Adds the event handlers that implement the CodeDesignPlus.PubSub.Abstractions.IEventHandler interface
     /// </summary>
     /// <param name="services">A reference to this instance after the operation has completed.</param>
-    /// <param name="PubSubOptions">The event bus options</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, PubSubOptions PubSubOptions)
+    private static IServiceCollection AddEventsHandlers(this IServiceCollection services)
     {
         var eventsHandlers = PubSubExtensions.GetEventHandlers();
 
@@ -70,20 +101,10 @@ public static class ServiceCollectionExtensions
             if (eventType == null)
                 continue;
 
-            if (PubSubOptions.EnableQueue)
-            {
-                var queueServiceType = typeof(IQueueService<,>).MakeGenericType(eventHandler, eventType);
-                var queueServiceImplementationType = typeof(QueueService<,>).MakeGenericType(eventHandler, eventType);
-                services.AddSingleton(queueServiceType, queueServiceImplementationType);
-
-                var hostServiceImplementationType = typeof(QueueBackgroundService<,>).MakeGenericType(eventHandler, eventType);
-                services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), hostServiceImplementationType));
-            }
-
-            var eventHandlerBackgroundType = typeof(EventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
+            var eventHandlerBackgroundType = typeof(RegisterEventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), eventHandlerBackgroundType));
 
-            services.AddSingleton(eventHandler);
+            services.TryAddSingleton(eventHandler);
         }
 
         return services;

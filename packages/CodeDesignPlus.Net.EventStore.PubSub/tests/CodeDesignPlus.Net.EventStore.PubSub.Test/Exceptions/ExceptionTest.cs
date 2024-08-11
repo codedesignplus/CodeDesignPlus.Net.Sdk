@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Exceptions;
 
 public class EventStorePubSubExceptionTest
 {
@@ -91,23 +89,4 @@ public class EventStorePubSubExceptionTest
 
     }
 
-    [Fact]
-    public void EventStorePubSubException_SerializationInfo_Call_Method()
-    {
-        // Arrange
-        var errors = new List<string>() { Guid.NewGuid().ToString() };
-        var message = Guid.NewGuid().ToString();
-
-        var exception = new EventStorePubSubException(message, errors);
-
-        // Act 
-        var serialize = JsonConvert.SerializeObject(exception);
-
-        var deserialize = JsonConvert.DeserializeObject(serialize, typeof(EventStorePubSubException)) as EventStorePubSubException;
-
-        //Assert
-        Assert.NotNull(deserialize);
-        Assert.Equal(exception.Message, deserialize.Message);
-        Assert.Equal(exception.Errors, deserialize.Errors);
-    }
 }

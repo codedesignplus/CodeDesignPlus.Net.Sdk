@@ -7,9 +7,9 @@ public class EventStoreContainerTest : IClassFixture<EventStoreContainer>
 {
     private readonly EventStoreContainer eventStoreContainer;
 
-    public EventStoreContainerTest(EventStoreContainer redisContainer)
+    public EventStoreContainerTest(EventStoreContainer container)
     {
-        this.eventStoreContainer = redisContainer;
+        this.eventStoreContainer = container;
     }
 
     [Fact]

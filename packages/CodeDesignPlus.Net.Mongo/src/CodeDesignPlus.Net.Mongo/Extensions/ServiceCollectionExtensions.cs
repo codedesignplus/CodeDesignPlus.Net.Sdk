@@ -1,8 +1,4 @@
-﻿using CodeDesignPlus.Net.Mongo.Abstractions.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
-
+﻿
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
 /// <summary>
@@ -16,13 +12,10 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
     /// <param name="configuration">The configuration being bound.</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
-    public static IServiceCollection AddMongo(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddMongo<TStartup>(this IServiceCollection services, IConfiguration configuration) where TStartup : IStartupServices
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(MongoOptions.Section);
 
@@ -36,23 +29,46 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IMongoClient>(x => new MongoClient(options.ConnectionString));
+        if (options.Diagnostic.Enable)
+            services.AddMongoDiagnostics(x =>
+            {
+                x.Enable = options.Diagnostic.Enable;
+                x.EnableCommandText = options.Diagnostic.EnableCommandText;
+            });
+
+        services.AddSingleton<IMongoClient>((serviceProvider) =>
+        {
+            var mongoUrl = MongoUrl.Create(options.ConnectionString);
+
+            var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
+
+            if (options.Diagnostic.Enable)
+                clientSettings.ClusterConfigurator = builder =>
+                {
+                    builder.SubscribeDiagnosticsActivityEventSubscriber(serviceProvider);
+                };
+
+            var mongoClient = new MongoClient(clientSettings);
+
+            return mongoClient;
+        });
+
+        if (options.RegisterAutomaticRepositories)
+            services.AddRepositories<TStartup>();
 
         return services;
     }
 
-    
     /// <summary>
     /// Add all repositories that implement the <see cref="IRepositoryBase{TKey, TUserKey}"/> interface
     /// </summary>
-    /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-    /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
+    /// <typeparam name="TStartup">The type of the startup class that implements the <see cref="IStartupServices"/> interface.</typeparam>
     /// <param name="services">The IServiceCollection to add services to.</param>
-    public static void AddRepositories<TKey, TUserKey>(this IServiceCollection services)
+    public static void AddRepositories<TStartup>(this IServiceCollection services) where TStartup : IStartupServices
     {
-        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
+        var types = typeof(TStartup).Assembly.GetTypes();
 
-        var repositories = types.Where(x => !x.IsNested && !x.IsInterface && typeof(IRepositoryBase<TKey, TUserKey>).IsAssignableFrom(x));
+        var repositories = types.Where(x => !x.IsNested && !x.IsInterface && typeof(IRepositoryBase).IsAssignableFrom(x));
 
         foreach (var repository in @repositories)
         {

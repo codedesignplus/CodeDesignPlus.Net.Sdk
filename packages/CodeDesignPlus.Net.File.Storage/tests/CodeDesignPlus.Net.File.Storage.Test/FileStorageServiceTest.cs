@@ -1,9 +1,8 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using Moq;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
-namespace CodeDesignPlus.Net.File.Storage.Test.Services;
+namespace CodeDesignPlus.Net.File.Storage.Test;
 
 public class FileStorageServiceTest
 {
@@ -13,7 +12,7 @@ public class FileStorageServiceTest
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
-        var logger = new Mock<ILogger<FileStorageService<Guid, Guid>>>();
+        var logger = new Mock<ILogger<FileStorageService>>();
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
@@ -25,9 +24,9 @@ public class FileStorageServiceTest
         var responseFile = new M.Response(file, TypeProviders.AzureFileProvider) { Success = true };
         var responseLocal = new M.Response(file, TypeProviders.LocalProvider) { Success = true };
 
-        var azureBlobProviderMock = new Mock<IAzureBlobProvider<Guid, Guid>>();
-        var azureFileProviderMock = new Mock<IAzureFileProvider<Guid, Guid>>();
-        var localProviderMock = new Mock<ILocalProvider<Guid, Guid>>();
+        var azureBlobProviderMock = new Mock<IAzureBlobProvider>();
+        var azureFileProviderMock = new Mock<IAzureFileProvider>();
+        var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
             .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
@@ -68,14 +67,14 @@ public class FileStorageServiceTest
             .ReturnsAsync(responseLocal)
             .Verifiable();
 
-        var providers = new List<IProvider<Guid, Guid>>()
+        var providers = new List<IProvider>()
         {
             azureBlobProviderMock.Object,
             azureFileProviderMock.Object,
             localProviderMock.Object
         };
 
-        var service = new FileStorageService<Guid, Guid>(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.UploadAsync(stream, filename, target, renowned, cancellationToken);
@@ -97,7 +96,7 @@ public class FileStorageServiceTest
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
-        var logger = new Mock<ILogger<FileStorageService<Guid, Guid>>>();
+        var logger = new Mock<ILogger<FileStorageService>>();
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
@@ -107,9 +106,9 @@ public class FileStorageServiceTest
         var responseFile = new M.Response(file, TypeProviders.AzureFileProvider) { Success = true };
         var responseLocal = new M.Response(file, TypeProviders.LocalProvider) { Success = true };
 
-        var azureBlobProviderMock = new Mock<IAzureBlobProvider<Guid, Guid>>();
-        var azureFileProviderMock = new Mock<IAzureFileProvider<Guid, Guid>>();
-        var localProviderMock = new Mock<ILocalProvider<Guid, Guid>>();
+        var azureBlobProviderMock = new Mock<IAzureBlobProvider>();
+        var azureFileProviderMock = new Mock<IAzureFileProvider>();
+        var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
             .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -122,14 +121,14 @@ public class FileStorageServiceTest
             .ReturnsAsync(responseBlob)
             .Verifiable();
 
-        var providers = new List<IProvider<Guid, Guid>>()
+        var providers = new List<IProvider>()
         {
             azureBlobProviderMock.Object,
             azureFileProviderMock.Object,
             localProviderMock.Object
         };
 
-        var service = new FileStorageService<Guid, Guid>(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DownloadAsync(filename, target, cancellationToken);
@@ -146,7 +145,7 @@ public class FileStorageServiceTest
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
-        var logger = new Mock<ILogger<FileStorageService<Guid, Guid>>>();
+        var logger = new Mock<ILogger<FileStorageService>>();
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
@@ -156,9 +155,9 @@ public class FileStorageServiceTest
         var responseFile = new M.Response(file, TypeProviders.AzureFileProvider) { Success = true };
         var responseLocal = new M.Response(file, TypeProviders.LocalProvider) { Success = true };
 
-        var azureBlobProviderMock = new Mock<IAzureBlobProvider<Guid, Guid>>();
-        var azureFileProviderMock = new Mock<IAzureFileProvider<Guid, Guid>>();
-        var localProviderMock = new Mock<ILocalProvider<Guid, Guid>>();
+        var azureBlobProviderMock = new Mock<IAzureBlobProvider>();
+        var azureFileProviderMock = new Mock<IAzureFileProvider>();
+        var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
             .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -182,14 +181,14 @@ public class FileStorageServiceTest
             .ReturnsAsync(responseFile)
             .Verifiable();
 
-        var providers = new List<IProvider<Guid, Guid>>()
+        var providers = new List<IProvider>()
         {
             azureBlobProviderMock.Object,
             azureFileProviderMock.Object,
             localProviderMock.Object
         };
 
-        var service = new FileStorageService<Guid, Guid>(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DownloadAsync(filename, target, cancellationToken);
@@ -207,14 +206,14 @@ public class FileStorageServiceTest
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
-        var logger = new Mock<ILogger<FileStorageService<Guid, Guid>>>();
+        var logger = new Mock<ILogger<FileStorageService>>();
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
 
-        var providers = new List<IProvider<Guid, Guid>>();
+        var providers = new List<IProvider>();
 
-        var service = new FileStorageService<Guid, Guid>(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DownloadAsync(filename, target, cancellationToken);
@@ -229,7 +228,7 @@ public class FileStorageServiceTest
         // Arrange
         var cancellationTokenSource = new CancellationTokenSource();
         var cancellationToken = cancellationTokenSource.Token;
-        var logger = new Mock<ILogger<FileStorageService<Guid, Guid>>>();
+        var logger = new Mock<ILogger<FileStorageService>>();
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
@@ -238,9 +237,9 @@ public class FileStorageServiceTest
         var responseFile = new M.Response(new M.File(filename), TypeProviders.AzureFileProvider) { Success = true };
         var responseLocal = new M.Response(new M.File(filename), TypeProviders.LocalProvider) { Success = true };
 
-        var azureBlobProviderMock = new Mock<IAzureBlobProvider<Guid, Guid>>();
-        var azureFileProviderMock = new Mock<IAzureFileProvider<Guid, Guid>>();
-        var localProviderMock = new Mock<ILocalProvider<Guid, Guid>>();
+        var azureBlobProviderMock = new Mock<IAzureBlobProvider>();
+        var azureFileProviderMock = new Mock<IAzureFileProvider>();
+        var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
             .Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -275,14 +274,14 @@ public class FileStorageServiceTest
             .ReturnsAsync(responseLocal)
             .Verifiable();
 
-        var providers = new List<IProvider<Guid, Guid>>()
+        var providers = new List<IProvider>()
         {
             azureBlobProviderMock.Object,
             azureFileProviderMock.Object,
             localProviderMock.Object
         };
 
-        var service = new FileStorageService<Guid, Guid>(logger.Object, options.Object, providers);
+        var service = new FileStorageService(providers);
 
         // Act
         var result = await service.DeleteAsync(filename, target, cancellationToken);

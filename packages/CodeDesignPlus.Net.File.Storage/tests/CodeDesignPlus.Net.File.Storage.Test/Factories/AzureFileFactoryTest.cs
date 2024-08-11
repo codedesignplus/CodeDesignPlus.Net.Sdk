@@ -1,10 +1,8 @@
 ﻿using Azure.Storage.Files.Shares;
-using CodeDesignPlus.Net.File.Storage.Exceptions;
 using CodeDesignPlus.Net.File.Storage.Factories;
 using CodeDesignPlus.Net.Security.Abstractions;
-using O = Microsoft.Extensions.Options;
 using Moq;
-using Xunit;
+using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Factories
 {
@@ -15,12 +13,12 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         {
             // Arrange
             var optionsMock = new Mock<IOptions<FileStorageOptions>>();
-            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            var userContextMock = new Mock<IUserContext>();
             var optionsValue = new FileStorageOptions();
             optionsMock.Setup(o => o.Value).Returns(optionsValue);
 
             // Act
-            var factory = new AzureFileFactory<Guid, Guid>(optionsMock.Object, userContextMock.Object);
+            var factory = new AzureFileFactory(optionsMock.Object, userContextMock.Object);
 
             // Assert
             Assert.Same(optionsValue, factory.Options);
@@ -32,10 +30,10 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         {
             // Arrange
             IOptions<FileStorageOptions> options = null!;
-            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            var userContextMock = new Mock<IUserContext>();
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => new AzureFileFactory<Guid, Guid>(options, userContextMock.Object));
+            Assert.Throws<ArgumentNullException>(() => new AzureFileFactory(options, userContextMock.Object));
         }
 
         [Fact]
@@ -43,10 +41,10 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         {
             // Arrange
             var optionsMock = new Mock<IOptions<FileStorageOptions>>();
-            IUserContext<Guid, Guid> userContext = null!;
+            IUserContext userContext = null!;
 
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => new AzureFileFactory<Guid, Guid>(optionsMock.Object, userContext));
+            Assert.Throws<ArgumentNullException>(() => new AzureFileFactory(optionsMock.Object, userContext));
         }
 
         [Fact]
@@ -54,11 +52,11 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         {
             // Arrange
             var optionsMock = new Mock<IOptions<FileStorageOptions>>();
-            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            var userContextMock = new Mock<IUserContext>();
             var optionsValue = new FileStorageOptions { AzureFile = new() { Enable = false } };
             optionsMock.Setup(o => o.Value).Returns(optionsValue);
 
-            var factory = new AzureFileFactory<Guid, Guid>(optionsMock.Object, userContextMock.Object);
+            var factory = new AzureFileFactory(optionsMock.Object, userContextMock.Object);
 
             // Act & Assert
             Assert.Throws<FileStorageException>(() => factory.Create());
@@ -68,10 +66,10 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         public void Create_WhenClientIsNotNull_ReturnsItself()
         {
             // Arrange
-            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            var userContextMock = new Mock<IUserContext>();
             var options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
-            var factory = new AzureFileFactory<Guid, Guid>(options, userContextMock.Object);
+            var factory = new AzureFileFactory(options, userContextMock.Object);
 
             // Act
             var result1 = factory.Create();
@@ -87,11 +85,11 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         public void Create_WhenUsePasswordLessIsTrue_CreatesClientWithUriAndDefaultAzureCredential()
         {
             // Arrange
-            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            var userContextMock = new Mock<IUserContext>();
             var optionsValue = new FileStorageOptions { AzureFile = new() { Enable = true, UsePasswordLess = true, Uri = new Uri("https://example.com") } };
             var options = O.Options.Create(optionsValue);
 
-            var factory = new AzureFileFactory<Guid, Guid>(options, userContextMock.Object);
+            var factory = new AzureFileFactory(options, userContextMock.Object);
 
             // Act
             var result = factory.Create();
@@ -107,11 +105,11 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         public void Create_WhenUsePasswordLessIsFalse_CreatesClientWithConnectionString()
         {
             // Arrange
-            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            var userContextMock = new Mock<IUserContext>();
 
             var options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
-            var factory = new AzureFileFactory<Guid, Guid>(options, userContextMock.Object);
+            var factory = new AzureFileFactory(options, userContextMock.Object);
 
             // Act
             var result = factory.Create();
@@ -124,17 +122,17 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
             Assert.True(factory.Client.CanGenerateAccountSasUri);
         }
 
-        
+
         [Fact]
         public void GetContainerClient_Called_Success()
         {
             // Arrange
             var tenant = Guid.NewGuid();
-            var userContextMock = new Mock<IUserContext<Guid, Guid>>();
+            var userContextMock = new Mock<IUserContext>();
             userContextMock.Setup(x => x.Tenant).Returns(tenant);
 
             var options = O.Options.Create(OptionsUtil.FileStorageOptions);
-            var factory = new AzureFileFactory<Guid, Guid>(options, userContextMock.Object);
+            var factory = new AzureFileFactory(options, userContextMock.Object);
             factory.Create();
 
             // Act

@@ -1,7 +1,4 @@
-﻿
-using ES = EventStore.ClientAPI;
-
-namespace CodeDesignPlus.Net.EventStore.Abstractions;
+﻿namespace CodeDesignPlus.Net.EventStore.Abstractions;
 
 /// <summary>
 /// Defines the contract for connecting and interacting with an EventStore instance.

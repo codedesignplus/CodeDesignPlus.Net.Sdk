@@ -1,10 +1,4 @@
-﻿using CodeDesignPlus.Net.Redis.PubSub.Exceptions;
-using CodeDesignPlus.Net.Redis.PubSub.Options;
-using CodeDesignPlus.Net.Redis.PubSub.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.Redis.PubSub.Extensions;
+﻿namespace CodeDesignPlus.Net.Redis.PubSub.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -19,11 +13,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddRedisPubSub(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(RedisPubSubOptions.Section);
 
@@ -35,7 +26,21 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IRedisPubSubService, RedisPubSubService>();
+        var options = section.Get<RedisPubSubOptions>();
+
+        if (options.Enable)
+        {
+            services.AddRedis(configuration);
+            services.AddPubSub(configuration, x =>
+            {
+                x.UseQueue = options.UseQueue;
+                x.EnableDiagnostic = options.EnableDiagnostic;
+                x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
+                x.SecondsWaitQueue = options.SecondsWaitQueue;
+            });
+            services.TryAddSingleton<IMessage, RedisPubSubService>();
+            services.TryAddSingleton<IRedisPubSubService, RedisPubSubService>();
+        }
 
         return services;
     }

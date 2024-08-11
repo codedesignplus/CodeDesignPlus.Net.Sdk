@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-
-namespace CodeDesignPlus.Net.PubSub.Test.Helpers.Models;
+﻿namespace CodeDesignPlus.Net.PubSub.Test.Helpers.Models;
 
 public class AppSettings
 {

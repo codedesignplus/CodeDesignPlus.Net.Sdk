@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.File.Storage.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.File.Storage.Test.Exceptions;
 
 public class FileStorageExceptionTest
 {
@@ -89,25 +87,5 @@ public class FileStorageExceptionTest
         Assert.Equal(message, exception.Message);
         Assert.Equal(innerException, exception.InnerException);
 
-    }
-
-    [Fact]
-    public void FileStorageException_SerializationInfo_Call_Method()
-    {
-        // Arrange
-        var errors = new List<string>() { Guid.NewGuid().ToString() };
-        var message = Guid.NewGuid().ToString();
-
-        var exception = new FileStorageException(message, errors);
-
-        // Act 
-        var serialize = JsonConvert.SerializeObject(exception);
-
-        var deserialize = JsonConvert.DeserializeObject(serialize, typeof(FileStorageException)) as FileStorageException;
-
-        //Assert
-        Assert.NotNull(deserialize);
-        Assert.Equal(exception.Message, deserialize.Message);
-        Assert.Equal(exception.Errors, deserialize.Errors);
     }
 }

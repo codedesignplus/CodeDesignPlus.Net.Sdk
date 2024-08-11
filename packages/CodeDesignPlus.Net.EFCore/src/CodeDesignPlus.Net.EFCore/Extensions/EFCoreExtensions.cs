@@ -1,10 +1,4 @@
-﻿using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace CodeDesignPlus.Net.EFCore.Extensions;
+﻿namespace CodeDesignPlus.Net.EFCore.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -12,20 +6,21 @@ namespace CodeDesignPlus.Net.EFCore.Extensions;
 public static class EFCoreExtensions
 {
     /// <summary>
-    /// Sets the traversal properties of an entity that implements the IEntityBase interface
+    /// Sets the traversal properties of an entity that implements the IEntity interface
     /// </summary>
-    /// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-    /// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="userRequired"></param>
-    /// <param name="builder">The builder to be used to configure the entity type.</param>
-    public static void ConfigurationBase<TKey, TUserKey, TEntity>(this EntityTypeBuilder<TEntity> builder, bool userRequired = true, int maxLenghtUser = 256)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    public static void ConfigurationBase<TEntity>(this EntityTypeBuilder<TEntity> builder)
+        where TEntity : class, IEntityBase
     {
-        builder.Property(x => x.Id).ValueGeneratedOnAdd();
-        builder.Property(x => x.IdUserCreator).HasMaxLength(maxLenghtUser).IsRequired(userRequired);
-        builder.Property(x => x.IsActive).IsRequired();
-        builder.Property(x => x.CreatedAt).IsRequired();
+        builder.Property(x => x.Id);
+
+        if (typeof(IEntity).IsAssignableFrom(typeof(TEntity)))
+        {
+            builder.Property(nameof(IEntity.CreatedAt)).IsRequired();
+            builder.Property(nameof(IEntity.CreatedBy)).IsRequired();
+            builder.Property(nameof(IEntity.UpdatedAt)).IsRequired(false);
+            builder.Property(nameof(IEntity.UpdatedBy)).IsRequired(false);
+        }
     }
 
     /// <summary>
@@ -37,16 +32,16 @@ public static class EFCoreExtensions
     /// <param name="pageSize">Page Size</param>
     /// <returns>Represents an asynchronous operation that can return a value.</returns>
     public static async Task<Pager<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, int currentPage, int pageSize)
-        where TEntity : class, IEntityBase
+        where TEntity : class, IEntity
     {
         if (currentPage < 1 || pageSize < 1)
             return default;
 
-        var totalItems = await query.CountAsync();
+        var totalItems = await query.CountAsync().ConfigureAwait(false);
 
         var skip = (currentPage - 1) * pageSize;
 
-        var data = await query.Skip(skip).Take(pageSize).ToListAsync();
+        var data = await query.Skip(skip).Take(pageSize).ToListAsync().ConfigureAwait(false);
 
         return new Pager<TEntity>(totalItems, data, currentPage, pageSize);
     }
@@ -99,8 +94,6 @@ public static class EFCoreExtensions
     /// <returns>Return true if the type inheritanced is of IEntityTypeConfiguration</returns>
     private static bool IsEntityTypeConfiguration(Type type)
     {
-        return type
-            .GetInterfaces()
-            .Any(x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
+        return Array.Exists(type.GetInterfaces(), x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
     }
 }

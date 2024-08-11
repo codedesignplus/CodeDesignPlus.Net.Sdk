@@ -51,4 +51,26 @@ public class MongoOptionsTest
         // Assert
         Assert.Contains(results, x => x.ErrorMessage == "The Database field is required.");
     }
+
+    [Fact]
+    public void MongoOptions_DiagnosticEnableIsRequired_Success()
+    {
+        // Arrange
+        var options = new MongoOptions()
+        {
+            Enable = true,
+            ConnectionString = Guid.NewGuid().ToString(),
+            Database = Guid.NewGuid().ToString(),
+            Diagnostic = new()
+            {
+                Enable = true
+            }
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Empty(results);
+    }
 }

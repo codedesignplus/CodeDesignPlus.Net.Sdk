@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{7B778015-41F6-47D8-B170-6ED9D7A2E72B}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
@@ -40,8 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
   </ItemGroup>

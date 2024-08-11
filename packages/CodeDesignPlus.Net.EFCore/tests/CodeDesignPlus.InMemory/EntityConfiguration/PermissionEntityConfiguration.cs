@@ -1,5 +1,5 @@
-﻿using CodeDesignPlus.Net.EFCore.Extensions;
-using CodeDesignPlus.Entities;
+﻿using CodeDesignPlus.Entities;
+using CodeDesignPlus.Net.EFCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -16,7 +16,7 @@ namespace CodeDesignPlus.InMemory.EntityConfiguration
         {
             IsInvoked = true;
 
-            builder.ConfigurationBase<long, int, Permission>();
+            builder.ConfigurationBase();
 
             builder.Property(x => x.Name).HasColumnType("varchar(64)").IsRequired();
             builder.Property(x => x.Description).HasColumnType("varchar(512)").IsRequired();

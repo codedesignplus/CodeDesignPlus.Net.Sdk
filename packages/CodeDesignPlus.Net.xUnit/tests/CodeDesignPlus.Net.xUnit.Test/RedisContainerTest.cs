@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.Server;
+﻿using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 

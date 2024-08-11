@@ -1,14 +1,19 @@
-﻿namespace CodeDesignPlus.Net.PubSub.Test.Helpers.Events
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+
+namespace CodeDesignPlus.Net.PubSub.Test.Helpers.Events
 {
     /// <summary>
     /// Evento de integración usado cuando es creado un usuarios
     /// </summary>
-    public class UserRegisteredEvent : EventBase
+    [EventKey<UserEntity>(1, "created")]
+    public class UserRegisteredEvent : DomainEvent
     {
-        /// <summary>
-        /// Id del usaurio
-        /// </summary>
-        public long Id { get; set; }
+        public UserRegisteredEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null!)
+            : base(aggregateId, eventId, occurredAt, metadata)
+        {
+        }
+
         /// <summary>
         /// Nombre del usuario creado
         /// </summary>

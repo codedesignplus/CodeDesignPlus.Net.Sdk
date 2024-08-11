@@ -1,5 +1,4 @@
-﻿using Moq;
-
+﻿
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 /// <summary>

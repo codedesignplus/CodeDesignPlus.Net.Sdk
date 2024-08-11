@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-
-namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 public class FileDetail
 {
@@ -10,7 +8,7 @@ public class FileDetail
     public string UriDownload { get; }
     public string UriViewInBrowser { get; }
     public string Provider { get; private set; }
-    
+
     public FileDetail(Uri uri, string target, string file, TypeProviders provider)
     {
         if (provider == TypeProviders.None)

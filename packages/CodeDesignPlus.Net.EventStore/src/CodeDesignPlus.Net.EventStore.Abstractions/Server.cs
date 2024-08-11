@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.EventStore.Abstractions;
+﻿namespace CodeDesignPlus.Net.EventStore.Abstractions;
 
 /// <summary>
 /// Represents the details required to connect to an EventStore server or node.

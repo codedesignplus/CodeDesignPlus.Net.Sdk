@@ -1,5 +1,4 @@
 ﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 

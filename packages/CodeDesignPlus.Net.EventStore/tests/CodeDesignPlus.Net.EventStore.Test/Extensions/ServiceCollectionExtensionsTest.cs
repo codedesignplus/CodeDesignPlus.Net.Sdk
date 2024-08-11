@@ -1,7 +1,7 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
-using Microsoft.Extensions.DependencyInjection;
+﻿using CodeDesignPlus.Net.EventStore.Extensions;
+using CodeDesignPlus.Net.xUnit.Helpers;
 
-namespace CodeDesignPlus.Net.EventStore.Extensions;
+namespace CodeDesignPlus.Net.EventStore.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -50,7 +50,9 @@ public class ServiceCollectionExtensionsTest
     public void AddEventStore_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
+            Core = OptionsUtil.CoreOptions,
             EventStore = OptionsUtil.EventStoreOptions
         });
 
@@ -60,18 +62,20 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddEventStore(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventStoreService<>));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventStoreService));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(EventStoreService<>), libraryService.ImplementationType);
+        Assert.Equal(typeof(EventStoreService), libraryService.ImplementationType);
     }
 
     [Fact]
     public void AddEventStore_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
+            Core = OptionsUtil.CoreOptions,
             EventStore = OptionsUtil.EventStoreOptions
         });
 

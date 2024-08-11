@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{C6B3D0D9-C04D-4AEA-9840-F8808E93FFF1}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
@@ -20,6 +22,12 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.File.Storage.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="mime-types.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="mime-types.json" />
+  </ItemGroup>
+  <ItemGroup>
     <None Include="..\..\LICENSE.md">
       <Pack>True</Pack>
       <PackagePath>
@@ -36,9 +44,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.10.4" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.19.1" />
-    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.17.1" />
+    <PackageReference Include="Azure.Identity" Version="1.11.4" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.18.0" />
     <PackageReference Include="Microsoft.Azure.Storage.Common" Version="11.2.3" />
     <PackageReference Include="Semver" Version="2.3.0" />
   </ItemGroup>

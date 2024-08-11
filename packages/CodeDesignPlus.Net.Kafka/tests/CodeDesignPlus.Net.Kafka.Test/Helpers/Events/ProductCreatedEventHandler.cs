@@ -1,9 +1,8 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
-using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
-using Newtonsoft.Json;
+﻿using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
+using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.Serializers;
 
-namespace CodeDesignPlus.Net.Kafka.Test;
+namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 
 public class ProductCreatedEventHandler : IEventHandler<ProductCreatedEvent>
 {
@@ -19,9 +18,9 @@ public class ProductCreatedEventHandler : IEventHandler<ProductCreatedEvent>
 
     public Task HandleAsync(ProductCreatedEvent data, CancellationToken token)
     {
-        this.memory.ProductEventTrace.Add(data);
+        memory.ProductEventTrace.Add(data);
 
-        this.logger.LogDebug("Invoked Event: {0}", JsonConvert.SerializeObject(data));
+        logger.LogDebug("Invoked Event: {json}", JsonSerializer.Serialize(data));
 
         return Task.CompletedTask;
     }

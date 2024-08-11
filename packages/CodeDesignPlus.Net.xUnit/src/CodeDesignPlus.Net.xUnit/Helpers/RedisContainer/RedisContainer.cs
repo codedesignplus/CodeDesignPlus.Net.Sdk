@@ -1,14 +1,8 @@
 ﻿using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Options;
 using CodeDesignPlus.Net.Redis.Services;
-using Ductus.FluentDocker.Model.Common;
-using Ductus.FluentDocker.Model.Compose;
-using Ductus.FluentDocker.Services;
-using Ductus.FluentDocker.Services.Impl;
-using Moq;
-using O = Microsoft.Extensions.Options;
 
-namespace CodeDesignPlus.Net.xUnit.Helpers.Server;
+namespace CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
 
 public class RedisContainer : DockerCompose
 {
@@ -18,15 +12,15 @@ public class RedisContainer : DockerCompose
 
     public RedisContainer()
     {
-        this.RedisServerWithoutPfxPassword = this.StartSecondRedisServer();
-        this.RedisServer = this.StartFirtsRedisServer();
+        RedisServerWithoutPfxPassword = StartSecondRedisServer();
+        RedisServer = StartFirtsRedisServer();
     }
 
     private RedisService StartFirtsRedisServer()
     {
         var options = CreateOptions("client.pfx", "Temporal1");
 
-        var redisService = new RedisService(this.Logger.Object);
+        var redisService = new RedisService(Logger.Object);
 
         redisService.Initialize(options.Value.Instances["test"]);
 
@@ -37,7 +31,7 @@ public class RedisContainer : DockerCompose
     {
         var options = CreateOptions("client-without-pass.pfx");
 
-        var redisService = new RedisService(this.Logger.Object);
+        var redisService = new RedisService(Logger.Object);
 
         redisService.Initialize(options.Value.Instances["test"]);
 
@@ -57,11 +51,11 @@ public class RedisContainer : DockerCompose
             AlternativeServiceName = "redis_" + Guid.NewGuid().ToString("N"),
         };
 
-        this.EnableGetPort = true;
-        this.InternalPort = 6380;
-        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-redis";
+        EnableGetPort = true;
+        InternalPort = 6380;
+        ContainerName = $"{dockerCompose.AlternativeServiceName}-redis";
 
-        var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
+        var compose = new DockerComposeCompositeService(DockerHost, dockerCompose);
 
         return compose;
     }
@@ -75,7 +69,7 @@ public class RedisContainer : DockerCompose
 
         var instance = new Instance()
         {
-            ConnectionString = $"localhost:{base.Port},ssl=true,password=12345678,resolveDns=false,sslprotocols=tls12|tls13",
+            ConnectionString = $"localhost:{Port},ssl=true,password=12345678,resolveDns=false,sslprotocols=tls12|tls13",
             Certificate = pfx,
             PasswordCertificate = password,
         };
@@ -92,6 +86,6 @@ public class RedisContainer : DockerCompose
 
     private IOptions<RedisOptions> CreateOptions(string certificate, string password = null)
     {
-        return O.Options.Create(RedisOptions(certificate, password));
+        return Options.Create(RedisOptions(certificate, password));
     }
 }

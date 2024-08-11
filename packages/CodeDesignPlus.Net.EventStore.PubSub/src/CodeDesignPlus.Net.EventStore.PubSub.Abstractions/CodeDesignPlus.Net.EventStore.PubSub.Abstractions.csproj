@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{C6722CB0-1758-432D-92FF-CCA6A2FE0575}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
@@ -21,6 +23,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.EventStore\src\CodeDesignPlus.Net.EventStore.Abstractions\CodeDesignPlus.Net.EventStore.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub\CodeDesignPlus.Net.PubSub.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">

@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  grafana:
+    image: grafana/grafana:latest
+    volumes:
+      - ./configs/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_FEATURE_TOGGLES_ENABLE=traceqlEditor traceQLStreaming metricsSummary
+    ports:
+      - "3000:3000"
+    networks:
+      - backend
+
+  otel-collector-contrib:
+    image: otel/opentelemetry-collector-contrib:latest
+    ports:
+      - "4317:4317" # OTLP gRPC port
+      - "4318:4318" # OTLP http port
+      - "55680:55680" # Prometheus metrics port
+    volumes:
+      - ./configs/otel-config.yaml:/etc/otel/config.yaml
+    command: ["--config", "/etc/otel/config.yaml"]
+    depends_on:
+      - prometheus
+      - loki
+      - tempo
+    networks:
+      - backend
+    
+  loki:
+    image: grafana/loki:latest
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./configs/:/etc/loki
+    networks:
+      - backend
+
+  tempo:
+    image: grafana/tempo:latest
+    ports:
+      - "14268:14268"  # jaeger ingest
+      - "3200:3200"   # tempo
+      - "9095:9095" # tempo grpc
+      - "4320:4317"  # otlp grpc
+      - "4321:4318"  # otlp http
+      - "9411:9411"   # zipkin
+      - "8888:8888" # Prometheus metrics exposed by the collector
+      - "8889:8889" # Prometheus exporter metrics
+      - "13133:13133" # health_check extension
+    volumes:
+      - ./configs/tempo-config.yaml:/etc/tempo-config.yaml
+    command: ["-config.file=/etc/tempo-config.yaml"]
+    networks:
+      - backend
+
+  # include prometheus a this docker compose file
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./configs/prometheus-config.yaml:/etc/prometheus/prometheus-config.yaml
+    command: ["--config.file=/etc/prometheus/prometheus-config.yaml"]
+    networks:
+      - backend
+
+networks:
+  backend:
+

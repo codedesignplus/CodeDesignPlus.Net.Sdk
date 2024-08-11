@@ -1,11 +1,11 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 
-namespace CodeDesignPlus.Net.EventStore.PubSub.Test;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers;
 
- public class StartupLogic : IStartupServices
+public class StartupLogic : IStartupServices
+{
+    public void Initialize(IServiceCollection services, IConfiguration configuration)
     {
-        public void Initialize(IServiceCollection services, IConfiguration configuration)
-        {
 
-        }
     }
+}

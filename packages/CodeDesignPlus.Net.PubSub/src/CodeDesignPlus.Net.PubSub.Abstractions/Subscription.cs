@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.PubSub.Abstractions
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.PubSub.Abstractions
 {
     /// <summary>
     /// Información relacionada con el evento que se esta registrando en <see cref="SubscriptionManager"/>
@@ -35,7 +37,7 @@
         /// <typeparam name="TEventHandler">Manejador de eventos</typeparam>
         /// <returns>Retorna la información del evento</returns>
         public static Subscription Create<TEvent, TEventHandler>()
-            where TEvent : EventBase
+            where TEvent : IDomainEvent
             where TEventHandler : IEventHandler<TEvent>
         {
             return new Subscription(typeof(TEvent), typeof(TEventHandler));

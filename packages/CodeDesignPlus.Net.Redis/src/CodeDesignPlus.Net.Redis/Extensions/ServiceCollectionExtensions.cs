@@ -1,11 +1,4 @@
-﻿using CodeDesignPlus.Net.Redis.Abstractions;
-using CodeDesignPlus.Net.Redis.Exceptions;
-using CodeDesignPlus.Net.Redis.Options;
-using CodeDesignPlus.Net.Redis.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.Redis.Extensions;
+﻿namespace CodeDesignPlus.Net.Redis.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -20,24 +13,29 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddRedis(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        var redisSection = configuration.GetSection(RedisOptions.Section);
 
-        var section = configuration.GetSection(RedisOptions.Section);
-
-        if (!section.Exists())
+        if (!redisSection.Exists())
             throw new Exceptions.RedisException($"The section {RedisOptions.Section} is required.");
 
         services
             .AddOptions<RedisOptions>()
-            .Bind(section)
+            .Bind(redisSection)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IRedisService, RedisService>();    
-        services.AddSingleton<IRedisServiceFactory, RedisServiceFactory>();
+        services.AddCore(configuration);
+        services.TryAddSingleton<IRedisService, RedisService>();
+        services.TryAddSingleton<IRedisServiceFactory, RedisServiceFactory>();
+
+        services.TryAddSingleton((serviceProvider) =>
+        {
+            var connection = serviceProvider.GetService<IRedisServiceFactory>().Create(FactoryConst.RedisCore).Connection;
+
+            return connection;
+        });
 
         return services;
     }

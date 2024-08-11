@@ -1,8 +1,11 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
-using MongoDB.Driver;
+﻿using CodeDesignPlus.Net.Mongo.Repository;
 using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
-using Moq;
 using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+using MongoDB.Driver;
+using Moq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Repository;
 
@@ -26,14 +29,17 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         var cancellationToken = CancellationToken.None;
         var (client, collection) = GetCollection();
         var serviceProvider = GetServiceProvider(client, collection);
+        var guid = Guid.NewGuid();
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
         // Act
-        var isSuccess = await repository.ChangeStateAsync<Client>(Guid.NewGuid(), false, cancellationToken);
+        await repository.ChangeStateAsync<Client>(guid, false, cancellationToken);
 
         // Assert
-        Assert.False(isSuccess);
+        var result = await collection.Find(x => x.Id == guid).FirstOrDefaultAsync(cancellationToken);
+
+        Assert.Null(result);
     }
 
     [Fact]
@@ -53,16 +59,15 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             IsActive = true
         };
 
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         // Act
-        var isSuccess = await repository.ChangeStateAsync<Client>(entity.Id, false, cancellationToken);
+        await repository.ChangeStateAsync<Client>(entity.Id, false, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(isSuccess);
         Assert.Equal(entity.Id, result.Id);
         Assert.Equal(entity.Name, result.Name);
         Assert.NotEqual(entity.IsActive, result.IsActive);
@@ -88,7 +93,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
@@ -127,7 +132,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        _ = await repository.CreateRangeAsync(entities, cancellationToken);
+        await repository.CreateRangeAsync(entities, cancellationToken);
 
         // Assert
         foreach (var entity in entities)
@@ -159,17 +164,16 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             IsActive = true
         };
 
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         // Act
         var filter = Builders<Client>.Filter.Eq(x => x.Id, entity.Id);
-        var isSuccess = await repository.DeleteAsync(filter, cancellationToken);
+        await repository.DeleteAsync(filter, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
         // Assert
         Assert.Null(result);
-        Assert.True(isSuccess);
     }
 
     [Fact]
@@ -198,10 +202,10 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             }
         };
 
-        _ = await repository.CreateRangeAsync(entities, cancellationToken);
+        await repository.CreateRangeAsync(entities, cancellationToken);
 
         // Act
-        var isSuccess = await repository.DeleteRangeAsync(entities, cancellationToken);
+        await repository.DeleteRangeAsync(entities, cancellationToken);
 
         // Assert
         foreach (var entity in entities)
@@ -210,8 +214,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
 
             Assert.Null(result);
         }
-
-        Assert.True(isSuccess);
     }
 
     [Fact]
@@ -231,17 +233,16 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             IsActive = true
         };
 
-        _ = await repository.CreateAsync(entity, cancellationToken);
+        await repository.CreateAsync(entity, cancellationToken);
 
         // Act
         entity.Name = "Test 2";
-        var isSuccess = await repository.UpdateAsync(entity, cancellationToken);
+        await repository.UpdateAsync(entity, cancellationToken);
 
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
         // Assert
         Assert.NotNull(result);
-        Assert.True(isSuccess);
         Assert.Equal(entity.Id, result.Id);
         Assert.Equal(entity.Name, result.Name);
         Assert.Equal(entity.IsActive, result.IsActive);
@@ -274,7 +275,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             }
         };
 
-        _ = await repository.CreateRangeAsync(entities, cancellationToken);
+        await repository.CreateRangeAsync(entities, cancellationToken);
 
         // Act
         foreach (var entity in entities)
@@ -282,7 +283,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             entity.Name = "Test 2";
         }
 
-        var isSuccess = await repository.UpdateRangeAsync(entities, cancellationToken);
+        await repository.UpdateRangeAsync(entities, cancellationToken);
 
         // Assert
         foreach (var entity in entities)
@@ -290,7 +291,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
             var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
             Assert.NotNull(result);
-            Assert.True(isSuccess);
             Assert.Equal(entity.Id, result.Id);
             Assert.Equal(entity.Name, result.Name);
             Assert.Equal(entity.IsActive, result.IsActive);
@@ -316,19 +316,18 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        var result = await repository.TransactionAsync(async (database, session) =>
+        await repository.TransactionAsync(async (database, session) =>
         {
             var clientCollection = database.GetCollection<Client>(typeof(Client).Name);
 
             await clientCollection.InsertOneAsync(session, entity, cancellationToken: cancellationToken);
 
-            var result = await collection.Find(session, x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
-
-            return result;
         }, cancellationToken);
 
 
         // Assert
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
         Assert.NotNull(result);
         Assert.Equal(entity.Id, result.Id);
         Assert.Equal(entity.Name, result.Name);
@@ -354,7 +353,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         };
 
         // Act
-        var isSuccess = await repository.TransactionAsync<bool>(async (database, session) =>
+        await repository.TransactionAsync(async (database, session) =>
         {
             var clientCollection = database.GetCollection<Client>(typeof(Client).Name);
 
@@ -367,9 +366,216 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Assert
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
-        Assert.False(isSuccess);
         Assert.Null(result);
         this.loggerMock.VerifyLogging("Failed to execute transaction", LogLevel.Error);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithSubDocuments_Success()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name=Order 1|and|description~=Order|and|client.name^=Client"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var result = await repository.MatchingAsync<Order>(criteria, cancellationToken);
+
+        // Assert
+        var order = orders.FirstOrDefault(x => x.Name == "Order 1");
+
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Contains(result, x => x.Id == order.Id);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithProjection_Success()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name=Order 1|and|description~=Order|and|client.name^=Client"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var result = await repository.MatchingAsync<Order, Order>(criteria, x => new Order()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Description = x.Description,
+        }, cancellationToken);
+
+        // Assert
+        var order = orders.First(x => x.Name == "Order 1");
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Contains(result, x => x.Id == order.Id);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithProjection_SortAsc()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name^=Order",
+            OrderType = Net.Core.Abstractions.Models.Criteria.OrderTypes.Ascending,
+            OrderBy = "Total"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var data = await repository.MatchingAsync<Order, Order>(criteria, x => new Order()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Description = x.Description,
+            Total = x.Total
+        }, cancellationToken);
+
+        // Assert
+        var result = data.First();
+        var order = orders.First();
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.Equal(result.Id, order.Id);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithProjection_SortDesc()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name^=Order",
+            OrderType = Net.Core.Abstractions.Models.Criteria.OrderTypes.Descending,
+            OrderBy = "Total"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var data = await repository.MatchingAsync<Order, Order>(criteria, x => new Order()
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Description = x.Description,
+            Total = x.Total
+        }, cancellationToken);
+
+        // Assert
+        var result = data.First();
+        var order = orders.Last();
+        Assert.NotNull(order);
+        Assert.NotNull(result);
+        Assert.Equal(result.Name, order.Name);
+    }
+
+
+    [Fact]
+    public async Task MatchingAsync_CheckFiltersWithSubCollections_Success()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name=Product 1"
+        };
+
+        var repository = new OrderRepository(serviceProvider, this.options, loggerOrderMock.Object);
+
+        var orders = OrderData.GetOrders();
+        var order = orders.First(x => x.Name == "Order 1");
+        var product = order.Products.First(x => x.Name == "Product 1");
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        // Act
+        var result = await repository.MatchingAsync<Order, Product>(order.Id, criteria, x => x.Products, cancellationToken);
+
+        // Assert
+        Assert.NotNull(order);
+        Assert.NotNull(product);
+        Assert.NotNull(result);
+        Assert.NotEmpty(result);
+        Assert.Contains(result, x => x.Id == product.Id);
+    }
+
+    [Fact]
+    public void GetPropertyName_InvalidExpression_ThrowsMongoException()
+    {
+        // Arrange
+        var repositoryType = typeof(RepositoryBase);
+        var methodInfo = repositoryType
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .FirstOrDefault(m => m.Name == "GetPropertyName" && m.IsGenericMethodDefinition);
+
+        if (methodInfo == null)
+            throw new InvalidOperationException("No se encontró el método 'GetPropertyName'.");
+
+        // Crear una expresión inválida (una constante en lugar de un MemberExpression)
+        Expression<Func<Order, bool>> invalidExpression = x => x.Name == "Test" && x.Description == "Test";
+
+        // Crear un método cerrado (closed method) a partir del método genérico
+        var closedMethod = methodInfo.MakeGenericMethod(typeof(Order), typeof(bool));
+
+        // Act
+        var exception = Record.Exception(() => closedMethod.Invoke(null, [invalidExpression]));
+
+        // Assert
+        Assert.NotNull(exception);
+        Assert.IsType<TargetInvocationException>(exception);
+        Assert.IsType<Mongo.Exceptions.MongoException>(exception.InnerException);
+        Assert.Equal("The expression must be a MemberExpression.", exception.InnerException.Message);
     }
 
     private static ServiceProvider GetServiceProvider(IMongoClient mongoClient, IMongoCollection<Client> collection)

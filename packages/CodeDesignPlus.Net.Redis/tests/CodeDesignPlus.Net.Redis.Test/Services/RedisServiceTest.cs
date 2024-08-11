@@ -1,23 +1,16 @@
-﻿using System.Net.Security;
-using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.Server;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
 using Moq;
 using StackExchange.Redis;
+using System.Net.Security;
+using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 
 namespace CodeDesignPlus.Net.Redis.Test.Services;
 
-public class RedisServiceTest : IClassFixture<RedisContainer>
+public class RedisServiceTest(RedisContainer fixture) : IClassFixture<RedisContainer>
 {
-    private readonly RedisContainer fixture;
-
-    private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
-
-    public RedisServiceTest(RedisContainer fixture)
-    {
-        this.fixture = fixture;
-    }
+    private readonly RedisContainer fixture = fixture;
 
     [Fact]
     public void Constructor_LoggerIsNull_ArgumentNullException()
@@ -75,7 +68,7 @@ public class RedisServiceTest : IClassFixture<RedisContainer>
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Internal Error - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions)), LogLevel.Critical);
+        this.fixture.Logger.VerifyLogging(string.Format("Internal Error - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Critical);
     }
 
     [Fact]
@@ -104,7 +97,7 @@ public class RedisServiceTest : IClassFixture<RedisContainer>
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Hash Slot Moved - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions)), LogLevel.Warning);
+        this.fixture.Logger.VerifyLogging(string.Format("Hash Slot Moved - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Warning);
     }
 
     [Fact]
@@ -131,7 +124,7 @@ public class RedisServiceTest : IClassFixture<RedisContainer>
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Error Message - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions)), LogLevel.Error);
+        this.fixture.Logger.VerifyLogging(string.Format("Error Message - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Error);
     }
 
     [Fact]
@@ -160,7 +153,7 @@ public class RedisServiceTest : IClassFixture<RedisContainer>
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Connection Restored - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions)), LogLevel.Information);
+        this.fixture.Logger.VerifyLogging(string.Format("Connection Restored - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Information);
     }
 
     [Fact]
@@ -189,7 +182,7 @@ public class RedisServiceTest : IClassFixture<RedisContainer>
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Connection Failed - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions)), LogLevel.Information);
+        this.fixture.Logger.VerifyLogging(string.Format("Connection Failed - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Information);
     }
 
     [Fact]
@@ -215,7 +208,7 @@ public class RedisServiceTest : IClassFixture<RedisContainer>
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Configuration Changed Broadcast - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions)), LogLevel.Information);
+        this.fixture.Logger.VerifyLogging(string.Format("Configuration Changed Broadcast - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Information);
     }
 
     [Fact]
@@ -241,7 +234,7 @@ public class RedisServiceTest : IClassFixture<RedisContainer>
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Configuration Changed - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions)), LogLevel.Information);
+        this.fixture.Logger.VerifyLogging(string.Format("Configuration Changed - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Information);
     }
 
     [Fact]

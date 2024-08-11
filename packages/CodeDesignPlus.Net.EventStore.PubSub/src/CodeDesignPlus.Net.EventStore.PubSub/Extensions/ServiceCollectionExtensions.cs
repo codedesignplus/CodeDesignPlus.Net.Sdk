@@ -1,11 +1,4 @@
-﻿using CodeDesignPlus.Net.EventStore.PubSub.Abstractions;
-using CodeDesignPlus.Net.EventStore.PubSub.Exceptions;
-using CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
-using CodeDesignPlus.Net.EventStore.PubSub.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.EventStore.PubSub.Extensions;
+﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -20,11 +13,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddEventStorePubSub(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(EventStorePubSubOptions.Section);
 
@@ -36,7 +26,20 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IEventStorePubSubService, EventStorePubSubService>();
+        var options = section.Get<EventStorePubSubOptions>();
+
+        if (options.Enabled)
+        {
+            services.AddEventStore(configuration);
+            services.AddPubSub(configuration, x => {
+                x.EnableDiagnostic = options.EnableDiagnostic;
+                x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
+                x.SecondsWaitQueue = options.SecondsWaitQueue;
+                x.UseQueue = options.UseQueue;
+            });
+            services.TryAddSingleton<IMessage, EventStorePubSubService>();
+            services.TryAddSingleton<IEventStorePubSubService, EventStorePubSubService>();
+        }
 
         return services;
     }

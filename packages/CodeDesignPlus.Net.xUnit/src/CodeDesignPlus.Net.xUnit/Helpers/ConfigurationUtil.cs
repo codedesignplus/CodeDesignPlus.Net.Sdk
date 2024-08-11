@@ -1,8 +1,4 @@
-﻿using System.Text;
-using System.Text.Json;
-using Microsoft.Extensions.Configuration;
-
-namespace CodeDesignPlus.Net.xUnit.Helpers;
+﻿namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 public static class ConfigurationUtil
 {

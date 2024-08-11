@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Mongo.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Mongo
@@ -26,6 +24,15 @@ public class MongoOptions : IValidatableObject
     /// </summary>
     [Required]
     public string Database { get; set; }
+    /// <summary>
+    /// Gets or sets the Diagnostic
+    /// </summary>
+    public MongoDiagnosticsOptions Diagnostic { get; set; } = new();
+    /// <summary>
+    /// Gets or sets the RegisterAutomaticRepositories
+    /// </summary>
+    public bool RegisterAutomaticRepositories { get; set; } = true;
+
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -38,14 +45,20 @@ public class MongoOptions : IValidatableObject
 
         if (this.Enable)
         {
-            if (string.IsNullOrEmpty(Database))
-                results.Add(new ValidationResult($"The {nameof(this.Database)} field is required."));
-
             Validator.TryValidateProperty(
                 this.Database,
                 new ValidationContext(this, null, null) { MemberName = nameof(this.Database) },
                 results
             );
+
+            Validator.TryValidateProperty(
+                this.ConnectionString,
+                new ValidationContext(this, null, null) { MemberName = nameof(this.ConnectionString) },
+                results
+            );
+
+            if (this.Diagnostic.Enable)
+                Validator.TryValidateObject(this.Diagnostic, new ValidationContext(this.Diagnostic), results, true);
         }
 
         return results;

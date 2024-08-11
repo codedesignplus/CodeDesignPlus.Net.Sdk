@@ -2,12 +2,12 @@
 using CodeDesignPlus.InMemory;
 using CodeDesignPlus.InMemory.EntityConfiguration;
 using CodeDesignPlus.InMemory.Repositories;
+using CodeDesignPlus.Net.EFCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using CodeDesignPlus.Net.EFCore.Extensions;
 
-namespace CodeDesignPlus.Net.EFCore.Test;
+namespace CodeDesignPlus.Net.EFCore.Test.Extensions;
 
 /// <summary>
 /// Unit tests to the EFCoreExtensions class
@@ -37,7 +37,7 @@ public class EFCoreExtensionsTest
 
         // Act
         var idProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.Id));
-        var idUserCreatorProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.IdUserCreator));
+        var idUserCreatorProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.CreatedBy));
         var IsActiveProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.IsActive));
         var dateCreatedProperty = entityTypeBuilder.Metadata.FindDeclaredProperty(nameof(Permission.CreatedAt));
 
@@ -90,7 +90,7 @@ public class EFCoreExtensionsTest
         var maxPages = 10;
         var startIndex = (currentPage - 1) * pageSize;
         var endIndex = Math.Min(startIndex + pageSize - 1, totalItems - 1);
-        var totalPages = (int)Math.Ceiling((decimal)totalItems / (decimal)pageSize);
+        var totalPages = (int)Math.Ceiling(totalItems / (decimal)pageSize);
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
@@ -107,9 +107,9 @@ public class EFCoreExtensionsTest
             applications.Add(new Application()
             {
                 Name = $"{nameof(Application.Name)}-{i}",
-                IdUserCreator = new Random().Next(1, 15),
+                CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
+                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 Description = $"{nameof(Application.Description)}-{i}"
             });
         }

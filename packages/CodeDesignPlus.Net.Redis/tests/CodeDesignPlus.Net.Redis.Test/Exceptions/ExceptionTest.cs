@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Redis.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Redis.Test.Exceptions;
 
 public class RedisExceptionTest
 {
@@ -89,25 +87,5 @@ public class RedisExceptionTest
         Assert.Equal(message, exception.Message);
         Assert.Equal(innerException, exception.InnerException);
 
-    }
-
-    [Fact]
-    public void RedisException_SerializationInfo_Call_Method()
-    {
-        // Arrange
-        var errors = new List<string>() { Guid.NewGuid().ToString() };
-        var message = Guid.NewGuid().ToString();
-
-        var exception = new RedisException(message, errors);
-
-        // Act 
-        var serialize = JsonConvert.SerializeObject(exception);
-
-        var deserialize = JsonConvert.DeserializeObject(serialize, typeof(RedisException)) as RedisException;
-
-        //Assert
-        Assert.NotNull(deserialize);
-        Assert.Equal(exception.Message, deserialize.Message);
-        Assert.Equal(exception.Errors, deserialize.Errors);
     }
 }

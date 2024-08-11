@@ -1,6 +1,6 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Memory;
-using Newtonsoft.Json;
+﻿using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Memory;
+using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.Serializers;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
 
@@ -20,7 +20,7 @@ public class OrderCreatedEventHandler : IEventHandler<OrderCreatedEvent>
     {
         this.memory.OrderCreatedEvent.Add(data);
 
-        this.logger.LogDebug("Invoked Event: {0}", JsonConvert.SerializeObject(data));
+        this.logger.LogDebug("Invoked Event: {data}", JsonSerializer.Serialize(data));
 
         return Task.CompletedTask;
     }

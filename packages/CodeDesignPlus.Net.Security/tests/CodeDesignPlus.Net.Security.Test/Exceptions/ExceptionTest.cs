@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Security.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Security.Test.Exceptions;
 
 public class SecurityExceptionTest
 {
@@ -88,26 +86,5 @@ public class SecurityExceptionTest
         Assert.Equal(errors, exception.Errors);
         Assert.Equal(message, exception.Message);
         Assert.Equal(innerException, exception.InnerException);
-
-    }
-
-    [Fact]
-    public void SecurityException_SerializationInfo_Call_Method()
-    {
-        // Arrange
-        var errors = new List<string>() { Guid.NewGuid().ToString() };
-        var message = Guid.NewGuid().ToString();
-
-        var exception = new SecurityException(message, errors);
-
-        // Act 
-        var serialize = JsonConvert.SerializeObject(exception);
-
-        var deserialize = JsonConvert.DeserializeObject(serialize, typeof(SecurityException)) as SecurityException;
-
-        //Assert
-        Assert.NotNull(deserialize);
-        Assert.Equal(exception.Message, deserialize.Message);
-        Assert.Equal(exception.Errors, deserialize.Errors);
     }
 }

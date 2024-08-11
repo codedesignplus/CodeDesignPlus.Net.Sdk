@@ -1,11 +1,19 @@
-﻿using System.Security.Claims;
+﻿using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 using Microsoft.AspNetCore.Http;
+using System.Security.Claims;
 using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.Security.Test.Services;
 
 public class UserContextTest
 {
+    private readonly ServerAuth serverAuth;
+
+    public UserContextTest()
+    {
+        this.serverAuth = new ServerAuth();
+    }
+
     [Fact]
     public void State_Guids_Success()
     {
@@ -33,7 +41,7 @@ public class UserContextTest
             HttpContext = httpContext
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext<Guid, Guid>(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
 
         // Act
         var idUser = userContext.GetClaim<Guid>(Abstractions.ClaimTypes.ObjectIdentifier);
@@ -49,73 +57,49 @@ public class UserContextTest
     }
 
     [Fact]
-    public void State_Strings_Success()
+    public void GetHeader_Guid_Success()
     {
         // Arrange
-        var idUserExpected = new Random().Next(1, 100).ToString();
-        var idLicenseExpected = new Random().Next(1, 100).ToString();
-        var name = "John Doe";
-        var firstName = "John";
-        var lastName = "Doe";
-        var city = "Bogota";
-        var country = "Colombia";
-        var postalCode = "110911";
-        var streetAddress = "Calle 123";
-        var jobTitle = "Developer";
-        var state = "Bogota";
-        var email = "john.doe@gmail.com";
-        var tenant = Guid.NewGuid().ToString();
-        var applicationExpected = "CodeDesignPlus.Net.Security.Test";
+        var tenantExpected = Guid.NewGuid();
 
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new(Abstractions.ClaimTypes.ObjectIdentifier, idUserExpected.ToString()),
-                new(Abstractions.ClaimTypes.Name, name),
-                new(Abstractions.ClaimTypes.Emails, email),
-                new(Abstractions.ClaimTypes.Audience, applicationExpected),
-                new(Abstractions.ClaimTypes.FirstName, firstName),
-                new(Abstractions.ClaimTypes.LastName, lastName),
-                new(Abstractions.ClaimTypes.City, city),
-                new(Abstractions.ClaimTypes.Country, country),
-                new(Abstractions.ClaimTypes.PostalCode, postalCode),
-                new(Abstractions.ClaimTypes.StreetAddress, streetAddress),
-                new(Abstractions.ClaimTypes.JobTitle, jobTitle),
-                new(Abstractions.ClaimTypes.State, state),
-
-            }))
-        };
-
-        httpContext.Request.Headers.Append("X-Tenant", tenant);
-        httpContext.Request.Headers.Append("X-License", idLicenseExpected);
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("X-Tenant", tenantExpected.ToString());
 
         var httpContextAccessor = new HttpContextAccessor
         {
             HttpContext = httpContext
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext<string, Guid>(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
 
         // Act
-        var idUser = userContext.GetClaim<string>(Abstractions.ClaimTypes.ObjectIdentifier);
+        var tenant = userContext.GetHeader<Guid>("X-Tenant");
 
         // Assert
-        Assert.Equal(idUserExpected, idUser);
-        Assert.Equal(idUserExpected, userContext.IdUser);
-        Assert.Equal(name, userContext.Name);
-        Assert.Contains(email, userContext.Emails);
-        Assert.Equal(firstName, userContext.FirstName);
-        Assert.Equal(lastName, userContext.LastName);
-        Assert.Equal(city, userContext.City);
-        Assert.Equal(country, userContext.Country);
-        Assert.Equal(postalCode, userContext.PostalCode);
-        Assert.Equal(streetAddress, userContext.StreetAddress);
-        Assert.Equal(jobTitle, userContext.JobTitle);
-        Assert.Equal(state, userContext.State);
-        Assert.Equal(tenant, userContext.Tenant.ToString());
-        Assert.Equal(idLicenseExpected, userContext.GetHeader<string>("X-License"));
-        Assert.Null(userContext.GetHeader<string>("X-Plan"));
-        Assert.True(userContext.IsApplication);
+        Assert.Equal(tenantExpected, tenant);
+    }
+
+    [Fact]
+    public void GetHeader_ChangeTypeWithInteger_Success()
+    {
+        // Arrange
+        var planExpected = 1;
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("X-Plan", planExpected.ToString());
+
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = httpContext
+        };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+
+        // Act
+        var plan = userContext.GetHeader<int>("X-Plan");
+
+        // Assert
+        Assert.Equal(planExpected, plan);
     }
 
     [Fact]
@@ -127,7 +111,7 @@ public class UserContextTest
             HttpContext = new DefaultHttpContext()
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext<string, Guid>(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
 
         // Act
         var plan = userContext.GetHeader<string>("X-Plan");
@@ -145,12 +129,23 @@ public class UserContextTest
             HttpContext = new DefaultHttpContext()
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext<string, Guid>(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
 
         // Act
         var idUser = userContext.GetClaim<string>(System.Security.Claims.ClaimTypes.NameIdentifier);
 
         // Assert
         Assert.Null(idUser);
+    }
+
+    [Fact]
+    public async Task GetPasswordToken_ShouldReturnAccessToken()
+    {
+        var accessToken = await serverAuth.GetAccessTokenAsync();
+        Assert.NotNull(accessToken);
+
+        var claims = ServerAuth.GetClaims(accessToken);
+
+        Assert.Contains(claims, c => c.Type == "given_name" && c.Value == "Jaramillo Jaramillo");
     }
 }

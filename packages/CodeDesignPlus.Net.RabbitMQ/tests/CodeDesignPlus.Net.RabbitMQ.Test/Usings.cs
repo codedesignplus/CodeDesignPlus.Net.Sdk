@@ -1,0 +1,12 @@
+﻿global using CodeDesignPlus.Net.RabbitMQ.Abstractions;
+global using CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
+global using CodeDesignPlus.Net.RabbitMQ.Exceptions;
+global using CodeDesignPlus.Net.RabbitMQ.Services;
+global using CodeDesignPlus.Net.RabbitMQ.Test.Helpers;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
+global using System.Text;
+global using CodeDesignPlus.Net.Serializers;
+global using Xunit;

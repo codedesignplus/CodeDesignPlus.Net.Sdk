@@ -13,9 +13,7 @@ public static class PubSubExtensions
     /// <returns>Return true if type implemented <paramref name="interface"/></returns>
     public static bool IsAssignableGenericFrom(this Type type, Type @interface)
     {
-        return type
-            .GetInterfaces()
-            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == @interface);
+        return Array.Exists(type.GetInterfaces(), x => x.IsGenericType && x.GetGenericTypeDefinition() == @interface);
     }
 
     /// <summary>
@@ -27,7 +25,7 @@ public static class PubSubExtensions
         return AppDomain.CurrentDomain
            .GetAssemblies()
            .SelectMany(assembly => assembly.GetTypes())
-           .Where(t => t.IsSubclassOf(typeof(EventBase)) && !t.IsAbstract)
+           .Where(t => typeof(IDomainEvent).IsAssignableFrom(t) && t.IsClass && !t.IsAbstract && !t.IsInterface)
            .ToList();
     }
 
@@ -63,9 +61,7 @@ public static class PubSubExtensions
     /// </example>
     public static Type GetInterfaceEventHandlerGeneric(this Type eventHandler)
     {
-        return eventHandler
-            .GetInterfaces()
-            .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
+        return Array.Find(eventHandler.GetInterfaces(), x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
     }
 
     /// <summary>
@@ -88,25 +84,6 @@ public static class PubSubExtensions
     /// </example>
     public static Type GetEventType(this Type interfaceEventHandlerGeneric)
     {
-        return interfaceEventHandlerGeneric
-            .GetGenericArguments()
-            .FirstOrDefault(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(EventBase)));
-    }
-
-    /// <summary>
-    /// Retrieves the type of the class that implements the <see cref="IPubSub"/> interface from the current AppDomain.
-    /// It excludes abstract classes and interfaces.
-    /// </summary>
-    /// <returns>
-    /// The type of the class implementing the <see cref="IPubSub"/> interface. If no such class is found, returns null.
-    /// </returns>
-    public static Type GetPubSub()
-    {
-        var type = AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .SelectMany(x => x.GetTypes())
-                    .FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract && !x.IsInterface);
-
-        return type;
+        return Array.Find(interfaceEventHandlerGeneric.GetGenericArguments(), x => x.IsClass && !x.IsAbstract && typeof(IDomainEvent).IsAssignableFrom(x));
     }
 }

@@ -1,9 +1,7 @@
-﻿using Confluent.Kafka;
-
-namespace CodeDesignPlus.Net.Kafka.Serializer;
+﻿namespace CodeDesignPlus.Net.Kafka.Serializer;
 
 /// <summary>
-/// Provides JSON serialization and deserialization using System.Text.Json for Kafka messages.
+/// Provides JSON serialization and deserialization using CodeDesignPlus.Net.Serializers; for Kafka messages.
 /// </summary>
 /// /// <typeparam name="T">The type of the message to serialize or deserialize.</typeparam>
 public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
@@ -16,10 +14,10 @@ public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
     /// <returns>The serialized byte array, or null if the data is null.</returns>
     public byte[] Serialize(T data, SerializationContext context)
     {
-        if (data == null)
-            return null;
+        if (EqualityComparer<T>.Default.Equals(data, default(T)))
+            return [];
 
-        return System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(data);
+        return Encoding.UTF8.GetBytes(JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -33,7 +31,7 @@ public class JsonSystemTextSerializer<T> : ISerializer<T>, IDeserializer<T>
     {
         if (isNull)
             return default;
-            
-        return System.Text.Json.JsonSerializer.Deserialize<T>(data);
+
+        return JsonSerializer.Deserialize<T>(Encoding.UTF8.GetString(data));
     }
 }

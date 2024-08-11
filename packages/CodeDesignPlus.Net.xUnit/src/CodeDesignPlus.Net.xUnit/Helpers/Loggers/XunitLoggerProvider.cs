@@ -1,6 +1,4 @@
-﻿using Xunit.Abstractions;
-
-namespace CodeDesignPlus.Net.xUnit.Helpers.Loggers;
+﻿namespace CodeDesignPlus.Net.xUnit.Helpers.Loggers;
 
 public sealed class XunitLoggerProvider : ILoggerProvider, ISupportExternalScope
 {

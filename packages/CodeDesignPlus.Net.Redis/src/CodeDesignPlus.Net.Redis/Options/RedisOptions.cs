@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Redis.Options;
+﻿namespace CodeDesignPlus.Net.Redis.Options;
 
 /// <summary>
 /// Configuration options for the Redis service 
@@ -14,7 +12,7 @@ public class RedisOptions : IValidatableObject
     /// <summary>
     /// Gets or sets the Instances
     /// </summary>
-    public Dictionary<string, Instance> Instances { get; set; } = new();
+    public Dictionary<string, Instance> Instances { get; set; } = [];
 
     /// <summary>
     /// Determines whether the specified object is valid.
@@ -25,14 +23,13 @@ public class RedisOptions : IValidatableObject
     {
         var result = new List<ValidationResult>();
 
-        if (!this.Instances.Any())
-            result.Add(new ValidationResult("The Instances list must not be empty.", new string[] { nameof(this.Instances) }));
+        if (Instances.Count == 0)
+            result.Add(new ValidationResult("The Instances list must not be empty.", [nameof(this.Instances)]));
 
 
-        foreach (var instance in this.Instances.Select(x => x.Value).Where(x => x.CreateConfiguration().Ssl))
+        foreach (var instance in this.Instances.Where(x => x.Value.CreateConfiguration().Ssl && string.IsNullOrEmpty(x.Value.Certificate)))
         {
-            if (string.IsNullOrEmpty(instance.Certificate))
-                result.Add(new ValidationResult("The Certificate is required.", new string[] { nameof(Instance.Certificate) }));
+            result.Add(new ValidationResult("The Certificate is required.", [nameof(Instance.Certificate)]));
         }
 
         return result;

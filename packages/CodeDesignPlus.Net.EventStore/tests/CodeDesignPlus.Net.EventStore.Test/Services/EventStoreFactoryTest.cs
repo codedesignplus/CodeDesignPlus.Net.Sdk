@@ -1,8 +1,8 @@
 ﻿using Moq;
-using O = Microsoft.Extensions.Options;
 using E = EventStore.ClientAPI;
+using O = Microsoft.Extensions.Options;
 
-namespace CodeDesignPlus.Net.EventStore.Test;
+namespace CodeDesignPlus.Net.EventStore.Test.Services;
 public class EventStoreFactoryTest
 {
     private readonly Mock<ILogger<EventStoreFactory>> loggerMock = new();
@@ -138,7 +138,7 @@ public class EventStoreFactoryTest
     [Theory]
     [InlineData(null)]
     [InlineData("")]
-    public void GetCredentials_keyIsNullOrEmpty(string key)
+    public void GetCredentials_keyIsNullOrEmpty(string? key)
     {
         // Arrange
         var eventStoreConnection = new Mock<IEventStoreConnection>();
@@ -166,7 +166,7 @@ public class EventStoreFactoryTest
 
     [Fact]
     public void GetCredentials_ValidKey_ReturnsCredentials()
-    
+
     {
         // Arrange
         var eventStoreConnection = new Mock<IEventStoreConnection>();

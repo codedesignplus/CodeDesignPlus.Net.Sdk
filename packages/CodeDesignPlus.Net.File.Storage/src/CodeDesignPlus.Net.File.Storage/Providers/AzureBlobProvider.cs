@@ -1,21 +1,14 @@
-﻿using Azure.Storage.Blobs.Models;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Models;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-using Microsoft.Extensions.Hosting;
-using Semver;
+﻿namespace CodeDesignPlus.Net.File.Storage.Providers;
 
-namespace CodeDesignPlus.Net.File.Storage.Providers;
-
-public class AzureBlobProvider<TKeyUser, TTenant>(
-    IAzureBlobFactory<TKeyUser, TTenant> factory,
-    ILogger<AzureBlobProvider<TKeyUser, TTenant>> logger,
+public class AzureBlobProvider(
+    IAzureBlobFactory factory,
+    ILogger<AzureBlobProvider> logger,
     IHostEnvironment environment
-    ) : BaseProvider(logger, environment), IAzureBlobProvider<TKeyUser, TTenant>
+    ) : BaseProvider(logger, environment), IAzureBlobProvider
 {
-    private readonly IAzureBlobFactory<TKeyUser, TTenant> factory = factory.Create();
+    private readonly IAzureBlobFactory factory = factory.Create();
 
-    public Task<Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
@@ -23,7 +16,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
 
             var blobClient = this.factory.GetContainerClient().GetBlobClient(name);
 
-            if (!await blobClient.ExistsAsync(cancellationToken))
+            if (!await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 response.Success = false;
                 response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
@@ -33,7 +26,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
 
             var stream = new MemoryStream();
 
-            await blobClient.DownloadToAsync(stream, cancellationToken: cancellationToken);
+            await blobClient.DownloadToAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             response.Stream = stream;
             response.Stream.Position = 0;
@@ -43,13 +36,13 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
         });
     }
 
-    public Task<Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
+    public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
             var container = this.factory.GetContainerClient();
 
-            await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken);
+            await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             var name = GetName(target, System.IO.Path.GetFileName(file.FullName));
 
@@ -59,7 +52,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
             {
                 var count = 1;
 
-                while (await blobClient.ExistsAsync(cancellationToken))
+                while (await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
                 {
                     count += 1;
 
@@ -81,7 +74,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
                 {
                     ContentType = file.Mime.MimeType
                 },
-            }, cancellationToken: cancellationToken);
+            }, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             file.Size = stream.Length;
             file.Detail = new Abstractions.Models.FileDetail(this.factory.Options.UriDownload, target, System.IO.Path.GetFileName(name), TypeProviders.AzureBlobProvider);
@@ -92,7 +85,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
         });
     }
 
-    public Task<Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
@@ -102,7 +95,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
 
             var blobClient = container.GetBlobClient(name);
 
-            var deleted = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
+            var deleted = await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
             response.Success = deleted;
 
@@ -113,7 +106,7 @@ public class AzureBlobProvider<TKeyUser, TTenant>(
         });
     }
 
-    protected string GetName(string target, string name)
+    protected static string GetName(string target, string name)
     {
         if (string.IsNullOrEmpty(target))
             return name;

@@ -1,33 +1,56 @@
-﻿namespace CodeDesignPlus.Net.Event.Sourcing.Test;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Events;
 
-public class OrderAggregateRoot : AggregateRootBase<Guid>
+namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers.Aggregates;
+
+public class OrderAggregateRoot : AggregateRoot
 {
-    public string Name { get; set; }
+    public string? Name { get; private set; }
+    public Guid IdUser { get; private set; }
+    public List<string> Products { get; private set; } = [];
     public override string Category { get; protected set; } = "Order";
-    public OrderAggregateRoot()
+
+    public OrderAggregateRoot(Guid id) : base(id) { }
+
+    private OrderAggregateRoot(Guid id, string name, Guid idUser) : base(id)
     {
+        this.Name = name;
+        this.IdUser = idUser;
     }
 
-    public OrderAggregateRoot(string name, Guid idUser)
+    public static OrderAggregateRoot Create(Guid id, string name, Guid idUser)
     {
-        this.OrderCreated(name, idUser);
+        var aggregate = new OrderAggregateRoot(id, name, idUser);
+
+        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, idUser));
+
+        return aggregate;
     }
 
-    public OrderAggregateRoot(Guid id, string name, Guid idUser)
+    public void UpdateName(string name)
     {
-        Id = id;
-        this.OrderCreated(name, idUser);
+        this.AddEvent(new NameUpdatedDomainEvent(this.Id, name, this.IdUser));
     }
 
-    public void OrderCreated(string name, Guid idUser)
+    public void AddProduct(string product)
     {
-        this.ApplyChange(new OrderCreatedEvent(base.Id, name), idUser);
+        this.AddEvent(new ProductAddedDomainEvent(this.Id, product));
     }
 
-    private void Apply(OrderCreatedEvent @event, Metadata<Guid> metadata)
+
+    private void Apply(OrderCreatedDomainEvent @event)
     {
-        this.Id = metadata.AggregateId;
         this.Name = @event.Name;
+        this.IdUser = @event.IdUser;
+    }
+
+    private void Apply(NameUpdatedDomainEvent @event)
+    {
+        this.Name = @event.Name;
+    }
+
+    private void Apply(ProductAddedDomainEvent @event)
+    {
+        this.Products.Add(@event.Product);
     }
 
 }

@@ -1,16 +1,17 @@
 ﻿
+using CodeDesignPlus.Net.Mongo.Abstractions;
 using CodeDesignPlus.Net.Mongo.Repository;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers;
 
-public class ClientRepository : RepositoryBase<Guid, Guid>, IClientRepository
+public class ClientRepository : RepositoryBase, IClientRepository
 {
-    public ClientRepository(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger<RepositoryBase<Guid, Guid>> logger) 
+    public ClientRepository(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger<RepositoryBase> logger)
         : base(serviceProvider, mongoOptions, logger)
     {
     }
 }
 
-public interface IClientRepository: IRepositoryBase<Guid, Guid>
+public interface IClientRepository : IRepositoryBase
 {
 }

@@ -1,10 +1,4 @@
-﻿using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
-using CodeDesignPlus.Net.Event.Sourcing.Exceptions;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace CodeDesignPlus.Net.Event.Sourcing.Extensions;
+﻿namespace CodeDesignPlus.Net.Event.Sourcing.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -19,11 +13,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddEventSourcing(this IServiceCollection services, IConfiguration configuration)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(EventSourcingOptions.Section);
 
@@ -35,9 +26,27 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        var eventSourcing = EventSourcingExtesions.GetEventSourcing() ?? throw new EventSourcingNotImplementedException();
-        
-        services.AddSingleton(typeof(IEventSourcingService<>), eventSourcing);
+        services.AddCore(configuration);
+
+        return services;
+    }
+
+    public static IServiceCollection AddEventSourcing(this IServiceCollection services, IConfiguration configuration, Action<EventSourcingOptions> setupOptions)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
+        ArgumentNullException.ThrowIfNull(setupOptions);
+
+        var section = new EventSourcingOptions();
+
+        setupOptions(section);
+
+        services
+            .AddOptions<EventSourcingOptions>()
+            .Configure(setupOptions)
+            .ValidateDataAnnotations();
+
+        services.AddCore(configuration);
 
         return services;
     }

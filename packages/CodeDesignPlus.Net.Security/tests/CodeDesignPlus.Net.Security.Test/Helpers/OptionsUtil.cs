@@ -1,6 +1,4 @@
-﻿using System.Security.Cryptography.X509Certificates;
-
-namespace CodeDesignPlus.Net.Security.Test.Helpers;
+﻿namespace CodeDesignPlus.Net.Security.Test.Helpers;
 
 public static class OptionsUtil
 {
@@ -8,17 +6,15 @@ public static class OptionsUtil
     {
         Authority = "https://localhost:5001",
         Applications = ["CodeDesignPlus.Net.Security.Test"],
-        CertificatePassword = "123456",
-        CertificatePath = "certificate.pfx",
+        CertificatePath = "Helpers/Certificates/identity.pfx",
+        CertificatePassword = "Temporal1",
         IncludeErrorDetails = true,
         RequireHttpsMetadata = false,
-        RequireSignedTokens = false,
         ValidateAudience = false,
         ValidateIssuer = false,
         ValidateLifetime = false,
-        ValidateIssuerSigningKey = false,
         ValidIssuer = "https://localhost:5001",
-        ValidAudiences = new string[] { "CodeDesignPlus.Net.Security.Test" }
+        ValidAudiences = ["CodeDesignPlus.Net.Security.Test"]
     };
 
     public static readonly SecurityOptions SecurityOptionsAzure = new()
@@ -26,13 +22,25 @@ public static class OptionsUtil
         Authority = "https://codedesignplus.b2clogin.com/codedesignplus.onmicrosoft.com/B2C_1_signin/v2.0",
         IncludeErrorDetails = true,
         RequireHttpsMetadata = false,
-        RequireSignedTokens = true,
         ValidateAudience = false,
         ValidateIssuer = false,
         ValidateLifetime = false,
-        ValidateIssuerSigningKey = false,
         ValidIssuer = "https://codedesignplus.b2clogin.com/codedesignplus.onmicrosoft.com/B2C_1_signin/v2.0",
-        ValidAudiences = new string[] { "7f2aea10-b63c-44ce-8580-78ab3e5189aa" }
+        ValidAudiences = ["7f2aea10-b63c-44ce-8580-78ab3e5189aa"]
+    };
+
+    public static readonly SecurityOptions SercurityOptionsLocalhost = new()
+    {
+        Authority = "http://localhost",
+        IncludeErrorDetails = true,
+        RequireHttpsMetadata = false,
+        ValidateAudience = false,
+        ValidateIssuer = false,
+        ValidateLifetime = false,
+        ValidIssuer = "http://localhost",
+        ValidAudiences = ["api1"],
+        CertificatePath = "Helpers/Certificates/identity.pfx",
+        CertificatePassword = "Temporal1"
     };
 
 }

@@ -8,7 +8,7 @@ public class EFCoreOptionTest
     /// <summary>
     /// Configuration options for CodeDesignPlus.EFCore
     /// </summary>
-    private readonly EFCoreOptions efCoreOption = new ()
+    private readonly EFCoreOptions efCoreOption = new()
     {
         ClaimsIdentity = new ClaimsOption()
         {

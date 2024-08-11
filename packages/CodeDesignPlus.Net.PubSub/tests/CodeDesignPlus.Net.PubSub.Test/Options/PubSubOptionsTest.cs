@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-
-namespace CodeDesignPlus.Net.PubSub.Test.Options;
+﻿namespace CodeDesignPlus.Net.PubSub.Test.Options;
 
 public class PubSubOptionsTest
 {
@@ -12,7 +10,7 @@ public class PubSubOptionsTest
         // Arrange
         var options = new PubSubOptions()
         {
-            EnableQueue = value
+            UseQueue = value
         };
 
         // Act
@@ -20,7 +18,7 @@ public class PubSubOptionsTest
 
         // Assert
         Assert.Empty(results);
-        Assert.Equal(value, options.EnableQueue);
+        Assert.Equal(value, options.UseQueue);
         Assert.Equal((uint)2, options.SecondsWaitQueue);
     }
 
@@ -31,7 +29,7 @@ public class PubSubOptionsTest
         var secondsExpected = (uint)new Random().Next(1, 5);
         var options = new PubSubOptions()
         {
-            EnableQueue = true,
+            UseQueue = true,
             SecondsWaitQueue = secondsExpected
         };
 
@@ -43,7 +41,7 @@ public class PubSubOptionsTest
         Assert.Equal(secondsExpected, options.SecondsWaitQueue);
     }
 
-    
+
     [Theory]
     [InlineData(0)]
     [InlineData(11)]
@@ -52,7 +50,7 @@ public class PubSubOptionsTest
         // Arrange
         var options = new PubSubOptions()
         {
-            EnableQueue = true,
+            UseQueue = true,
             SecondsWaitQueue = seconds
         };
 

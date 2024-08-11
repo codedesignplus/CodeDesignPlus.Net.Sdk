@@ -1,19 +1,10 @@
-﻿using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
-using CodeDesignPlus.Net.Redis.Options;
-
-namespace CodeDesignPlus.Net.Redis.Services;
+﻿namespace CodeDesignPlus.Net.Redis.Services;
 
 /// <summary>
 /// The default IServiceProvider. 
 /// </summary>
 public class RedisService : IRedisService
 {
-    /// <summary>
-    /// Options to control serialization behavior.
-    /// </summary>
-    private readonly JsonSerializerOptions jsonSerializerOptions = new() { WriteIndented = true };
     /// <summary>
     /// A generic interface for logging
     /// </summary>
@@ -43,7 +34,9 @@ public class RedisService : IRedisService
     /// <exception cref="ArgumentNullException">logger is null</exception>
     public RedisService(ILogger<RedisService> logger)
     {
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        ArgumentNullException.ThrowIfNull(logger);
+
+        this.logger = logger;
     }
 
     /// <summary>
@@ -177,7 +170,7 @@ public class RedisService : IRedisService
             args.Origin
         };
 
-        this.logger.LogCritical(args.Exception, "Internal Error - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions));
+        this.logger.LogCritical(args.Exception, "Internal Error - Data: {data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -194,7 +187,7 @@ public class RedisService : IRedisService
             NewEndPoint = args.NewEndPoint.ToString()
         };
 
-        this.logger.LogWarning("Hash Slot Moved - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions));
+        this.logger.LogWarning("Hash Slot Moved - Data: {data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -210,7 +203,7 @@ public class RedisService : IRedisService
             args.Message
         };
 
-        this.logger.LogError("Error Message - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions));
+        this.logger.LogError("Error Message - Data: {data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -228,7 +221,7 @@ public class RedisService : IRedisService
             physicalNameConnection = args.ToString()
         };
 
-        this.logger.LogInformation(args.Exception, "Connection Restored - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions));
+        this.logger.LogInformation(args.Exception, "Connection Restored - Data: {data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -246,7 +239,7 @@ public class RedisService : IRedisService
             physicalNameConnection = args.ToString()
         };
 
-        this.logger.LogInformation(args.Exception, "Connection Failed - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions));
+        this.logger.LogInformation(args.Exception, "Connection Failed - Data: {data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -261,7 +254,7 @@ public class RedisService : IRedisService
             EndPoint = args.EndPoint.ToString(),
         };
 
-        this.logger.LogInformation("Configuration Changed Broadcast - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions));
+        this.logger.LogInformation("Configuration Changed Broadcast - Data: {data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -276,6 +269,6 @@ public class RedisService : IRedisService
             EndPoint = args.EndPoint.ToString(),
         };
 
-        this.logger.LogInformation("Configuration Changed - Data: {0}", JsonSerializer.Serialize(data, this.jsonSerializerOptions));
+        this.logger.LogInformation("Configuration Changed - Data: {data}", JsonSerializer.Serialize(data));
     }
 }

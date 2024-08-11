@@ -1,9 +1,4 @@
-﻿using Ductus.FluentDocker.Model.Common;
-using Ductus.FluentDocker.Model.Compose;
-using Ductus.FluentDocker.Services;
-using Ductus.FluentDocker.Services.Impl;
-
-namespace CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+﻿namespace CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
 
 public class MongoContainer : DockerCompose
 {
@@ -14,7 +9,7 @@ public class MongoContainer : DockerCompose
 
         var dockerCompose = new DockerComposeConfig
         {
-            ComposeFilePath = new List<string> { file },
+            ComposeFilePath = [file],
             ForceRecreate = true,
             RemoveOrphans = true,
             StopOnDispose = true,

@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-
+﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the FileStorage

@@ -20,7 +20,7 @@ namespace CodeDesignPlus.Net.PubSub.Test.Helpers.Events
         /// <returns>System.Threading.Tasks.Task represents an asynchronous operation.</returns>
         public Task HandleAsync(UserRegisteredEvent data, CancellationToken token)
         {
-            Events.TryAdd(data.IdEvent, data);
+            Events.TryAdd(data.EventId, data);
 
             return Task.CompletedTask;
         }

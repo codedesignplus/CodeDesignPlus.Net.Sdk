@@ -1,0 +1,51 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{2BF224C7-3DAA-4DEA-97CD-EC05D66210CC}</ProjectGuid>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Authors>CodeDesignPlus</Authors>
+    <Description>{Description}</Description>
+    <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageId>CodeDesignPlus.Net.Observability.Abstractions</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</PackageProjectUrl>
+    <PackageTags>{tags}</PackageTags>
+    <PackageIcon>logo.png</PackageIcon>
+    <Version>$(Version)</Version>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Observability.Abstractions.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="1.4.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.8.1" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.8.1" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.8.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.8.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.8.1" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
+    </None>
+    <None Include="..\..\logo.png">
+      <Pack>True</Pack>
+      <PackagePath>
+      </PackagePath>
+    </None>
+    <None Include="..\..\README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+</Project>

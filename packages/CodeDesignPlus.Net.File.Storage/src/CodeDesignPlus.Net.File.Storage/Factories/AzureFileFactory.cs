@@ -1,28 +1,21 @@
-﻿using Azure.Identity;
-using Azure.Storage.Files.Shares;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
-using CodeDesignPlus.Net.File.Storage.Abstractions.Options;
-using CodeDesignPlus.Net.File.Storage.Exceptions;
-using CodeDesignPlus.Net.Security.Abstractions;
+﻿namespace CodeDesignPlus.Net.File.Storage.Factories;
 
-namespace CodeDesignPlus.Net.File.Storage.Factories;
-
-public class AzureFileFactory<TKeyUser, TTenant> : IAzureFlieFactory<TKeyUser, TTenant>
+public class AzureFileFactory : IAzureFlieFactory
 {
     public FileStorageOptions Options { get; private set; }
-    public IUserContext<TKeyUser, TTenant> UserContext { get; private set; }
+    public IUserContext UserContext { get; private set; }
     public ShareServiceClient Client { get; private set; }
 
-    public AzureFileFactory(IOptions<FileStorageOptions> options, IUserContext<TKeyUser, TTenant> userContext)
+    public AzureFileFactory(IOptions<FileStorageOptions> options, IUserContext userContext)
     {
-        ArgumentNullException.ThrowIfNull(options, nameof(options));
-        ArgumentNullException.ThrowIfNull(userContext, nameof(userContext));
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(userContext);
 
         Options = options.Value;
         UserContext = userContext;
     }
 
-    public IAzureFlieFactory<TKeyUser, TTenant> Create()
+    public IAzureFlieFactory Create()
     {
         if (!this.Options.AzureFile.Enable)
             throw new FileStorageException("The AzureBlob is not enable");

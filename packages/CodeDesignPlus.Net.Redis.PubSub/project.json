@@ -43,21 +43,17 @@
       }
     },
     "sonarqube": {
-      "executor": "@koliveira15/nx-sonarqube:scan",
+      "executor": "nx:run-commands",
+      "outputs": [],
       "options": {
-        "name": "CodeDesignPlus.Net.Redis.PubSub",
-        "hostUrl": "https://sonarcloud.io/",
-        "projectKey": "CodeDesignPlus.Net.Redis.PubSub",
-        "organization": "codedesignplus",
-        "skipTargetDefaults": false,
-        "branches": false,
-        "qualityGate": false,
-        "qualityGateTimeout": "600",
-        "skipImplicitDeps": false,
-        "exclusions": "**CodeDesignPlus.Net.Core*,**CodeDesignPlus.Net.Redis*,**Tests*.cs",
-        "extra": {
-          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Redis.PubSub.Test/coverage.opencover.xml"
-        }
+        "args": "--org=codedesignplus --project=CodeDesignPlus.Net.Redis.PubSub --server=https://sonarcloud.io/",
+        "commands": [
+          "dotnet test {projectRoot}/{args.project}.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover",
+          "dotnet sonarscanner begin /o:{args.org} /k:{args.project} /d:sonar.host.url={args.server} /d:sonar.coverage.exclusions=\"**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Serializers/**,**/CodeDesignPlus.Net.PubSub/**,**/CodeDesignPlus.Net.Redis/**,**Tests*.cs\" /d:sonar.cs.opencover.reportsPaths={projectRoot}/tests/{args.project}.Test/coverage.opencover.xml",
+          "dotnet build {projectRoot}/{args.project}.sln",
+          "dotnet sonarscanner end"
+        ],
+        "parallel": false
       }
     },
     "pack": {

@@ -1,11 +1,16 @@
 ﻿namespace CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 
-public interface IAggregateRoot<TUserKey>
+/// <summary>
+/// Represents the contract to be implemented by the aggregate root.
+/// </summary>
+public interface IAggregateRoot : Core.Abstractions.IAggregateRoot
 {
-    string Category {get; }
-    Guid Id { get; set; }
-    long Version { get; set; }
-    void ApplyChange(IDomainEvent @event, TUserKey idUser);
-
-    void ApplyEvent(IDomainEvent @event, Metadata<TUserKey> metadata);
+    /// <summary>
+    /// The category of the aggregate root.
+    /// </summary>
+    string Category { get; }
+    /// <summary>
+    /// The version of the aggregate root.
+    /// </summary>
+    long Version { get; }
 }

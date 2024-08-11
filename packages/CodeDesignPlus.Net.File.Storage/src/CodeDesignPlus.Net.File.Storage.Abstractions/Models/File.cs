@@ -1,6 +1,4 @@
-﻿using Semver;
-
-namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 public class File
 {
@@ -23,8 +21,7 @@ public class File
 
     public Dictionary<string, string> GetMetadata(Uri uri)
     {
-        if(uri is null)
-            throw new ArgumentNullException(nameof(uri));
+        ArgumentNullException.ThrowIfNull(uri);
 
         return new Dictionary<string, string>
         {
@@ -41,8 +38,8 @@ public class File
     }
 
     public Dictionary<string, string> GetTags<TTenant>(TTenant tenant)
-    {        
-        if(tenant is null)
+    {
+        if (tenant is null)
             throw new ArgumentNullException(nameof(tenant));
 
         return new Dictionary<string, string>

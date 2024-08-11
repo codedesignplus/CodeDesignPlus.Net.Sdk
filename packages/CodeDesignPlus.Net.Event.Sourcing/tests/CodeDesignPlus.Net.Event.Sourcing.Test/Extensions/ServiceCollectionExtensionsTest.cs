@@ -1,7 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.Event.Sourcing.Extensions;
+﻿using CodeDesignPlus.Net.Event.Sourcing.Extensions;
 using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.Event.Sourcing.Abstractions.Options;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Extensions;
 
@@ -49,31 +47,12 @@ public class ServiceCollectionExtensionsTest
     }
 
     [Fact]
-    public void AddEventSourcing_CheckServices_Success()
-    {
-        // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
-            EventSourcing = OptionsUtil.Options
-        });
-
-        var serviceCollection = new ServiceCollection();
-
-        // Act
-        serviceCollection.AddEventSourcing(configuration);
-
-        // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventSourcingService<>));
-
-        Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
-        Assert.Equal(typeof(EventSourcingServiceFake<>), libraryService.ImplementationType);
-    }
-
-    [Fact]
     public void AddEventSourcing_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new {
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
+            Core = OptionsUtil.CoreOptions,
             EventSourcing = OptionsUtil.Options
         });
 

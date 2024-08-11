@@ -1,6 +1,6 @@
-﻿using System.Security.Authentication;
-using CodeDesignPlus.Net.xUnit.Helpers;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
 using StackExchange.Redis;
+using System.Security.Authentication;
 
 namespace CodeDesignPlus.Net.Redis.Test.Options;
 
@@ -38,7 +38,7 @@ public class InstanceTest
         Assert.Equal("MyRedisClient", result.ClientName);
         Assert.Equal("MySuperSecretPassword", result.Password);
         Assert.Equal("RedisUser", result.User);
-        Assert.True(result.Proxy == Proxy.None);
+        Assert.Equal(Proxy.None, result.Proxy);
         Assert.True(result.ResolveDns);
         Assert.Equal("MyService", result.ServiceName);
         Assert.False(result.Ssl);

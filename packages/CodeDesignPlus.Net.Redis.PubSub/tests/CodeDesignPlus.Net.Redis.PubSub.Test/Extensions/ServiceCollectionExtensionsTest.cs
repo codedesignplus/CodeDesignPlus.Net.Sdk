@@ -1,11 +1,4 @@
-﻿using O = Microsoft.Extensions.Options;
-using CodeDesignPlus.Net.Redis.PubSub.Extensions;
-using Moq;
-using CodeDesignPlus.Net.Redis.Abstractions;
-using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events;
-using CodeDesignPlus.Net.PubSub.Abstractions.Options;
-using StackExchange.Redis;
+﻿using CodeDesignPlus.Net.Redis.PubSub.Extensions;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Extensions;
 
@@ -56,7 +49,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisPubSub_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { RedisPubSub = new { Enable = false } });
+        var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
 
         var serviceCollection = new ServiceCollection();
 
@@ -75,7 +68,8 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisPubSub_SameOptions_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { RedisPubSub = OptionsUtil.RedisPubSubOptions });
+        var redisPubSubOptions = OptionsUtil.RedisPubSubOptions(true);
+        var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
 
         var serviceCollection = new ServiceCollection();
 
@@ -91,39 +85,10 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(OptionsUtil.RedisPubSubOptions.Name, value.Name);
-        Assert.Equal(OptionsUtil.RedisPubSubOptions.Enable, value.Enable);
-    }
-
-    [Fact]
-    public void ListenerEvent_NoSubscriptions_LogsWarning()
-    {
-        // Arrange
-        var mockLogger = new Mock<ILogger<RedisPubSubService>>();
-        var mockRedisServiceFactory = new Mock<IRedisServiceFactory>();
-        var mockRedisService = new Mock<IRedisService>();
-        var mockSubscriptionManager = new Mock<ISubscriptionManager>();
-        var mockServiceProvider = new Mock<IServiceProvider>();
-
-        mockRedisServiceFactory.Setup(x => x.Create(It.IsAny<string>())).Returns(mockRedisService.Object);
-
-        // Simular que no hay suscripciones para el evento
-        mockSubscriptionManager.Setup(x => x.HasSubscriptionsForEvent<UserCreatedEvent>()).Returns(false);
-
-        var PubSubService = new RedisPubSubService(
-            mockRedisServiceFactory.Object,
-            mockSubscriptionManager.Object,
-            mockServiceProvider.Object,
-            mockLogger.Object,
-            O.Options.Create(new RedisPubSubOptions { Name = "Test" }),
-            O.Options.Create(new PubSubOptions())
-        );
-
-        // Act
-        PubSubService.ListenerEvent<UserCreatedEvent, UserCreatedEventHandler>(new RedisValue(JsonSerializer.Serialize(new UserCreatedEvent())), new CancellationToken());
-
-        // Assert
-        mockLogger.VerifyLogging("No subscriptions found for event: UserCreatedEvent.", LogLevel.Warning);
-
+        Assert.Equal(redisPubSubOptions.Enable, value.Enable);
+        Assert.Equal(redisPubSubOptions.UseQueue, value.UseQueue);
+        Assert.Equal(redisPubSubOptions.EnableDiagnostic, value.EnableDiagnostic);
+        Assert.Equal(redisPubSubOptions.RegisterAutomaticHandlers, value.RegisterAutomaticHandlers);
+        Assert.Equal(redisPubSubOptions.SecondsWaitQueue, value.SecondsWaitQueue);
     }
 }

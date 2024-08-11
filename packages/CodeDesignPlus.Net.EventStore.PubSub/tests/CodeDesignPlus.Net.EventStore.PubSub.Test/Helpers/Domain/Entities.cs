@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
 
 
 public class OrderProduct
@@ -7,13 +9,13 @@ public class OrderProduct
     public int Quantity { get; set; }
 }
 
-public class Client
+public class Client : IEntityBase
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }
 }
 
-public class Product
+public class Product : IEntityBase
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }

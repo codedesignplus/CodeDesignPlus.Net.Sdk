@@ -1,14 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Exceptions;
-using CodeDesignPlus.Net.Security.Abstractions.Options;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Builder;
-using CodeDesignPlus.Net.Security.Services;
-
-namespace CodeDesignPlus.Net.Security.Extensions;
+﻿namespace CodeDesignPlus.Net.Security.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.EFCore
@@ -24,11 +14,8 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration, Action<JwtBearerOptions> options = null)
     {
-        if (services == null)
-            throw new ArgumentNullException(nameof(services));
-
-        if (configuration == null)
-            throw new ArgumentNullException(nameof(configuration));
+        ArgumentNullException.ThrowIfNull(services);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         var section = configuration.GetSection(SecurityOptions.Section);
 
@@ -41,7 +28,7 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services
-            .AddSingleton(typeof(IUserContext<,>), typeof(UserContext<,>))
+            .AddSingleton<IUserContext, UserContext>()
             .AddHttpContextAccessor()
             .AddAuthorization()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -72,7 +59,11 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.AspNetCore.Authentication.AuthenticationBuilder so that additional calls can be chained.</returns>
     public static AuthenticationBuilder AddJwtBearer(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration, Action<JwtBearerOptions> options = null)
     {
+        Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
+
         var securityOptions = configuration.GetSection(SecurityOptions.Section).Get<SecurityOptions>();
+
+        var certificate = securityOptions.GetCertificate();
 
         authenticationBuilder
             .AddJwtBearer(
@@ -84,25 +75,43 @@ public static class ServiceCollectionExtensions
 
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
-                        RequireSignedTokens = securityOptions.RequireSignedTokens,
-                        ValidateAudience = securityOptions.ValidateAudience,
                         ValidateIssuer = securityOptions.ValidateIssuer,
                         ValidateLifetime = securityOptions.ValidateLifetime,
-                        ValidateIssuerSigningKey = securityOptions.ValidateIssuerSigningKey,
                         ValidIssuer = securityOptions.ValidIssuer,
-                        ValidAudiences = securityOptions.ValidAudiences
+                        ValidateAudience = securityOptions.ValidateAudience,
+                        ValidAudiences = securityOptions.ValidAudiences,
+                        SignatureValidator = (token, _) => new JsonWebToken(token)
                     };
 
-                    if (securityOptions.Certificate != null)
-                        x.TokenValidationParameters.IssuerSigningKey = new X509SecurityKey(securityOptions.Certificate);
+                    if (certificate != null)
+                    {
+                        x.TokenValidationParameters.ValidateIssuerSigningKey = false;
+                        x.TokenValidationParameters.RequireSignedTokens = true;
+                        x.TokenValidationParameters.IssuerSigningKey = new X509SecurityKey(certificate);
+                    }
 
                     x.IncludeErrorDetails = securityOptions.IncludeErrorDetails;
                     x.RequireHttpsMetadata = securityOptions.RequireHttpsMetadata;
 
                     options?.Invoke(x);
+
+                    x.Events = new JwtBearerEvents
+                    {
+                        OnAuthenticationFailed = AuthenticationFailed
+                    };
                 }
             );
 
         return authenticationBuilder;
+    }
+
+    internal static async Task AuthenticationFailed(AuthenticationFailedContext context)
+    {
+        var exception = context.Exception;
+
+        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+        context.Response.ContentType = "application/json";
+
+        await context.HandleTokenException(exception);
     }
 }

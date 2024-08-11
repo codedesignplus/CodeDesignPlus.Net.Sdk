@@ -1,13 +1,9 @@
-using System.Security.Claims;
-
 namespace CodeDesignPlus.Net.Security.Abstractions;
 
 /// <summary>
 /// Provide the information of the authenticated user during the request
 /// </summary>
-/// <typeparam name="TKeyUser">Type of data that the user will identify</typeparam>
-/// <typeparam name="TTenant">Type of data that the tenant will identify</typeparam>
-public interface IUserContext<TKeyUser, TTenant>
+public interface IUserContext
 {
     /// <summary>
     /// Gets a value boolean that indicates whether is a application
@@ -16,7 +12,7 @@ public interface IUserContext<TKeyUser, TTenant>
     /// <summary>
     /// Gets the Id User authenticated
     /// </summary>
-    TKeyUser IdUser { get; }
+    Guid IdUser { get; }
     /// <summary>
     /// Gets a value that indicates whether the user has been authenticated.
     /// </summary>
@@ -64,11 +60,11 @@ public interface IUserContext<TKeyUser, TTenant>
     /// <summary>
     /// Get or set the tenant user
     /// </summary>
-    TTenant Tenant { get; }
+    Guid Tenant { get; }
     /// <summary>
     /// Gets the claims-principal with the user information
     /// </summary>
-    ClaimsPrincipal User { get; }    
+    ClaimsPrincipal User { get; }
     /// <summary>
     /// Gets the claim value of the authenticated user
     /// </summary>

@@ -1,17 +1,11 @@
-﻿using CodeDesignPlus.Net.Security.Abstractions.Options;
-using Microsoft.AspNetCore.Http;
-using CodeDesignPlus.Net.Security.Abstractions;
-
-namespace CodeDesignPlus.Net.Security.Services;
+﻿namespace CodeDesignPlus.Net.Security.Services;
 
 /// <summary>
 /// Provide the information of the authenticated user during the request
 /// </summary>
-/// <typeparam name="TKeyUser">The type of the user identifier.</typeparam>
-/// <typeparam name="TTenant">The type of the tenant.</typeparam>
 /// <param name="httpContextAccessor">The http context accessor.</param>
 /// <param name="options">The options.</param>
-public class UserContext<TKeyUser, TTenant>(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options) : IUserContext<TKeyUser, TTenant>
+public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options) : IUserContext
 {
     private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
     private readonly SecurityOptions options = options.Value;
@@ -23,7 +17,7 @@ public class UserContext<TKeyUser, TTenant>(IHttpContextAccessor httpContextAcce
     /// <summary>
     /// Gets the Id User authenticated
     /// </summary>
-    public TKeyUser IdUser => this.GetClaim<TKeyUser>(ClaimTypes.ObjectIdentifier);
+    public Guid IdUser => this.GetClaim<Guid>(ClaimTypes.ObjectIdentifier);
     /// <summary>
     /// Gets a value that indicates whether the user has been authenticated.
     /// </summary>
@@ -39,7 +33,7 @@ public class UserContext<TKeyUser, TTenant>(IHttpContextAccessor httpContextAcce
     /// <summary>
     /// Get or set the tenant user
     /// </summary>
-    public TTenant Tenant => this.GetHeader<TTenant>("X-Tenant");
+    public Guid Tenant => this.GetHeader<Guid>("X-Tenant");
 
     /// <summary>
     /// Gets the claims-principal with the user information

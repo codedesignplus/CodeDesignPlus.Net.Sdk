@@ -3,7 +3,7 @@ using CodeDesignPlus.Net.EFCore.Repository;
 
 namespace CodeDesignPlus.InMemory.Repositories
 {
-    public class RolePermissionRepository : RepositoryBase<long, int>, IRolePermissionRepository
+    public class RolePermissionRepository : RepositoryBase, IRolePermissionRepository
     {
         public RolePermissionRepository(CodeDesignPlusContextInMemory context) : base(context)
         {

@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{7143490E-D86E-4552-B794-5CA24FF8281A}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
@@ -23,8 +25,7 @@
     <PackageReference Include="EventStore.Client" Version="22.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Sourcing\src\CodeDesignPlus.Net.Event.Sourcing.Abstractions\CodeDesignPlus.Net.Event.Sourcing.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Event.Sourcing\src\CodeDesignPlus.Net.Event.Sourcing\CodeDesignPlus.Net.Event.Sourcing.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\LICENSE.md">

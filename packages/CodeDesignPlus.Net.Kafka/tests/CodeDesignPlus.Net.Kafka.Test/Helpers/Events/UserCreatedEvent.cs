@@ -1,11 +1,13 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using CodeDesignPlus.Net.Kafka.Test.Helpers.Entities;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events
 {
-    [Topic("user-topic")]
-    public class UserCreatedEvent : EventBase
+    [EventKey<UserEntity>(1, "created")]
+    public class UserCreatedEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null!)
+        : DomainEvent(aggregateId, eventId, occurredAt, metadata)
     {
-        public long Id { get; set; }
         public string? Username { get; set; }
         public string? Names { get; set; }
         public string? Lastnames { get; set; }

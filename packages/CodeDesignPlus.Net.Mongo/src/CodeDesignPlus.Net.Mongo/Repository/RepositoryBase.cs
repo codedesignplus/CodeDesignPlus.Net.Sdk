@@ -1,19 +1,13 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Mongo.Abstractions.Options;
-using Microsoft.Extensions.DependencyInjection;
-using MongoDB.Driver;
-
+﻿
 namespace CodeDesignPlus.Net.Mongo.Repository;
 
 /// <summary>
 /// Represents a base repository class for MongoDB operations.
 /// </summary>
-/// <typeparam name="TKey">The type of the entity's primary key.</typeparam>
-/// <typeparam name="TUserKey">The type of the user's primary key.</typeparam>
-public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUserKey>
+public abstract class RepositoryBase : IRepositoryBase
 {
     private readonly IServiceProvider serviceProvider;
-    private readonly ILogger<RepositoryBase<TKey, TUserKey>> logger;
+    private readonly ILogger logger;
     private readonly MongoOptions mongoOptions;
 
     /// <summary>
@@ -22,7 +16,7 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="serviceProvider">The IServiceProvider to add services to the container.</param>
     /// <param name="mongoOptions">The options to configure a MongoDB.</param>
     /// <param name="logger">Represents a type used to perform logging.</param>
-    public RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger<RepositoryBase<TKey, TUserKey>> logger)
+    protected RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger logger)
     {
         this.serviceProvider = serviceProvider;
         this.logger = logger;
@@ -33,11 +27,15 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// Method that returns a list of records from the database.
     /// </summary>
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <returns>Represents an asynchronous operation</returns>
     public IMongoCollection<TEntity> GetCollection<TEntity>()
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+        where TEntity : class, IEntityBase
     {
-        return serviceProvider.GetRequiredService<IMongoCollection<TEntity>>();
+        var client = this.serviceProvider.GetRequiredService<IMongoClient>();
+
+        var database = client.GetDatabase(this.mongoOptions.Database);
+
+        return database.GetCollection<TEntity>(typeof(TEntity).Name);
     }
 
     /// <summary>
@@ -47,18 +45,18 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <param name="id">The ID of the record to search.</param>
     /// <param name="state">The state of the record to set.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<bool> ChangeStateAsync<TEntity>(TKey id, bool state, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    /// <returns>Represents an asynchronous operation</returns>
+    public Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken)
+        where TEntity : class, IEntity
     {
         var collection = this.GetCollection<TEntity>();
 
         var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id);
-        var update = Builders<TEntity>.Update.Set(e => e.IsActive, state);
+        var update = Builders<TEntity>.Update
+            .Set(e => e.IsActive, state)
+            .Set(e => e.UpdatedAt, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
 
-        var result = await collection.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
-
-        return result.ModifiedCount > 0;
+        return collection.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -67,15 +65,13 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <param name="entity">The entity to be created.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<TEntity> CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    /// <returns>Represents an asynchronous operation</returns>
+    public Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
 
-        await collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
-
-        return entity;
+        return collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -84,15 +80,13 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <param name="entities">The list of entities to be created.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<List<TEntity>> CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    /// <returns>Represents an asynchronous operation</returns>
+    public Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
 
-        await collection.InsertManyAsync(entities, cancellationToken: cancellationToken);
-
-        return entities;
+        return collection.InsertManyAsync(entities, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -101,15 +95,13 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <param name="filter">The filter to search for the record to delete.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<bool> DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    /// <returns>Represents an asynchronous operation</returns>
+    public Task DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
 
-        var result = await collection.DeleteOneAsync(filter, cancellationToken);
-
-        return result.DeletedCount > 0;
+        return collection.DeleteOneAsync(filter, cancellationToken);
     }
 
     /// <summary>
@@ -118,20 +110,16 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <param name="entities">The list of entities to be deleted.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<bool> DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    /// <returns>Represents an asynchronous operation</returns>
+    public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
     {
-        var result = new List<bool>();
-
         foreach (var entity in entities)
         {
             var filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
 
-            result.Add(await this.DeleteAsync(filter, cancellationToken));
+            await this.DeleteAsync(filter, cancellationToken);
         }
-
-        return result.All(x => x);
     }
 
     /// <summary>
@@ -140,17 +128,15 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <param name="entity">The entity to be updated.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<bool> UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    /// <returns>Represents an asynchronous operation</returns>
+    public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
 
         FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
 
-        var result = await collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
-
-        return result.ModifiedCount > 0;
+        return collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
     }
 
     /// <summary>
@@ -159,28 +145,23 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
     /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
     /// <param name="entities">The list of entities to be updated.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<bool> UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
-        where TEntity : class, IEntityBase<TKey, TUserKey>
+    /// <returns>Represents an asynchronous operation</returns>
+    public async Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
     {
-        var result = new List<bool>();
-
         foreach (var entity in entities)
         {
-            result.Add(await this.UpdateAsync(entity, cancellationToken));
+            await this.UpdateAsync(entity, cancellationToken);
         }
-
-        return result.All(x => x);
     }
 
     /// <summary>
     /// Executes a transactional operation on the MongoDB database.
     /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="process">The function that represents the transactional operation.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
-    public async Task<TResult> TransactionAsync<TResult>(Func<IMongoDatabase, IClientSessionHandle, Task<TResult>> process, CancellationToken cancellationToken = default)
+    /// <returns>Represents an asynchronous operation</returns>
+    public async Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken)
     {
         var client = this.serviceProvider.GetRequiredService<IMongoClient>();
 
@@ -192,11 +173,9 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
 
         try
         {
-            var result = await process(database, session);
+            await process(database, session);
 
             await session.CommitTransactionAsync(cancellationToken);
-
-            return result;
         }
         catch (Exception ex)
         {
@@ -204,7 +183,124 @@ public abstract class RepositoryBase<TKey, TUserKey>: IRepositoryBase<TKey, TUse
 
             this.logger.LogError(ex, "Failed to execute transaction");
         }
-
-        return default;
     }
+
+    /// <summary>
+    /// Method that returns a list of records from the database.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <param name="criteria">The criteria to filter the records.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>Represents an asynchronous operation</returns>    
+    public Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var query = Query<TEntity>(criteria);
+
+        return query.ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Method that returns a list of records from the database.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <typeparam name="TResult">The type of the result to project.</typeparam>
+    /// <param name="criteria">The criteria to filter the records.</param>
+    /// <param name="projection">The projection to apply to the records.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>Represents an asynchronous operation</returns>
+    public Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var query = Query<TEntity>(criteria);
+
+        return query.Project(projection).ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
+    /// Method that returns a list of records from the database.
+    /// </summary>
+    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <param name="id">The ID of the record to search.</param>
+    /// <param name="criteria">The criteria to filter the records.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>Represents an asynchronous operation</returns>
+    public async Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+        where TProjection : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+
+        var propertyName = GetPropertyName(projection);
+
+        var filterCriteria = criteria.GetFilterExpression<TProjection>();
+
+        var bsonFilter = GetBsonDocument(filterCriteria, "entity");
+
+        var pipeline = new[]
+        {
+            new BsonDocument("$match", new BsonDocument("_id", new BsonBinaryData(id, GuidRepresentation.Standard))),
+            new BsonDocument("$project", new BsonDocument
+            {
+                {
+                    propertyName, new BsonDocument("$filter", new BsonDocument {
+                        { "input", $"${propertyName}" },
+                        { "as", "entity" },
+                        { "cond", bsonFilter  }
+                    })
+                }
+            }),
+            new BsonDocument("$unwind", new BsonDocument("path", $"${propertyName}")),
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}"))
+        };
+
+        var cursor = await collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var resultList = new List<BsonDocument>();
+
+        while (await cursor.MoveNextAsync(cancellationToken))
+        {
+            resultList.AddRange(cursor.Current);
+        }
+
+        return resultList.Select(doc => BsonSerializer.Deserialize<TProjection>(doc)).ToList();
+    }
+
+
+    private IFindFluent<TEntity, TEntity> Query<TEntity>(C.Criteria criteria)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+        var filter = criteria.GetFilterExpression<TEntity>();
+        var sortBy = criteria.GetSortByExpression<TEntity>();
+
+        var query = collection.Find(filter);
+
+        if (sortBy != null)
+            if (criteria.OrderType == OrderTypes.Ascending)
+                query = query.SortBy(sortBy);
+            else
+                query = query.SortByDescending(sortBy);
+
+        return query;
+    }
+
+    private static string GetPropertyName<TEntity, TResult>(Expression<Func<TEntity, TResult>> projection)
+        where TEntity : class, IEntityBase
+    {
+        if (projection.Body is MemberExpression memberExpression)
+            return memberExpression.Member.Name;
+        else
+            throw new Exceptions.MongoException("The expression must be a MemberExpression.");
+    }
+
+    public static BsonDocument GetBsonDocument<TEntity>(Expression<Func<TEntity, bool>> expression, string alias)
+        where TEntity : class, IEntityBase
+    {
+        var parameter = expression.Parameters[0];
+
+        var converter = new ExpressionConverter(parameter, alias);
+
+        return converter.Convert(expression.Body);
+    }
+
 }

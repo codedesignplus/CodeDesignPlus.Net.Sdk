@@ -1,24 +1,50 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions.Options;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Redis.Abstractions;
+using CodeDesignPlus.Net.Redis.Options;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Helpers;
 
 public static class OptionsUtil
 {
-    public static readonly RedisPubSubOptions RedisPubSubOptions = new()
+    public static readonly CoreOptions CoreOptions = new()
+    {
+        AppName = "CodeDesignPlus.Net.Redis.PubSub.Test",
+        Business = "CodeDesignPlus",
+        Description = "Test project for CodeDesignPlus.Net.Redis.PubSub",
+        Version = "v1",
+        Contact = new()
+        {
+            Name = "CodeDesignPlus",
+            Email = "CodeDesignPlus@outlook.com"
+        }
+    };
+
+    public static RedisOptions RedisOptions => new()
+    {
+        Instances = new Dictionary<string, Instance>()
+        {
+            {
+                "Core", new Instance()
+                {
+                    ConnectionString = "localhost:6379"
+                }
+            }
+        }
+    };
+
+    public static RedisPubSubOptions RedisPubSubOptions(bool useQueue) => new()
     {
         Enable = true,
-        Name = "test",
+        UseQueue = useQueue,
+        EnableDiagnostic = true,
+        RegisterAutomaticHandlers = true,
+        SecondsWaitQueue = 5
     };
 
-    public static readonly PubSubOptions PubSubOptions = new()
+    public static object AppSettings => new
     {
-        EnableQueue = true,
+        Core = CoreOptions,
+        Redis = RedisOptions,
+        RedisPubSub = RedisPubSubOptions(true)
     };
-
-
-    public static readonly object AppSettings = new
-    {
-        RedisPubSub = RedisPubSubOptions
-    };
-
 }

@@ -1,31 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
+<ProjectGuid>{D8F1445F-F5B6-4E31-A63A-AF05D256E100}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="coverlet.msbuild" Version="6.0.0">
+    <PackageReference Include="coverlet.msbuild" Version="6.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.7.2" />
-    <PackageReference Include="Moq" Version="4.20.69" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.6" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="Serilog.Sinks.InMemory" Version="0.11.0" />
-    <PackageReference Include="xunit" Version="2.5.1" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.1">
+    <PackageReference Include="xunit" Version="2.8.1" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.1">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="6.0.0">
+    <PackageReference Include="coverlet.collector" Version="6.0.2">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Logger\CodeDesignPlus.Net.Logger.csproj" />
@@ -33,6 +34,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Update="Helpers\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\appsettings-otel.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

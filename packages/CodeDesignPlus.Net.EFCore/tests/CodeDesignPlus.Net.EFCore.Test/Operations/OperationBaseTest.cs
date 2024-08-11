@@ -19,6 +19,7 @@ public class OperationBaseTest
         // Arrange
         var permission = new Permission()
         {
+            Id = Guid.NewGuid(),
             Name = "Create - Permissions",
             Description = "Can create to permissions",
             Controller = "Permission",
@@ -26,11 +27,11 @@ public class OperationBaseTest
             IsActive = true
         };
 
-        var userContext = new UserContext<int>()
+        var userContext = new UserContext()
         {
             Name = "codedesignplus",
             Email = "codedesignplus@outlook.com",
-            IdUser = new Random().Next(0, int.MaxValue),
+            IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
         };
@@ -44,17 +45,20 @@ public class OperationBaseTest
         var repository = new PermissionRepository(userContext, context);
 
         // Act
-        var id = await repository.CreateAsync(permission);
+        await repository.CreateAsync(permission);
+
+        var result = await repository.GetEntity<Permission>().FirstOrDefaultAsync(x => x.Id == permission.Id);
 
         // Assert
-        Assert.Equal(permission.Id, id);
-        Assert.Equal("Create - Permissions", permission.Name);
-        Assert.Equal("Can create to permissions", permission.Description);
-        Assert.Equal("Permission", permission.Controller);
-        Assert.Equal("Post", permission.Action);
-        Assert.True(permission.IsActive);
-        Assert.Equal(userContext.IdUser, permission.IdUserCreator);
-        Assert.True(permission.CreatedAt > DateTime.MinValue);
+        Assert.NotNull(result);
+        Assert.Equal(permission.Id, result.Id);
+        Assert.Equal("Create - Permissions", result.Name);
+        Assert.Equal("Can create to permissions", result.Description);
+        Assert.Equal("Permission", result.Controller);
+        Assert.Equal("Post", result.Action);
+        Assert.True(result.IsActive);
+        Assert.Equal(userContext.IdUser, result.CreatedBy);
+        Assert.Equal(permission.CreatedAt, result.CreatedAt);
     }
 
     /// <summary>
@@ -66,6 +70,7 @@ public class OperationBaseTest
         // Arrange
         var permission = new Permission()
         {
+            Id = Guid.NewGuid(),
             Name = "Create - Permissions",
             Description = "Can create to permissions",
             Controller = "Permission",
@@ -73,11 +78,11 @@ public class OperationBaseTest
             IsActive = true
         };
 
-        var userContext = new UserContext<int>()
+        var userContext = new UserContext()
         {
             Name = "codedesignplus",
             Email = "codedesignplus@outlook.com",
-            IdUser = new Random().Next(0, int.MaxValue),
+            IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
         };
@@ -90,11 +95,12 @@ public class OperationBaseTest
 
         var repository = new PermissionRepository(userContext, context);
 
-        var id = await repository.CreateAsync(permission);
+        await repository.CreateAsync(permission);
 
         // Act
         var entityUpdate = new Permission()
         {
+            Id = permission.Id,
             Name = "Update - Permissions",
             Description = "Can update to permissions",
             Controller = "Permission",
@@ -102,20 +108,19 @@ public class OperationBaseTest
             IsActive = false
         };
 
-        var success = await repository.UpdateAsync(id, entityUpdate);
+        await repository.UpdateAsync(permission.Id, entityUpdate);
 
         // Assert
-        var entity = await repository.GetEntity<Permission>().FindAsync(id);
+        var entity = await repository.GetEntity<Permission>().FindAsync(permission.Id);
 
-        Assert.True(success);
         Assert.NotNull(entity);
-        Assert.Equal(id, entity.Id);
+        Assert.Equal(permission.Id, entity.Id);
         Assert.Equal("Update - Permissions", entity.Name);
         Assert.Equal("Can update to permissions", entity.Description);
         Assert.Equal("Permission", entity.Controller);
         Assert.Equal("Put", entity.Action);
         Assert.False(entity.IsActive);
-        Assert.Equal(userContext.IdUser, entity.IdUserCreator);
+        Assert.Equal(userContext.IdUser, entity.CreatedBy);
         Assert.Equal(permission.CreatedAt, entity.CreatedAt);
     }
 
@@ -126,11 +131,11 @@ public class OperationBaseTest
     public async Task UpdateAsync_EntityNotExist_ReturnFalse()
     {
         // Arrange
-        var userContext = new UserContext<int>()
+        var userContext = new UserContext()
         {
             Name = "codedesignplus",
             Email = "codedesignplus@outlook.com",
-            IdUser = new Random().Next(0, int.MaxValue),
+            IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
         };
@@ -146,6 +151,7 @@ public class OperationBaseTest
         // Act
         var entityUpdate = new Permission()
         {
+            Id = Guid.NewGuid(),
             Name = "Update - Permissions",
             Description = "Can update to permissions",
             Controller = "Permission",
@@ -153,10 +159,12 @@ public class OperationBaseTest
             IsActive = false
         };
 
-        var success = await repository.UpdateAsync(new Random().Next(1, int.MaxValue), entityUpdate);
+        await repository.UpdateAsync(entityUpdate.Id, entityUpdate);
+
+        var result = await repository.GetEntity<Permission>().FirstOrDefaultAsync(x => x.Id == entityUpdate.Id);
 
         // Assert
-        Assert.False(success);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -168,6 +176,7 @@ public class OperationBaseTest
         // Arrange
         var permission = new Permission()
         {
+            Id = Guid.NewGuid(),
             Name = "Create - Permissions",
             Description = "Can create to permissions",
             Controller = "Permission",
@@ -175,11 +184,11 @@ public class OperationBaseTest
             IsActive = true
         };
 
-        var userContext = new UserContext<int>()
+        var userContext = new UserContext()
         {
             Name = "codedesignplus",
             Email = "codedesignplus@outlook.com",
-            IdUser = new Random().Next(0, int.MaxValue),
+            IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
         };
@@ -192,13 +201,15 @@ public class OperationBaseTest
 
         var repository = new PermissionRepository(userContext, context);
 
-        var id = await repository.CreateAsync(permission);
+        await repository.CreateAsync(permission);
 
         // Act
-        var success = await repository.DeleteAsync(id);
+        await repository.DeleteAsync(permission.Id);
+
+        var result = await repository.GetEntity<Permission>().FirstOrDefaultAsync(x => x.Id == permission.Id);
 
         // Assert
-        Assert.True(success);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -208,11 +219,11 @@ public class OperationBaseTest
     public async Task DeleteAsync_EntityNotExist_ReturnFalse()
     {
         // Arrange
-        var userContext = new UserContext<int>()
+        var userContext = new UserContext()
         {
             Name = "codedesignplus",
             Email = "codedesignplus@outlook.com",
-            IdUser = new Random().Next(0, int.MaxValue),
+            IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
         };
@@ -225,10 +236,14 @@ public class OperationBaseTest
 
         var repository = new PermissionRepository(userContext, context);
 
+        var id = Guid.NewGuid();
+
         // Act
-        var success = await repository.DeleteAsync(new Random().Next(1, int.MaxValue));
+        await repository.DeleteAsync(id);
+
+        var result = await repository.GetEntity<Permission>().FirstOrDefaultAsync(x => x.Id == id);
 
         // Assert
-        Assert.False(success);
+        Assert.Null(result);
     }
 }

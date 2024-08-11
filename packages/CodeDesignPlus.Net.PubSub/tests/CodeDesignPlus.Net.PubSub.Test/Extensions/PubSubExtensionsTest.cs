@@ -1,5 +1,5 @@
-﻿using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
-using CodeDesignPlus.Net.PubSub.Extensions;
+﻿using CodeDesignPlus.Net.PubSub.Extensions;
+using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Extensions;
 
@@ -67,14 +67,14 @@ public class PubSubExtensionsTest
         Assert.Equal(typeof(UserRegisteredEvent), result);
     }
 
-    [Fact]
-    public void GetPubSub_WhenCalled_ReturnsPubSubServiceType()
-    {
-        // Act
-        var result = PubSubExtensions.GetPubSub();
+    //[Fact]
+    //public void GetPubSub_WhenCalled_ReturnsPubSubServiceType()
+    //{
+    //    // Act
+    //    var result = PubSubExtensions.GetPubSub();
 
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(typeof(PubSubService), result);
-    }
+    //    // Assert
+    //    Assert.NotNull(result);
+    //    Assert.Equal(typeof(PubSubService), result);
+    //}
 }

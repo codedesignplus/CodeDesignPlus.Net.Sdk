@@ -1,6 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
+		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
+    <ProjectGuid>{49D2CC5A-78F7-44D3-BC12-C7D2C103BE9C}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
@@ -15,19 +17,21 @@
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <SonarQubeExclude>true</SonarQubeExclude> 
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.xUnit.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Ductus.FluentDocker.XUnit" Version="2.10.59" />
-    <PackageReference Include="Moq" Version="4.20.69" />
+    <PackageReference Include="Moq" Version="4.20.70" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
+    <PackageReference Include="OpenTelemetry" Version="1.9.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
   </ItemGroup>
@@ -70,6 +74,21 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Helpers\MongoContainer\*.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\ObservabilityContainer\*.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\ObservabilityContainer\configs\*.yaml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\RabbitMQContainer\*.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\OpenTelemetry\*.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Helpers\SqlServer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

@@ -1,0 +1,134 @@
+name: Continuous Integration
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - rc
+      - dev
+      - feature/*
+env:
+  IS_RELEASE: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
+  IS_RC: ${{ github.ref == 'refs/heads/rc' }}
+  IS_BETA: ${{ github.ref == 'refs/heads/dev' }}
+  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+jobs:
+  build:
+    name: Build .Net
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      repository-projects: write
+
+    steps:
+      - name: Checkout
+        id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8
+            
+      - name: Setup .NET SDK 🚧
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Install Docker Compose
+        uses: ndeloof/install-compose-action@v0.0.1
+        with:
+          legacy: true
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+             
+      - name: Version Docker Compose
+        run: docker-compose --version
+      
+      - name: Version Java
+        run: java --version
+
+      - name: Install Sonar Scanner .Net
+        run: dotnet tool update -g dotnet-sonarscanner
+  
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Run Affected
+        run: pnpm run affected
+
+      - name: Restore Packages
+        run: pnpm run affected:restore
+
+      - name: Build Packages
+        run: npm run affected:build
+
+      # - name: Run SonarQube
+      #   run: npm run affected:sonarqube
+
+      # - name: .Net Pack
+      #   run: npm run affected:pack
+
+    #   - name: .Net Push
+    #     run: npm run affected:push
+        
+      - name: SemVer 
+        id: git-semver
+        uses: codedesignplus/semver-git-version@v0.1.10
+        with:
+          folder: ${{github.workspace}}
+          release-branch: 'main'
+          release-candidate-branch: 'rc'
+          beta-branch: 'dev'
+          major-identifier: 'breaking'
+          minor-identifier: 'feat' 
+          prefix: 'v'
+          dir-affected: ./
+          previous-version: true
+          new-version: true
+
+      - name: Print Output
+        id: output
+        run: | 
+          echo Previous Tag "${{ steps.git-semver.outputs.previous-tag }}"
+          echo Previous Version "${{ steps.git-semver.outputs.previous-version }}"
+          echo Previous Version Prefix "${{ steps.git-semver.outputs.previous-version-prefix }}"
+          echo New Version "${{steps.git-semver.outputs.new-version}}"
+          echo New Version Prefix "${{steps.git-semver.outputs.new-version-prefix}}"
+
+      - name: Push tag
+        id: push_tag
+        if: env.IS_RELEASE == 'true' || env.IS_RC == 'true' || env.IS_BETA == 'true'
+        uses: mathieudutour/github-tag-action@v6.1
+        with:
+          custom_tag: ${{ steps.git-semver.outputs.new-version }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Changelog
+        if: env.IS_RELEASE == 'true' || env.IS_RC == 'true'
+        id: build_changelog
+        uses: mikepenz/release-changelog-builder-action@v4
+        with:
+          configuration: "${{ github.workspace }}/.github/settings/configuration.json"          
+          fromTag: ${{ steps.git-semver.outputs.previous-version-prefix }}
+          toTag: ${{ steps.git-semver.outputs.new-version-prefix }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Create GitHub Release
+        if: env.IS_RELEASE == 'true' || env.IS_RC == 'true'
+        uses: mikepenz/action-gh-release@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tag_name: ${{ steps.git-semver.outputs.new-version-prefix }}
+          name: "actions/codedesignplus-git-version@${{ steps.git-semver.outputs.new-version-prefix }}"
+          body: ${{ steps.build_changelog.outputs.changelog }}
+          prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'dev') }}
+          

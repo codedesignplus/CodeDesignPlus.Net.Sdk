@@ -1,6 +1,4 @@
-﻿using CodeDesignPlus.Net.EventStore.Exceptions;
-using CodeDesignPlus.Net.EventStore.Abstractions.Options;
-using ES = EventStore.ClientAPI;
+﻿
 
 namespace CodeDesignPlus.Net.EventStore.Services;
 
@@ -8,9 +6,9 @@ namespace CodeDesignPlus.Net.EventStore.Services;
 /// Provides a factory to manage and retrieve connections to EventStore instances.
 /// This class ensures that connections are created, cached, and managed efficiently.
 /// </summary>
-public class EventStoreFactory: IEventStoreFactory
+public class EventStoreFactory : IEventStoreFactory
 {
-    private readonly Dictionary<string, ES.IEventStoreConnection> connections = new();
+    private readonly ConcurrentDictionary<string, ES.IEventStoreConnection> connections = new();
     private readonly IEventStoreConnection eventStoreConnection;
     private readonly ILogger<EventStoreFactory> logger;
     private readonly EventStoreOptions options;
@@ -23,11 +21,12 @@ public class EventStoreFactory: IEventStoreFactory
     /// <param name="options">The configuration options for the EventStore connections.</param>
     public EventStoreFactory(IEventStoreConnection eventStoreConnection, ILogger<EventStoreFactory> logger, IOptions<EventStoreOptions> options)
     {
-        if (options == null)
-            throw new ArgumentNullException(nameof(options));
+        ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(eventStoreConnection);
+        ArgumentNullException.ThrowIfNull(logger);
 
-        this.eventStoreConnection = eventStoreConnection ?? throw new ArgumentNullException(nameof(eventStoreConnection));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.eventStoreConnection = eventStoreConnection;
+        this.logger = logger;
         this.options = options.Value;
     }
 
@@ -35,23 +34,24 @@ public class EventStoreFactory: IEventStoreFactory
     /// Creates or retrieves an existing connection to EventStore based on the provided key.
     /// </summary>
     /// <param name="key">The unique identifier representing the desired connection.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the connection to EventStore.</returns>
     /// <exception cref="EventStoreException">Thrown when the specified connection key is not found in the settings.</exception>
-    public async Task<ES.IEventStoreConnection> CreateAsync(string key)
+    public async Task<ES.IEventStoreConnection> CreateAsync(string key, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrEmpty(key))
             throw new ArgumentNullException(nameof(key));
 
-        if (!this.options.Servers.ContainsKey(key))
+        if (!options.Servers.TryGetValue(key, out Server server))
             throw new EventStoreException("The connection is not registered in the settings.");
 
-        if (this.connections.ContainsKey(key))
-            return this.connections[key];
+        if (connections.TryGetValue(key, out ES.IEventStoreConnection connection))
+            return connection;
 
-        var connection = await this.eventStoreConnection.InitializeAsync(this.options.Servers[key]);
-        this.connections.Add(key, connection);
+        connection = await this.eventStoreConnection.InitializeAsync(server).ConfigureAwait(false);
+        var succeess = this.connections.TryAdd(key, connection);
 
-        this.logger.LogInformation("Successfully created and cached the connection for key '{key}'.", key);
+        this.logger.LogInformation("Successfully created and cached the connection for key '{key}-{succeess}'.", key, succeess);
 
         return connection;
     }
@@ -63,7 +63,7 @@ public class EventStoreFactory: IEventStoreFactory
     /// <returns><c>true</c> if the connection was successfully removed; otherwise, <c>false</c>.</returns>
     public bool RemoveConnection(string key)
     {
-        var result = this.connections.Remove(key);
+        var result = this.connections.TryRemove(key, out _);
 
         if (result)
             this.logger.LogInformation("Successfully removed the connection for key '{key}'.", key);
@@ -85,9 +85,9 @@ public class EventStoreFactory: IEventStoreFactory
         if (string.IsNullOrEmpty(key))
             throw new ArgumentNullException(nameof(key));
 
-        if (!this.options.Servers.ContainsKey(key))
+        if (!options.Servers.TryGetValue(key, out Server server))
             throw new EventStoreException("The connection is not registered in the settings.");
 
-        return (this.options.Servers[key].User, this.options.Servers[key].Password);
+        return (server.User, server.Password);
     }
 }

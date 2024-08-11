@@ -6,8 +6,8 @@ using CodeDesignPlus.Net.File.Storage.Providers;
 using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Moq;
-using O = Microsoft.Extensions.Options;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Providers;
 
@@ -23,13 +23,13 @@ public class AzureBlobProviderTest
     private string blobname;
     private M.FileDetail pathDetail;
     private readonly M.File file;
-    private readonly Mock<ILogger<AzureBlobProvider<Guid, Guid>>> loggerMock;
+    private readonly Mock<ILogger<AzureBlobProvider>> loggerMock;
     private readonly Mock<IHostEnvironment> environmentMock;
     private readonly IOptions<FileStorageOptions> options;
     private readonly Mock<BlobContainerClient> blobContainerClientMock;
     private readonly Mock<BlobClient> blobClientMock;
-    private readonly Mock<IAzureBlobFactory<Guid, Guid>> factoryMock;
-    private readonly Mock<IUserContext<Guid, Guid>> userContextMock;
+    private readonly Mock<IAzureBlobFactory> factoryMock;
+    private readonly Mock<IUserContext> userContextMock;
 
     public AzureBlobProviderTest()
     {
@@ -45,12 +45,12 @@ public class AzureBlobProviderTest
         this.file = new M.File(filename);
         this.options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
-        this.loggerMock = new Mock<ILogger<AzureBlobProvider<Guid, Guid>>>();
-        this.userContextMock = new Mock<IUserContext<Guid, Guid>>();
+        this.loggerMock = new Mock<ILogger<AzureBlobProvider>>();
+        this.userContextMock = new Mock<IUserContext>();
         this.environmentMock = new Mock<IHostEnvironment>();
         this.blobContainerClientMock = new Mock<BlobContainerClient>();
         this.blobClientMock = new Mock<BlobClient>();
-        this.factoryMock = new Mock<IAzureBlobFactory<Guid, Guid>>();
+        this.factoryMock = new Mock<IAzureBlobFactory>();
 
         userContextMock.SetupGet(x => x.Tenant).Returns(tenant);
 
@@ -95,10 +95,10 @@ public class AzureBlobProviderTest
     }
 
     [Fact]
-    public async void UploadAsync_Default_Success()
+    public async Task UploadAsync_Default_Success()
     {
         // Arrange
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
@@ -108,14 +108,14 @@ public class AzureBlobProviderTest
     }
 
     [Fact]
-    public async void UploadAsync_EmptyTarget_Success()
+    public async Task UploadAsync_EmptyTarget_Success()
     {
         // Arrange     
         this.target = null!;
         this.blobname = $"{filename}";
         this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, this.blobname, TypeProviders.AzureBlobProvider);
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
@@ -126,7 +126,7 @@ public class AzureBlobProviderTest
 
 
     [Fact]
-    public async void UploadAsync_Renowned_Success()
+    public async Task UploadAsync_Renowned_Success()
     {
         // Arrange    
         file.Renowned = true;
@@ -150,7 +150,7 @@ public class AzureBlobProviderTest
             })
             .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, true, cancellationToken);
@@ -192,7 +192,7 @@ public class AzureBlobProviderTest
           .ReturnsAsync(Azure.Response.FromValue(true, Mock.Of<Azure.Response>()))
           .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
 
         // Act
@@ -207,7 +207,7 @@ public class AzureBlobProviderTest
         this.stream.Position = 0;
         Assert.True(result.Success);
         Assert.Equal(stream.Length, result.Stream.Length);
-        Assert.True(result.Stream.Position == 0);
+        Assert.Equal(0, result.Stream.Position);
         Assert.True(Helpers.Extensions.CompareStreams(stream, result.Stream));
     }
 
@@ -224,7 +224,7 @@ public class AzureBlobProviderTest
           .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
           .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
 
         // Act
@@ -245,7 +245,7 @@ public class AzureBlobProviderTest
     {
         // Arrange
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DeleteAsync(filename, target, cancellationToken);
@@ -271,7 +271,7 @@ public class AzureBlobProviderTest
           .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
           .Verifiable();
 
-        var provider = new AzureBlobProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DeleteAsync(filename, target, cancellationToken);

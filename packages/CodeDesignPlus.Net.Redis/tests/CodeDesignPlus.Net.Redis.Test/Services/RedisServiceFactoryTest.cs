@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using CodeDesignPlus.Net.xUnit.Helpers;
+using Moq;
 using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.Redis.Test.Services;
@@ -8,12 +9,14 @@ public class RedisServiceFactoryTests
     private readonly Mock<IServiceProvider> mockServiceProvider;
     private readonly Mock<IOptions<RedisOptions>> mockOptions;
     private readonly Mock<IRedisService> mockRedisService;
+    private readonly Mock<ILogger<RedisServiceFactory>> mockLogger;
 
     public RedisServiceFactoryTests()
     {
         this.mockServiceProvider = new Mock<IServiceProvider>();
         this.mockOptions = new Mock<IOptions<RedisOptions>>();
         this.mockRedisService = new Mock<IRedisService>();
+        this.mockLogger = new Mock<ILogger<RedisServiceFactory>>();
     }
 
 
@@ -25,7 +28,7 @@ public class RedisServiceFactoryTests
         var options = O.Options.Create(new RedisOptions());
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisServiceFactory(nullServiceProvider, options));
+        Assert.Throws<ArgumentNullException>(() => new RedisServiceFactory(nullServiceProvider, options, mockLogger.Object));
     }
 
     [Fact]
@@ -35,7 +38,18 @@ public class RedisServiceFactoryTests
         var serviceProvider = Mock.Of<IServiceProvider>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RedisServiceFactory(serviceProvider, null));
+        Assert.Throws<ArgumentNullException>(() => new RedisServiceFactory(serviceProvider, null, mockLogger.Object));
+    }
+
+    [Fact]
+    public void Constructor_WhenLoggerIsNull_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var serviceProvider = Mock.Of<IServiceProvider>();
+        var options = O.Options.Create(new RedisOptions());
+
+        // Act & Assert
+        Assert.Throws<ArgumentNullException>(() => new RedisServiceFactory(serviceProvider, options, null));
     }
 
     [Fact]
@@ -46,15 +60,30 @@ public class RedisServiceFactoryTests
         var options = O.Options.Create(new RedisOptions());
 
         // Act & Assert
-        var exception = Record.Exception(() => new RedisServiceFactory(serviceProvider, options));
+        var exception = Record.Exception(() => new RedisServiceFactory(serviceProvider, options, mockLogger.Object));
 
         Assert.Null(exception);
     }
 
     [Fact]
+    public void Constructor_Initialize_Susesfully()
+    {
+        // Arrange
+        var serviceProvider = Mock.Of<IServiceProvider>();
+        var options = O.Options.Create(new RedisOptions());
+
+        // Act
+        var factory = new RedisServiceFactory(serviceProvider, options, mockLogger.Object);
+
+        // Assert
+        Assert.NotNull(factory);
+        mockLogger.VerifyLogging("RedisServiceFactory has been initialized", LogLevel.Information, Times.Once());
+    }
+
+    [Fact]
     public void Create_WhenNameIsNull_ThrowsArgumentNullException()
     {
-        var factory = new RedisServiceFactory(this.mockServiceProvider.Object, O.Options.Create(new RedisOptions()));
+        var factory = new RedisServiceFactory(this.mockServiceProvider.Object, O.Options.Create(new RedisOptions()), mockLogger.Object);
 
         Assert.Throws<ArgumentNullException>(() => factory.Create(null));
     }
@@ -62,7 +91,7 @@ public class RedisServiceFactoryTests
     [Fact]
     public void Create_WhenNameIsEmpty_ThrowsArgumentNullException()
     {
-        var factory = new RedisServiceFactory(this.mockServiceProvider.Object, O.Options.Create(new RedisOptions()));
+        var factory = new RedisServiceFactory(this.mockServiceProvider.Object, O.Options.Create(new RedisOptions()), mockLogger.Object);
 
         Assert.Throws<ArgumentNullException>(() => factory.Create(string.Empty));
     }
@@ -73,10 +102,10 @@ public class RedisServiceFactoryTests
         // Setup
         var redisOptions = new RedisOptions
         {
-            Instances = new Dictionary<string, Instance>() // Empty instances
+            Instances = [] // Empty instances
         };
         this.mockOptions.Setup(opt => opt.Value).Returns(redisOptions);
-        var factory = new RedisServiceFactory(this.mockServiceProvider.Object, this.mockOptions.Object);
+        var factory = new RedisServiceFactory(this.mockServiceProvider.Object, this.mockOptions.Object, mockLogger.Object);
 
         // Assert
         Assert.Throws<RedisException>(() => factory.Create("InstanceName"));
@@ -115,13 +144,19 @@ public class RedisServiceFactoryTests
 
         var options = O.Options.Create(redisOptions);
 
-        var factory = new RedisServiceFactory(serviceProvider, options);
+        var factory = new RedisServiceFactory(serviceProvider, options, mockLogger.Object);
 
         // Act
         var service = factory.Create("InstanceName");
+        var service2 = factory.Create("InstanceName");
 
         // Assert
         Assert.NotNull(service);
+        Assert.Equal(service, service2);
         Assert.Equal(redisService.Object, service);
+
+        mockLogger.VerifyLogging("Redis instance InstanceName has been added to the factory", LogLevel.Information, Times.Once());
     }
+
+
 }

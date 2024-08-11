@@ -1,5 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
+﻿
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
 public static class DataAnnotationsExtensions
@@ -16,7 +15,7 @@ public static class DataAnnotationsExtensions
         Validator.TryValidateObject(data, validationContext, results, true);
 
         if (data is IValidatableObject @object)
-            @object.Validate(validationContext);
+            results.AddRange(@object.Validate(validationContext));
 
         return results;
     }

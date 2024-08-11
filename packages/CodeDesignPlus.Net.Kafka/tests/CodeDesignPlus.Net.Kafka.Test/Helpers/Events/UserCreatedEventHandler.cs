@@ -1,6 +1,6 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
-using Newtonsoft.Json;
+﻿using CodeDesignPlus.Net.Kafka.Test.Helpers.Memory;
+using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.Serializers;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events
 {
@@ -20,7 +20,7 @@ namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events
         {
             this.memory.UserEventTrace.Add(data);
 
-            this.logger.LogDebug("Invoked Event: {0}", JsonConvert.SerializeObject(data));
+            this.logger.LogDebug("Invoked Event: {json}", JsonSerializer.Serialize(data));
 
             return Task.CompletedTask;
         }

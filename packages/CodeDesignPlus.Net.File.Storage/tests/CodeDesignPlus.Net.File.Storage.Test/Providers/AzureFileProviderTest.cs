@@ -6,8 +6,8 @@ using CodeDesignPlus.Net.File.Storage.Providers;
 using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Moq;
-using O = Microsoft.Extensions.Options;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Providers;
 
@@ -22,15 +22,15 @@ public class AzureFileProviderTest
     private string target;
     private M.FileDetail pathDetail;
     private readonly M.File file;
-    private readonly Mock<ILogger<AzureFileProvider<Guid, Guid>>> loggerMock;
+    private readonly Mock<ILogger<AzureFileProvider>> loggerMock;
     private readonly Mock<IHostEnvironment> environmentMock;
     private readonly IOptions<FileStorageOptions> options;
     private readonly Mock<ShareServiceClient> shareServiceClientMock;
     private readonly Mock<ShareClient> shareClientMock;
     private readonly Mock<ShareDirectoryClient> shareDirectoryClientMock;
     private readonly Mock<ShareFileClient> shareFileClientMock;
-    private readonly Mock<IAzureFlieFactory<Guid, Guid>> factoryMock;
-    private readonly Mock<IUserContext<Guid, Guid>> userContextMock;
+    private readonly Mock<IAzureFlieFactory> factoryMock;
+    private readonly Mock<IUserContext> userContextMock;
 
     public AzureFileProviderTest()
     {
@@ -45,14 +45,14 @@ public class AzureFileProviderTest
         this.file = new M.File(filename);
         this.options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
-        this.loggerMock = new Mock<ILogger<AzureFileProvider<Guid, Guid>>>();
-        this.userContextMock = new Mock<IUserContext<Guid, Guid>>();
+        this.loggerMock = new Mock<ILogger<AzureFileProvider>>();
+        this.userContextMock = new Mock<IUserContext>();
         this.environmentMock = new Mock<IHostEnvironment>();
         this.shareServiceClientMock = new Mock<ShareServiceClient>();
         this.shareClientMock = new Mock<ShareClient>();
         this.shareDirectoryClientMock = new Mock<ShareDirectoryClient>();
         this.shareFileClientMock = new Mock<ShareFileClient>();
-        this.factoryMock = new Mock<IAzureFlieFactory<Guid, Guid>>();
+        this.factoryMock = new Mock<IAzureFlieFactory>();
 
         userContextMock.SetupGet(x => x.Tenant).Returns(tenant);
 
@@ -115,7 +115,7 @@ public class AzureFileProviderTest
     public async Task UploadAsync_Default_Success()
     {
         // Arrange
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
@@ -131,7 +131,7 @@ public class AzureFileProviderTest
         this.target = null!;
         this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, filename, TypeProviders.AzureFileProvider);
 
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
@@ -165,7 +165,7 @@ public class AzureFileProviderTest
             })
             .Verifiable();
 
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, true, cancellationToken);
@@ -193,7 +193,7 @@ public class AzureFileProviderTest
             .Returns(shareDirectoryClientMock.Object)
             .Verifiable();
 
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
@@ -249,7 +249,7 @@ public class AzureFileProviderTest
             .ReturnsAsync(Azure.Response.FromValue(true, Mock.Of<Azure.Response>()))
             .Verifiable();
 
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DownloadAsync(this.filename, this.target, cancellationToken);
@@ -263,7 +263,7 @@ public class AzureFileProviderTest
         this.stream.Position = 0;
         Assert.True(result.Success);
         Assert.Equal(stream.Length, result.Stream.Length);
-        Assert.True(result.Stream.Position == 0);
+        Assert.Equal(0, result.Stream.Position);
         Assert.Equal(stream, result.Stream);
     }
 
@@ -289,7 +289,7 @@ public class AzureFileProviderTest
             .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
             .Verifiable();
 
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DownloadAsync(this.filename, this.target, cancellationToken);
@@ -320,7 +320,7 @@ public class AzureFileProviderTest
             .Returns(shareFileClientMock.Object)
             .Verifiable();
 
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DeleteAsync(this.filename, this.target, cancellationToken);
@@ -360,7 +360,7 @@ public class AzureFileProviderTest
             .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
             .Verifiable();
 
-        var provider = new AzureFileProvider<Guid, Guid>(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
         var result = await provider.DeleteAsync(this.filename, this.target, cancellationToken);
