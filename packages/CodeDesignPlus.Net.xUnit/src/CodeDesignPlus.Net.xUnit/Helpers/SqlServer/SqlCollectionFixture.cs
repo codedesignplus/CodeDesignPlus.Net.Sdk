@@ -3,7 +3,7 @@ using Xunit;
 
 namespace CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
 
-public class SqlCollectionFixture : IDisposable
+public sealed class SqlCollectionFixture : IDisposable
 {
     public const string Collection = "SqlServer Collection";
     public  SqlServerContainer Container { get; }

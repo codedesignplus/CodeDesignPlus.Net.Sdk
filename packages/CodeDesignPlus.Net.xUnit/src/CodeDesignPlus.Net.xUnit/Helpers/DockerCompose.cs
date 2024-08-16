@@ -1,7 +1,7 @@
 ﻿
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
-public abstract class DockerCompose 
+public abstract class DockerCompose
 {
 
     protected string ContainerName;
@@ -13,7 +13,7 @@ public abstract class DockerCompose
     public int Port { get; private set; }
     public bool IsRunning { get; }
 
-    public DockerCompose()
+    protected DockerCompose()
     {
         this.EnsureDockerHost();
 
@@ -34,9 +34,6 @@ public abstract class DockerCompose
             }
 
             IsRunning = true;
-
-
-            Thread.Sleep(2000);
         }
         catch
         {
@@ -74,7 +71,8 @@ public abstract class DockerCompose
             return;
         }
 
-        if (hosts.Count > 0) this.DockerHost = hosts.First();
+        if (hosts.Count > 0) 
+            this.DockerHost = hosts[0];
 
         if (this.DockerHost != null) return;
 
@@ -90,7 +88,10 @@ public abstract class DockerCompose
         {
             compositeService?.Dispose();
         }
-        catch { }
+        catch (Exception ex)
+        {   
+            Console.WriteLine(ex.Message);
+        }
     }
 
 }
