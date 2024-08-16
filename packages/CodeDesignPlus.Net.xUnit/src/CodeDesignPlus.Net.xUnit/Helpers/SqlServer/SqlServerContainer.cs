@@ -20,7 +20,7 @@ public class SqlServerContainer : DockerCompose
 
         this.EnableGetPort = true;
         this.InternalPort = 1433;
-        this.ContainerName = $"sqlserver";
+        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-sqlserver";
 
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
 

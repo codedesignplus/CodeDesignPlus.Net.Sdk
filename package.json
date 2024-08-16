@@ -30,7 +30,6 @@
     "nx": "16.10.0",
     "nx-cloud": "latest",    
     "@codedesignplus/netcore": "^1.0.3-rc.0",
-    "@nrwl/workspace": "^16.10.0",    
-    "@koliveira15/nx-sonarqube": "^3.1.2"
+    "@nrwl/workspace": "^16.10.0"
   }
 }

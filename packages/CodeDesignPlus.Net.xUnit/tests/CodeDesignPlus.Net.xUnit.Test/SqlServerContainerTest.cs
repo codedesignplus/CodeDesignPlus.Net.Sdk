@@ -4,13 +4,14 @@ using Microsoft.Data.SqlClient;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 
-public class SqlServerContainerTest: IClassFixture<SqlServerContainer>
+[Collection(SqlCollectionFixture.Collection)]
+public class SqlServerContainerTest
 {
     private readonly SqlServerContainer container;
 
-    public SqlServerContainerTest(SqlServerContainer container)
+    public SqlServerContainerTest(SqlCollectionFixture sqlCollectionFixture)
     {
-        this.container = container;
+        this.container = sqlCollectionFixture.Container;
     }
 
     [Fact]

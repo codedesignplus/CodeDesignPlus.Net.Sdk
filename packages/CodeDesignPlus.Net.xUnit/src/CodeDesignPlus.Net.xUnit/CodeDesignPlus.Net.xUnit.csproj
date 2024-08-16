@@ -25,6 +25,7 @@
   <ItemGroup>
     <PackageReference Include="Ductus.FluentDocker.XUnit" Version="2.10.59" />
     <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="xunit" Version="2.9.0" />
     <PackageReference Include="xunit.abstractions" Version="2.0.3" />
     <PackageReference Include="OpenTelemetry" Version="1.9.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />

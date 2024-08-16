@@ -1,7 +1,7 @@
 ﻿
 namespace CodeDesignPlus.Net.xUnit.Helpers;
 
-public abstract class DockerCompose : IDisposable
+public abstract class DockerCompose 
 {
 
     protected string ContainerName;
@@ -81,7 +81,7 @@ public abstract class DockerCompose : IDisposable
         this.EnsureDockerHost();
     }
 
-    public void Dispose()
+    public void StopInstance()
     {
         this.OnContainerTearDown();
         var compositeService = this.CompositeService;
