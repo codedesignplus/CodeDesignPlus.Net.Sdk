@@ -4,14 +4,10 @@ using MongoDB.Driver;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 
-public class MongoContainerTest : IClassFixture<MongoContainer>
+[Collection(MongoCollectionFixture.Collection)]
+public class MongoContainerTest(MongoCollectionFixture mongoCollectionFixture)
 {
-    private readonly MongoContainer mongoContainer;
-
-    public MongoContainerTest(MongoContainer container)
-    {
-        this.mongoContainer = container;
-    }
+    private readonly MongoContainer mongoContainer = mongoCollectionFixture.Container;
 
     [Fact]
     public async Task CheckConnectionServer()
@@ -35,7 +31,7 @@ public class MongoContainerTest : IClassFixture<MongoContainer>
 
         await collection.InsertOneAsync(clientEntity);
 
-        var result = collection.Find(e => e.Id == clientEntity.Id).FirstOrDefault();
+        var result = await collection.Find(e => e.Id == clientEntity.Id).FirstOrDefaultAsync();
 
         Assert.NotNull(result);
         Assert.Equal(clientEntity.Id, result.Id);
