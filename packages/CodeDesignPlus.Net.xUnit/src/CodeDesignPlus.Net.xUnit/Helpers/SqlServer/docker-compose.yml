@@ -4,8 +4,10 @@ services:
   sqlserver:
     image: mcr.microsoft.com/mssql/server:2019-latest
     environment:
+      - MSSQL_PID=Developer
       - SA_PASSWORD=Temporal1
       - ACCEPT_EULA=Y
+      - MSSQL_AGENT_ENABLED=true
     ports:
       - "0:1433"
     volumes:

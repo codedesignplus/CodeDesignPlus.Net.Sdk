@@ -132,9 +132,9 @@ public class KafkaPubSubTest
     {
         // Arrange
         var topic = nameof(SubscribeAsync_MaxRetry_WriteLoggerError);
-        _mockDomainEventResolverService.Setup(x => x.GetKeyDomainEvent<UserCreatedEvent>()).Returns(topic);
+        _mockDomainEventResolverService.Setup(x => x.GetKeyDomainEvent<ProductCreatedEvent>()).Returns(topic);
 
-        var mockConsumer = new Mock<IConsumer<string, UserCreatedEvent>>();
+        var mockConsumer = new Mock<IConsumer<string, ProductCreatedEvent>>();
         var serviceCollection = new ServiceCollection().AddSingleton(x => mockConsumer.Object);
         var provider = serviceCollection.BuildServiceProvider();
         var maxAttempts = 3;
@@ -153,18 +153,18 @@ public class KafkaPubSubTest
         var kafkaEventBus = new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, options, provider);
 
         // Act
-        _ = Task.Run(() => kafkaEventBus.SubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>(CancellationToken.None));
+        _ = Task.Run(() => kafkaEventBus.SubscribeAsync<ProductCreatedEvent, ProductCreatedEventHandler>(CancellationToken.None));
 
         await Task.Delay(TimeSpan.FromSeconds(10));
 
         // Assert
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | Subscribing to Kafka topic {topic} ", LogLevel.Information);
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | Subscribing to Kafka topic {topic} ", LogLevel.Information);
 
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | The topic {topic} does not exist, waiting for it to be created.", LogLevel.Information, Times.Exactly(maxAttempts - 1));
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | The topic {topic} does not exist, waiting for it to be created.", LogLevel.Information, Times.Exactly(maxAttempts - 1));
 
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | The topic {topic} does not exist after {maxAttempts} attempts. Exiting.", LogLevel.Warning);
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | The topic {topic} does not exist after {maxAttempts} attempts. Exiting.", LogLevel.Warning);
 
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | Listener the event {topic}", LogLevel.Information, Times.AtLeastOnce());
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | Listener the event {topic}", LogLevel.Information, Times.AtLeastOnce());
     }
 
     private TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output, string group)
