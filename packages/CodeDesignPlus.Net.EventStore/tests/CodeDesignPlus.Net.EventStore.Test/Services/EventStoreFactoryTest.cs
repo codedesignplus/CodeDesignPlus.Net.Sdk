@@ -3,6 +3,7 @@ using E = EventStore.ClientAPI;
 using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Services;
+
 public class EventStoreFactoryTest
 {
     private readonly Mock<ILogger<EventStoreFactory>> loggerMock = new();
