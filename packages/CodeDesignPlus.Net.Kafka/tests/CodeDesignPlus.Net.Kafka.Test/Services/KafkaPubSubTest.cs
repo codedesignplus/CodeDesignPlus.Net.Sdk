@@ -15,7 +15,8 @@ using Xunit.Abstractions;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Services;
 
-public class KafkaPubSubTest : IClassFixture<KafkaContainer>
+[Collection(KafkaCollectionFixture.Collection)]
+public class KafkaPubSubTest
 {
     private readonly KafkaContainer kafkaContainer;
     private readonly ITestOutputHelper testOutput;
@@ -27,9 +28,9 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
     private readonly Mock<IProducer<string, IDomainEvent>> _mockProducer = new();
 
 
-    public KafkaPubSubTest(ITestOutputHelper output, KafkaContainer kafkaContainer)
+    public KafkaPubSubTest(ITestOutputHelper output, KafkaCollectionFixture kafkaCollectionFixture)
     {
-        this.kafkaContainer = kafkaContainer;
+        this.kafkaContainer = kafkaCollectionFixture.Container;
         this.testOutput = output;
 
         var serviceCollection = new ServiceCollection()
@@ -66,19 +67,19 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
     [Theory]
     [InlineData(true, "ConsumerQueue")]
     [InlineData(false, "ConsumerWithouQueue")]
-    public async Task PublishAsync_Event_InvokeHandler(bool enableQueue, string gorup)
+    public async Task PublishAsync_Event_InvokeHandler(bool enableQueue, string group)
     {
         var @event = new UserCreatedEvent(Guid.NewGuid())
         {
             Names = "Code",
             Lastnames = "Design Plus",
             Username = "coded",
-            Birthdate = new DateTime(2019, 11, 21)
+            Birthdate = new DateTime(2019, 11, 21, 0, 0, 0, DateTimeKind.Utc),
         };
 
         @event.Metadata.Add("key", "value");
 
-        var testServer = BuildTestServer(enableQueue, this.testOutput, gorup);
+        var testServer = BuildTestServer(enableQueue, this.testOutput, group);
 
         var pubSub = testServer.Host.Services.GetRequiredService<IMessage>();
 
@@ -130,17 +131,17 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
     public async Task SubscribeAsync_MaxRetry_WriteLoggerError()
     {
         // Arrange
-        var topic = "test-topic";
-        _mockDomainEventResolverService.Setup(x => x.GetKeyDomainEvent<UserCreatedEvent>()).Returns(topic);
+        var topic = nameof(SubscribeAsync_MaxRetry_WriteLoggerError);
+        _mockDomainEventResolverService.Setup(x => x.GetKeyDomainEvent<ProductCreatedEvent>()).Returns(topic);
 
-        var mockConsumer = new Mock<IConsumer<string, UserCreatedEvent>>();
+        var mockConsumer = new Mock<IConsumer<string, ProductCreatedEvent>>();
         var serviceCollection = new ServiceCollection().AddSingleton(x => mockConsumer.Object);
         var provider = serviceCollection.BuildServiceProvider();
         var maxAttempts = 3;
         var options = Microsoft.Extensions.Options.Options.Create(new KafkaOptions
         {
             Enable = true,
-            BootstrapServers = "localhost:29092",
+            BootstrapServers = kafkaContainer.BrokerList,
             Acks = "all",
             BatchSize = 4096,
             LingerMs = 5,
@@ -152,21 +153,21 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
         var kafkaEventBus = new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, options, provider);
 
         // Act
-        _ = Task.Run(() => kafkaEventBus.SubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>(CancellationToken.None));
+        _ = Task.Run(() => kafkaEventBus.SubscribeAsync<ProductCreatedEvent, ProductCreatedEventHandler>(CancellationToken.None));
 
         await Task.Delay(TimeSpan.FromSeconds(10));
 
         // Assert
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | Subscribing to Kafka topic {topic} ", LogLevel.Information);
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | Subscribing to Kafka topic {topic} ", LogLevel.Information);
 
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | The topic {topic} does not exist, waiting for it to be created.", LogLevel.Information, Times.Exactly(maxAttempts - 1));
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | The topic {topic} does not exist, waiting for it to be created.", LogLevel.Information, Times.Exactly(maxAttempts - 1));
 
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | The topic {topic} does not exist after {maxAttempts} attempts. Exiting.", LogLevel.Warning);
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | The topic {topic} does not exist after {maxAttempts} attempts. Exiting.", LogLevel.Warning);
 
-        _mockLogger.VerifyLogging($"{typeof(UserCreatedEvent).Name} | Listener the event {topic}", LogLevel.Information, Times.AtLeastOnce());
+        _mockLogger.VerifyLogging($"{typeof(ProductCreatedEvent).Name} | Listener the event {topic}", LogLevel.Information, Times.AtLeastOnce());
     }
 
-    private static TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output, string group)
+    private TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output, string group)
     {
         var webHostBuilder = new WebHostBuilder()
                     .ConfigureLogging(logging =>
@@ -187,7 +188,7 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
     }
 
 
-    private static void AddJsonStream(IConfigurationBuilder config, bool enableQueue, string group)
+    private void AddJsonStream(IConfigurationBuilder config, bool enableQueue, string group)
     {
         var json = JsonSerializer.Serialize(new
         {
@@ -210,7 +211,7 @@ public class KafkaPubSubTest : IClassFixture<KafkaContainer>
             Kafka = new
             {
                 Enable = true,
-                BootstrapServers = "localhost:29092",
+                BootstrapServers = kafkaContainer.BrokerList,
                 Acks = "all",
                 BatchSize = 4096,
                 LingerMs = 5,

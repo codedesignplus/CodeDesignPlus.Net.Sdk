@@ -70,8 +70,8 @@ jobs:
       - name: Build Packages
         run: npm run affected:build
 
-      # - name: Run SonarQube
-      #   run: npm run affected:sonarqube
+      - name: Run SonarQube
+        run: npm run affected:sonarqube
 
       # - name: .Net Pack
       #   run: npm run affected:pack
