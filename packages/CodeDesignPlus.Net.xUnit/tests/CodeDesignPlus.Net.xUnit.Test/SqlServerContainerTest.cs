@@ -1,4 +1,5 @@
 using System;
+using System.Net;
 using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
 using Microsoft.Data.SqlClient;
 
@@ -10,10 +11,10 @@ public class SqlServerContainerTest(SqlCollectionFixture sqlCollectionFixture)
     private readonly SqlServerContainer container = sqlCollectionFixture.Container;
 
     [Fact]
-    public void Test()
+    public void CheckConnectionService()
     {
         // Arrange
-        var sqlConnection = new SqlConnection($"Server=localhost,{this.container.Port};Database=master;User Id=sa;Password=Temporal1;Encrypt=false");
+        var sqlConnection = new SqlConnection($"Server=localhost,{this.container.Port};Database=master;User Id=sa;Password=Temporal1;Encrypt=True;TrustServerCertificate=True");
 
         // Act
         sqlConnection.Open();
