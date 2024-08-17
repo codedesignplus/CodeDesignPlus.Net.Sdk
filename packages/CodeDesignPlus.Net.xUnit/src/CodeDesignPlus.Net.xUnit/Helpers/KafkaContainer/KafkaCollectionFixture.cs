@@ -8,6 +8,8 @@ public sealed class KafkaCollectionFixture : IDisposable
     public KafkaCollectionFixture()
     {
         this.Container = new KafkaContainer();
+
+        Thread.Sleep(10000);
     }
 
     public void Dispose()
