@@ -16,20 +16,23 @@ public class KafkaOptions: PubSubOptions
     public bool Enable { get; set; }
 
     public string BootstrapServers { get; set; }
-    public string Acks { get; set; }
+    public Acks Acks { get; set; } = Acks.All;
     public int BatchSize { get; set; }
     public int LingerMs { get; set; }
-    public string CompressionType { get; set; }
+    public CompressionType CompressionType { get; set; } = CompressionType.Snappy;
     [Required]
     public string NameMicroservice { get; set; }
+
+    public SecurityProtocol SecurityProtocol { get; set; } = SecurityProtocol.Plaintext;
 
     public ProducerConfig ProducerConfig => new()
     {
         BootstrapServers = this.BootstrapServers,
-        //Acks = this.Acks,
-        // BatchSize = this.BatchSize,
-        // LingerMs = this.LingerMs,
-        //CompressionType = this.CompressionType
+        Acks = this.Acks,
+        BatchSize = this.BatchSize,
+        LingerMs = this.LingerMs,
+        CompressionType = this.CompressionType,
+        SecurityProtocol = SecurityProtocol
     };
 
     public ConsumerConfig ConsumerConfig => new()
