@@ -12,7 +12,7 @@ public class KafkaContainerTest(KafkaCollectionFixture kafkaCollectionFixture)
     public async Task Initialize_Publish_Consumer()
     {
         // Arrange
-        var producerConfig = new ProducerConfig { BootstrapServers = kafkaCollectionFixture.Container.BrokerList };
+        var producerConfig = new ProducerConfig { BootstrapServers = kafkaCollectionFixture.Container.BrokerList, SecurityProtocol = SecurityProtocol.Plaintext };
         var consumerConfig = new ConsumerConfig
         {
             BootstrapServers = kafkaCollectionFixture.Container.BrokerList,

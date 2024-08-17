@@ -131,6 +131,7 @@ public class KafkaPubSubTest
     public async Task SubscribeAsync_MaxRetry_WriteLoggerError()
     {
         // Arrange
+        await Task.Delay(TimeSpan.FromSeconds(10));
         var topic = nameof(SubscribeAsync_MaxRetry_WriteLoggerError);
         _mockDomainEventResolverService.Setup(x => x.GetKeyDomainEvent<ProductCreatedEvent>()).Returns(topic);
 

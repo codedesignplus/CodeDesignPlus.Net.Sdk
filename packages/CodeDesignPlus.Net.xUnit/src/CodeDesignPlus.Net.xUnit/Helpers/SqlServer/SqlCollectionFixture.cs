@@ -15,7 +15,7 @@ public sealed class SqlCollectionFixture : IDisposable
 
         ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
 
-        Thread.Sleep(5000);
+        Thread.Sleep(10000);
     }
 
     public void Dispose()
