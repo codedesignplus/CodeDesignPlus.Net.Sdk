@@ -2,14 +2,9 @@ version: '3.8'
 
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2019-latest
+    image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
-      - SA_PASSWORD=Temporal1
+      - MSSQL_SA_PASSWORD=Temporal1
       - ACCEPT_EULA=Y
     ports:
       - "0:1433"
-    volumes:
-      - sqlserver-data:/var/opt/mssql
-
-volumes:
-  sqlserver-data:

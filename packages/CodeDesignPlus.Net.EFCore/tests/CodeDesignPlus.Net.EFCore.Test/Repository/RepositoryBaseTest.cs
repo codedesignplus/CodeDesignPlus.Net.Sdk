@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Entities;
+﻿using System.Net;
+using CodeDesignPlus.Entities;
 using CodeDesignPlus.InMemory;
 using CodeDesignPlus.InMemory.Repositories;
 using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
@@ -644,7 +645,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server=localhost,{this.sqlServerContainer.Port};Database=temp1;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
+        var connectionString = $"Server=localhost,{this.sqlServerContainer.Port};Database=temp1;User Id=sa;Password=Temporal1;Encrypt=True;TrustServerCertificate=True";
 
         var options = builder.UseSqlServer(connectionString, x =>
         {
@@ -695,7 +696,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=temp2;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
+        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=temp2;User Id=sa;Password=Temporal1;Encrypt=True;TrustServerCertificate=True";
 
         var options = builder.UseSqlServer(connectionString, x =>
         {
