@@ -21,10 +21,10 @@ public static class OptionUtils
     {
         Enable = true,
         BootstrapServers = "localhost:29092",
-        Acks = "all",
+        Acks = Confluent.Kafka.Acks.All,
         BatchSize = 4096,
         LingerMs = 5,
-        CompressionType = "snappy",
+        CompressionType = Confluent.Kafka.CompressionType.Snappy,
         NameMicroservice = "Microservice.Test"
     };
 }
