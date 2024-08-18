@@ -14,7 +14,7 @@
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore.git</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-    <PackageIcon>https://i.imgur.com/PwbGy0o.png</PackageIcon>
+    <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -29,6 +29,10 @@
       <Pack>True</Pack>
       <PackagePath />
     </None>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
