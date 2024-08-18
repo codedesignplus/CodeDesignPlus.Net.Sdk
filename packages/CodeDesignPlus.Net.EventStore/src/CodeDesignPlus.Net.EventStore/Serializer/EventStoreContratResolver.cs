@@ -1,24 +1,15 @@
-﻿
-
-namespace CodeDesignPlus.Net.EventStore.Serializer;
+﻿namespace CodeDesignPlus.Net.EventStore.Serializer;
 
 /// <summary>
-/// Custom JSON contract resolver for configuring serialization of domain events.
+/// Custom contract resolver for EventStore that extends the EventContractResolver.
 /// </summary>
 public class EventStoreContratResolver : EventContractResolver
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventStoreContratResolver"/> class.
+    /// Creates a JsonObjectContract for the given type.
     /// </summary>
-    public EventStoreContratResolver() : base()
-    {
-    }
-
-    /// <summary>
-    /// Creates a custom JSON object contract for the specified type.
-    /// </summary>
-    /// <param name="objectType">The type for which to create the JSON object contract.</param>
-    /// <returns>A <see cref="JsonObjectContract"/> for the specified type.</returns>
+    /// <param name="objectType">The type of the object.</param>
+    /// <returns>A JsonObjectContract for the given type.</returns>
     protected override Newtonsoft.Json.Serialization.JsonObjectContract CreateObjectContract(Type objectType)
     {
         var contract = base.CreateObjectContract(objectType);

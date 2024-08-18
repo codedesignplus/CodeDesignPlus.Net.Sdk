@@ -1,0 +1,179 @@
+
+/* Side panel */
+
+.sidebar {
+  height: 100%;
+  width: 200px;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  overflow-x: hidden;
+  transition: 0.1s;
+  padding-top: 40px;
+}
+
+@media (max-width: 767.98px) {
+  .sidebar {
+    top: 6.9rem;
+    padding: 0;
+  }
+}
+
+#main {
+  transition: margin-left .1s;
+  padding: 16px;
+  margin-left: 200px;
+  width: auto;
+}
+
+.nav-link-aligned {
+  display: flex;
+  align-items: left;
+  justify-content: left;
+}
+
+.sidebar-submenu-item {
+    margin-left: 25px;
+}
+
+.sidebar-menu {
+  padding-top: 10px;
+}
+
+.sidebar-toggle {
+  border: none;
+  margin-left: 14px;
+  background-color: transparent;
+}
+
+.sidebar-aligned-right {
+  margin-left: 160px;
+}
+
+/* Top panel */
+.navbar {
+}
+
+@media (min-width: 767.98px) {
+  .navbar {
+    top: 0;
+    position: sticky;
+    z-index: 999;
+  }
+}
+
+/* Breadcrumbs */
+
+.breadcrumb {
+  background-color: transparent;
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.breadcrumb-item {
+  background-color: transparent;
+}
+
+/* Tables*/
+
+th {
+  text-transform: uppercase;
+  font-weight:normal;
+  font-size: normal;
+  white-space: nowrap;
+  border-top: none;
+}
+
+.table-without-top-border thead th {
+  border-top: none;
+  font-weight: 600;
+}
+
+tr.without-border td {
+  border: none;
+}
+
+.table-with-narrow-rows td {
+  padding-top: 4px;
+  padding-bottom: 4px;
+  font-size: 90%;
+}
+
+.table-expandable-row-active-border {
+  border-left: 2px solid #0d6efd;
+}
+
+.table-row-wrap-all {
+  word-wrap: break-all;
+  max-width: 200px;
+}
+
+/* Title */
+
+.title-panel {
+  margin-top: 20px;
+}
+
+/* Cards */
+
+.card-title-upper {
+  text-transform: uppercase;
+}
+
+.card-title-bold {
+  font-weight: 600;
+}
+
+.card-main-content {
+  display: inline; 
+  margin-right:5px;
+}
+
+/* Misc */
+.align-center {
+  text-align: center;
+}
+
+.width-auto {
+  width: auto;
+  white-space: nowrap;
+}
+
+.text-small {
+  font-size: small;
+}
+
+.text-italic {
+  font-style: italic;
+}
+
+.hidden {
+  display: none;
+}
+
+.details-text-size {
+  font-size:90%;
+}
+
+/* Buttons */
+
+.expander-button {
+  border: none;
+  background-color: transparent;
+}
+
+/* Pre */
+
+pre {
+  padding: 6px;
+  word-break: break-word;
+  white-space: normal;
+}
+
+/* Badges */
+
+.badge-with-padding {
+  padding-left: 10px;
+  padding-right: 10px;
+}

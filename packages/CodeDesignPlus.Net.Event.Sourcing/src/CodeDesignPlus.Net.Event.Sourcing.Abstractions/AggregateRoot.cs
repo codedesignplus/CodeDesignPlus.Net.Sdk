@@ -12,6 +12,7 @@ public abstract class AggregateRoot(Guid id) : Core.Abstractions.AggregateRoot(i
     /// The cache of the delegates to create instances of the aggregate root.
     /// </summary>
     private static readonly Dictionary<Type, Delegate> instanceDelegatesCache = [];
+
     /// <summary>
     /// The cache of the methods to apply the changes that occur in the aggregate root.
     /// </summary>
@@ -28,7 +29,7 @@ public abstract class AggregateRoot(Guid id) : Core.Abstractions.AggregateRoot(i
     public long Version { get; private set; } = -1;
 
     /// <summary>
-    /// Add a domain event to the list of events that have occurred in the aggregate root.
+    /// Adds a domain event to the list of events that have occurred in the aggregate root.
     /// </summary>
     /// <param name="event">The domain event to add to the list of events that have occurred in the aggregate root.</param>
     protected override void AddEvent(IDomainEvent @event)
@@ -44,7 +45,7 @@ public abstract class AggregateRoot(Guid id) : Core.Abstractions.AggregateRoot(i
     }
 
     /// <summary>
-    /// Apply the changes that occur in the aggregate root.
+    /// Applies the changes that occur in the aggregate root.
     /// </summary>
     /// <param name="event">The domain event to apply the changes.</param>
     public virtual void ApplyEvent(IDomainEvent @event)
@@ -62,7 +63,7 @@ public abstract class AggregateRoot(Guid id) : Core.Abstractions.AggregateRoot(i
     }
 
     /// <summary>
-    /// Rehydrate the aggregate root from the events that have occurred.
+    /// Rehydrates the aggregate root from the events that have occurred.
     /// </summary>
     /// <typeparam name="TAggregate">The type of the aggregate root.</typeparam>
     /// <param name="id">The identifier of the aggregate root.</param>
@@ -83,7 +84,7 @@ public abstract class AggregateRoot(Guid id) : Core.Abstractions.AggregateRoot(i
     }
 
     /// <summary>
-    /// Create an instance of the aggregate root.
+    /// Creates an instance of the aggregate root.
     /// </summary>
     /// <typeparam name="T">The type of the aggregate root.</typeparam>
     /// <returns>An instance of the aggregate root.</returns>

@@ -1,13 +1,7 @@
 ﻿namespace CodeDesignPlus.Net.EFCore.Test.Options;
 
-/// <summary>
-/// Unit tests to the ClaimsOption class
-/// </summary>
 public class ClaimsOptionTest
 {
-    /// <summary>
-    /// Claims available to obtain user information
-    /// </summary>
     private readonly ClaimsOption claimsOption = new()
     {
         Email = nameof(ClaimsOption.Email),
@@ -16,9 +10,6 @@ public class ClaimsOptionTest
         User = nameof(ClaimsOption.User),
     };
 
-    /// <summary>
-    /// Validate accessors and data annotations
-    /// </summary>
     [Fact]
     public void Properties_AccessorsAndDataAnnotations_IsValid()
     {
@@ -33,9 +24,6 @@ public class ClaimsOptionTest
         Assert.Equal(nameof(ClaimsOption.User), this.claimsOption.User);
     }
 
-    /// <summary>
-    /// Validate accessors and data annotations
-    /// </summary>
     [Theory]
     [InlineData(nameof(ClaimsOption.Email))]
     [InlineData(nameof(ClaimsOption.IdUser))]

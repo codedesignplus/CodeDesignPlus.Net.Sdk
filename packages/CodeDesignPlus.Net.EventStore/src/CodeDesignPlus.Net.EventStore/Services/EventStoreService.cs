@@ -26,14 +26,20 @@ public class EventStoreService : IEventStoreService
     /// <param name="options">The options for event sourcing.</param>
     /// <param name="domainEventResolverService">The service for resolving domain events.</param>
     /// <exception cref="ArgumentNullException">The eventStoreFactory, logger or options is null.</exception>
+    /// <exception cref="ArgumentNullException">The domainEventResolverService is null.</exception>
+    /// <exception cref="ArgumentNullException">The options is null.</exception>
+    /// <exception cref="ArgumentNullException">The logger is null.</exception>
     public EventStoreService(IEventStoreFactory eventStoreFactory, IDomainEventResolverService domainEventResolverService, ILogger<EventStoreService> logger, IOptions<EventSourcingOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(eventStoreFactory);
+        ArgumentNullException.ThrowIfNull(domainEventResolverService);
+        ArgumentNullException.ThrowIfNull(logger);
 
-        this.eventStoreFactory = eventStoreFactory ?? throw new ArgumentNullException(nameof(eventStoreFactory));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.eventStoreFactory = eventStoreFactory;
+        this.logger = logger;
         this.options = options.Value;
-        this.domainEventResolverService = domainEventResolverService ?? throw new ArgumentNullException(nameof(domainEventResolverService));
+        this.domainEventResolverService = domainEventResolverService;
 
         this.logger.LogInformation("EventStoreService initialized.");
     }

@@ -1,14 +1,15 @@
 ﻿namespace CodeDesignPlus.Net.EFCore.Extensions;
 
 /// <summary>
-/// Provides a set of extension methods for CodeDesignPlus.EFCore
+/// Provides extension methods for configuring Entity Framework Core entities and handling pagination.
 /// </summary>
 public static class EFCoreExtensions
 {
     /// <summary>
-    /// Sets the traversal properties of an entity that implements the IEntity interface
+    /// Configures the base properties for an entity.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="builder">The entity type builder.</param>
     public static void ConfigurationBase<TEntity>(this EntityTypeBuilder<TEntity> builder)
         where TEntity : class, IEntityBase
     {
@@ -24,13 +25,13 @@ public static class EFCoreExtensions
     }
 
     /// <summary>
-    /// Obtains a set of records from the database returning an object of type Pager for the datatable
+    /// Paginates the query results asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be consult.</typeparam>
-    /// <param name="query">The type of the elements of source.</param>
-    /// <param name="currentPage">Current Page</param>
-    /// <param name="pageSize">Page Size</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="query">The query to paginate.</param>
+    /// <param name="currentPage">The current page number.</param>
+    /// <param name="pageSize">The size of the page.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the paginated results.</returns>
     public static async Task<Pager<TEntity>> ToPageAsync<TEntity>(this IQueryable<TEntity> query, int currentPage, int pageSize)
         where TEntity : class, IEntity
     {
@@ -47,10 +48,10 @@ public static class EFCoreExtensions
     }
 
     /// <summary>
-    /// Obtenga todas las clases que implementan la interfaz IEntityTypeConfiguration{TEntity} y cree una instancia para invocar el método configure
+    /// Registers entity configurations from the specified context.
     /// </summary>
-    /// <typeparam name="TContext">Represents a session with the database and can be used to query and save instances of your entities</typeparam>
-    /// <param name="builder">The builder to be used to configure the entity type.</param>
+    /// <typeparam name="TContext">The type of the context.</typeparam>
+    /// <param name="builder">The model builder.</param>
     public static void RegisterEntityConfigurations<TContext>(this ModelBuilder builder)
         where TContext : DbContext
     {
@@ -75,10 +76,10 @@ public static class EFCoreExtensions
     }
 
     /// <summary>
-    /// Method Extension that get the method Entity of the object ModelBuilder
+    /// Gets the method for configuring an entity.
     /// </summary>
-    /// <param name="builder">Object of type <see cref="ModelBuilder"/></param>
-    /// <returns>Return an object of type <see cref="MethodInfo"/></returns>
+    /// <param name="builder">The model builder.</param>
+    /// <returns>The method info for configuring an entity.</returns>
     private static MethodInfo GetMethodEntity(this ModelBuilder builder)
     {
         return builder
@@ -86,12 +87,12 @@ public static class EFCoreExtensions
             .GetMethods()
             .Single(x => x.IsGenericMethod && x.Name == nameof(ModelBuilder.Entity) && x.ReturnType.Name == "EntityTypeBuilder`1");
     }
-
+    
     /// <summary>
-    /// Method extension that validates if the type inheritance is IEntityTypeConfiguration
+    /// Determines whether the specified type is an entity type configuration.
     /// </summary>
-    /// <param name="type">Type</param>
-    /// <returns>Return true if the type inheritanced is of IEntityTypeConfiguration</returns>
+    /// <param name="type">The type to check.</param>
+    /// <returns>true if the type is an entity type configuration; otherwise, false.</returns>
     private static bool IsEntityTypeConfiguration(Type type)
     {
         return Array.Exists(type.GetInterfaces(), x => x.GetTypeInfo().IsGenericType && x.GetGenericTypeDefinition() == typeof(IEntityTypeConfiguration<>));
