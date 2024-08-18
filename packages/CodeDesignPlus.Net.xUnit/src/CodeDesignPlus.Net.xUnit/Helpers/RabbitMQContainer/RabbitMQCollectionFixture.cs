@@ -10,6 +10,8 @@ public sealed class RabbitMQCollectionFixture : IDisposable
     public RabbitMQCollectionFixture()
     {
         this.Container = new RabbitMQContainer();
+
+        Thread.Sleep(10000);
     }
 
     public void Dispose()

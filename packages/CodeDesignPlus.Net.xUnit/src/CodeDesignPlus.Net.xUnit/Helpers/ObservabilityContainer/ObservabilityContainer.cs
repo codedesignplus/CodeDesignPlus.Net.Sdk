@@ -6,15 +6,16 @@ public class ObservabilityContainer : DockerCompose
     {
         var file = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "ObservabilityContainer", (TemplateString)"docker-compose.yml");
 
-        var compose = new DockerComposeCompositeService(
-            DockerHost,
-            new DockerComposeConfig
-            {
-                ComposeFilePath = [file],
-                ForceRecreate = true,
-                RemoveOrphans = true,
-                StopOnDispose = true
-            });
+        var dockerCompose = new DockerComposeConfig
+        {
+            ComposeFilePath = [file],
+            ForceRecreate = true,
+            RemoveOrphans = true,
+            StopOnDispose = true,
+            AlternativeServiceName = "observability_" + Guid.NewGuid().ToString("N"),
+        };
+
+        var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
 
         return compose;
     }

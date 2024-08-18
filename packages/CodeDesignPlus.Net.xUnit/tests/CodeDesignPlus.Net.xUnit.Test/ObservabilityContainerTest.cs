@@ -1,16 +1,15 @@
 ﻿using CodeDesignPlus.Net.xUnit.Helpers.ObservabilityContainer;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 
-public class ObservabilityContainerTest(ObservabilityContainer container) : IClassFixture<ObservabilityContainer>
+[Collection(ObservabilityCollectionFixture.Collection)]
+public class ObservabilityContainerTest(ObservabilityCollectionFixture fixture) 
 {
 
     [Fact]
-    public void ContainerNotNull()
+    public void CheckRunning()
     {
-        Assert.NotNull(container);
+        Assert.True(fixture.Container.IsRunning);
     }
 
 }

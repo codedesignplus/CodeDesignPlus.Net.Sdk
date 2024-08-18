@@ -6,12 +6,13 @@ using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Services;
 
-public class RabbitConnectionTest(RabbitMQContainer container) : IClassFixture<RabbitMQContainer>
+[Collection(RabbitMQCollectionFixture.Collection)]
+public class RabbitConnectionTest(RabbitMQCollectionFixture fixture)
 {
     private readonly IOptions<RabbitMQOptions> options = O.Options.Create(new RabbitMQOptions()
     {
         Host = "localhost",
-        Port = container.Port,
+        Port = fixture.Container.Port,
         UserName = "usr_codedesignplus",
         Password = "Temporal1",
         Enable = true,
@@ -63,7 +64,7 @@ public class RabbitConnectionTest(RabbitMQContainer container) : IClassFixture<R
         var options = O.Options.Create(new RabbitMQOptions()
         {
             Host = "lh",
-            Port = container.Port,
+            Port = fixture.Container.Port,
             UserName = "usr_codedesignplus",
             Password = "Temporal2",
             Enable = true,
