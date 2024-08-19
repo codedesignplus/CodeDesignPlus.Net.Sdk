@@ -1,7 +1,16 @@
 ﻿namespace CodeDesignPlus.Net.Security.Extensions;
 
+/// <summary>
+/// Provides extension methods for handling authentication failures in the context of security token exceptions.
+/// </summary>
 public static class AuthenticationFailedContextExtensions
 {
+    /// <summary>
+    /// Handles different types of security token exceptions and writes appropriate responses.
+    /// </summary>
+    /// <param name="context">The authentication failed context.</param>
+    /// <param name="exception">The exception that occurred.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public static async Task HandleTokenException(this AuthenticationFailedContext context, Exception exception)
     {
         switch (exception)
@@ -27,6 +36,13 @@ public static class AuthenticationFailedContextExtensions
         }
     }
 
+    /// <summary>
+    /// Writes a token exception response with a specified header and message.
+    /// </summary>
+    /// <param name="context">The authentication failed context.</param>
+    /// <param name="header">The header to append to the response.</param>
+    /// <param name="message">The message to write to the response.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     private static async Task WriteTokenException(this AuthenticationFailedContext context, string header, string message)
     {
         context.Response.Headers.Append(header, "true");

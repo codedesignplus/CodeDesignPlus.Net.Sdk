@@ -1,17 +1,19 @@
 ﻿namespace CodeDesignPlus.Net.Security.Extensions;
 
 /// <summary>
-/// Provides a set of extension methods for CodeDesignPlus.EFCore
+/// Provides extension methods for setting up security services in an <see cref="IServiceCollection"/> and configuring authentication in an <see cref="IApplicationBuilder"/>.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Add CodeDesignPlus.EFCore configuration options
+    /// Adds security services to the specified <see cref="IServiceCollection"/>.
     /// </summary>
-    /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
-    /// <param name="configuration">The configuration being bound.</param>
-    /// <param name="options">Configure the JwtBearerOptions</param>
-    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+    /// <param name="configuration">The configuration to bind the security options.</param>
+    /// <param name="options">Optional action to configure the <see cref="JwtBearerOptions"/>.</param>
+    /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="services"/> or <paramref name="configuration"/> is null.</exception>
+    /// <exception cref="SecurityException">Thrown if the security configuration section does not exist.</exception>
     public static IServiceCollection AddSecurity(this IServiceCollection services, IConfiguration configuration, Action<JwtBearerOptions> options = null)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -38,10 +40,10 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Add JwtBearer authentication
+    /// Configures the application to use authentication and authorization.
     /// </summary>
-    /// <param name="app">The Microsoft.AspNetCore.Builder.IApplicationBuilder to add the middleware to.</param>
-    /// <returns>The Microsoft.AspNetCore.Builder.IApplicationBuilder so that additional calls can be chained.</returns>
+    /// <param name="app">The <see cref="IApplicationBuilder"/> to configure.</param>
+    /// <returns>The <see cref="IApplicationBuilder"/> so that additional calls can be chained.</returns>
     public static IApplicationBuilder UseAuth(this IApplicationBuilder app)
     {
         app.UseAuthentication();
@@ -51,12 +53,12 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Add JwtBearer authentication
+    /// Adds JWT Bearer authentication to the specified <see cref="AuthenticationBuilder"/>.
     /// </summary>
-    /// <param name="authenticationBuilder">The Microsoft.AspNetCore.Authentication.AuthenticationBuilder to add the authentication to.</param>
-    /// <param name="configuration">The configuration being bound.</param>
-    /// <param name="options">Configure the JwtBearerOptions</param>
-    /// <returns>The Microsoft.AspNetCore.Authentication.AuthenticationBuilder so that additional calls can be chained.</returns>
+    /// <param name="authenticationBuilder">The <see cref="AuthenticationBuilder"/> to add the authentication to.</param>
+    /// <param name="configuration">The configuration to bind the security options.</param>
+    /// <param name="options">Optional action to configure the <see cref="JwtBearerOptions"/>.</param>
+    /// <returns>The <see cref="AuthenticationBuilder"/> so that additional calls can be chained.</returns>
     public static AuthenticationBuilder AddJwtBearer(this AuthenticationBuilder authenticationBuilder, IConfiguration configuration, Action<JwtBearerOptions> options = null)
     {
         Microsoft.IdentityModel.Logging.IdentityModelEventSource.ShowPII = true;
@@ -105,6 +107,11 @@ public static class ServiceCollectionExtensions
         return authenticationBuilder;
     }
 
+    /// <summary>
+    /// Handles authentication failures by writing appropriate responses.
+    /// </summary>
+    /// <param name="context">The authentication failed context.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     internal static async Task AuthenticationFailed(AuthenticationFailedContext context)
     {
         var exception = context.Exception;
