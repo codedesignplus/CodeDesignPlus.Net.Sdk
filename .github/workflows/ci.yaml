@@ -1,7 +1,6 @@
 name: Continuous Integration
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -95,8 +94,8 @@ jobs:
       - name: Build Packages
         run: pnpm run affected:build
 
-      # - name: Run SonarQube
-      #   run: pnpm run affected:sonarqube
+      - name: Run SonarQube
+        run: pnpm run affected:sonarqube
 
       - name: .Net Pack
         run: pnpm run affected:pack --args=\"--version=${{ steps.git-semver.outputs.new-version }}\"
