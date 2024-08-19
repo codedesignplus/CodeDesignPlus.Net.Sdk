@@ -1,5 +1,8 @@
 ﻿namespace CodeDesignPlus.Net.Serializers;
 
+/// <summary>
+/// Provides methods for serializing and deserializing objects to and from JSON.
+/// </summary>
 public static class JsonSerializer
 {
     /// <summary>

@@ -1,24 +1,27 @@
 ﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
-/// Represents the metadata of the event.
+/// Represents a domain event.
 /// </summary>
 public interface IDomainEvent
 {
     /// <summary>
-    /// The identifier of the event.
+    /// Gets the unique identifier of the event.
     /// </summary>
     Guid EventId { get; }
+
     /// <summary>
-    /// The date and time the event occurred.
+    /// Gets the date and time when the event occurred.
     /// </summary>
     DateTime OccurredAt { get; }
+
     /// <summary>
-    /// The identifier of the aggregate root that generated the event.
+    /// Gets the unique identifier of the aggregate associated with the event.
     /// </summary>
     Guid AggregateId { get; }
+
     /// <summary>
-    /// The metadata of the event.
+    /// Gets the metadata associated with the event.
     /// </summary>
     Dictionary<string, object> Metadata { get; }
 }

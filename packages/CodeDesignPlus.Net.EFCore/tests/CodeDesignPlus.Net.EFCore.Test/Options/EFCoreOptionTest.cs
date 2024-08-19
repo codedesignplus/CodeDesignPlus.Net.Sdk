@@ -1,13 +1,7 @@
 ﻿namespace CodeDesignPlus.Net.EFCore.Test.Options;
 
-/// <summary>
-/// Unit tests to the EFCoreOption class
-/// </summary>
 public class EFCoreOptionTest
 {
-    /// <summary>
-    /// Configuration options for CodeDesignPlus.EFCore
-    /// </summary>
     private readonly EFCoreOptions efCoreOption = new()
     {
         ClaimsIdentity = new ClaimsOption()
@@ -19,9 +13,6 @@ public class EFCoreOptionTest
         }
     };
 
-    /// <summary>
-    /// Validate accessors and data annotations
-    /// </summary>
     [Fact]
     public void Properties_AccessorsAndDataAnnotations_IsValid()
     {
@@ -36,9 +27,6 @@ public class EFCoreOptionTest
         Assert.Equal(nameof(ClaimsOption.User), this.efCoreOption.ClaimsIdentity.User);
     }
 
-    /// <summary>
-    /// Validate accessors and data annotations
-    /// </summary>
     [Theory]
     [InlineData(nameof(EFCoreOptions.ClaimsIdentity))]
     public void Properties_SetNullProperty_PropertyNullIsNotValid(string property)

@@ -13,7 +13,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Redis.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Redis.git</PackageProjectUrl>
-    <PackageTags>{tags}</PackageTags>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -41,6 +41,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.0" />
   </ItemGroup>
 </Project>

@@ -2,7 +2,7 @@
 namespace CodeDesignPlus.Net.Mongo.Repository;
 
 /// <summary>
-/// Represents a base repository class for MongoDB operations.
+/// Base class for MongoDB repository operations.
 /// </summary>
 public abstract class RepositoryBase : IRepositoryBase
 {
@@ -11,11 +11,12 @@ public abstract class RepositoryBase : IRepositoryBase
     private readonly MongoOptions mongoOptions;
 
     /// <summary>
-    /// Initializes a new instance of the RepositoryBase class using the specified options.
+    /// Initializes a new instance of the <see cref="RepositoryBase"/> class.
     /// </summary>
-    /// <param name="serviceProvider">The IServiceProvider to add services to the container.</param>
-    /// <param name="mongoOptions">The options to configure a MongoDB.</param>
-    /// <param name="logger">Represents a type used to perform logging.</param>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="mongoOptions">The MongoDB options.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     protected RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger logger)
     {
         this.serviceProvider = serviceProvider;
@@ -24,10 +25,10 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Method that returns a list of records from the database.
+    /// Gets the MongoDB collection for the specified entity type.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <returns>The MongoDB collection.</returns>
     public IMongoCollection<TEntity> GetCollection<TEntity>()
         where TEntity : class, IEntityBase
     {
@@ -39,13 +40,14 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Changes the state of a record in the database.
+    /// Changes the state of an entity by its identifier asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="id">The ID of the record to search.</param>
-    /// <param name="state">The state of the record to set.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="state">The new state of the entity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous change state operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
     public Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken)
         where TEntity : class, IEntity
     {
@@ -60,12 +62,13 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Creates a new record in the database.
+    /// Creates a new entity asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="entity">The entity to be created.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to create.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous create operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
     public Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -75,12 +78,13 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Creates multiple records in the database.
+    /// Creates a range of new entities asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="entities">The list of entities to be created.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entities">The entities to create.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous create range operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entities are null.</exception>
     public Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -90,12 +94,12 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Deletes a record from the database.
+    /// Deletes an entity by its filter asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="filter">The filter to search for the record to delete.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="filter">The filter definition.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
     public Task DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -105,12 +109,12 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Deletes multiple records from the database.
+    /// Deletes a range of entities asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="entities">The list of entities to be deleted.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entities">The entities to delete.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete range operation.</returns>
     public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -123,12 +127,13 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Updates a record in the database.
+    /// Updates an entity asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="entity">The entity to be updated.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to update.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous update operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
     public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -140,12 +145,13 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Updates multiple records in the database.
+    /// Updates a range of entities asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="entities">The list of entities to be updated.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entities">The entities to update.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous update range operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entities are null.</exception>
     public async Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -156,11 +162,12 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Executes a transactional operation on the MongoDB database.
+    /// Executes a transaction asynchronously.
     /// </summary>
-    /// <param name="process">The function that represents the transactional operation.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <param name="process">The process to execute within the transaction.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous transaction operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the process is null.</exception>
     public async Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken)
     {
         var client = this.serviceProvider.GetRequiredService<IMongoClient>();
@@ -186,12 +193,12 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Method that returns a list of records from the database.
+    /// Finds entities matching the specified criteria asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="criteria">The criteria to filter the records.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>    
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
     public Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -201,14 +208,14 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Method that returns a list of records from the database.
+    /// Finds entities matching the specified criteria and projects them to the specified result type asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <typeparam name="TResult">The type of the result to project.</typeparam>
-    /// <param name="criteria">The criteria to filter the records.</param>
-    /// <param name="projection">The projection to apply to the records.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="projection">The projection expression.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
     public Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
@@ -218,13 +225,15 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
-    /// Method that returns a list of records from the database.
+    /// Finds entities matching the specified criteria and projects them to the specified projection type asynchronously.
     /// </summary>
-    /// <typeparam name="TEntity">The entity type to be configured.</typeparam>
-    /// <param name="id">The ID of the record to search.</param>
-    /// <param name="criteria">The criteria to filter the records.</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation</returns>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TProjection">The type of the projection.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="projection">The projection expression.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
     public async Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
         where TProjection : class, IEntityBase
@@ -265,7 +274,12 @@ public abstract class RepositoryBase : IRepositoryBase
         return resultList.Select(doc => BsonSerializer.Deserialize<TProjection>(doc)).ToList();
     }
 
-
+    /// <summary>
+    /// Sorts the query based on the specified sort expression and order type.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria containing the sort expression and order type.</param>
+    /// <returns>The sorted query.</returns>
     private IFindFluent<TEntity, TEntity> Query<TEntity>(C.Criteria criteria)
         where TEntity : class, IEntityBase
     {
@@ -284,6 +298,14 @@ public abstract class RepositoryBase : IRepositoryBase
         return query;
     }
 
+    /// <summary>
+    /// Gets the property name from the specified projection expression.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="projection">The projection expression.</param>
+    /// <returns>The property name.</returns>
+    /// <exception cref="Exceptions.MongoException">Thrown when the expression is not a MemberExpression.</exception>
     private static string GetPropertyName<TEntity, TResult>(Expression<Func<TEntity, TResult>> projection)
         where TEntity : class, IEntityBase
     {
@@ -293,6 +315,13 @@ public abstract class RepositoryBase : IRepositoryBase
             throw new Exceptions.MongoException("The expression must be a MemberExpression.");
     }
 
+    /// <summary>
+    /// Converts the specified expression to a BSON document.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="expression">The expression to convert.</param>
+    /// <param name="alias">The alias to use in the BSON document.</param>
+    /// <returns>The BSON document representing the expression.</returns>
     public static BsonDocument GetBsonDocument<TEntity>(Expression<Func<TEntity, bool>> expression, string alias)
         where TEntity : class, IEntityBase
     {

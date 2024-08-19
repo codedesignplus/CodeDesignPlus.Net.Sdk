@@ -142,10 +142,10 @@ public class KafkaPubSubTest
         {
             Enable = true,
             BootstrapServers = kafkaContainer.BrokerList,
-            Acks = "all",
+            Acks = Acks.All ,
             BatchSize = 4096,
             LingerMs = 5,
-            CompressionType = "snappy",
+            CompressionType = CompressionType.Gzip ,
             NameMicroservice = "ms-test-temp",
             MaxAttempts = maxAttempts
         });

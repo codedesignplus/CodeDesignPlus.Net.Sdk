@@ -1,6 +1,6 @@
 ﻿namespace CodeDesignPlus.Net.File.Storage.Factories;
 
-public class AzureFileFactory : IAzureFlieFactory
+public class AzureFileFactory : IAzureFileFactory
 {
     public FileStorageOptions Options { get; private set; }
     public IUserContext UserContext { get; private set; }
@@ -15,7 +15,7 @@ public class AzureFileFactory : IAzureFlieFactory
         UserContext = userContext;
     }
 
-    public IAzureFlieFactory Create()
+    public IAzureFileFactory Create()
     {
         if (!this.Options.AzureFile.Enable)
             throw new FileStorageException("The AzureBlob is not enable");

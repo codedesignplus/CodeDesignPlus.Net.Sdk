@@ -6,22 +6,27 @@
 public class EventContractResolver : DefaultContractResolver
 {
     /// <summary>
-    /// The property names to ignore.
+    /// The property names to ignore during serialization.
     /// </summary>
     private readonly string[] propertyNamesToIgnore;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EventContractResolver"/> class with default properties to ignore.
+    /// </summary>
     public EventContractResolver()
     {
-        this.propertyNamesToIgnore = [
+        this.propertyNamesToIgnore = new[]
+        {
             nameof(IDomainEvent.EventId),
             nameof(IDomainEvent.OccurredAt),
             nameof(IDomainEvent.Metadata)
-        ];
+        };
     }
 
     /// <summary>
-    /// Resolves contracts for events during serialization and deserialization.
+    /// Initializes a new instance of the <see cref="EventContractResolver"/> class with specified properties to ignore.
     /// </summary>
+    /// <param name="propertyNamesToIgnore">The property names to ignore during serialization.</param>
     public EventContractResolver(string[] propertyNamesToIgnore)
     {
         this.propertyNamesToIgnore = propertyNamesToIgnore;

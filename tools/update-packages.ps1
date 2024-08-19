@@ -1,4 +1,4 @@
-dotnet tool install -g upgrade-assistant
+dotnet tool install --global dotnet-outdated-tool
 
 $proyectos = Get-ChildItem -Path "./../packages/" -Recurse -Filter "*.Abstractions.csproj"
 

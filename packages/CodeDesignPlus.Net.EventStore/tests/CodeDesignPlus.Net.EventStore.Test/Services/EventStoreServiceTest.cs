@@ -15,9 +15,10 @@ using MO = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.EventStore.Test.Services;
 
-public class EventStoreServiceTest(EventStoreContainer fixture) : IClassFixture<EventStoreContainer>
+[Collection(EventStoreCollectionFixture.Collection)]
+public class EventStoreServiceTest(EventStoreCollectionFixture fixture) 
 {
-    private readonly EventStoreContainer fixture = fixture;
+    private readonly EventStoreContainer container = fixture.Container;
     private readonly IDomainEventResolverService domainEventResolverService = new DomainEventResolverService(MO.Options.Create(OptionsUtil.GetCoreOptions()));
 
     [Fact]
@@ -716,7 +717,7 @@ public class EventStoreServiceTest(EventStoreContainer fixture) : IClassFixture<
                 MainName = "aggregate",
                 SnapshotSuffix = "snapshot"
             },
-            EventStore = OptionsUtil.GetOptions("localhost", fixture.Port)
+            EventStore = OptionsUtil.GetOptions("localhost", container.Port)
         });
         var serviceCollection = new ServiceCollection();
 

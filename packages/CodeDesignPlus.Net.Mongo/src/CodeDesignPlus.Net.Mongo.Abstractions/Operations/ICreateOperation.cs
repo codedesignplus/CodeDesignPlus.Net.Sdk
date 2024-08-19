@@ -1,16 +1,16 @@
 ﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 
 /// <summary>
-/// It allows the repository to create a record by assigning the information to the transversal properties of the entity
+/// Defines the create operation for an entity.
 /// </summary>
-/// <typeparam name="TEntity">Type of entity to create</typeparam>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public interface ICreateOperation<in TEntity> where TEntity : class, IEntityBase
 {
     /// <summary>
-    /// Method to create a record in the database
+    /// Creates a new entity asynchronously.
     /// </summary>
-    /// <param name="entity">Entity to create</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <param name="entity">The entity to create.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous create operation.</returns>
     Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default);
 }

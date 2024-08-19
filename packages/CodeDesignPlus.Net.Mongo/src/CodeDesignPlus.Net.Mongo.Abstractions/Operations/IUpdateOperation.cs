@@ -1,17 +1,17 @@
 ﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 
 /// <summary>
-/// Allows the repository to update a record by assigning the information to the transversal properties of the entity
+/// Defines the update operation for an entity.
 /// </summary>
-/// <typeparam name="TEntity">Type of entity to update</typeparam>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public interface IUpdateOperation<in TEntity> where TEntity : class, IEntityBase
 {
     /// <summary>
-    /// Method that updates a record in the database
+    /// Updates an entity by its identifier asynchronously.
     /// </summary>
-    /// <param name="id">Id of the record to update</param>
-    /// <param name="entity">Entity with the information to update</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <param name="id">The identifier of the entity to update.</param>
+    /// <param name="entity">The entity with updated values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous update operation.</returns>
     Task UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default);
 }

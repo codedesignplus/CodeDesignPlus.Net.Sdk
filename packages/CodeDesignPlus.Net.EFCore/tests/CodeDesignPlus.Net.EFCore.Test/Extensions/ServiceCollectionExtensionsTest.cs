@@ -83,10 +83,6 @@ public class ServiceCollectionExtensionsTest
         repository.ForEach(x => Assert.Equal(ServiceLifetime.Transient, x.Lifetime));
     }
 
-
-    /// <summary>
-    /// Validate that the settings are registered correctly
-    /// </summary>
     [Fact]
     public void AddEfCore_RegisterConfigurations_EfCoreOption()
     {

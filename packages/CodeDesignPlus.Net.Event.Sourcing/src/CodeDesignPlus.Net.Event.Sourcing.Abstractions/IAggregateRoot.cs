@@ -6,11 +6,12 @@
 public interface IAggregateRoot : Core.Abstractions.IAggregateRoot
 {
     /// <summary>
-    /// The category of the aggregate root.
+    /// Gets the category of the aggregate root.
     /// </summary>
     string Category { get; }
+
     /// <summary>
-    /// The version of the aggregate root.
+    /// Gets the version of the aggregate root.
     /// </summary>
     long Version { get; }
 }

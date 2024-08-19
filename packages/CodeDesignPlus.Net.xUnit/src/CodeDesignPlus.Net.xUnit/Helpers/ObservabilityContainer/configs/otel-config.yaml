@@ -12,14 +12,10 @@ receivers:
         scrape_interval: 5s
         static_configs:
         - targets: [localhost:8888]
-      - job_name: 'ms-archetype'
-        scrape_interval: 5s
-        static_configs:
-        - targets: ['host.docker.internal:5175']
 
 exporters:
   loki:
-    endpoint: "http://host.docker.internal:3100/loki/api/v1/push"
+    endpoint: "http://loki:3100/loki/api/v1/push"
   otlp:
     endpoint: host.docker.internal:4320
     tls:

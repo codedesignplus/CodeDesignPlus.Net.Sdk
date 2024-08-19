@@ -3,14 +3,10 @@ using EventStore.ClientAPI;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 
-public class EventStoreContainerTest : IClassFixture<EventStoreContainer>
+[Collection("EventStore Collection")]
+public class EventStoreContainerTest(EventStoreCollectionFixture eventStoreCollectionFixture)
 {
-    private readonly EventStoreContainer eventStoreContainer;
-
-    public EventStoreContainerTest(EventStoreContainer container)
-    {
-        this.eventStoreContainer = container;
-    }
+    private readonly EventStoreContainer eventStoreContainer = eventStoreCollectionFixture.Container;
 
     [Fact]
     public async Task CheckConnectionServer()

@@ -9,6 +9,7 @@ public interface IEventStoreConnection
     /// Initializes the connection to the EventStore using the provided server details.
     /// </summary>
     /// <param name="server">The server details, including connection string, required to connect to the EventStore.</param>
-    /// <returns>A task representing the asynchronous initialization operation.</returns>
+    /// <returns>A task representing the asynchronous initialization operation. The task result contains the initialized EventStore connection.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="server"/> is null.</exception>
     Task<ES.IEventStoreConnection> InitializeAsync(Server server);
 }

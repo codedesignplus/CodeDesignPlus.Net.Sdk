@@ -13,7 +13,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Kafka.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Kafka.git</PackageProjectUrl>
-    <PackageTags>{tags}</PackageTags>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -22,8 +22,8 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Kafka.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Confluent.Kafka" Version="2.4.0" />
-    <PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.3.0" />
+    <PackageReference Include="Confluent.Kafka" Version="2.5.2" />
+    <PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.4.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />

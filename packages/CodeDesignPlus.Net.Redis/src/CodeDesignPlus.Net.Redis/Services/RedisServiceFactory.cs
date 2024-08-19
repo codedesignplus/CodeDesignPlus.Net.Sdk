@@ -1,32 +1,22 @@
 ﻿namespace CodeDesignPlus.Net.Redis.Services;
 
 /// <summary>
-/// Factory for creating and initializing instances of <see cref="IRedisService"/> based on provided configuration.
+/// Factory for creating and managing Redis services.
 /// </summary>
 public class RedisServiceFactory : IRedisServiceFactory
 {
-    /// <summary>
-    /// Provides an instance of a registered service.
-    /// </summary>
     private readonly IServiceProvider serviceProvider;
-
-    /// <summary>
-    /// Configuration options for Redis.
-    /// </summary>
     private readonly RedisOptions options;
     private readonly ILogger<RedisServiceFactory> logger;
-
-    /// <summary>
-    /// Instances of <see cref="IRedisService"/> that have been created and initialized.
-    /// </summary>
     private readonly ConcurrentDictionary<string, IRedisService> instances = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RedisServiceFactory"/> class.
     /// </summary>
-    /// <param name="serviceProvider">The service provider to retrieve service instances.</param>
-    /// <param name="options">The options configuration for Redis.</param>
-    /// <param name="logger">The logger to write diagnostic information.</param>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="options">The Redis options.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="serviceProvider"/>, <paramref name="options"/>, or <paramref name="logger"/> is null.</exception>
     public RedisServiceFactory(IServiceProvider serviceProvider, IOptions<RedisOptions> options, ILogger<RedisServiceFactory> logger)
     {
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -41,12 +31,12 @@ public class RedisServiceFactory : IRedisServiceFactory
     }
 
     /// <summary>
-    /// Creates and initializes an instance of <see cref="IRedisService"/> based on the provided instance name.
+    /// Creates a Redis service for the specified instance name.
     /// </summary>
-    /// <param name="name">The name of the Redis instance to create.</param>
-    /// <returns>An initialized <see cref="IRedisService"/> instance.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when the name is null or empty.</exception>
-    /// <exception cref="Exceptions.RedisException">Thrown when the provided instance name does not exist in the registered configurations.</exception>
+    /// <param name="name">The name of the Redis instance.</param>
+    /// <returns>The Redis service.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="name"/> is null or empty.</exception>
+    /// <exception cref="Exceptions.RedisException">Thrown when the Redis instance with the specified name is not registered.</exception>
     public IRedisService Create(string name)
     {
         if (string.IsNullOrEmpty(name))

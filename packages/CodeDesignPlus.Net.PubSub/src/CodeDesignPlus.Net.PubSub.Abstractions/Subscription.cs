@@ -1,29 +1,30 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
-
-namespace CodeDesignPlus.Net.PubSub.Abstractions
+﻿namespace CodeDesignPlus.Net.PubSub.Abstractions
 {
     /// <summary>
-    /// Información relacionada con el evento que se esta registrando en <see cref="SubscriptionManager"/>
+    /// Information related to the event being registered in <see cref="SubscriptionManager"/>.
     /// </summary>
     public class Subscription
     {
         /// <summary>
-        /// Nombre del Evento
+        /// Gets the name of the event.
         /// </summary>
         public string EventName { get => this.EventType.Name; }
+
         /// <summary>
-        /// Expone el <see cref="Type"/> del manejador de eventos
+        /// Gets the <see cref="Type"/> of the event.
         /// </summary>
         public Type EventType { get; }
+
         /// <summary>
-        /// Expone el <see cref="Type"/> del manejador de eventos
+        /// Gets the <see cref="Type"/> of the event handler.
         /// </summary>
         public Type EventHandlerType { get; }
 
         /// <summary>
-        /// Crea una nueva instancia de <see cref="Subscription"/>
+        /// Initializes a new instance of the <see cref="Subscription"/> class.
         /// </summary>
-        /// <param name="eventHandlerType"><see cref="Type"/> del manejador de eventos</param>
+        /// <param name="eventType">The <see cref="Type"/> of the event.</param>
+        /// <param name="eventHandlerType">The <see cref="Type"/> of the event handler.</param>
         private Subscription(Type eventType, Type eventHandlerType)
         {
             this.EventType = eventType;
@@ -31,11 +32,11 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions
         }
 
         /// <summary>
-        /// Metodo encargado de construir la información de un evento
+        /// Creates a new instance of <see cref="Subscription"/> with the specified event and event handler types.
         /// </summary>
-        /// <typeparam name="TEvent">Evento de Integración</typeparam>
-        /// <typeparam name="TEventHandler">Manejador de eventos</typeparam>
-        /// <returns>Retorna la información del evento</returns>
+        /// <typeparam name="TEvent">The type of the event.</typeparam>
+        /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+        /// <returns>Returns the event subscription information.</returns>
         public static Subscription Create<TEvent, TEventHandler>()
             where TEvent : IDomainEvent
             where TEventHandler : IEventHandler<TEvent>

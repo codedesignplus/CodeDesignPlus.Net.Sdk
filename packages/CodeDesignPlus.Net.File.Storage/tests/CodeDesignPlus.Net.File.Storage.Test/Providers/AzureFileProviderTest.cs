@@ -29,7 +29,7 @@ public class AzureFileProviderTest
     private readonly Mock<ShareClient> shareClientMock;
     private readonly Mock<ShareDirectoryClient> shareDirectoryClientMock;
     private readonly Mock<ShareFileClient> shareFileClientMock;
-    private readonly Mock<IAzureFlieFactory> factoryMock;
+    private readonly Mock<IAzureFileFactory> factoryMock;
     private readonly Mock<IUserContext> userContextMock;
 
     public AzureFileProviderTest()
@@ -52,7 +52,7 @@ public class AzureFileProviderTest
         this.shareClientMock = new Mock<ShareClient>();
         this.shareDirectoryClientMock = new Mock<ShareDirectoryClient>();
         this.shareFileClientMock = new Mock<ShareFileClient>();
-        this.factoryMock = new Mock<IAzureFlieFactory>();
+        this.factoryMock = new Mock<IAzureFileFactory>();
 
         userContextMock.SetupGet(x => x.Tenant).Returns(tenant);
 
@@ -301,7 +301,7 @@ public class AzureFileProviderTest
         shareFileClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
 
         Assert.False(result.Success);
-        Assert.Equal($"The file {filename} not exist in the container {tenant}", result.Message);
+        Assert.Equal($"The file {filename} does not exist in the container {tenant}", result.Message);
     }
 
     [Fact]
@@ -372,7 +372,7 @@ public class AzureFileProviderTest
         shareFileClientMock.Verify(x => x.DeleteIfExistsAsync(It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
 
         Assert.False(result.Success);
-        Assert.Equal($"The file {filename} not exist in the container {tenant}", result.Message);
+        Assert.Equal($"The file {filename} does not exist in the container {tenant}", result.Message);
     }
 
 }

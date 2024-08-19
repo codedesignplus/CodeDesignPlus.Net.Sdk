@@ -1,7 +1,6 @@
 name: Continuous Integration
 
 on:
-  workflow_dispatch:
   push:
     branches:
       - main
@@ -13,6 +12,7 @@ env:
   IS_RC: ${{ github.ref == 'refs/heads/rc' }}
   IS_BETA: ${{ github.ref == 'refs/heads/dev' }}
   SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
 jobs:
   build:
     name: Build .Net
@@ -64,21 +64,6 @@ jobs:
       - name: Run Affected
         run: pnpm run affected
 
-      - name: Restore Packages
-        run: pnpm run affected:restore
-
-      - name: Build Packages
-        run: npm run affected:build
-
-      - name: Run SonarQube
-        run: npm run affected:sonarqube
-
-      # - name: .Net Pack
-      #   run: npm run affected:pack
-
-    #   - name: .Net Push
-    #     run: npm run affected:push
-        
       - name: SemVer 
         id: git-semver
         uses: codedesignplus/semver-git-version@v0.1.10
@@ -102,6 +87,24 @@ jobs:
           echo Previous Version Prefix "${{ steps.git-semver.outputs.previous-version-prefix }}"
           echo New Version "${{steps.git-semver.outputs.new-version}}"
           echo New Version Prefix "${{steps.git-semver.outputs.new-version-prefix}}"
+
+      - name: Restore Packages
+        run: pnpm run affected:restore
+
+      - name: Build Packages
+        run: pnpm run affected:build
+
+      - name: Run SonarQube
+        run: pnpm run affected:sonarqube
+
+      - name: .Net Pack
+        run: pnpm run affected:pack --args=\"--version=${{ steps.git-semver.outputs.new-version }}\"
+
+      # - name: .Net Push GitHub Package
+      #   run: pnpm run affected:push --args=\"--source=https://nuget.pkg.github.com/codedesignplus/index.json --token=${{secrets.GITHUB_TOKEN}} \"
+        
+      # - name: .Net Push NuGet Package
+      #   run: pnpm run affected:push --args=\"--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}\"
 
       - name: Push tag
         id: push_tag
@@ -128,7 +131,7 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           tag_name: ${{ steps.git-semver.outputs.new-version-prefix }}
-          name: "actions/codedesignplus-git-version@${{ steps.git-semver.outputs.new-version-prefix }}"
+          name: "CodeDesignPlus.Net.Sdk@${{ steps.git-semver.outputs.new-version-prefix }}"
           body: ${{ steps.build_changelog.outputs.changelog }}
           prerelease: ${{ contains(github.ref, 'rc') || contains(github.ref, 'dev') }}
           

@@ -1,50 +1,54 @@
-﻿
-
-namespace CodeDesignPlus.Net.Mongo.Operations;
+﻿namespace CodeDesignPlus.Net.Mongo.Operations;
 
 /// <summary>
-/// Base class that provides the basic operations to perform on a database
+/// Base class for MongoDB operations.
 /// </summary>
-/// <typeparam name="TKey">Type of data that will identify the record</typeparam>
-/// <typeparam name="TUserKey">Type of data that the user will identify</typeparam>
-/// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TEntity>
     where TEntity : class, IEntityBase
 {
-    /// <summary>
-    /// List of properties that will not be updated
-    /// </summary>
-    private readonly List<string> blacklist = [
+    private readonly List<string> blacklist = new List<string>
+    {
         nameof(IEntityBase.Id),
         nameof(IEntity.CreatedAt),
         nameof(IEntity.CreatedBy),
         nameof(IEntity.UpdatedAt),
         nameof(IEntity.UpdatedBy)
-     ];
+    };
 
     /// <summary>
-    /// Provide the information of the authenticated user during the request
+    /// The authenticated user context.
     /// </summary>
     protected readonly IUserContext AuthenticateUser;
 
     /// <summary>
-    /// Initializes a new instance of CodeDesignPlus.EFCore.Operations.Operation class using the speciffied options.
+    /// Initializes a new instance of the <see cref="OperationBase{TEntity}"/> class.
     /// </summary>
-    /// <param name="authenticatetUser">Information of the authenticated user during the request</param>
+    /// <param name="authenticatetUser">The authenticated user context.</param>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="options">The MongoDB options.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     protected OperationBase(IUserContext authenticatetUser, IServiceProvider serviceProvider, IOptions<MongoOptions> options, ILogger logger)
-        : base(serviceProvider, options, logger)
+         : base(serviceProvider, options, logger)
     {
+        ArgumentNullException.ThrowIfNull(authenticatetUser);
+
         AuthenticateUser = authenticatetUser;
     }
 
     /// <summary>
-    /// Method that creates a record in the database
+    /// Creates a new entity asynchronously.
     /// </summary>
-    /// <param name="entity">Entity to create</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <param name="entity">The entity to create.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous create operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
     public virtual Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
     {
+        if (entity == null)
+            throw new ArgumentNullException(nameof(entity));
+
         if (entity is IEntity auditTrailEntity)
         {
             auditTrailEntity.CreatedBy = AuthenticateUser.IdUser;
@@ -55,11 +59,11 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     }
 
     /// <summary>
-    /// Method that deletes a record in the database
+    /// Deletes an entity by its identifier asynchronously.
     /// </summary>
-    /// <param name="id">Id of the record to delete</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <param name="id">The identifier of the entity to delete.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
     public virtual Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
@@ -68,14 +72,18 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     }
 
     /// <summary>
-    /// Method that updates a record in the database
+    /// Updates an entity by its identifier asynchronously.
     /// </summary>
-    /// <param name="id">Id of the record to update</param>
-    /// <param name="entity">Entity with the information to update</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <param name="id">The identifier of the entity to update.</param>
+    /// <param name="entity">The entity with updated values.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous update operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
     public virtual async Task UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default)
     {
+        if (entity == null)
+            throw new ArgumentNullException(nameof(entity));
+
         var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
 
         var updates = new List<UpdateDefinition<TEntity>>();

@@ -1,16 +1,18 @@
 ﻿namespace CodeDesignPlus.Net.EventStore.Extensions;
 
 /// <summary>
-/// Provides a set of extension methods for CodeDesignPlus.EFCore
+/// Provides extension methods for adding Event Store services to an <see cref="IServiceCollection"/>.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Add CodeDesignPlus.EFCore configuration options
+    /// Adds Event Store services and configurations to the specified <see cref="IServiceCollection"/>.
     /// </summary>
-    /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
-    /// <param name="configuration">The configuration being bound.</param>
-    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+    /// <param name="configuration">The <see cref="IConfiguration"/> to retrieve the configuration section from.</param>
+    /// <returns>The updated <see cref="IServiceCollection"/>.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the services or configuration is null.</exception>
+    /// <exception cref="EventStoreException">Thrown when the required configuration section is missing.</exception>
     public static IServiceCollection AddEventStore(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -42,5 +44,4 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
 }

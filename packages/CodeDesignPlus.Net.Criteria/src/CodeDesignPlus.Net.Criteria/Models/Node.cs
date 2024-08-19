@@ -5,8 +5,17 @@
 /// </summary>
 public enum AstType
 {
+    /// <summary>
+    /// Represents an expression.
+    /// </summary>
     Expression,
+    /// <summary>
+    /// Represents an operator.
+    /// </summary>
     Operator,
+    /// <summary>
+    /// Represents a condition.
+    /// </summary>
     Condition
 }
 

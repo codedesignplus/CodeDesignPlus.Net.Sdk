@@ -237,7 +237,7 @@ public class AzureBlobProviderTest
         blobClientMock.Verify(x => x.DownloadToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
 
         Assert.False(result.Success);
-        Assert.Equal($"The file {filename} not exist in the container {tenant}", result.Message);
+        Assert.Equal($"The file {filename} does not exist in the container {tenant}", result.Message);
     }
 
     [Fact]
@@ -282,6 +282,6 @@ public class AzureBlobProviderTest
         blobClientMock.Verify(x => x.DeleteIfExistsAsync(It.IsAny<DeleteSnapshotsOption>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
 
         Assert.False(result.Success);
-        Assert.Equal($"The file {filename} not exist in the container {tenant}", result.Message);
+        Assert.Equal($"The file {filename} does not exist in the container {tenant}", result.Message);
     }
 }

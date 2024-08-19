@@ -9,7 +9,7 @@ public class EventQueueBackgroundService : BackgroundService
     private readonly ILogger<EventQueueBackgroundService> logger;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="QueueBackgroundService{TEventHandler, TEvent}"/> class.
+    /// Initializes a new instance of the <see cref="EventQueueBackgroundService"/> class.
     /// </summary>
     /// <param name="queueService">The queue service to manage the event handling.</param>
     /// <param name="logger">The logger to manage the logs.</param>

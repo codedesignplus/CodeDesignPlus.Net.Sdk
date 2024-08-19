@@ -13,8 +13,8 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore.git</PackageProjectUrl>
-    <PackageTags>{tags}</PackageTags>
-    <PackageIcon>https://i.imgur.com/PwbGy0o.png</PackageIcon>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+    <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
@@ -29,6 +29,10 @@
       <Pack>True</Pack>
       <PackagePath />
     </None>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -38,7 +42,7 @@
     <Folder Include="Options\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
   </ItemGroup>
 </Project>

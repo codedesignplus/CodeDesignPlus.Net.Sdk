@@ -3,22 +3,40 @@
 /// <summary>
 /// Represents the metadata of the event.
 /// </summary>
-public class Metadata(Guid aggregateId, long version, Guid userId, string category)
+public class Metadata
 {
     /// <summary>
-    /// The identifier of the aggregate root that generated the event.
+    /// Initializes a new instance of the <see cref="Metadata"/> class.
     /// </summary>
-    public Guid AggregateId { get; private set; } = aggregateId;
+    /// <param name="aggregateId">The identifier of the aggregate root that generated the event.</param>
+    /// <param name="version">The version of the aggregate root.</param>
+    /// <param name="userId">The identifier of the user who made the change.</param>
+    /// <param name="category">The category of the aggregate root.</param>
+    public Metadata(Guid aggregateId, long version, Guid userId, string category)
+    {
+        AggregateId = aggregateId;
+        Version = version;
+        UserId = userId;
+        Category = category;
+    }
+
     /// <summary>
-    /// The version of the aggregate root.
+    /// Gets the identifier of the aggregate root that generated the event.
     /// </summary>
-    public long Version { get; private set; } = version;
+    public Guid AggregateId { get; private set; }
+
     /// <summary>
-    /// The identifier of the user who made the change.
+    /// Gets the version of the aggregate root.
     /// </summary>
-    public Guid UserId { get; private set; } = userId;
+    public long Version { get; private set; }
+
     /// <summary>
-    /// The category of the aggregate root.
+    /// Gets the identifier of the user who made the change.
     /// </summary>
-    public string Category { get; private set; } = category;
+    public Guid UserId { get; private set; }
+
+    /// <summary>
+    /// Gets the category of the aggregate root.
+    /// </summary>
+    public string Category { get; private set; }
 }

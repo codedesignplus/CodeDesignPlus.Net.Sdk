@@ -1,83 +1,105 @@
 ﻿namespace CodeDesignPlus.Net.Security.Services;
 
 /// <summary>
-/// Provide the information of the authenticated user during the request
+/// Provides user context information based on the current HTTP context.
 /// </summary>
-/// <param name="httpContextAccessor">The http context accessor.</param>
-/// <param name="options">The options.</param>
-public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options) : IUserContext
+public class UserContext : IUserContext
 {
-    private readonly IHttpContextAccessor httpContextAccessor = httpContextAccessor;
-    private readonly SecurityOptions options = options.Value;
+    private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly SecurityOptions options;
 
     /// <summary>
-    /// Gets a value boolean that indicates whether is a application
+    /// Initializes a new instance of the <see cref="UserContext"/> class.
+    /// </summary>
+    /// <param name="httpContextAccessor">The HTTP context accessor.</param>
+    /// <param name="options">The security options.</param>
+    public UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options)
+    {
+        this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
+        this.options = options?.Value ?? throw new ArgumentNullException(nameof(options));
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the current user is an application.
     /// </summary>
     public bool IsApplication => this.options.Applications.Contains(this.GetClaim<string>(ClaimTypes.Audience));
+
     /// <summary>
-    /// Gets the Id User authenticated
+    /// Gets the user ID.
     /// </summary>
     public Guid IdUser => this.GetClaim<Guid>(ClaimTypes.ObjectIdentifier);
+
     /// <summary>
-    /// Gets a value that indicates whether the user has been authenticated.
+    /// Gets a value indicating whether the current user is authenticated.
     /// </summary>
     public bool IsAuthenticated => this.User.Identity.IsAuthenticated;
+
     /// <summary>
-    /// Gets the name of the current user.
+    /// Gets the user's name.
     /// </summary>
     public string Name => this.GetClaim<string>(ClaimTypes.Name);
+
     /// <summary>
-    /// Gets the name of the current user.
+    /// Gets the user's email addresses.
     /// </summary>
     public string[] Emails => this.GetClaim<string[]>(ClaimTypes.Emails);
+
     /// <summary>
-    /// Get or set the tenant user
+    /// Gets the tenant ID from the request headers.
     /// </summary>
     public Guid Tenant => this.GetHeader<Guid>("X-Tenant");
 
     /// <summary>
-    /// Gets the claims-principal with the user information
+    /// Gets the current user's claims principal.
     /// </summary>
-    public System.Security.Claims.ClaimsPrincipal User { get => this.httpContextAccessor.HttpContext.User; }
+    public System.Security.Claims.ClaimsPrincipal User => this.httpContextAccessor.HttpContext.User;
+
     /// <summary>
-    /// Gets the first name of the current user.
+    /// Gets the user's first name.
     /// </summary>
     public string FirstName => this.GetClaim<string>(ClaimTypes.FirstName);
+
     /// <summary>
-    /// Gets the last name of the current user.
+    /// Gets the user's last name.
     /// </summary>
     public string LastName => this.GetClaim<string>(ClaimTypes.LastName);
+
     /// <summary>
-    /// Gets the phone number of the current user.
+    /// Gets the user's city.
     /// </summary>
     public string City => this.GetClaim<string>(ClaimTypes.City);
+
     /// <summary>
-    /// Gets the country of the current user.
+    /// Gets the user's country.
     /// </summary>
     public string Country => this.GetClaim<string>(ClaimTypes.Country);
+
     /// <summary>
-    /// Gets the postal code of the current user.
+    /// Gets the user's postal code.
     /// </summary>
     public string PostalCode => this.GetClaim<string>(ClaimTypes.PostalCode);
+
     /// <summary>
-    /// Gets the street address of the current user.
+    /// Gets the user's street address.
     /// </summary>
     public string StreetAddress => this.GetClaim<string>(ClaimTypes.StreetAddress);
+
     /// <summary>
-    /// Gets the state of the current user.
+    /// Gets the user's state.
     /// </summary>
     public string State => this.GetClaim<string>(ClaimTypes.State);
+
     /// <summary>
     /// Gets the user's job title.
     /// </summary>
     public string JobTitle => this.GetClaim<string>(ClaimTypes.JobTitle);
 
     /// <summary>
-    /// Gets the claim value of the authenticated user
+    /// Gets the value of a specified claim type.
     /// </summary>
-    /// <typeparam name="TValue">Type of data that the claim will return</typeparam>
-    /// <param name="claimType">Type of claim to get</param>
-    /// <returns>Claim value</returns>
+    /// <typeparam name="TValue">The type of the claim value.</typeparam>
+    /// <param name="claimType">The claim type.</param>
+    /// <returns>The claim value.</returns>
     public TValue GetClaim<TValue>(string claimType)
     {
         var claimValue = this.User.FindFirst(claimType)?.Value;
@@ -96,11 +118,11 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     }
 
     /// <summary>
-    /// Gets the header value of the response
+    /// Gets the value of a specified header.
     /// </summary>
-    /// <typeparam name="TValue">Type of data that the header will return</typeparam>
-    /// <param name="header">Name of the header to get</param>
-    /// <returns>Header value</returns>
+    /// <typeparam name="TValue">The type of the header value.</typeparam>
+    /// <param name="header">The header name.</param>
+    /// <returns>The header value.</returns>
     public TValue GetHeader<TValue>(string header)
     {
         if (this.httpContextAccessor.HttpContext.Request.Headers.TryGetValue(header, out var values))

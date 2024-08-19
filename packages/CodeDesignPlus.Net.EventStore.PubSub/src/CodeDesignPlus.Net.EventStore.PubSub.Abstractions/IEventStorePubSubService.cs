@@ -1,7 +1,7 @@
 ﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Abstractions;
 
 /// <summary>
-/// This services is the example
+/// Represents the service that allows to publish and subscribe to events in EventStore.
 /// </summary>
 public interface IEventStorePubSubService : IMessage
 {

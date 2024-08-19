@@ -17,6 +17,7 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : Back
     /// </summary>
     /// <param name="message">Service for managing events.</param>
     /// <param name="logger">Service for logging.</param>
+    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     public RegisterEventHandlerBackgroundService(IMessage message, ILogger<RegisterEventHandlerBackgroundService<TEventHandler, TEvent>> logger)
     {
         ArgumentNullException.ThrowIfNull(message);

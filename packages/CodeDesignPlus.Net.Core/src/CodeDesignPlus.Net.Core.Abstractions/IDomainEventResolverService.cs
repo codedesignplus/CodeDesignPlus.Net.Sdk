@@ -1,32 +1,35 @@
 ﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
-/// Service in charge of resolving the type of domain event.
+/// Represents a service for resolving domain event types and keys.
 /// </summary>
 public interface IDomainEventResolverService
 {
     /// <summary>
-    /// Get the type of domain event from the name.
+    /// Gets the type of the domain event based on the event name.
     /// </summary>
-    /// <param name="eventName">The name of the domain event.</param>
-    /// <returns>The type of domain event.</returns>
+    /// <param name="eventName">The name of the event.</param>
+    /// <returns>The type of the domain event.</returns>
     Type GetDomainEventType(string eventName);
+
     /// <summary>
-    /// Get the type of domain event from the name.
+    /// Gets the type of the domain event based on the generic type parameter.
     /// </summary>
-    /// <typeparam name="TDomainEvent">The type of domain event.</typeparam>
-    /// <returns>The type of domain event.</returns>
+    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+    /// <returns>The type of the domain event.</returns>
     Type GetDomainEventType<TDomainEvent>() where TDomainEvent : IDomainEvent;
+
     /// <summary>
-    /// Get the type of the attribute that represents the key of the domain event.
+    /// Gets the key of the domain event based on the generic type parameter.
     /// </summary>
-    /// <typeparam name="TDomainEvent">The type of domain event.</typeparam>
-    /// <returns>The type of the attribute that represents the key of the domain event.</returns>
+    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
+    /// <returns>The key of the domain event.</returns>
     string GetKeyDomainEvent<TDomainEvent>() where TDomainEvent : IDomainEvent;
+
     /// <summary>
-    /// Get the type of the attribute that represents the key of the domain event.
+    /// Gets the key of the domain event based on the type parameter.
     /// </summary>
-    /// <param name="type">The type of domain event.</param>
-    /// <returns>The type of the attribute that represents the key of the domain event.</returns>
+    /// <param name="type">The type of the domain event.</param>
+    /// <returns>The key of the domain event.</returns>
     string GetKeyDomainEvent(Type type);
 }

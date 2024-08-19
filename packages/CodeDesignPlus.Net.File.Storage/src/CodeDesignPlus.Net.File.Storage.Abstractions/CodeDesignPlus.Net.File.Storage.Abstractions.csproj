@@ -13,7 +13,7 @@
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.File.Storage.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.File.Storage.git</PackageProjectUrl>
-    <PackageTags>{tags}</PackageTags>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -44,9 +44,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.11.4" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.20.0" />
-    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.18.0" />
+    <PackageReference Include="Azure.Identity" Version="1.12.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.21.2" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.19.1" />
     <PackageReference Include="Microsoft.Azure.Storage.Common" Version="11.2.3" />
     <PackageReference Include="Semver" Version="2.3.0" />
   </ItemGroup>

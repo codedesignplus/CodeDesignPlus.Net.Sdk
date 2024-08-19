@@ -1,9 +1,9 @@
 ﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 
 /// <summary>
-/// Enables standardized CRUD operations in the SDK
+/// Defines the base operations for an entity.
 /// </summary>
-/// <typeparam name="TEntity">The entity type to be configured.</typeparam>
+/// <typeparam name="TEntity">The type of the entity.</typeparam>
 public interface IOperationBase<in TEntity> :
     ICreateOperation<TEntity>,
     IUpdateOperation<TEntity>,

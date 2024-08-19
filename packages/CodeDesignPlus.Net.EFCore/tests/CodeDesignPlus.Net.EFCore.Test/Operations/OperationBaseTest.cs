@@ -5,14 +5,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CodeDesignPlus.Net.EFCore.Test.Operations;
 
-/// <summary>
-/// Unit tests to the OperationBase class
-/// </summary>
 public class OperationBaseTest
 {
-    /// <summary>
-    /// Validate that an entity can be created and the record id is returned
-    /// </summary>
     [Fact]
     public async Task CreateAsync_CreateEntity_ReturnId()
     {
@@ -61,9 +55,6 @@ public class OperationBaseTest
         Assert.Equal(permission.CreatedAt, result.CreatedAt);
     }
 
-    /// <summary>
-    /// Validate that an entity can be updated and true is returned
-    /// </summary>
     [Fact]
     public async Task UpdateAsync_UpdateEntity_ReturnTrue()
     {
@@ -124,9 +115,6 @@ public class OperationBaseTest
         Assert.Equal(permission.CreatedAt, entity.CreatedAt);
     }
 
-    /// <summary>
-    /// Validate that an entity cannot be updated and false is returned
-    /// </summary>
     [Fact]
     public async Task UpdateAsync_EntityNotExist_ReturnFalse()
     {
@@ -167,9 +155,6 @@ public class OperationBaseTest
         Assert.Null(result);
     }
 
-    /// <summary>
-    /// Validate that an entity can be removed and true is returned
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_DeleteEntity_ReturnTrue()
     {
@@ -212,9 +197,6 @@ public class OperationBaseTest
         Assert.Null(result);
     }
 
-    /// <summary>
-    /// Validate that an entity cannot be deleted and false is returned
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_EntityNotExist_ReturnFalse()
     {

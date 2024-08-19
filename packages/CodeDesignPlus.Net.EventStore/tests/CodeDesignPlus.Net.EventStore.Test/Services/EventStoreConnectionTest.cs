@@ -7,16 +7,13 @@ using ES = EventStore.ClientAPI;
 using O = Microsoft.Extensions.Options;
 namespace CodeDesignPlus.Net.EventStore.Test.Services;
 
-public class EventStoreConnectionTest : IClassFixture<EventStoreContainer>
+
+[Collection(EventStoreCollectionFixture.Collection)]
+public class EventStoreConnectionTest(EventStoreCollectionFixture eventStoreCollectionFixture)
 {
     private readonly IOptions<CoreOptions> coreOptions = O.Options.Create(OptionsUtil.GetCoreOptions());
 
-    private readonly EventStoreContainer fixture;
-
-    public EventStoreConnectionTest(EventStoreContainer eventStoreContainer)
-    {
-        fixture = eventStoreContainer;
-    }
+    private readonly EventStoreContainer fixture = eventStoreCollectionFixture.Container;
 
     [Fact]
     public void Constructor_ValidParameters_Success()

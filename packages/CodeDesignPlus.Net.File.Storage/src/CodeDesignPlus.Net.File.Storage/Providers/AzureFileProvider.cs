@@ -1,13 +1,29 @@
 ﻿namespace CodeDesignPlus.Net.File.Storage.Providers;
 
+/// <summary>
+/// Provides methods for interacting with Azure File Storage.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="AzureFileProvider"/> class.
+/// </remarks>
+/// <param name="factory">The Azure File factory.</param>
+/// <param name="logger">The logger instance.</param>
+/// <param name="environment">The host environment.</param>
 public class AzureFileProvider(
-    IAzureFlieFactory factory,
+    IAzureFileFactory factory,
     ILogger<AzureFileProvider> logger,
     IHostEnvironment environment
-) : BaseProvider(logger, environment), IAzureFileProvider
+    ) : BaseProvider(logger, environment), IAzureFileProvider
 {
-    private readonly IAzureFlieFactory factory = factory.Create();
+    private readonly IAzureFileFactory factory = factory.Create();
 
+    /// <summary>
+    /// Downloads a file from Azure File Storage.
+    /// </summary>
+    /// <param name="filename">The name of the file to download.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureFile.Enable, filename, TypeProviders.AzureFileProvider, async (file, response) =>
@@ -19,7 +35,7 @@ public class AzureFileProvider(
             if (!await fileClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 response.Success = false;
-                response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} does not exist in the container {this.factory.UserContext.Tenant}";
 
                 return response;
             }
@@ -32,9 +48,17 @@ public class AzureFileProvider(
 
             return response;
         });
-
     }
 
+    /// <summary>
+    /// Uploads a file to Azure File Storage.
+    /// </summary>
+    /// <param name="stream">The file stream.</param>
+    /// <param name="filename">The name of the file.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="renowned">Whether to rename the file if it already exists.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureFile.Enable, filename, TypeProviders.AzureFileProvider, async (file, response) =>
@@ -92,6 +116,13 @@ public class AzureFileProvider(
         });
     }
 
+    /// <summary>
+    /// Deletes a file from Azure File Storage.
+    /// </summary>
+    /// <param name="filename">The name of the file to delete.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task<M.Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureFile.Enable, filename, TypeProviders.AzureFileProvider, async (file, response) =>
@@ -100,15 +131,14 @@ public class AzureFileProvider(
 
             var fileClient = directory.GetFileClient(filename);
 
-            var download = await fileClient.DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+            var deleted = await fileClient.DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
-            response.Success = download;
+            response.Success = deleted;
 
-            if (!download)
-                response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
+            if (!deleted)
+                response.Message = $"The file {filename} does not exist in the container {this.factory.UserContext.Tenant}";
 
             return response;
         });
-
     }
 }

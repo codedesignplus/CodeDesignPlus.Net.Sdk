@@ -12,7 +12,7 @@
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</PackageProjectUrl>
-		<PackageTags>{tags}</PackageTags>
+		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
 		<Version>$(Version)</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -41,7 +41,7 @@
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.3.0" />
+		<PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.4.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
@@ -50,6 +50,6 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.9.0-beta.1" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.9.0-beta.1" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.13" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.9.0-beta.1" />
 	</ItemGroup>
 </Project>
