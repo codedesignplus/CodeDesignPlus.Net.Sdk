@@ -1,38 +1,66 @@
 ﻿namespace CodeDesignPlus.Net.RabbitMQ.Abstractions.Options;
 
 /// <summary>
-/// Options to setting of the RabbitMQ
+/// Represents the configuration options for RabbitMQ.
 /// </summary>
 public class RabbitMQOptions : PubSubOptions, IValidatableObject
 {
     /// <summary>
-    /// Name of the setions used in the appsettings
+    /// The configuration section name for RabbitMQ options.
     /// </summary>
     public static new readonly string Section = "RabbitMQ";
 
     /// <summary>
-    /// Get or sets the Enable
+    /// Gets or sets a value indicating whether RabbitMQ is enabled.
     /// </summary>
     public bool Enable { get; set; }
+
+    /// <summary>
+    /// Gets or sets the RabbitMQ host.
+    /// </summary>
     [Required]
     public string Host { get; set; }
+
+    /// <summary>
+    /// Gets or sets the RabbitMQ port.
+    /// </summary>
     [Range(1, 65535)]
     public int Port { get; set; }
+
+    /// <summary>
+    /// Gets or sets the RabbitMQ username.
+    /// </summary>
     [Required]
     public string UserName { get; set; }
+
+    /// <summary>
+    /// Gets or sets the RabbitMQ password.
+    /// </summary>
     [Required]
     public string Password { get; set; }
+
+    /// <summary>
+    /// Gets or sets the retry interval in milliseconds.
+    /// </summary>
     [Range(1000, 5000)]
     public int RetryInterval { get; set; } = 1000;
+
+    /// <summary>
+    /// Gets or sets the maximum number of retry attempts.
+    /// </summary>
     [Range(1, 10)]
     public int MaxRetry { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the queue arguments.
+    /// </summary>
     public QueueArguments QueueArguments { get; set; } = new();
 
     /// <summary>
-    /// Determines whether the specified object is valid.
+    /// Validates the properties of the <see cref="RabbitMQOptions"/> instance.
     /// </summary>
-    /// <param name="validationContext">The validation context.</param>
-    /// <returns>A collection that holds failed-validation information.</returns>
+    /// <param name="validationContext">The context information about the validation operation.</param>
+    /// <returns>A collection of validation results.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var results = new List<ValidationResult>();
@@ -48,7 +76,6 @@ public class RabbitMQOptions : PubSubOptions, IValidatableObject
 
             if (this.QueueArguments != null)
                 results.AddRange(this.QueueArguments.Validate(new ValidationContext(this.QueueArguments)));
-
         }
 
         return results;

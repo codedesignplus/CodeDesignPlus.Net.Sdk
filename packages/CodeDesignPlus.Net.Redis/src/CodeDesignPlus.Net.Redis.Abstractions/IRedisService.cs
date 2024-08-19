@@ -1,26 +1,30 @@
 ﻿namespace CodeDesignPlus.Net.Redis.Abstractions;
 
 /// <summary>
-/// Manage the connection to the Redis cluster 
+/// Manages the connection to the Redis cluster.
 /// </summary>
 public interface IRedisService
 {
     /// <summary>
-    /// Represents the abstract multiplexer API
+    /// Gets the Redis connection multiplexer.
     /// </summary>
     IConnectionMultiplexer Connection { get; }
+
     /// <summary>
-    /// Describes functionality that is common to both standalone redis servers and redis clusters
+    /// Gets the Redis database.
     /// </summary>
     IDatabaseAsync Database { get; }
+
     /// <summary>
-    /// A redis connection used as the subscriber in a pub/sub scenario
+    /// Gets the Redis subscriber for pub/sub scenarios.
     /// </summary>
     ISubscriber Subscriber { get; }
+
     /// <summary>
-    /// Indicates whether any servers are connected
+    /// Gets a value indicating whether any servers are connected.
     /// </summary>
     bool IsConnected { get; }
+
     /// <summary>
     /// Initiates a connection to the provided Redis instance.
     /// </summary>

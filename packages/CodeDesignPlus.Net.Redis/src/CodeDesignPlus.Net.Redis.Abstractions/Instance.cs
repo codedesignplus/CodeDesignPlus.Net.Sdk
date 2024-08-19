@@ -12,23 +12,27 @@ public class Instance
     [Required]
     [RegularExpression(@"^(\w+=\w+)(,\w+=\w+)*$", ErrorMessage = "Invalid connection string format.")]
     public string ConnectionString { get; set; }
+
     /// <summary>
-    /// Use ThreadPriority.AboveNormal for SocketManager reader and writer threads (true by default). If false, ThreadPriority.Normal will be used.
+    /// Gets or sets a value indicating whether to use ThreadPriority.AboveNormal for SocketManager reader and writer threads.
+    /// If false, ThreadPriority.Normal will be used. Default is true.
     /// </summary>
     public bool HighPrioritySocketThreads { get; set; } = true;
+
     /// <summary>
-    /// File PFX
+    /// Gets or sets the file path to the PFX certificate used for SSL connections.
     /// </summary>
     public string Certificate { get; set; }
+
     /// <summary>
-    /// Password Certificate
+    /// Gets or sets the password for the PFX certificate.
     /// </summary>
     public string PasswordCertificate { get; set; }
 
     /// <summary>
-    /// Create a new instance of <see cref="ConfigurationOptions"/>
+    /// Creates a new instance of <see cref="ConfigurationOptions"/> based on the current instance properties.
     /// </summary>
-    /// <returns>The options relevant to a set of redis connections</returns>
+    /// <returns>The options relevant to a set of Redis connections.</returns>
     public ConfigurationOptions CreateConfiguration()
     {
         var configuration = ConfigurationOptions.Parse(this.ConnectionString);

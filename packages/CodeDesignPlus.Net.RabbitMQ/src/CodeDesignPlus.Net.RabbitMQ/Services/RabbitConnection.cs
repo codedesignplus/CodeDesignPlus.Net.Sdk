@@ -1,10 +1,25 @@
 ﻿namespace CodeDesignPlus.Net.RabbitMQ.Services
 {
-    public class RabbitConnection : IRabbitConnection
+    /// <summary>
+    /// Manages the RabbitMQ connection.
+    /// </summary>
+    public class RabbitConnection : IRabbitConnection, IDisposable
     {
+        /// <summary>
+        /// Gets the RabbitMQ connection.
+        /// </summary>
         public IConnection Connection { get; }
+
         private bool disposed = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RabbitConnection"/> class.
+        /// </summary>
+        /// <param name="options">The RabbitMQ options.</param>
+        /// <param name="coreOptions">The core options.</param>
+        /// <param name="logger">The logger instance.</param>
+        /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
+        /// <exception cref="Exceptions.RabbitMQException">Thrown when the connection to RabbitMQ server fails.</exception>
         public RabbitConnection(IOptions<RabbitMQOptions> options, IOptions<CoreOptions> coreOptions, ILogger<RabbitConnection> logger)
         {
             ArgumentNullException.ThrowIfNull(options);
@@ -21,7 +36,6 @@
 
             var isConnected = false;
             var retryCount = 0;
-
             var errors = new List<string>();
 
             while (!isConnected && retryCount < options.Value.MaxRetry)
@@ -34,9 +48,7 @@
                 catch (Exception ex)
                 {
                     retryCount++;
-
                     logger.LogError(ex, "Error connecting. Attempt {retryCount} of {MaxRetries}.", retryCount, options.Value.MaxRetry);
-
                     errors.Add(ex.Message);
 
                     if (retryCount < options.Value.MaxRetry)
@@ -50,7 +62,10 @@
             logger.LogInformation("RabbitMQ Connection established successfully.");
         }
 
-
+        /// <summary>
+        /// Releases the unmanaged resources used by the <see cref="RabbitConnection"/> and optionally releases the managed resources.
+        /// </summary>
+        /// <param name="disposing">true to release both managed and unmanaged resources; false to release only unmanaged resources.</param>
         protected virtual void Dispose(bool disposing)
         {
             if (!disposed)
@@ -62,12 +77,18 @@
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Finalizes an instance of the <see cref="RabbitConnection"/> class.
+        /// </summary>
         ~RabbitConnection()
         {
             Dispose(false);

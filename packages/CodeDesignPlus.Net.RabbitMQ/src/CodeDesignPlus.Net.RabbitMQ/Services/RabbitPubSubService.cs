@@ -1,5 +1,8 @@
 ﻿namespace CodeDesignPlus.Net.RabbitMQ.Services;
 
+/// <summary>
+/// Service to publish and subscribe to domain events using RabbitMQ.
+/// </summary>
 public class RabbitPubSubService : IRabbitPubSubService
 {
     private readonly ILogger<RabbitPubSubService> logger;
@@ -9,7 +12,15 @@ public class RabbitPubSubService : IRabbitPubSubService
     private readonly IChannelProvider channelProvider;
     private readonly Dictionary<string, object> argumentsQueue;
 
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RabbitPubSubService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="domainEventResolverService">The domain event resolver service.</param>
+    /// <param name="channelProvider">The channel provider.</param>
+    /// <param name="coreOptions">The core options.</param>
+    /// <param name="rabbitMQOptions">The RabbitMQ options.</param>
     public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IChannelProvider channelProvider, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions)
     {
         ArgumentNullException.ThrowIfNull(logger);
@@ -27,9 +38,15 @@ public class RabbitPubSubService : IRabbitPubSubService
 
         this.argumentsQueue = rabbitMQOptions.Value.QueueArguments.GetArguments();
 
-        this.logger.LogInformation("RabitPubSubService initialized.");
+        this.logger.LogInformation("RabbitPubSubService initialized.");
     }
 
+    /// <summary>
+    /// Publishes a domain event asynchronously.
+    /// </summary>
+    /// <param name="event">The domain event to publish.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous publish operation.</returns>
     public Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(@event);
@@ -39,6 +56,12 @@ public class RabbitPubSubService : IRabbitPubSubService
         return this.PrivatePublishAsync(@event);
     }
 
+    /// <summary>
+    /// Publishes a list of domain events asynchronously.
+    /// </summary>
+    /// <param name="event">The list of domain events to publish.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous publish operation.</returns>
     public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
     {
         var tasks = @event.Select(x => PublishAsync(x, cancellationToken));
@@ -46,7 +69,11 @@ public class RabbitPubSubService : IRabbitPubSubService
         return Task.WhenAll(tasks);
     }
 
-
+    /// <summary>
+    /// Publishes a domain event to RabbitMQ.
+    /// </summary>
+    /// <param name="event">The domain event to publish.</param>
+    /// <returns>A task that represents the asynchronous publish operation.</returns>
     private Task PrivatePublishAsync(IDomainEvent @event)
     {
         var channel = this.channelProvider.GetChannelPublish(@event.GetType());
@@ -79,6 +106,13 @@ public class RabbitPubSubService : IRabbitPubSubService
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Subscribes to a domain event asynchronously.
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous subscribe operation.</returns>
     public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -106,6 +140,15 @@ public class RabbitPubSubService : IRabbitPubSubService
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Processes the received event.
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="channel">The RabbitMQ channel.</param>
+    /// <param name="eventArguments">The event arguments.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task RecivedEvent<TEvent, TEventHandler>(IModel channel, BasicDeliverEventArgs eventArguments, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -134,6 +177,12 @@ public class RabbitPubSubService : IRabbitPubSubService
         }
     }
 
+    /// <summary>
+    /// Configures the RabbitMQ queue.
+    /// </summary>
+    /// <param name="channel">The RabbitMQ channel.</param>
+    /// <param name="queue">The queue name.</param>
+    /// <param name="exchangeName">The exchange name.</param>
     private void ConfigQueue(IModel channel, string queue, string exchangeName)
     {
         argumentsQueue["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName);
@@ -142,6 +191,12 @@ public class RabbitPubSubService : IRabbitPubSubService
         channel.QueueBind(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 
+    /// <summary>
+    /// Configures the dead-letter exchange (DLX) queue.
+    /// </summary>
+    /// <param name="channel">The RabbitMQ channel.</param>
+    /// <param name="queue">The queue name.</param>
+    /// <param name="exchangeName">The exchange name.</param>
     private static void ConfigQueueDlx(IModel channel, string queue, string exchangeName)
     {
         exchangeName = GetExchangeNameDlx(exchangeName);
@@ -152,9 +207,27 @@ public class RabbitPubSubService : IRabbitPubSubService
         channel.QueueBind(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 
+    /// <summary>
+    /// Gets the dead-letter exchange (DLX) name.
+    /// </summary>
+    /// <param name="exchangeName">The original exchange name.</param>
+    /// <returns>The DLX name.</returns>
     public static string GetExchangeNameDlx(string exchangeName) => $"{exchangeName}.dlx";
+
+    /// <summary>
+    /// Gets the dead-letter queue (DLQ) name.
+    /// </summary>
+    /// <param name="queueName">The original queue name.</param>
+    /// <returns>The DLQ name.</returns>
     public static string GetQueueNameDlx(string queueName) => $"{queueName}.dlx";
 
+    /// <summary>
+    /// Unsubscribes from a domain event asynchronously.
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous unsubscribe operation.</returns>
     public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
