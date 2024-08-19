@@ -98,7 +98,7 @@ jobs:
       #   run: pnpm run affected:sonarqube
 
       - name: .Net Pack
-        run: pnpm run affected:pack "--version=${{ steps.git-semver.outputs.new-version }}"
+        run: pnpm run affected:pack --args=\"--version=\"${{ steps.git-semver.outputs.new-version }}\"\"
 
     #   - name: .Net Push
     #     run: npm run affected:push
