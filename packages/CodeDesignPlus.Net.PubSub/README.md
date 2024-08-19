@@ -87,7 +87,7 @@ Furthermore, I integrate various dependencies and devDependencies to streamline 
 
 Efficient and maintainable software creation not only demands coding skills but also the right tools that fit our needs and streamline our workflow. The tools and technologies we employ often mirror our priorities in terms of efficiency, security, collaboration, and other pivotal aspects of software development. Below are the cornerstone tools and technologies that underpin this archetype:
 
-- **.NET SDK 7.0**: The necessary SDK for building applications in .NET Core 7.0.
+- **.NET SDK 8**: The necessary SDK for building applications in .NET SDK 8.
 - **Node.js**: A JavaScript runtime environment that enables server-side application development.
 - **Visual Studio Community 2022**: A comprehensive IDE tailored for .NET development.
 - **VS Code**: A lightweight yet powerful code editor with extensive extensibility capabilities.
