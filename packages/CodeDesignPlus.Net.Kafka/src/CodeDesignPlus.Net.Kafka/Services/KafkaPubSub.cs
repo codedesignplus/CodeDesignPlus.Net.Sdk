@@ -1,7 +1,7 @@
 ﻿namespace CodeDesignPlus.Net.Kafka.Services;
 
 /// <summary>
-/// Provides the default implementation for the <see cref="IKafkaService"/> interface.
+/// KafkaPubSub service for publishing and subscribing to Kafka topics.
 /// </summary>
 public class KafkaPubSub : IKafkaPubSub
 {
@@ -10,14 +10,14 @@ public class KafkaPubSub : IKafkaPubSub
     private readonly KafkaOptions options;
     private readonly IServiceProvider serviceProvider;
 
-
     /// <summary>
     /// Initializes a new instance of the <see cref="KafkaPubSub"/> class.
     /// </summary>
-    /// <param name="logger">Service for logging.</param>
-    /// <param name="options">Configuration options for Kafka.</param>
-    /// <param name="serviceProvider">Provides an instance of a service.</param>
-    /// <param name="pubSubOptions">Configuration options for the event bus.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="domainEventResolverService">The domain event resolver service.</param>
+    /// <param name="options">The Kafka options.</param>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     public KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolverService domainEventResolverService, IOptions<KafkaOptions> options, IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(logger);
@@ -34,8 +34,10 @@ public class KafkaPubSub : IKafkaPubSub
     /// <summary>
     /// Publishes an event to Kafka.
     /// </summary>
-    /// <param name="event">The event to be published.</param>
-    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <param name="event">The event to publish.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous publish operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the event is null.</exception>
     public async Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         var type = @event.GetType();
@@ -70,11 +72,12 @@ public class KafkaPubSub : IKafkaPubSub
     }
 
     /// <summary>
-    /// Publish a list of domain events
+    /// Publishes a list of events to Kafka.
     /// </summary>
-    /// <param name="event">Domains event to publish</param>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
+    /// <param name="events">The list of events to publish.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous publish operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the events list is null.</exception>
     public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
     {
         var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
@@ -83,11 +86,13 @@ public class KafkaPubSub : IKafkaPubSub
     }
 
     /// <summary>
-    /// Subscribes to a specific event from Kafka.
+    /// Subscribes to a Kafka topic for a specific event type and event handler.
     /// </summary>
-    /// <typeparam name="TEvent">The type of event.</typeparam>
-    /// <typeparam name="TEventHandler">The type of event handler.</typeparam>
-    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <typeparam name="TEvent">The type of the event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous subscribe operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the event type or event handler is null.</exception>
     public async Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -101,6 +106,14 @@ public class KafkaPubSub : IKafkaPubSub
         await SubscribeTopicAsync<TEvent, TEventHandler>(topic, cancellationToken).ConfigureAwait(false);
     }
 
+    /// <summary>
+    /// Waits for a Kafka topic to be created.
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the event.</typeparam>
+    /// <param name="topic">The Kafka topic.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous wait operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the topic is null.</exception>
     internal async Task WaitTopicCreatedAsync<TEvent>(string topic, CancellationToken cancellationToken) where TEvent : IDomainEvent
     {
         using var adminClient = new AdminClientBuilder(this.options.AdminClientConfig).Build();
@@ -121,8 +134,8 @@ public class KafkaPubSub : IKafkaPubSub
             if (attempt >= this.options.MaxAttempts)
             {
                 this.logger.LogWarning("{EventType} | The topic {Topic} does not exist after {MaxAttempts} attempts. Exiting.", typeof(TEvent).Name, topic, this.options.MaxAttempts);
-                
-                return; 
+
+                return;
             }
 
             this.logger.LogInformation("{EventType} | The topic {Topic} does not exist, waiting for it to be created.", typeof(TEvent).Name, topic);
@@ -131,7 +144,15 @@ public class KafkaPubSub : IKafkaPubSub
         }
     }
 
-
+    /// <summary>
+    /// Subscribes to a Kafka topic for a specific event type and event handler.
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="topic">The Kafka topic.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous subscribe operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the topic is null.</exception>
     internal async Task SubscribeTopicAsync<TEvent, TEventHandler>(string topic, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -163,6 +184,11 @@ public class KafkaPubSub : IKafkaPubSub
         }
     }
 
+    /// <summary>
+    /// Gets a Kafka consumer for a specific event type.
+    /// </summary>
+    /// <typeparam name="TEvent">The type of the event.</typeparam>
+    /// <returns>A consumer builder for the specified event type.</returns>
     internal ConsumerBuilder<string, TEvent> GetConsumer<TEvent>() where TEvent : IDomainEvent
     {
         var consumerBuilder = new ConsumerBuilder<string, TEvent>(this.options.ConsumerConfig);
@@ -172,11 +198,13 @@ public class KafkaPubSub : IKafkaPubSub
     }
 
     /// <summary>
-    /// Unsubscribes from a specific event in Kafka.
+    /// Unsubscribes from a Kafka topic for a specific event type and event handler.
     /// </summary>
-    /// <typeparam name="TEvent">The type of event.</typeparam>
-    /// <typeparam name="TEventHandler">The type of event handler.</typeparam>
-    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <typeparam name="TEvent">The type of the event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous unsubscribe operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the event type or event handler is null.</exception>
     public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -188,5 +216,4 @@ public class KafkaPubSub : IKafkaPubSub
 
         return Task.CompletedTask;
     }
-
 }

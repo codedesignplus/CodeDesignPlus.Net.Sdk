@@ -1,15 +1,15 @@
 ﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 
 /// <summary>
-/// Allows the repository to delete a record by assigning the information to the transversal properties of the entity
+/// Defines the delete operation for an entity.
 /// </summary>
 public interface IDeleteOperation
 {
     /// <summary>
-    /// Method that deletes a record in the database
+    /// Deletes an entity by its identifier asynchronously.
     /// </summary>
-    /// <param name="id">Id of the record to delete</param>
-    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
-    /// <returns>Represents an asynchronous operation that can return a value.</returns>
+    /// <param name="id">The identifier of the entity to delete.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
     Task DeleteAsync(Guid id, CancellationToken cancellationToken = default);
 }

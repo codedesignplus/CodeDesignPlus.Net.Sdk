@@ -1,17 +1,18 @@
 ﻿namespace CodeDesignPlus.Net.Logger.Extensions;
 
 /// <summary>
-/// The <see cref="IHostBuilder"/> extensions for Serilog
+/// Provides extension methods for adding and configuring logging services.
 /// </summary>
 public static class ServiceCollectionExtension
 {
-
     /// <summary>
-    /// Add CodeDesignPlus.EFCore configuration options
+    /// Adds logging services to the specified IServiceCollection.
     /// </summary>
-    /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
+    /// <param name="services">The IServiceCollection to add the services to.</param>
     /// <param name="configuration">The configuration being bound.</param>
-    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    /// <returns>The IServiceCollection so that additional calls can be chained.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when services or configuration is null.</exception>
+    /// <exception cref="Exceptions.LoggerException">Thrown when the LoggerOptions section is missing.</exception>
     public static IServiceCollection AddLogger(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -32,13 +33,13 @@ public static class ServiceCollectionExtension
         return services;
     }
 
-
     /// <summary>
-    /// Add Serilog configuration options
+    /// Configures Serilog for the specified IHostBuilder.
     /// </summary>
-    /// <param name="builder">The Microsoft.Extensions.Hosting.IHostBuilder to add the service to.</param>
-    /// <param name="configureLogger">An optional action to configure the provided Microsoft.Extensions.Logging.ILoggingBuilder.</param>
-    /// <returns>The Microsoft.Extensions.Hosting.IHostBuilder so that additional calls can be chained.</returns>
+    /// <param name="builder">The IHostBuilder to configure.</param>
+    /// <param name="configureLogger">An optional action to configure the LoggerConfiguration.</param>
+    /// <returns>The IHostBuilder so that additional calls can be chained.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when builder is null.</exception>
     public static IHostBuilder UseSerilog(this IHostBuilder builder, Action<LoggerConfiguration> configureLogger = null)
     {
         builder.UseSerilog((context, services, configuration) =>
@@ -76,7 +77,6 @@ public static class ServiceCollectionExtension
                         | IncludedData.MessageTemplateTextAttribute
                         | IncludedData.MessageTemplateMD5HashAttribute;
 
-
                     options.BatchingOptions.BatchSizeLimit = 10;
                     options.BatchingOptions.QueueLimit = 10;
 
@@ -89,7 +89,6 @@ public static class ServiceCollectionExtension
                         { "service.contact.name", coreOptions.Value.Contact.Name },
                         { "service.contact.email", coreOptions.Value.Contact.Email }
                     };
-
                 });
             }
 

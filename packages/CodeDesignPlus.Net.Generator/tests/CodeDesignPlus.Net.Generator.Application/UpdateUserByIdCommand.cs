@@ -7,7 +7,7 @@ public class UpdateUserByIdCommand
 {
     private readonly int id;
 
-    public static string Code = "UpdateUserByIdCommand";
+    public readonly static string Code = "UpdateUserByIdCommand";
 
     public Guid UUI { get; set; }
 }

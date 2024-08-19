@@ -1,44 +1,47 @@
 ﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Options;
 
 /// <summary>
-/// Options to setting of the Mongo
+/// Represents the options for configuring MongoDB.
 /// </summary>
 public class MongoOptions : IValidatableObject
 {
     /// <summary>
-    /// Name of the setions used in the appsettings
+    /// The name of the section used in the configuration.
     /// </summary>
     public static readonly string Section = "Mongo";
 
     /// <summary>
-    /// Get or sets the Enable
+    /// Gets or sets a value indicating whether MongoDB is enabled.
     /// </summary>
     public bool Enable { get; set; }
+
     /// <summary>
-    /// Gets or sets the name
+    /// Gets or sets the connection string for MongoDB.
     /// </summary>
     [Required]
     public string ConnectionString { get; set; }
+
     /// <summary>
-    /// Gets or sets the name
+    /// Gets or sets the name of the MongoDB database.
     /// </summary>
     [Required]
     public string Database { get; set; }
+
     /// <summary>
-    /// Gets or sets the Diagnostic
+    /// Gets or sets the diagnostics options for MongoDB.
     /// </summary>
     public MongoDiagnosticsOptions Diagnostic { get; set; } = new();
+
     /// <summary>
-    /// Gets or sets the RegisterAutomaticRepositories
+    /// Gets or sets a value indicating whether to register automatic repositories.
     /// </summary>
     public bool RegisterAutomaticRepositories { get; set; } = true;
 
-
     /// <summary>
-    /// Determines whether the specified object is valid.
+    /// Validates the properties of the MongoOptions.
     /// </summary>
-    /// <param name="validationContext">The validation context.</param>
-    /// <returns>A collection that holds failed-validation information.</returns>
+    /// <param name="validationContext">The context information about the validation operation.</param>
+    /// <returns>A collection of validation results.</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var results = new List<ValidationResult>();

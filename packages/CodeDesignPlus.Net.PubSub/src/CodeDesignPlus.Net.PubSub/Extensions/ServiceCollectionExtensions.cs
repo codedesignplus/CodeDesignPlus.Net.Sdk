@@ -1,16 +1,18 @@
 ﻿namespace CodeDesignPlus.Net.PubSub.Extensions;
 
 /// <summary>
-/// Provides a set of extension methods for CodeDesignPlus.EFCore
+/// Provides extension methods for adding PubSub services to the IServiceCollection.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Add CodeDesignPlus.EFCore configuration options
+    /// Adds PubSub services to the specified IServiceCollection using the provided configuration.
     /// </summary>
-    /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
-    /// <param name="configuration">The configuration being bound.</param>
-    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    /// <param name="services">The IServiceCollection to add the services to.</param>
+    /// <param name="configuration">The configuration to use for PubSub options.</param>
+    /// <returns>The IServiceCollection with PubSub services added.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if services or configuration is null.</exception>
+    /// <exception cref="PubSubException">Thrown if the PubSubOptions section is not found in the configuration.</exception>
     public static IServiceCollection AddPubSub(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -45,6 +47,14 @@ public static class ServiceCollectionExtensions
         return services;
     }
 
+    /// <summary>
+    /// Adds PubSub services to the specified IServiceCollection using the provided configuration and setup options.
+    /// </summary>
+    /// <param name="services">The IServiceCollection to add the services to.</param>
+    /// <param name="configuration">The configuration to use for PubSub options.</param>
+    /// <param name="setupOptions">An action to configure the PubSub options.</param>
+    /// <returns>The IServiceCollection with PubSub services added.</returns>
+    /// <exception cref="ArgumentNullException">Thrown if services, configuration, or setupOptions is null.</exception>
     public static IServiceCollection AddPubSub(this IServiceCollection services, IConfiguration configuration, Action<PubSubOptions> setupOptions)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -65,10 +75,6 @@ public static class ServiceCollectionExtensions
            .AddEventsHandlers()
            .TryAddSingleton<IPubSub, PubSubService>();
 
-        services.TryAddSingleton<IPubSub, PubSubService>();
-
-        services.AddEventsHandlers();
-
         if (pubSubOptions.UseQueue)
         {
             services.TryAddSingleton<IEventQueueService, EventQueueService>();
@@ -80,14 +86,12 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
-
-
+    
     /// <summary>
-    /// Adds the event handlers that implement the CodeDesignPlus.PubSub.Abstractions.IEventHandler interface
+    /// Adds event handlers to the specified IServiceCollection.
     /// </summary>
-    /// <param name="services">A reference to this instance after the operation has completed.</param>
-    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    /// <param name="services">The IServiceCollection to add the event handlers to.</param>
+    /// <returns>The IServiceCollection with event handlers added.</returns>
     private static IServiceCollection AddEventsHandlers(this IServiceCollection services)
     {
         var eventsHandlers = PubSubExtensions.GetEventHandlers();
@@ -109,5 +113,4 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
 }
