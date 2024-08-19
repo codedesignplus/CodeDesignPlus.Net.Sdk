@@ -15,23 +15,23 @@
     </a>
     <br />
     <br />
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Criteria/issues">
-      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.Criteria?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.Criteria's issues"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues">
+      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.Criteria's issues"/>
     </a>
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Criteria/pulls">
-      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.Criteria?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.Criteria's pull requests"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/pulls">
+      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.Criteria's pull requests"/>
     </a>
     <br />    
     <br />
     <img alt="sonarcloud" src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" width="100">
     <br />
-    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria.Key&metric=alert_status" />    
-    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria.Key&metric=security_rating"/>
-    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria.Key&metric=reliability_rating" />
-    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria.Key&metric=vulnerabilities" />
-    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria.Key&metric=bugs" />
-    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria.Key&metric=code_smells" />
-    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria.Key&metric=coverage" />
+    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria&metric=alert_status" />    
+    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria&metric=security_rating"/>
+    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria&metric=reliability_rating" />
+    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria&metric=vulnerabilities" />
+    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria&metric=bugs" />
+    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria&metric=code_smells" />
+    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Criteria&metric=coverage" />
   </p>
 </p>
 
@@ -190,7 +190,7 @@ For more information regarding the library, you can visit our documentation at <
 <!-- ROADMAP -->
 ## Roadmap
 
-Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Criteria/issues) for a list of proposed features and known issues.
+Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues) for a list of proposed features and known issues.
 
 <!-- CONTRIBUTING -->
 ## Contributing

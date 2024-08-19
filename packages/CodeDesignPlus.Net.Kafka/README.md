@@ -15,23 +15,23 @@
     </a>
     <br />
     <br />
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Kafka/issues">
-      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.Kafka?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.Kafka's issues"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues">
+      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.Kafka's issues"/>
     </a>
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Kafka/pulls">
-      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.Kafka?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.Kafka's pull requests"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/pulls">
+      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.Kafka's pull requests"/>
     </a>
     <br />    
     <br />
     <img alt="sonarcloud" src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" width="100">
     <br />
-    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka.Key&metric=alert_status" />    
-    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka.Key&metric=security_rating"/>
-    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka.Key&metric=reliability_rating" />
-    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka.Key&metric=vulnerabilities" />
-    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka.Key&metric=bugs" />
-    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka.Key&metric=code_smells" />
-    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka.Key&metric=coverage" />
+    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka&metric=alert_status" />    
+    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka&metric=security_rating"/>
+    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka&metric=reliability_rating" />
+    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka&metric=vulnerabilities" />
+    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka&metric=bugs" />
+    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka&metric=code_smells" />
+    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.Kafka&metric=coverage" />
   </p>
 </p>
 
@@ -190,7 +190,7 @@ For more information regarding the library, you can visit our documentation at <
 <!-- ROADMAP -->
 ## Roadmap
 
-Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Kafka/issues) for a list of proposed features and known issues.
+Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues) for a list of proposed features and known issues.
 
 <!-- CONTRIBUTING -->
 ## Contributing

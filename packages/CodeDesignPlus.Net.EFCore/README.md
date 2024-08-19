@@ -15,23 +15,23 @@
     </a>
     <br />
     <br />
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore/issues">
-      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.EFCore?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.EFCore's issues"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues">
+      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.EFCore's issues"/>
     </a>
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore/pulls">
-      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.EFCore?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.EFCore's pull requests"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/pulls">
+      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.EFCore's pull requests"/>
     </a>
     <br />    
     <br />
     <img alt="sonarcloud" src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" width="100">
     <br />
-    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore.Key&metric=alert_status" />    
-    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore.Key&metric=security_rating"/>
-    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore.Key&metric=reliability_rating" />
-    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore.Key&metric=vulnerabilities" />
-    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore.Key&metric=bugs" />
-    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore.Key&metric=code_smells" />
-    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore.Key&metric=coverage" />
+    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore&metric=alert_status" />    
+    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore&metric=security_rating"/>
+    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore&metric=reliability_rating" />
+    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore&metric=vulnerabilities" />
+    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore&metric=bugs" />
+    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore&metric=code_smells" />
+    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.EFCore&metric=coverage" />
   </p>
 </p>
 
@@ -190,7 +190,7 @@ For more information regarding the library, you can visit our documentation at <
 <!-- ROADMAP -->
 ## Roadmap
 
-Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore/issues) for a list of proposed features and known issues.
+Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues) for a list of proposed features and known issues.
 
 <!-- CONTRIBUTING -->
 ## Contributing

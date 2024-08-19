@@ -6,13 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
 		<Authors>CodeDesignPlus</Authors>
-		<Description>{Description}</Description>
+				<Description>CodeDesignPlus.Net.Exceptions provides a comprehensive framework for handling exceptions in .NET Core applications. This library simplifies the process of defining, throwing, and managing custom exceptions, enabling developers to build robust and maintainable error handling mechanisms.</Description>
 		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Exceptions</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Exceptions.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Exceptions.git</PackageProjectUrl>
+   <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
 		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>

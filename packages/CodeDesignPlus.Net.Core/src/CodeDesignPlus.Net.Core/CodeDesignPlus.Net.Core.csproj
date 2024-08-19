@@ -6,14 +6,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>{Description}</Description>
+    <Description>CodeDesignPlus.Net.Core is a foundational library for .NET Core projects, providing essential utilities and extensions to streamline development, enhance code quality, and support efficient testing and continuous integration. This library serves as the core framework for building robust and maintainable .NET applications.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Core</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Core.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Core.git</PackageProjectUrl>
-    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Core</PackageProjectUrl>
+    <PackageTags>.NET; .NET Core; Utilities; Extensions; Code Quality; Testing; Continuous Integration; NuGet; CodeDesignPlus; Microservices</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
