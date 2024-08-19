@@ -68,7 +68,7 @@ public class ServiceCollectionExtensionsTest
         var localProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(ILocalProvider));
 
         var azureBlobFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureBlobFactory));
-        var azureFileFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureFlieFactory));
+        var azureFileFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureFileFactory));
 
         var providers = serviceCollection.Where(x => x.ServiceType == typeof(IProvider));
 

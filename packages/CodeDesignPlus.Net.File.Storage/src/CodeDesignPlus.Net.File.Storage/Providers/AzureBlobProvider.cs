@@ -1,5 +1,14 @@
 ﻿namespace CodeDesignPlus.Net.File.Storage.Providers;
 
+/// <summary>
+/// Provides methods for interacting with Azure Blob Storage.
+/// </summary>
+/// <remarks>
+/// Initializes a new instance of the <see cref="AzureBlobProvider"/> class.
+/// </remarks>
+/// <param name="factory">The Azure Blob factory.</param>
+/// <param name="logger">The logger instance.</param>
+/// <param name="environment">The host environment.</param>
 public class AzureBlobProvider(
     IAzureBlobFactory factory,
     ILogger<AzureBlobProvider> logger,
@@ -8,6 +17,13 @@ public class AzureBlobProvider(
 {
     private readonly IAzureBlobFactory factory = factory.Create();
 
+    /// <summary>
+    /// Downloads a file from Azure Blob Storage.
+    /// </summary>
+    /// <param name="filename">The name of the file to download.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
@@ -19,7 +35,7 @@ public class AzureBlobProvider(
             if (!await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 response.Success = false;
-                response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} does not exist in the container {this.factory.UserContext.Tenant}";
 
                 return response;
             }
@@ -36,6 +52,15 @@ public class AzureBlobProvider(
         });
     }
 
+    /// <summary>
+    /// Uploads a file to Azure Blob Storage.
+    /// </summary>
+    /// <param name="stream">The file stream.</param>
+    /// <param name="filename">The name of the file.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="renowned">Whether to rename the file if it already exists.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
@@ -85,6 +110,13 @@ public class AzureBlobProvider(
         });
     }
 
+    /// <summary>
+    /// Deletes a file from Azure Blob Storage.
+    /// </summary>
+    /// <param name="filename">The name of the file to delete.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task<M.Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
@@ -100,12 +132,18 @@ public class AzureBlobProvider(
             response.Success = deleted;
 
             if (!deleted)
-                response.Message = $"The file {filename} not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} does not exist in the container {this.factory.UserContext.Tenant}";
 
             return response;
         });
     }
 
+    /// <summary>
+    /// Constructs the full name of the file including the target directory.
+    /// </summary>
+    /// <param name="target">The target directory.</param>
+    /// <param name="name">The name of the file.</param>
+    /// <returns>The full name of the file.</returns>
     protected static string GetName(string target, string name)
     {
         if (string.IsNullOrEmpty(target))

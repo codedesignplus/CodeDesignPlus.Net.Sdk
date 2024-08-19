@@ -1,14 +1,31 @@
 ﻿namespace CodeDesignPlus.Net.File.Storage.Abstractions;
 
 /// <summary>
-///  https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+/// Represents a MIME type as defined by Apache.
 /// </summary>
+/// <remarks>
+/// For more information, see: https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+/// </remarks>
 public class ApacheMime
 {
+    /// <summary>
+    /// Gets or sets the file extension associated with the MIME type.
+    /// </summary>
     public string Extension { get; set; }
+
+    /// <summary>
+    /// Gets or sets the name of the MIME type.
+    /// </summary>
     public string Name { get; set; }
+
+    /// <summary>
+    /// Gets or sets the MIME type.
+    /// </summary>
     public string MimeType { get; set; }
 
+    /// <summary>
+    /// Gets a read-only collection of Apache MIME types.
+    /// </summary>
     public static ReadOnlyCollection<ApacheMime> ApacheMimes
     {
         get
@@ -27,12 +44,11 @@ public class ApacheMime
             apacheMimes = JsonSerializer.Deserialize<List<ApacheMime>>(result);
 
             return new ReadOnlyCollection<ApacheMime>(apacheMimes);
-
         }
     }
 
     /// <summary>
-    /// Lista Mime Types https://svn.apache.org/repos/asf/httpd/httpd/trunk/docs/conf/mime.types
+    /// List of Apache MIME types.
     /// </summary>
     private static List<ApacheMime> apacheMimes = [];
 }

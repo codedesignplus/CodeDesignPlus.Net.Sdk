@@ -1,5 +1,8 @@
 ﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
 
+/// <summary>
+/// Provides Pub/Sub services for interacting with EventStore.
+/// </summary>
 public class EventStorePubSubService : IEventStorePubSubService
 {
     private readonly IEventStoreFactory eventStoreFactory;
@@ -7,9 +10,19 @@ public class EventStorePubSubService : IEventStorePubSubService
     private readonly ILogger<EventStorePubSubService> logger;
     private readonly EventStorePubSubOptions options;
     private readonly PersistentSubscriptionSettings settings;
-
     private readonly IDomainEventResolverService domainEventResolverService;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EventStorePubSubService"/> class.
+    /// </summary>
+    /// <param name="eventStoreFactory">The factory to create EventStore connections.</param>
+    /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="eventStorePubSubOptions">The EventStore Pub/Sub options.</param>
+    /// <param name="domainEventResolverService">The service to resolve domain events.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="eventStoreFactory"/>, <paramref name="serviceProvider"/>, <paramref name="logger"/>, <paramref name="eventStorePubSubOptions"/>, or <paramref name="domainEventResolverService"/> is null.
+    /// </exception>
     public EventStorePubSubService(
         IEventStoreFactory eventStoreFactory,
         IServiceProvider serviceProvider,
@@ -36,6 +49,12 @@ public class EventStorePubSubService : IEventStorePubSubService
         this.logger.LogInformation("EventStorePubSubService initialized.");
     }
 
+    /// <summary>
+    /// Publishes a domain event to the EventStore.
+    /// </summary>
+    /// <param name="event">The domain event to publish.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
@@ -50,30 +69,30 @@ public class EventStorePubSubService : IEventStorePubSubService
             @event.EventId,
             stream,
             true,
-           Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event)),
-           Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event.Metadata)));
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event)),
+            Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event.Metadata)));
 
         await connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData).ConfigureAwait(false);
     }
 
     /// <summary>
-    /// Publish a list of domain events
+    /// Publishes a list of domain events to the EventStore.
     /// </summary>
-    /// <param name="event">Domains event to publish</param>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
+    /// <param name="events">The list of domain events to publish.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
     {
-        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+        var tasks = events.Select(@event => this.PublishAsync(@event, cancellationToken));
 
         return Task.WhenAll(tasks);
     }
 
     /// <summary>
-    /// Subscribes to the specified event type.
+    /// Subscribes to a domain event in the EventStore.
     /// </summary>
-    /// <typeparam name="TEvent">The type of the event that was received.</typeparam>
-    /// <typeparam name="TEventHandler">The type of the event handler that was handling the event.</typeparam>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
@@ -90,7 +109,6 @@ public class EventStorePubSubService : IEventStorePubSubService
 
         try
         {
-
             await connection.CreatePersistentSubscriptionAsync(
                 stream,
                 options.Group,
@@ -103,23 +121,22 @@ public class EventStorePubSubService : IEventStorePubSubService
             this.logger.LogWarning(e, "{message}", e.Message);
         }
 
-
         await connection.ConnectToPersistentSubscriptionAsync(
-                stream,
-                options.Group,
-                (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, cancellationToken).ConfigureAwait(false),
-                (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
-            ).ConfigureAwait(false);
+            stream,
+            options.Group,
+            (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, cancellationToken).ConfigureAwait(false),
+            (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
+        ).ConfigureAwait(false);
 
         this.logger.LogInformation("Subscription to {stream} created.", stream);
     }
 
     /// <summary>
-    /// Handles the event that was received from the EventStore.
+    /// Handles the event when it appears in the EventStore.
     /// </summary>
-    /// <typeparam name="TEvent">The type of the event that was received.</typeparam>
-    /// <typeparam name="TEventHandler">The type of the event handler that was handling the event.</typeparam>
-    /// <param name="event">The event that was received.</param>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="event">The resolved event.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     private Task EventAppearedAsync<TEvent, TEventHandler>(ResolvedEvent @event, CancellationToken cancellationToken)
@@ -134,10 +151,10 @@ public class EventStorePubSubService : IEventStorePubSubService
     }
 
     /// <summary>
-    /// Unsubscribes from the specified event type.
+    /// Unsubscribes from a domain event in the EventStore.
     /// </summary>
-    /// <typeparam name="TEvent">The type of the event to unsubscribe from.</typeparam>
-    /// <typeparam name="TEventHandler">The type of the event handler that was handling the event.</typeparam>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
@@ -146,6 +163,4 @@ public class EventStorePubSubService : IEventStorePubSubService
     {
         return Task.CompletedTask;
     }
-
-
 }

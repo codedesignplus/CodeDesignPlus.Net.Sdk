@@ -1,16 +1,22 @@
 ﻿namespace CodeDesignPlus.Net.File.Storage.Extensions;
 
 /// <summary>
-/// Provides a set of extension methods for CodeDesignPlus.EFCore
+/// Provides extension methods for registering file storage services with the dependency injection container.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Add CodeDesignPlus.EFCore configuration options
+    /// Adds file storage services to the specified <see cref="IServiceCollection"/>.
     /// </summary>
-    /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
-    /// <param name="configuration">The configuration being bound.</param>
-    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    /// <param name="services">The service collection to add the services to.</param>
+    /// <param name="configuration">The configuration to bind the options from.</param>
+    /// <returns>The service collection with the file storage services added.</returns>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="services"/> or <paramref name="configuration"/> is null.
+    /// </exception>
+    /// <exception cref="FileStorageException">
+    /// Thrown when the required configuration section is missing.
+    /// </exception>
     public static IServiceCollection AddFileStorage(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -28,7 +34,7 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IFileStorageService, FileStorageService>();
         services.AddSingleton<IAzureBlobFactory, AzureBlobFactory>();
-        services.AddSingleton<IAzureFlieFactory, AzureFileFactory>();
+        services.AddSingleton<IAzureFileFactory, AzureFileFactory>();
         services.AddSingleton<IAzureBlobProvider, AzureBlobProvider>();
         services.AddSingleton<IAzureFileProvider, AzureFileProvider>();
         services.AddSingleton<ILocalProvider, LocalProvider>();
@@ -38,5 +44,4 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-
 }
