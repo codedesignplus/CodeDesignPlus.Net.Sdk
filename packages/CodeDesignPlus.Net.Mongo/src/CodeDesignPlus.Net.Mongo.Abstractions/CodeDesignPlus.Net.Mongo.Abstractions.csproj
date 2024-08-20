@@ -6,13 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>{Description}</Description>
+     <Description>CodeDesignPlus.Net.Mongo.Abstractions provides essential interfaces and abstract classes for integrating MongoDB with .NET Core applications. This library defines core contracts and abstractions that facilitate a clean and maintainable architecture for data access using MongoDB, enabling better testing and extensibility.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Mongo.Abstractions</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Mongo.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Mongo.git</PackageProjectUrl>
+   <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>

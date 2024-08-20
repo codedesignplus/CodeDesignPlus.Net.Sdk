@@ -6,13 +6,13 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>{Description}</Description>
+    <Description>CodeDesignPlus.Net.Core.Abstractions provides essential interfaces and abstract classes for the CodeDesignPlus.Net.Core library, enabling a clean and maintainable architecture for .NET Core applications. This library defines the core contracts and abstractions that facilitate dependency injection, testing, and extensibility.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Core.Abstractions</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Core.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Core.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Core</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
