@@ -59,7 +59,7 @@ public class EventStoreService : IEventStoreService
         if (aggregateId == Guid.Empty)
             throw new ArgumentException(GuidInvalid, nameof(aggregateId));
 
-        this.logger.LogDebug("Counting events for category '{category}' and aggregate ID '{aggregateId}'.", category, aggregateId);
+        this.logger.LogDebug("Counting events for category '{Category}' and aggregate ID '{AggregateId}'.", category, aggregateId);
 
         return CountEventsInternalAsync(category, aggregateId, cancellationToken);
     }
@@ -107,7 +107,7 @@ public class EventStoreService : IEventStoreService
         if (EqualityComparer<TDomainEvent>.Default.Equals(@event, default(TDomainEvent)))
             throw new ArgumentNullException(nameof(@event));
 
-        this.logger.LogDebug("Appending event of type '{name}' to category '{category}'.", @event.GetType().Name, category);
+        this.logger.LogDebug("Appending event of type '{Name}' to category '{Category}'.", @event.GetType().Name, category);
 
         return AppendEventInternalAsync(category, @event, version, cancellationToken);
     }
@@ -331,7 +331,7 @@ public class EventStoreService : IEventStoreService
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
 
-        this.logger.LogDebug("Searching events of type '{name}' in category '{category}'.", typeof(TDomainEvent).Name, category);
+        this.logger.LogDebug("Searching events of type '{Name}' in category '{Category}'.", typeof(TDomainEvent).Name, category);
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 

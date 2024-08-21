@@ -37,6 +37,7 @@ public static class PubSubExtensions
     {
         return AppDomain.CurrentDomain
             .GetAssemblies()
+            .Where(assembly => assembly.GetName().Name != "DynamicProxyGenAssembly2")
             .SelectMany(x => x.GetTypes())
             .Where(x =>
                 x.IsClass &&
