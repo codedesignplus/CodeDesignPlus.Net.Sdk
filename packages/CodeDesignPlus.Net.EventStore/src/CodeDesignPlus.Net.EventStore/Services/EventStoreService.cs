@@ -98,7 +98,6 @@ public class EventStoreService : IEventStoreService
     /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
     /// <param name="category">The category of the events.</param>
     /// <param name="event">The event to append.</param>
-    /// <param name="metadata">The metadata associated with the event.</param>
     /// <param name="version">The version of the event store.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
@@ -118,7 +117,6 @@ public class EventStoreService : IEventStoreService
     /// </summary>
     /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
     /// <param name="event">The event to append.</param>
-    /// <param name="metadata">The metadata associated with the event.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task AppendEventInternalAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default)

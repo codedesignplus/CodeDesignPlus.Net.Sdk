@@ -54,7 +54,7 @@ public class RedisServiceFactory : IRedisServiceFactory
 
         this.instances.TryAdd(name, service);
 
-        this.logger.LogInformation("Redis instance {name} has been added to the factory", name);
+        this.logger.LogInformation("Redis instance {Name} has been added to the factory", name);
 
         return service;
     }
