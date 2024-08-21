@@ -74,7 +74,7 @@ public class KafkaPubSub : IKafkaPubSub
     /// <summary>
     /// Publishes a list of events to Kafka.
     /// </summary>
-    /// <param name="events">The list of events to publish.</param>
+    /// <param name="event">The list of events to publish.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous publish operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the events list is null.</exception>

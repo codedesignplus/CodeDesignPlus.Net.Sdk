@@ -10,7 +10,13 @@
 /// <param name="environment">The host environment.</param>
 public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
 {
+    /// <summary>
+    /// The host environment.
+    /// </summary>
     protected readonly IHostEnvironment Environment = environment;
+    /// <summary>
+    /// The logger instance.
+    /// </summary>
     protected readonly ILogger Logger = logger;
 
     /// <summary>
