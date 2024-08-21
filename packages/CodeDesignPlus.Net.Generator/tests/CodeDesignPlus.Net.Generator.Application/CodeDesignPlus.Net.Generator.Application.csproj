@@ -10,6 +10,7 @@
     <Nullable>enable</Nullable>
     <SonarQubeExclude>true</SonarQubeExclude> 
     <NoWarn>CS0169</NoWarn>
+    <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
 
 </Project>

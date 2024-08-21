@@ -2,6 +2,7 @@
   <PropertyGroup>
     <ProjectGuid>{2D66B731-21C0-4493-A7DF-CDA8964D48D3}</ProjectGuid>
     <TargetFramework>net8.0</TargetFramework>
+    <SonarQubeExclude>true</SonarQubeExclude>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Entities\CodeDesignPlus.Entities.csproj" />
