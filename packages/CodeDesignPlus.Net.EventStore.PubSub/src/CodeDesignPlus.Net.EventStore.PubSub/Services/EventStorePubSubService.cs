@@ -118,17 +118,17 @@ public class EventStorePubSubService : IEventStorePubSubService
         }
         catch (Exception e)
         {
-            this.logger.LogWarning(e, "{message}", e.Message);
+            this.logger.LogWarning(e, "{Message}", e.Message);
         }
 
         await connection.ConnectToPersistentSubscriptionAsync(
             stream,
             options.Group,
             (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, cancellationToken).ConfigureAwait(false),
-            (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
+            (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {Reason}", reason)
         ).ConfigureAwait(false);
 
-        this.logger.LogInformation("Subscription to {stream} created.", stream);
+        this.logger.LogInformation("Subscription to {Stream} created.", stream);
     }
 
     /// <summary>

@@ -1,7 +1,7 @@
 ﻿namespace CodeDesignPlus.Net.PubSub.Abstractions
 {
     /// <summary>
-    /// Information related to the event being registered in <see cref="SubscriptionManager"/>.
+    /// Information related to the event being registered in SubscriptionManager
     /// </summary>
     public class Subscription
     {

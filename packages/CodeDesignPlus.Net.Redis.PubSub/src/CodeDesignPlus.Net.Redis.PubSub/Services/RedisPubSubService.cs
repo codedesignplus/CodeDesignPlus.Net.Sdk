@@ -81,7 +81,7 @@ public class RedisPubSubService : IRedisPubSubService
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
-        this.logger.LogInformation("Event {TEvent} published with {notified} notifications.", @event.GetType().Name, notified);
+        this.logger.LogInformation("Event {TEvent} published with {Notified} notifications.", @event.GetType().Name, notified);
 
         return (TResult)Convert.ChangeType(notified, typeof(TResult));
     }

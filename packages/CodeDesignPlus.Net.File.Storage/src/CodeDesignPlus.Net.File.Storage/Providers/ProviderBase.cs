@@ -41,7 +41,7 @@ public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "An error occurred while processing the file {filename}", filename);
+            Logger.LogError(ex, "An error occurred while processing the file {Filename}", filename);
 
             response.Success = false;
             response.Message = ex.Message;

@@ -48,7 +48,7 @@
                 catch (Exception ex)
                 {
                     retryCount++;
-                    logger.LogError(ex, "Error connecting. Attempt {retryCount} of {MaxRetries}.", retryCount, options.Value.MaxRetry);
+                    logger.LogError(ex, "Error connecting. Attempt {RetryCount} of {MaxRetries}.", retryCount, options.Value.MaxRetry);
                     errors.Add(ex.Message);
 
                     if (retryCount < options.Value.MaxRetry)
