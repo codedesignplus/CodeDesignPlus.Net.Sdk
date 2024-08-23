@@ -15,6 +15,7 @@
 		<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -38,7 +39,7 @@
 		</None>
 		<None Include="..\..\README.md">
 		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+		  <PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 

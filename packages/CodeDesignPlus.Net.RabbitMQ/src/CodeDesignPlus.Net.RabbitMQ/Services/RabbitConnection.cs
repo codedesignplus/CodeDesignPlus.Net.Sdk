@@ -3,7 +3,7 @@
     /// <summary>
     /// Manages the RabbitMQ connection.
     /// </summary>
-    public class RabbitConnection : IRabbitConnection, IDisposable
+    public class RabbitConnection : IRabbitConnection
     {
         /// <summary>
         /// Gets the RabbitMQ connection.
@@ -48,7 +48,7 @@
                 catch (Exception ex)
                 {
                     retryCount++;
-                    logger.LogError(ex, "Error connecting. Attempt {retryCount} of {MaxRetries}.", retryCount, options.Value.MaxRetry);
+                    logger.LogError(ex, "Error connecting. Attempt {RetryCount} of {MaxRetries}.", retryCount, options.Value.MaxRetry);
                     errors.Add(ex.Message);
 
                     if (retryCount < options.Value.MaxRetry)

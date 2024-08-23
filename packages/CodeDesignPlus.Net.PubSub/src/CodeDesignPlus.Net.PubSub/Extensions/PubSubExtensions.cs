@@ -37,6 +37,7 @@ public static class PubSubExtensions
     {
         return AppDomain.CurrentDomain
             .GetAssemblies()
+            .Where(assembly => assembly.GetName().Name != "DynamicProxyGenAssembly2")
             .SelectMany(x => x.GetTypes())
             .Where(x =>
                 x.IsClass &&
@@ -51,13 +52,6 @@ public static class PubSubExtensions
     /// <returns>
     /// The first matching interface of type <see cref="IEventHandler{TEvent}"/>, or null if no such interface is found.
     /// </returns>
-    /// <example>
-    /// <code>
-    /// var myEventHandlerType = typeof(MyEventHandler);
-    /// var interfaceType = myEventHandlerType.GetInterfaceEventHandlerGeneric();
-    /// Console.WriteLine(interfaceType);  // Outputs something like "IEventHandler<MyEvent>"
-    /// </code>
-    /// </example>
     public static Type GetInterfaceEventHandlerGeneric(this Type eventHandler)
     {
         return Array.Find(eventHandler.GetInterfaces(), x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IEventHandler<>));
@@ -74,13 +68,6 @@ public static class PubSubExtensions
     /// This method assumes that the provided type is an instance of the generic interface <see cref="IEventHandler{TEvent}"/>. 
     /// If this is not the case, the method may return unexpected results.
     /// </remarks>
-    /// <example>
-    /// <code>
-    /// var myInterfaceType = typeof(IEventHandler<MyEvent>);
-    /// var eventType = myInterfaceType.GetEventType();
-    /// Console.WriteLine(eventType);  // Outputs "MyEvent"
-    /// </code>
-    /// </example>
     public static Type GetEventType(this Type interfaceEventHandlerGeneric)
     {
         return Array.Find(interfaceEventHandlerGeneric.GetGenericArguments(), x => x.IsClass && !x.IsAbstract && typeof(IDomainEvent).IsAssignableFrom(x));

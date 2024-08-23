@@ -17,6 +17,8 @@
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <NoWarn>S3011</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Event.Sourcing.xml</DocumentationFile>
@@ -37,7 +39,7 @@
     </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>

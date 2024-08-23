@@ -20,7 +20,7 @@ public class OrderCreatedEventHandler : IEventHandler<OrderCreatedEvent>
     {
         this.memory.OrderCreatedEvent.Add(data);
 
-        this.logger.LogDebug("Invoked Event: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogDebug("Invoked Event: {Data}", JsonSerializer.Serialize(data));
 
         return Task.CompletedTask;
     }

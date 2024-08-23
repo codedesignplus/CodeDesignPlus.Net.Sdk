@@ -10,7 +10,7 @@ namespace CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events
         {
             memory.UserEventTrace.Add(data);
 
-            logger.LogDebug("Invoked Event: {data}", JsonSerializer.Serialize(data));
+            logger.LogDebug("Invoked Event: {Data}", JsonSerializer.Serialize(data));
 
             return Task.CompletedTask;
         }

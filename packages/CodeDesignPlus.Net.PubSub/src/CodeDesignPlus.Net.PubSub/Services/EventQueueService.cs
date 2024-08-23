@@ -56,14 +56,14 @@ public class EventQueueService : IEventQueueService
 
             this.queue.Enqueue(@event);
 
-            this.logger.LogDebug("Event of type {name} enqueued.", @event.GetType().Name);
+            this.logger.LogDebug("Event of type {Name} enqueued.", @event.GetType().Name);
 
             activity?.SetStatus(ActivityStatusCode.Ok);
             activity?.Stop();
         }
         else
         {
-            this.logger.LogWarning("Event of type {name} was already in the queue. Skipping.", @event.GetType().Name);
+            this.logger.LogWarning("Event of type {Name} was already in the queue. Skipping.", @event.GetType().Name);
         }
 
         return Task.CompletedTask;

@@ -157,7 +157,7 @@ public class RedisService : IRedisService
             args.Origin
         };
 
-        this.logger.LogCritical(args.Exception, "Internal Error - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogCritical(args.Exception, "Internal Error - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -174,7 +174,7 @@ public class RedisService : IRedisService
             NewEndPoint = args.NewEndPoint.ToString()
         };
 
-        this.logger.LogWarning("Hash Slot Moved - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogWarning("Hash Slot Moved - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -190,7 +190,7 @@ public class RedisService : IRedisService
             args.Message
         };
 
-        this.logger.LogError("Error Message - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogError("Error Message - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -208,7 +208,7 @@ public class RedisService : IRedisService
             physicalNameConnection = args.ToString()
         };
 
-        this.logger.LogInformation(args.Exception, "Connection Restored - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation(args.Exception, "Connection Restored - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -226,7 +226,7 @@ public class RedisService : IRedisService
             physicalNameConnection = args.ToString()
         };
 
-        this.logger.LogInformation(args.Exception, "Connection Failed - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation(args.Exception, "Connection Failed - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -241,7 +241,7 @@ public class RedisService : IRedisService
             EndPoint = args.EndPoint.ToString(),
         };
 
-        this.logger.LogInformation("Configuration Changed Broadcast - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation("Configuration Changed Broadcast - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
@@ -256,6 +256,6 @@ public class RedisService : IRedisService
             EndPoint = args.EndPoint.ToString(),
         };
 
-        this.logger.LogInformation("Configuration Changed - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation("Configuration Changed - Data: {Data}", JsonSerializer.Serialize(data));
     }
 }

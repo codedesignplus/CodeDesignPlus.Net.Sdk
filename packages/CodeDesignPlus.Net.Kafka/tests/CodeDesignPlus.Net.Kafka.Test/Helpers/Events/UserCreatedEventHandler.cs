@@ -20,7 +20,7 @@ namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events
         {
             this.memory.UserEventTrace.Add(data);
 
-            this.logger.LogDebug("Invoked Event: {json}", JsonSerializer.Serialize(data));
+            this.logger.LogDebug("Invoked Event: {Json}", JsonSerializer.Serialize(data));
 
             return Task.CompletedTask;
         }

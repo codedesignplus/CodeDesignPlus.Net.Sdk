@@ -20,7 +20,7 @@ public class ProductCreatedEventHandler : IEventHandler<ProductCreatedEvent>
     {
         memory.ProductEventTrace.Add(data);
 
-        logger.LogDebug("Invoked Event: {json}", JsonSerializer.Serialize(data));
+        logger.LogDebug("Invoked Event: {Json}", JsonSerializer.Serialize(data));
 
         return Task.CompletedTask;
     }

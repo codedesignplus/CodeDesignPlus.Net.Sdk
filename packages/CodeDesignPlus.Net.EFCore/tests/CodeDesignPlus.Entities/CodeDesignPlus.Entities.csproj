@@ -2,6 +2,8 @@
   <PropertyGroup>
     <ProjectGuid>{C7D720C6-47DF-49C9-A670-A2FF03E5B483}</ProjectGuid>
     <TargetFramework>net8.0</TargetFramework>
+    <SonarQubeExclude>true</SonarQubeExclude>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.EFCore\CodeDesignPlus.Net.EFCore.csproj" />

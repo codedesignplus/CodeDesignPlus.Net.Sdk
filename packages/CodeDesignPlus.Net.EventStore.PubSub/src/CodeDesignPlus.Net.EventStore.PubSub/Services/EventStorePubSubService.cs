@@ -78,12 +78,12 @@ public class EventStorePubSubService : IEventStorePubSubService
     /// <summary>
     /// Publishes a list of domain events to the EventStore.
     /// </summary>
-    /// <param name="events">The list of domain events to publish.</param>
+    /// <param name="event">The list of domain events to publish.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
     {
-        var tasks = events.Select(@event => this.PublishAsync(@event, cancellationToken));
+        var tasks = @event.Select(x => this.PublishAsync(x, cancellationToken));
 
         return Task.WhenAll(tasks);
     }
@@ -118,17 +118,17 @@ public class EventStorePubSubService : IEventStorePubSubService
         }
         catch (Exception e)
         {
-            this.logger.LogWarning(e, "{message}", e.Message);
+            this.logger.LogWarning(e, "{Message}", e.Message);
         }
 
         await connection.ConnectToPersistentSubscriptionAsync(
             stream,
             options.Group,
             (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, cancellationToken).ConfigureAwait(false),
-            (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {reason}", reason)
+            (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {Reason}", reason)
         ).ConfigureAwait(false);
 
-        this.logger.LogInformation("Subscription to {stream} created.", stream);
+        this.logger.LogInformation("Subscription to {Stream} created.", stream);
     }
 
     /// <summary>

@@ -10,7 +10,13 @@
 /// <param name="environment">The host environment.</param>
 public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
 {
+    /// <summary>
+    /// The host environment.
+    /// </summary>
     protected readonly IHostEnvironment Environment = environment;
+    /// <summary>
+    /// The logger instance.
+    /// </summary>
     protected readonly ILogger Logger = logger;
 
     /// <summary>
@@ -35,7 +41,7 @@ public abstract class BaseProvider(ILogger logger, IHostEnvironment environment)
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "An error occurred while processing the file {filename}", filename);
+            Logger.LogError(ex, "An error occurred while processing the file {Filename}", filename);
 
             response.Success = false;
             response.Message = ex.Message;

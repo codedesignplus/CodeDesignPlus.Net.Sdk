@@ -8,8 +8,8 @@
         /// <summary>
         /// Commands that have the collection name as a value
         /// </summary>
-        private static readonly HashSet<string> Commands = new()
-        {
+        private static readonly HashSet<string> Commands =
+        [
             "aggregate",
             "count",
             "distinct",
@@ -25,7 +25,7 @@
             "drop",
             "createIndexes",
             "listIndexes"
-        };
+        ];
 
         /// <summary>
         /// Get the collection name from the <see cref="CommandStartedEvent"/>

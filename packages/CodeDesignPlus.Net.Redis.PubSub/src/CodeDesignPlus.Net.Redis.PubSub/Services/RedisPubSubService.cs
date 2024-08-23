@@ -57,12 +57,12 @@ public class RedisPubSubService : IRedisPubSubService
     /// <summary>
     /// Publishes a list of domain events asynchronously.
     /// </summary>
-    /// <param name="events">The list of domain events to publish.</param>
+    /// <param name="event">The list of domain events to publish.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
     {
-        var tasks = events.Select(@event => this.PublishAsync(@event, cancellationToken));
+        var tasks = @event.Select(x => this.PublishAsync(x, cancellationToken));
 
         return Task.WhenAll(tasks);
     }
@@ -81,7 +81,7 @@ public class RedisPubSubService : IRedisPubSubService
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
-        this.logger.LogInformation("Event {TEvent} published with {notified} notifications.", @event.GetType().Name, notified);
+        this.logger.LogInformation("Event {TEvent} published with {Notified} notifications.", @event.GetType().Name, notified);
 
         return (TResult)Convert.ChangeType(notified, typeof(TResult));
     }

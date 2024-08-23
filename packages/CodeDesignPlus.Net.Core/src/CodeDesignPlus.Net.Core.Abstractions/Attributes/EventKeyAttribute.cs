@@ -31,6 +31,12 @@ public class EventKeyAttribute(string entity, ushort version, string @event) : A
     public string Event { get; } = @event;
 }
 
+/// <summary>
+/// Specifies the key information for an event.
+/// </summary>
+/// <typeparam name="TAggregate">The entity associated with the event.</typeparam>
+/// <param name="version">The version of the event.</param>
+/// <param name="event">The name of the event.</param>
 [AttributeUsage(AttributeTargets.Class)]
 public class EventKeyAttribute<TAggregate>(ushort version, string @event)
     : EventKeyAttribute(typeof(TAggregate).Name, version, @event) where TAggregate : IEntityBase;

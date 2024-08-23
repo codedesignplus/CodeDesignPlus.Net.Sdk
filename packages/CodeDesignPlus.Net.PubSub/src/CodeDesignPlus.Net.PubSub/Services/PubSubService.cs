@@ -43,14 +43,14 @@ public class PubSubService : IPubSub
     {
         if (this.options.Value.UseQueue)
         {
-            this.logger.LogDebug("UseQueue is true, enqueuing event of type {name}.", @event.GetType().Name);
+            this.logger.LogDebug("UseQueue is true, enqueuing event of type {Name}.", @event.GetType().Name);
 
             var eventQueueService = this.serviceProvider.GetRequiredService<IEventQueueService>();
 
             return eventQueueService.EnqueueAsync(@event, cancellationToken);
         }
 
-        this.logger.LogDebug("UseQueue is false, publishing event of type {name}.", @event.GetType().Name);
+        this.logger.LogDebug("UseQueue is false, publishing event of type {Name}.", @event.GetType().Name);
 
         return this.message.PublishAsync(@event, cancellationToken);
     }
@@ -58,12 +58,12 @@ public class PubSubService : IPubSub
     /// <summary>
     /// Publishes a list of domain events asynchronously.
     /// </summary>
-    /// <param name="events">The list of domain events to publish.</param>
+    /// <param name="event">The list of domain events to publish.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous publish operation.</returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
     {
-        var tasks = events.Select(@event => this.PublishAsync(@event, cancellationToken));
+        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
 
         return Task.WhenAll(tasks);
     }

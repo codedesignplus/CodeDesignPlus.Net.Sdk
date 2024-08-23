@@ -53,7 +53,7 @@ public class EventStoreFactory : IEventStoreFactory
         connection = await this.eventStoreConnection.InitializeAsync(server).ConfigureAwait(false);
         var success = this.connections.TryAdd(key, connection);
 
-        this.logger.LogInformation("Successfully created and cached the connection for key '{key}-{success}'.", key, success);
+        this.logger.LogInformation("Successfully created and cached the connection for key '{Key}-{Success}'.", key, success);
 
         return connection;
     }
@@ -68,9 +68,9 @@ public class EventStoreFactory : IEventStoreFactory
         var result = this.connections.TryRemove(key, out _);
 
         if (result)
-            this.logger.LogInformation("Successfully removed the connection for key '{key}'.", key);
+            this.logger.LogInformation("Successfully removed the connection for key '{Key}'.", key);
         else
-            this.logger.LogWarning("Failed to remove the connection for key '{key}'.", key);
+            this.logger.LogWarning("Failed to remove the connection for key '{Key}'.", key);
 
         return result;
     }

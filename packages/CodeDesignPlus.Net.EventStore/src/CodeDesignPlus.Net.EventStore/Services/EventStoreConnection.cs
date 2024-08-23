@@ -70,7 +70,7 @@ public class EventStoreConnection : IEventStoreConnection
     /// <param name="e">The event arguments containing the reason for failure.</param>
     private void AuthenticationFailed(object sender, ES.ClientAuthenticationFailedEventArgs e)
     {
-        this.logger.LogError("Authentication failed in EventStore: {reason}", e.Reason);
+        this.logger.LogError("Authentication failed in EventStore: {Reason}", e.Reason);
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public class EventStoreConnection : IEventStoreConnection
     /// <param name="e">The event arguments containing the exception.</param>
     private void ErrorOccurred(object sender, ES.ClientErrorEventArgs e)
     {
-        this.logger.LogError(e.Exception, "Error occurred in EventStore: {exception}", e.Exception.Message);
+        this.logger.LogError(e.Exception, "Error occurred in EventStore: {Exception}", e.Exception.Message);
     }
 
     /// <summary>
@@ -90,7 +90,7 @@ public class EventStoreConnection : IEventStoreConnection
     /// <param name="e">The event arguments containing the reason for closure.</param>
     private void Closed(object sender, ES.ClientClosedEventArgs e)
     {
-        this.logger.LogInformation("EventStore connection closed: {reason}", e.Reason);
+        this.logger.LogInformation("EventStore connection closed: {Reason}", e.Reason);
     }
 
     /// <summary>

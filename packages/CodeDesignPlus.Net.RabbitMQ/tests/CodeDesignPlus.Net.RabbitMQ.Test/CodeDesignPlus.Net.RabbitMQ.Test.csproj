@@ -5,6 +5,7 @@
 <ProjectGuid>{DBC26D6B-51EF-4EDE-9E87-B37A6D337EA6}</ProjectGuid>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+    <SonarQubeExclude>true</SonarQubeExclude>
 
 		<IsPackable>false</IsPackable>
 	</PropertyGroup>
