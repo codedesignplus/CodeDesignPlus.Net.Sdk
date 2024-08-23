@@ -3,7 +3,7 @@
     /// <summary>
     /// Manages the RabbitMQ connection.
     /// </summary>
-    public class RabbitConnection : IRabbitConnection, IDisposable
+    public class RabbitConnection : IRabbitConnection
     {
         /// <summary>
         /// Gets the RabbitMQ connection.

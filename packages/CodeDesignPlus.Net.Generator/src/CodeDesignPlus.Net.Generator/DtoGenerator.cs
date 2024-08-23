@@ -57,7 +57,7 @@ namespace CodeDesignPlus.Net.Generator
         /// </summary>
         /// <param name="context">The generator execution context.</param>
         /// <param name="commands">The list of commands to generate DTOs for.</param>
-        private void GenerateDtos(GeneratorExecutionContext context, List<INamedTypeSymbol> commands)
+        private static void GenerateDtos(GeneratorExecutionContext context, List<INamedTypeSymbol> commands)
         {
             var codeBuilder = new StringBuilder();
 

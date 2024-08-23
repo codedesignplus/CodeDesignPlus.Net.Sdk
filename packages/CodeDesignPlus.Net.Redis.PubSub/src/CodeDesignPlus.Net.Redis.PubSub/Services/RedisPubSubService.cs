@@ -57,12 +57,12 @@ public class RedisPubSubService : IRedisPubSubService
     /// <summary>
     /// Publishes a list of domain events asynchronously.
     /// </summary>
-    /// <param name="events">The list of domain events to publish.</param>
+    /// <param name="event">The list of domain events to publish.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task PublishAsync(IReadOnlyList<IDomainEvent> events, CancellationToken cancellationToken)
+    public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
     {
-        var tasks = events.Select(@event => this.PublishAsync(@event, cancellationToken));
+        var tasks = @event.Select(x => this.PublishAsync(x, cancellationToken));
 
         return Task.WhenAll(tasks);
     }
