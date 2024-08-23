@@ -17,8 +17,7 @@
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <NoWarn>S3011
-    </NoWarn>
+    <NoWarn>S3011</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Event.Sourcing.xml</DocumentationFile>
