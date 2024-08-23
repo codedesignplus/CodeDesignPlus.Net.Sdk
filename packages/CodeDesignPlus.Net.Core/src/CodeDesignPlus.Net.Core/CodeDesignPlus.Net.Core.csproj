@@ -14,9 +14,10 @@
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Core</PackageProjectUrl>
     <PackageTags>.NET; .NET Core; Utilities; Extensions; Code Quality; Testing; Continuous Integration; NuGet; CodeDesignPlus; Microservices</PackageTags>
-		<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>..\..\logo.png</PackageIcon>
+    <PackageReadmeFile>..\..\README.md</PackageReadmeFile>
+    <PackageLicenseFile>..\..\LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Core.xml</DocumentationFile>
