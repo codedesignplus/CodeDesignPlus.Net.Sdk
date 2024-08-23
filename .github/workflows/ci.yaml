@@ -98,13 +98,13 @@ jobs:
       #   run: pnpm run affected:sonarqube
 
       - name: .Net Pack
-        run: pnpm run affected:pack --args=\"--version=${{ steps.git-semver.outputs.new-version }}\"
+        run: pnpm run affected:pack --args=\"--version=\"${{ steps.git-semver.outputs.new-version }}\"\"
 
       - name: .Net Push GitHub Package
-        run: pnpm run affected:push --args=\"--token=${{secrets.GITHUB_TOKEN}} --source=https://nuget.pkg.github.com/codedesignplus/index.json\"
+        run: pnpm run affected:push --args=\"--token=\"${{secrets.GITHUB_TOKEN}}\" --source=\"https://nuget.pkg.github.com/codedesignplus/index.json\" \"
         
       - name: .Net Push NuGet Package
-        run: pnpm run affected:push --args=\"--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}\"
+        run: pnpm run affected:push --args=\"--source=\"https://api.nuget.org/v3/index.json\" --token=\"${{env.NUGET_TOKEN}}\"\"
 
       - name: Push tag
         id: push_tag
