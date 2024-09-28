@@ -72,4 +72,9 @@
 		<None Include="Server\Services\collector-config.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true" />
 	</ItemGroup>
 
+	
+	<ItemGroup>
+		<Content Include="CodeDesignPlus.Net.xUnit.Microservice.targets" PackagePath="build/CodeDesignPlus.Net.xUnit.Microservice.targets" />
+	</ItemGroup>
+
 </Project>
