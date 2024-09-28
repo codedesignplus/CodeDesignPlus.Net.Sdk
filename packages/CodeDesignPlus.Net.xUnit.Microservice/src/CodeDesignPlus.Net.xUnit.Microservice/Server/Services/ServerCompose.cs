@@ -34,7 +34,10 @@ public class ServerCompose : DockerCompose
     /// <returns>A new instance of the <see cref="ServerCompose"/> class.</returns>
     protected override ICompositeService Build()
     {
-        var file = Path.Combine(Directory.GetCurrentDirectory(), "Server", "Services", "docker-compose.yml");
+        var file = Path.Combine(Directory.GetCurrentDirectory(), "content", "docker-compose.yml");
+
+        if (!File.Exists(file))
+            file = Path.Combine(Directory.GetCurrentDirectory(), "Server", "Services", "docker-compose.yml");
 
         var dockerCompose = new DockerComposeConfig
         {

@@ -1,70 +1,79 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <Authors>CodeDesignPlus</Authors>
-    <Description>A library designed to optimize and facilitate unit testing for microservices using xUnit in .NET Core.</Description>
-    <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-    <PackageId>CodeDesignPlus.Net.xUnit.Microservice</PackageId>
-    <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-	  <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
-	  <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-    <PackageIcon>logo.png</PackageIcon>
-    <Version>$(Version)</Version>
-    <PackageReadmeFile>README.md</PackageReadmeFile>    
-    <IsPackable>true</IsPackable>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.xUnit.Microservice.xml</DocumentationFile>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>disable</Nullable>
+		<Authors>CodeDesignPlus</Authors>
+		<Description>A library designed to optimize and facilitate unit testing for microservices using xUnit in .NET Core.</Description>
+		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageId>CodeDesignPlus.Net.xUnit.Microservice</PackageId>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
+		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+		<PackageIcon>logo.png</PackageIcon>
+		<Version>$(Version)</Version>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<IsPackable>true</IsPackable>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.xUnit.Microservice.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<EmbeddedResource Include="Server\Services\collector-config.yml" />
+		<EmbeddedResource Include="Server\Services\docker-compose.yml" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Ductus.FluentDocker" Version="2.10.59" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
-    <PackageReference Include="Moq" Version="4.20.72" />
-    <PackageReference Include="xunit.extensibility.core" Version="2.5.1" />
+		<PackageReference Include="Moq" Version="4.20.72" />
+		<PackageReference Include="xunit.extensibility.core" Version="2.5.1" />
 		<PackageReference Include="MediatR" Version="12.2.0" />
 
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\logo.png">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="EntryPoints\" />
-    <Folder Include="EntryPoints\AsyncWorkers\" />
-    <Folder Include="EntryPoints\gRpc\" />
-    <Folder Include="EntryPoints\Rest\" />
-    <Folder Include="Server\Authentication\" />
-    <Folder Include="Server\Logger\" />
-  </ItemGroup>
-  
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.md">
+			<Pack>True</Pack>
+			<PackagePath>
+			</PackagePath>
+		</None>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath>
+			</PackagePath>
+		</None>
+		<None Include="..\..\README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+	<ItemGroup>
+		<Folder Include="EntryPoints\" />
+		<Folder Include="EntryPoints\AsyncWorkers\" />
+		<Folder Include="EntryPoints\gRpc\" />
+		<Folder Include="EntryPoints\Rest\" />
+		<Folder Include="Server\Authentication\" />
+		<Folder Include="Server\Logger\" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<None Update="Server\Services\*.yml">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="Server\Services\docker-compose.yml" Pack="true" PackagePath="content" />
+		<None Include="Server\Services\collector-config.yml" Pack="true" PackagePath="content" />
 	</ItemGroup>
 
 </Project>
