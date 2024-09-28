@@ -11,10 +11,21 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Server.Services;
 public class ServerCompose : DockerCompose
 {
     private readonly string containerName = "server_" + Guid.NewGuid().ToString("N");
-
+    /// <summary>
+    /// Gets the host and port for the service.
+    /// </summary>
     public (string, int) Redis;
+    /// <summary>
+    /// Gets the host and port for the service.
+    /// </summary>
     public (string, int) RabbitMQ;
+    /// <summary>
+    /// Gets the host and port for the service.
+    /// </summary>
     public (string, int) Mongo;
+    /// <summary>
+    /// Gets the host and port for the service.
+    /// </summary>
     public (string, int) Otel;
 
     /// <summary>
@@ -56,10 +67,10 @@ public class ServerCompose : DockerCompose
     /// Get the host and port for the service.
     /// </summary>
     /// <param name="service">The name of the service.</param>
-    /// <param name="InternalPort">The internal port of the service.</param>
+    /// <param name="internalPort">The internal port of the service.</param>
     /// <returns>A tuple containing the host and port for the service.</returns>
-    /// <exception cref="XunitException">The container was not found.</exception>
-    public (string, int) GetPort(string service, int InternalPort)
+    /// <exception cref="Exception">The container was not found.</exception>
+    public (string, int) GetPort(string service, int internalPort)
     {
         var name = $"{containerName}-{service}";
         var container = CompositeService.Containers.FirstOrDefault(x => x.Name.StartsWith(name));
@@ -67,7 +78,7 @@ public class ServerCompose : DockerCompose
         if (container == null)
             throw new Exception($"The container {name} was not found.");
 
-        var endpoint = container.ToHostExposedEndpoint($"{InternalPort}/tcp");
+        var endpoint = container.ToHostExposedEndpoint($"{internalPort}/tcp");
 
         return ("localhost", endpoint.Port);
     }
