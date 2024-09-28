@@ -1,18 +1,17 @@
-﻿
-namespace CodeDesignPlus.Net.PubSub.Abstractions;
+﻿namespace CodeDesignPlus.Net.PubSub.Abstractions;
 
 /// <summary>
-/// Interfaz base para implementar un manejador de eventos a partir de un evento definido
+/// Base interface for implementing an event handler for a defined event.
 /// </summary>
-/// <typeparam name="TEvent">Evento de Integración</typeparam>
+/// <typeparam name="TEvent">Integration Event</typeparam>
 public interface IEventHandler<in TEvent>
     where TEvent : IDomainEvent
 {
     /// <summary>
-    /// Invocado por el event bus cuando se detecta un evento al que se esta subscrito
+    /// Invoked by the event bus when an event to which it is subscribed is detected.
     /// </summary>
-    /// <param name="data">Información del evento</param>
+    /// <param name="data">Event information</param>
     /// <param name="token">Cancellation Token</param>
-    /// <returns>System.Threading.Tasks.Task que representa la operación asincrónica</returns>
+    /// <returns>A Task representing the asynchronous operation</returns>
     Task HandleAsync(TEvent data, CancellationToken token);
 }

@@ -26,14 +26,20 @@ public class EventStoreService : IEventStoreService
     /// <param name="options">The options for event sourcing.</param>
     /// <param name="domainEventResolverService">The service for resolving domain events.</param>
     /// <exception cref="ArgumentNullException">The eventStoreFactory, logger or options is null.</exception>
+    /// <exception cref="ArgumentNullException">The domainEventResolverService is null.</exception>
+    /// <exception cref="ArgumentNullException">The options is null.</exception>
+    /// <exception cref="ArgumentNullException">The logger is null.</exception>
     public EventStoreService(IEventStoreFactory eventStoreFactory, IDomainEventResolverService domainEventResolverService, ILogger<EventStoreService> logger, IOptions<EventSourcingOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
+        ArgumentNullException.ThrowIfNull(eventStoreFactory);
+        ArgumentNullException.ThrowIfNull(domainEventResolverService);
+        ArgumentNullException.ThrowIfNull(logger);
 
-        this.eventStoreFactory = eventStoreFactory ?? throw new ArgumentNullException(nameof(eventStoreFactory));
-        this.logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        this.eventStoreFactory = eventStoreFactory;
+        this.logger = logger;
         this.options = options.Value;
-        this.domainEventResolverService = domainEventResolverService ?? throw new ArgumentNullException(nameof(domainEventResolverService));
+        this.domainEventResolverService = domainEventResolverService;
 
         this.logger.LogInformation("EventStoreService initialized.");
     }
@@ -53,7 +59,7 @@ public class EventStoreService : IEventStoreService
         if (aggregateId == Guid.Empty)
             throw new ArgumentException(GuidInvalid, nameof(aggregateId));
 
-        this.logger.LogDebug("Counting events for category '{category}' and aggregate ID '{aggregateId}'.", category, aggregateId);
+        this.logger.LogDebug("Counting events for category '{Category}' and aggregate ID '{AggregateId}'.", category, aggregateId);
 
         return CountEventsInternalAsync(category, aggregateId, cancellationToken);
     }
@@ -92,7 +98,6 @@ public class EventStoreService : IEventStoreService
     /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
     /// <param name="category">The category of the events.</param>
     /// <param name="event">The event to append.</param>
-    /// <param name="metadata">The metadata associated with the event.</param>
     /// <param name="version">The version of the event store.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
@@ -102,7 +107,7 @@ public class EventStoreService : IEventStoreService
         if (EqualityComparer<TDomainEvent>.Default.Equals(@event, default(TDomainEvent)))
             throw new ArgumentNullException(nameof(@event));
 
-        this.logger.LogDebug("Appending event of type '{name}' to category '{category}'.", @event.GetType().Name, category);
+        this.logger.LogDebug("Appending event of type '{Name}' to category '{Category}'.", @event.GetType().Name, category);
 
         return AppendEventInternalAsync(category, @event, version, cancellationToken);
     }
@@ -111,8 +116,9 @@ public class EventStoreService : IEventStoreService
     /// Appends an event to the event store.
     /// </summary>
     /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
+    /// <param name="category">The category of the events.</param>
     /// <param name="event">The event to append.</param>
-    /// <param name="metadata">The metadata associated with the event.</param>
+    /// <param name="version">The version of the event store.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     private async Task AppendEventInternalAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default)
@@ -220,9 +226,8 @@ public class EventStoreService : IEventStoreService
     /// <summary>
     /// Saves the snapshot for a specific category and aggregate ID.
     /// </summary>
-    /// <param name="category">The category of the snapshot.</param>
-    /// <param name="aggregateId">The aggregate ID of the snapshot.</param>
-    /// <param name="snapshot">The snapshot to save.</param>
+    /// <typeparam name="TAggregate">The type of the aggregate.</typeparam>
+    /// <param name="aggregate">The aggregate to save.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate, CancellationToken cancellationToken = default)
@@ -319,7 +324,7 @@ public class EventStoreService : IEventStoreService
     /// Searches for events that match the specified criteria.
     /// </summary>
     /// <param name="category">The category of the events.</param>
-    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the events that match the criteria.</returns>
     public async Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(string category, CancellationToken cancellationToken = default)
        where TDomainEvent : IDomainEvent
@@ -327,7 +332,7 @@ public class EventStoreService : IEventStoreService
         if (string.IsNullOrEmpty(category))
             throw new ArgumentNullException(nameof(category));
 
-        this.logger.LogDebug("Searching events of type '{name}' in category '{category}'.", typeof(TDomainEvent).Name, category);
+        this.logger.LogDebug("Searching events of type '{Name}' in category '{Category}'.", typeof(TDomainEvent).Name, category);
 
         var connection = await eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 

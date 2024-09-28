@@ -3,9 +3,10 @@ using RabbitMQ.Client;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 
-
-public class RabbitMQContainerTest(RabbitMQContainer container) : IClassFixture<RabbitMQContainer>
+[Collection(RabbitMQCollectionFixture.Collection)]
+public class RabbitMQContainerTest(RabbitMQCollectionFixture rabbitMQCollectionFixture)
 {
+    private readonly RabbitMQContainer container = rabbitMQCollectionFixture.Container;
 
     [Fact]
     public async Task CheckConnectionServer()
@@ -22,21 +23,26 @@ public class RabbitMQContainerTest(RabbitMQContainer container) : IClassFixture<
         };
 
         // Act
-        Exception connectionException = null!;
+        IConnection connection = null!;
 
-        try
+        do
         {
-            await Task.Delay(10000);
-            using var connection = factory.CreateConnection();
+            try
+            {
+                connection = factory.CreateConnection();
 
-            // Assert
-            Assert.True(connection.IsOpen, "Connection should be open.");
-        }
-        catch (Exception ex)
-        {
-            connectionException = ex;
-        }
+                // Assert
+                Assert.True(connection.IsOpen, "Connection should be open.");
+            }
+            catch
+            {
+                await Task.Delay(1000);
+            }
 
-        Assert.Null(connectionException);
+        } while (connection == null || !connection.IsOpen);
+
+        Assert.NotNull(connection);
+        Assert.True(container.IsRunning);
+        Assert.True(connection.IsOpen);
     }
 }

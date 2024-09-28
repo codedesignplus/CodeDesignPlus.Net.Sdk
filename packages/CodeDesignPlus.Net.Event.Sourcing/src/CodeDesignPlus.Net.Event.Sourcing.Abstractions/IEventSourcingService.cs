@@ -20,7 +20,6 @@ public interface IEventSourcingService
     /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
     /// <param name="category">The category of the events.</param>
     /// <param name="event">The event to append.</param>
-    /// <param name="metadata">The metadata associated with the event.</param>
     /// <param name="version">The version of the event store.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
@@ -48,6 +47,7 @@ public interface IEventSourcingService
     /// <summary>
     /// Loads the snapshot for a specific category and aggregate ID.
     /// </summary>
+    /// <typeparam name="TAggregate">The type of the aggregate root.</typeparam>
     /// <param name="category">The category of the snapshot.</param>
     /// <param name="aggregateId">The aggregate ID of the snapshot.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
@@ -58,9 +58,8 @@ public interface IEventSourcingService
     /// <summary>
     /// Saves the snapshot for a specific category and aggregate ID.
     /// </summary>
-    /// <param name="category">The category of the snapshot.</param>
-    /// <param name="aggregateId">The aggregate ID of the snapshot.</param>
-    /// <param name="snapshot">The snapshot to save.</param>
+    /// <typeparam name="TAggregate">The type of the aggregate root.</typeparam>
+    /// <param name="aggregate">The aggregate root to save.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task SaveSnapshotAsync<TAggregate>(TAggregate aggregate, CancellationToken cancellationToken = default)
@@ -77,6 +76,7 @@ public interface IEventSourcingService
     /// <summary>
     /// Searches for events that match the specified criteria.
     /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the events that match the criteria.</returns>
     Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(CancellationToken cancellationToken = default)
@@ -85,8 +85,9 @@ public interface IEventSourcingService
     /// <summary>
     /// Searches for events that match the specified criteria.
     /// </summary>
+    /// <typeparam name="TDomainEvent">The type of the event.</typeparam>
     /// <param name="category">The category of the events.</param>
-    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the events that match the criteria.</returns>
     Task<IEnumerable<TDomainEvent>> SearchEventsAsync<TDomainEvent>(string category, CancellationToken cancellationToken = default)
        where TDomainEvent : IDomainEvent;

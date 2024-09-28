@@ -11,17 +11,25 @@ public class Server
     /// </summary>
     /// <value>
     /// The URI representing the connection string to the EventStore server.
-    /// </value>    
+    /// </value>
     [Required]
     public Uri ConnectionString { get; set; }
+
     /// <summary>
     /// Gets or sets the user name to use when connecting to the EventStore server.
     /// </summary>
+    /// <value>
+    /// The user name for the EventStore server connection.
+    /// </value>
     [Required]
     public string User { get; set; }
+
     /// <summary>
     /// Gets or sets the password to use when connecting to the EventStore server.
     /// </summary>
+    /// <value>
+    /// The password for the EventStore server connection.
+    /// </value>
     [Required]
     public string Password { get; set; }
 }

@@ -1,22 +1,36 @@
 ﻿namespace CodeDesignPlus.Net.Mongo.Converter;
 
+/// <summary>
+/// Converts LINQ expressions to MongoDB BSON documents.
+/// </summary>
 public class ExpressionConverter(ParameterExpression parameter, string alias) : MBS.ExpressionVisitor
 {
     private readonly ParameterExpression parameter = parameter;
     private readonly string alias = alias;
-    private readonly BsonDocument filterDocument = [];
+    private readonly BsonDocument filterDocument = new BsonDocument();
 
+    /// <summary>
+    /// Converts the specified expression to a BSON document.
+    /// </summary>
+    /// <param name="expression">The expression to convert.</param>
+    /// <returns>The BSON document representing the expression.</returns>
+    /// <exception cref="Exceptions.MongoException">Thrown when the expression contains unsupported operators or expressions.</exception>
     public BsonDocument Convert(Expression expression)
     {
         Visit(expression);
         return filterDocument;
     }
 
+    /// <summary>
+    /// Visits the children of the <see cref="BinaryExpression"/>.
+    /// </summary>
+    /// <param name="node">The binary expression to visit.</param>
+    /// <returns>The modified expression, if it or any subexpression was modified; otherwise, returns the original expression.</returns>
+    /// <exception cref="Exceptions.MongoException">Thrown when the binary expression contains unsupported operators.</exception>
     protected override Expression VisitBinary(BinaryExpression node)
     {
         var left = node.Left;
         var right = node.Right;
-
 
         switch (node.NodeType)
         {
@@ -52,6 +66,12 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
         return node;
     }
 
+    /// <summary>
+    /// Gets the field name from the specified expression.
+    /// </summary>
+    /// <param name="expression">The expression to extract the field name from.</param>
+    /// <returns>The field name.</returns>
+    /// <exception cref="Exceptions.MongoException">Thrown when the expression is not a member expression.</exception>
     private static string GetFieldName(Expression expression)
     {
         if (expression is MemberExpression memberExpression)
@@ -60,6 +80,12 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
         throw new Exceptions.MongoException("Only member expressions for field names are supported.");
     }
 
+    /// <summary>
+    /// Gets the constant value from the specified expression.
+    /// </summary>
+    /// <param name="expression">The expression to extract the constant value from.</param>
+    /// <returns>The constant value.</returns>
+    /// <exception cref="Exceptions.MongoException">Thrown when the expression is not a constant expression.</exception>
     private static BsonValue GetConstantValue(Expression expression)
     {
         if (expression is ConstantExpression constantExpression)
@@ -67,5 +93,4 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
 
         throw new Exceptions.MongoException("Only constant expressions for values are supported.");
     }
-
 }

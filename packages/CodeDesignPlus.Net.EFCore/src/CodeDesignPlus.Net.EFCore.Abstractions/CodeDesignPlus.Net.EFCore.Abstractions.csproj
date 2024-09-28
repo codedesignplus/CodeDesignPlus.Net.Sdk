@@ -6,17 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>{Description}</Description>
+        <Description>CodeDesignPlus.Net.EFCore.Abstractions provides essential interfaces and abstract classes for enhancing Entity Framework Core functionality. This library defines core contracts and abstractions that facilitate a clean and maintainable architecture for data access in .NET Core applications, enabling better testing and extensibility.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.EFCore.Abstractions</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.EFCore.git</PackageProjectUrl>
-    <PackageTags>{tags}</PackageTags>
-    <PackageIcon>https://i.imgur.com/PwbGy0o.png</PackageIcon>
+   <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+    <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.EFCore.Abstractions.xml</DocumentationFile>
@@ -29,16 +30,20 @@
       <Pack>True</Pack>
       <PackagePath />
     </None>
+		<None Include="..\..\logo.png">
+			<Pack>True</Pack>
+			<PackagePath></PackagePath>
+		</None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Options\" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.6" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.0.8" />
   </ItemGroup>
 </Project>

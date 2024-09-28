@@ -11,6 +11,7 @@ public interface IEventStoreFactory
     /// <param name="key">The unique identifier representing the desired connection.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation. The task result contains the connection to EventStore.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="key"/> is null or empty.</exception>
     Task<ES.IEventStoreConnection> CreateAsync(string key, CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -23,9 +24,8 @@ public interface IEventStoreFactory
     /// <summary>
     /// Gets the credentials for the specified connection key.
     /// </summary>
-    /// <param name="key">The key connection</param>
+    /// <param name="key">The key connection.</param>
     /// <returns>A tuple containing the username and password for the specified connection key.</returns>
-    /// <exception cref="ArgumentNullException">The <paramref name="key"/> is null or empty.</exception>
-    /// <exception cref="EventStoreException">The <paramref name="key"/> is not registered in the settings.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="key"/> is null or empty.</exception>
     (string, string) GetCredentials(string key);
 }

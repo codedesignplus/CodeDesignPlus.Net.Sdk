@@ -9,14 +9,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 
 namespace CodeDesignPlus.Net.EFCore.Test.Extensions;
 
-/// <summary>
-/// Unit tests to the EFCoreExtensions class
-/// </summary>
 public class EFCoreExtensionsTest
 {
-    /// <summary>
-    /// Validate that the EFCoreExtensions.ConfigurationBase extension method assigns the base configurations to the entity
-    /// </summary>
     [Fact]
     public void ConfigurationBase_ValidateConfigProperties_ConfigDefaults()
     {
@@ -55,9 +49,6 @@ public class EFCoreExtensionsTest
         Assert.False(dateCreatedProperty.IsNullable);
     }
 
-    /// <summary>
-    /// Validate that the EFCoreExtensions.ToPageAsync extension method returns the default object
-    /// </summary>
     [Fact]
     public async Task ToPageAsync_ArgumentsInvalid_Null()
     {
@@ -77,9 +68,6 @@ public class EFCoreExtensionsTest
         Assert.Null(pager);
     }
 
-    /// <summary>
-    /// Validate that the EFCoreExtensions.ToPageAsync extension method returns the Pager object with the information
-    /// </summary>
     [Fact]
     public async Task ToPageAsync_PageFromDb_Pager()
     {
@@ -131,11 +119,6 @@ public class EFCoreExtensionsTest
         Assert.Equal(endIndex, pager.EndIndex);
     }
 
-
-    /// <summary>
-    /// Validate that the EFCoreExtensions.RegisterEntityConfigurations method scans, instance and 
-    /// invokes the Configure method of the classes that implement the IEntityTypeConfiguration <TEntity> interface
-    /// </summary>
     [Fact]
     public void RegisterEntityConfigurations_ScanAndInvokeConfigure_EntityConfigurationInvoked()
     {

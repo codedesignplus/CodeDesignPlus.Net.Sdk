@@ -1,16 +1,29 @@
 ﻿namespace CodeDesignPlus.Net.Criteria.Models;
 
 /// <summary>
-/// Tokenizes the input string into a list of tokens.
+/// Represents the type of token.
 /// </summary>
-/// <param name="input">The input filter string.</param>
-/// <returns>A list of tokens.</returns>
 public enum TokenType
 {
+    /// <summary>
+    /// Represents a property token.
+    /// </summary>
     Property,
+    /// <summary>
+    /// Represents an operator token.
+    /// </summary>
     Operator,
+    /// <summary>
+    /// Represents a value token.
+    /// </summary>
     Value,
+    /// <summary>
+    /// Represents a logical operator token.
+    /// </summary>
     LogicalOperator,
+    /// <summary>
+    /// Represents a comparison operator token.
+    /// </summary>
     ComparisonOperator
 }
 

@@ -15,16 +15,11 @@ using MO = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Services;
 
-public class EventStorePubSubServiceTest : IClassFixture<EventStoreContainer>
+[Collection(EventStoreCollectionFixture.Collection)]
+public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCollectionFixture eventStoreCollectionFixture)
 {
-    private readonly EventStoreContainer container;
-    private readonly ITestOutputHelper testOutput;
-
-    public EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreContainer container)
-    {
-        this.container = container;
-        testOutput = output;
-    }
+    private readonly EventStoreContainer container = eventStoreCollectionFixture.Container;
+    private readonly ITestOutputHelper testOutput = output;
 
     [Fact]
     public void Constructor_NullEventStoreFactory_ThrowsArgumentNullException()

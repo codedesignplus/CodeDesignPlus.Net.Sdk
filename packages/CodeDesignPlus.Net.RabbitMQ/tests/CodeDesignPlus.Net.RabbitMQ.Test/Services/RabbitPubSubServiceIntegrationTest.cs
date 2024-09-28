@@ -10,13 +10,14 @@ using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Services;
 
-public class RabbitPubSubServiceIntegrationTest : IClassFixture<RabbitMQContainer>
+[Collection(RabbitMQCollectionFixture.Collection)]
+public class RabbitPubSubServiceIntegrationTest 
 {
     private readonly Mock<ILogger<RabbitPubSubService>> loggerMock;
     private readonly IMemoryHandler memoryHandler;
     private readonly RabbitPubSubService rabbitPubSubService;
 
-    public RabbitPubSubServiceIntegrationTest(RabbitMQContainer container)
+    public RabbitPubSubServiceIntegrationTest(RabbitMQCollectionFixture fixture)
     {
         loggerMock = new Mock<ILogger<RabbitPubSubService>>();
 
@@ -26,7 +27,7 @@ public class RabbitPubSubServiceIntegrationTest : IClassFixture<RabbitMQContaine
             RabbitMQ = new RabbitMQOptions
             {
                 Host = "localhost",
-                Port = container.Port,
+                Port = fixture.Container.Port,
                 UserName = "usr_codedesignplus",
                 Password = "Temporal1",
                 Enable = true,

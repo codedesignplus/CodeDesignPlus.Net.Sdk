@@ -17,6 +17,7 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : Back
     /// </summary>
     /// <param name="message">Service for managing events.</param>
     /// <param name="logger">Service for logging.</param>
+    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     public RegisterEventHandlerBackgroundService(IMessage message, ILogger<RegisterEventHandlerBackgroundService<TEventHandler, TEvent>> logger)
     {
         ArgumentNullException.ThrowIfNull(message);
@@ -37,7 +38,18 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : Back
     {
         logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
 
-        Task.Run(() => message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken).ConfigureAwait(false), stoppingToken);
+        Task.Run(() =>
+        {
+            try
+            {
+                message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while registering the event handler {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
+            }
+
+        }, stoppingToken);
 
         return Task.CompletedTask;
     }

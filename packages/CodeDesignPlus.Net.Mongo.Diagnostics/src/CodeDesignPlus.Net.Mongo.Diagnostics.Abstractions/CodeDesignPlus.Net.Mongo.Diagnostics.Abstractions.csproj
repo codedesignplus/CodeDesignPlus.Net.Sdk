@@ -5,17 +5,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>{Description}</Description>
+        <Description>CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions provides essential interfaces and abstract classes for monitoring and troubleshooting MongoDB interactions in .NET Core applications. This library defines core contracts and abstractions that facilitate a clean and maintainable architecture for diagnostics, enabling better performance tuning and issue resolution.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Mongo.Diagnostics.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Mongo.Diagnostics.git</PackageProjectUrl>
-    <PackageTags>{tags}</PackageTags>
+   <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Mongo.Diagnostics.Abstractions.xml</DocumentationFile>
@@ -36,7 +37,7 @@
     </None>
     <None Include="..\..\README.md">
       <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
+      <PackagePath></PackagePath>
     </None>
   </ItemGroup>
 </Project>

@@ -9,6 +9,9 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <SonarQubeExclude>true</SonarQubeExclude> 
+    <NoWarn>CS0169</NoWarn>
+    <SonarQubeExclude>true</SonarQubeExclude>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
 </Project>

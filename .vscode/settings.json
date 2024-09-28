@@ -21,5 +21,9 @@
         "net.serializers",
         "net.generator",
         "net.observability"
-    ]
+    ],
+    "sonarlint.connectedMode.project": {
+        "connectionId": "codedesignplus",
+        "projectKey": "CodeDesignPlus.Net.Serializers"
+    }
 }

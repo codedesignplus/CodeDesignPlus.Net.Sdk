@@ -15,23 +15,23 @@
     </a>
     <br />
     <br />
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.xUnit/issues">
-      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.xUnit?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.xUnit's issues"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues">
+      <img src="https://img.shields.io/github/issues/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github" alt="codedesignplus/CodeDesignPlus.Net.xUnit's issues"/>
     </a>
-    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.xUnit/pulls">
-      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.xUnit?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.xUnit's pull requests"/>
+    <a href="https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/pulls">
+      <img src="https://img.shields.io/github/issues-pr/codedesignplus/CodeDesignPlus.Net.Sdk?color=0088ff&style=for-the-badge&logo=github"  alt="codedesignplus/CodeDesignPlus.Net.xUnit's pull requests"/>
     </a>
     <br />    
     <br />
     <img alt="sonarcloud" src="https://sonarcloud.io/images/project_badges/sonarcloud-white.svg" width="100">
     <br />
-    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit.Key&metric=alert_status" />    
-    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit.Key&metric=security_rating"/>
-    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit.Key&metric=reliability_rating" />
-    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit.Key&metric=vulnerabilities" />
-    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit.Key&metric=bugs" />
-    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit.Key&metric=code_smells" />
-    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit.Key&metric=coverage" />
+    <img alt="Quality Gate Status" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit&metric=alert_status" />    
+    <img alt="Security Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit&metric=security_rating"/>
+    <img alt="Reliability Rating" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit&metric=reliability_rating" />
+    <img alt="Vulnerabilities" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit&metric=vulnerabilities" />
+    <img alt="Bugs" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit&metric=bugs" />
+    <img alt="Code Smells" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit&metric=code_smells" />
+    <img alt="Coverage" src="https://sonarcloud.io/api/project_badges/measure?project=CodeDesignPlus.Net.xUnit&metric=coverage" />
   </p>
 </p>
 
@@ -87,7 +87,7 @@ Furthermore, I integrate various dependencies and devDependencies to streamline 
 
 Efficient and maintainable software creation not only demands coding skills but also the right tools that fit our needs and streamline our workflow. The tools and technologies we employ often mirror our priorities in terms of efficiency, security, collaboration, and other pivotal aspects of software development. Below are the cornerstone tools and technologies that underpin this archetype:
 
-- **.NET SDK 7.0**: The necessary SDK for building applications in .NET Core 7.0.
+- **.NET SDK 8**: The necessary SDK for building applications in .NET SDK 8.
 - **Node.js**: A JavaScript runtime environment that enables server-side application development.
 - **Visual Studio Community 2022**: A comprehensive IDE tailored for .NET development.
 - **VS Code**: A lightweight yet powerful code editor with extensive extensibility capabilities.
@@ -190,7 +190,7 @@ For more information regarding the library, you can visit our documentation at <
 <!-- ROADMAP -->
 ## Roadmap
 
-Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.xUnit/issues) for a list of proposed features and known issues.
+Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues) for a list of proposed features and known issues.
 
 <!-- CONTRIBUTING -->
 ## Contributing

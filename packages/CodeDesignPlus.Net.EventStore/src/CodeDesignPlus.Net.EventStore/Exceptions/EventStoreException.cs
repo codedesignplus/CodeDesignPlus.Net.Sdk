@@ -18,7 +18,7 @@ public class EventStoreException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventStoreException"/> class.
+    /// Initializes a new instance of the <see cref="EventStoreException"/> class with custom errors.
     /// </summary>
     /// <param name="errors">The custom errors</param>
     public EventStoreException(IEnumerable<string> errors)
@@ -27,7 +27,7 @@ public class EventStoreException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventStoreException"/> class.
+    /// Initializes a new instance of the <see cref="EventStoreException"/> class with a specified error message.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     public EventStoreException(string message) : base(message)
@@ -35,7 +35,7 @@ public class EventStoreException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventStoreException"/> class.
+    /// Initializes a new instance of the <see cref="EventStoreException"/> class with a specified error message and custom errors.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     /// <param name="errors">The custom errors</param>
@@ -45,7 +45,7 @@ public class EventStoreException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventStoreException"/> class.
+    /// Initializes a new instance of the <see cref="EventStoreException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     /// <param name="innerException">
@@ -57,7 +57,7 @@ public class EventStoreException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventStoreException"/> class.
+    /// Initializes a new instance of the <see cref="EventStoreException"/> class with a specified error message, custom errors, and a reference to the inner exception that is the cause of this exception.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     /// <param name="errors">The custom errors</param>

@@ -1,9 +1,11 @@
 ﻿namespace CodeDesignPlus.Net.EventStore.Services;
 
 /// <summary>
-/// Provides an implementation for connecting to an EventStore instance using specified configuration options.
-/// This class encapsulates the logic for setting up and initializing the connection to EventStore.
+/// Represents a connection to the EventStore.
 /// </summary>
+/// <remarks>
+/// This class is responsible for initializing and managing the connection to the EventStore.
+/// </remarks>
 public class EventStoreConnection : IEventStoreConnection
 {
     private readonly CoreOptions coreOptions;
@@ -12,9 +14,11 @@ public class EventStoreConnection : IEventStoreConnection
     /// <summary>
     /// Initializes a new instance of the <see cref="EventStoreConnection"/> class.
     /// </summary>
-    /// <param name="coreOptions">The core options required for the connection, fetched from the application's configuration.</param>
-    /// <param name="logger">The logger used for logging events and issues related to the EventStore connection.</param>
-    /// <exception cref="ArgumentNullException">Thrown when the <paramref name="coreOptions"/> parameter is null.</exception>
+    /// <param name="coreOptions">The core options.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown when <paramref name="coreOptions"/> or <paramref name="logger"/> is null.
+    /// </exception>
     public EventStoreConnection(IOptions<CoreOptions> coreOptions, ILogger<EventStoreConnection> logger)
     {
         ArgumentNullException.ThrowIfNull(coreOptions);
@@ -27,10 +31,11 @@ public class EventStoreConnection : IEventStoreConnection
     }
 
     /// <summary>
-    /// Initializes the connection to the EventStore using the provided server details and the internal core options.
+    /// Initializes the EventStore connection asynchronously.
     /// </summary>
-    /// <param name="server">The server details, including connection string, required to connect to the EventStore.</param>
-    /// <returns>A task representing the asynchronous initialization operation. The task result contains the initialized connection.</returns>
+    /// <param name="server">The server configuration.</param>
+    /// <returns>The initialized EventStore connection.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="server"/> is null.</exception>
     public async Task<ES.IEventStoreConnection> InitializeAsync(Server server)
     {
         ArgumentNullException.ThrowIfNull(server);
@@ -59,69 +64,62 @@ public class EventStoreConnection : IEventStoreConnection
     }
 
     /// <summary>
-    /// Handles authentication failure events from the EventStore client.
-    /// Logs the authentication failure reason using ILogger.
+    /// Handles the authentication failed event.
     /// </summary>
     /// <param name="sender">The event sender.</param>
-    /// <param name="e">Event arguments containing the reason for authentication failure.</param>
+    /// <param name="e">The event arguments containing the reason for failure.</param>
     private void AuthenticationFailed(object sender, ES.ClientAuthenticationFailedEventArgs e)
     {
-        this.logger.LogError("Authentication failed in EventStore: {reason}", e.Reason);
+        this.logger.LogError("Authentication failed in EventStore: {Reason}", e.Reason);
     }
 
     /// <summary>
-    /// Handles error events from the EventStore client.
-    /// Logs the exception message using ILogger.
+    /// Handles the error occurred event.
     /// </summary>
     /// <param name="sender">The event sender.</param>
-    /// <param name="e">Event arguments containing the exception that occurred.</param>
+    /// <param name="e">The event arguments containing the exception.</param>
     private void ErrorOccurred(object sender, ES.ClientErrorEventArgs e)
     {
-        this.logger.LogError(e.Exception, "Error occurred in EventStore: {exception}", e.Exception.Message);
+        this.logger.LogError(e.Exception, "Error occurred in EventStore: {Exception}", e.Exception.Message);
     }
 
     /// <summary>
-    /// Handles the closed event of the EventStore client connection.
-    /// Logs the reason for connection closure using ILogger.
+    /// Handles the connection closed event.
     /// </summary>
     /// <param name="sender">The event sender.</param>
-    /// <param name="e">Event arguments containing the reason for connection closure.</param>
+    /// <param name="e">The event arguments containing the reason for closure.</param>
     private void Closed(object sender, ES.ClientClosedEventArgs e)
     {
-        this.logger.LogInformation("EventStore connection closed: {reason}", e.Reason);
+        this.logger.LogInformation("EventStore connection closed: {Reason}", e.Reason);
     }
 
     /// <summary>
-    /// Handles the reconnecting event of the EventStore client.
-    /// Logs a message indicating reconnection attempt using ILogger.
+    /// Handles the reconnecting event.
     /// </summary>
     /// <param name="sender">The event sender.</param>
-    /// <param name="e">Event arguments containing details about the reconnection attempt.</param>
+    /// <param name="e">The event arguments.</param>
     private void Reconnecting(object sender, ES.ClientReconnectingEventArgs e)
     {
         this.logger.LogInformation("Reconnecting to EventStore");
     }
 
     /// <summary>
-    /// Handles the disconnected event of the EventStore client connection.
-    /// Logs a message indicating that the connection has been disconnected using ILogger.
+    /// Handles the disconnected event.
     /// </summary>
     /// <param name="sender">The event sender.</param>
-    /// <param name="e">Event arguments containing details about the disconnection.</param>
+    /// <param name="e">The event arguments.</param>
     private void Disconnected(object sender, ES.ClientConnectionEventArgs e)
     {
         this.logger.LogInformation("EventStore connection disconnected.");
     }
 
     /// <summary>
-    /// Handles the connected event of the EventStore client connection.
-    /// Logs a message indicating that the connection has been established using ILogger.
+    /// Handles the connected event.
     /// </summary>
     /// <param name="sender">The event sender.</param>
-    /// <param name="e">Event arguments containing details about the connection.</param>
+    /// <param name="e">The event arguments.</param>
     private void Connected(object sender, ES.ClientConnectionEventArgs e)
     {
         this.logger.LogInformation("EventStore connection established.");
     }
-
 }

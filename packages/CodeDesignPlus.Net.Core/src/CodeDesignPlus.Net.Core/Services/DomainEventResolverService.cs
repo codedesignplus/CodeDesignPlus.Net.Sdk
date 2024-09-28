@@ -1,16 +1,24 @@
 ﻿namespace CodeDesignPlus.Net.Core.Services;
 
 /// <summary>
-/// Service to resolve domain events.
+/// Service responsible for resolving domain event types based on event names and attributes.
 /// </summary>
 public class DomainEventResolverService : IDomainEventResolverService
 {
+    /// <summary>
+    /// Dictionary that maps event names to their corresponding types.
+    /// </summary>
     private readonly Dictionary<string, Type> eventTypes = [];
+
+    /// <summary>
+    /// The options for the core functionality of the application.
+    /// </summary>
     private readonly CoreOptions coreOptions;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DomainEventResolverService"/> class.
     /// </summary>
+    /// <param name="options">The options for the core functionality of the application.</param>
     public DomainEventResolverService(IOptions<CoreOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
@@ -35,12 +43,10 @@ public class DomainEventResolverService : IDomainEventResolverService
     }
 
     /// <summary>
-    /// Gets the domain event type by the event name.
+    /// Gets the type of the domain event based on the event name.
     /// </summary>
     /// <param name="eventName">The name of the event.</param>
     /// <returns>The type of the domain event.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="eventName"/> is null.</exception>
-    /// <exception cref="ArgumentException">Thrown when the event type does not exist.</exception>
     public Type GetDomainEventType(string eventName)
     {
         ArgumentNullException.ThrowIfNull(eventName);
@@ -52,7 +58,7 @@ public class DomainEventResolverService : IDomainEventResolverService
     }
 
     /// <summary>
-    /// Gets the domain event type for the specified domain event.
+    /// Gets the type of the domain event based on the generic type parameter.
     /// </summary>
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <returns>The type of the domain event.</returns>
@@ -62,7 +68,7 @@ public class DomainEventResolverService : IDomainEventResolverService
     }
 
     /// <summary>
-    /// Gets the key for the specified domain event type.
+    /// Gets the key of the domain event based on the generic type parameter.
     /// </summary>
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <returns>The key of the domain event.</returns>
@@ -72,7 +78,7 @@ public class DomainEventResolverService : IDomainEventResolverService
     }
 
     /// <summary>
-    /// Gets the key for the specified type.
+    /// Gets the key of the domain event based on the type.
     /// </summary>
     /// <param name="type">The type of the domain event.</param>
     /// <returns>The key of the domain event.</returns>
@@ -82,19 +88,17 @@ public class DomainEventResolverService : IDomainEventResolverService
     }
 
     /// <summary>
-    /// Gets the key attribute for the specified domain event type.
+    /// Gets the key of the domain event based on the generic type parameter.
     /// </summary>
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
-    /// <returns>The key attribute of the domain event.</returns>
-    /// <exception cref="CoreException">Thrown when the event does not have the <see cref="EventKeyAttribute"/>.</exception>
+    /// <returns>The key of the domain event.</returns>
     public string GetKeyEvent<TDomainEvent>() where TDomainEvent : IDomainEvent => this.GetKeyEvent(typeof(TDomainEvent));
 
     /// <summary>
-    /// Gets the key attribute for the specified type.
+    /// Gets the key of the domain event based on the type.
     /// </summary>
     /// <param name="type">The type of the domain event.</param>
-    /// <returns>The key attribute of the domain event.</returns>
-    /// <exception cref="CoreException">Thrown when the event does not have the <see cref="EventKeyAttribute"/>.</exception>
+    /// <returns>The key of the domain event.</returns>
     public string GetKeyEvent(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
@@ -106,5 +110,4 @@ public class DomainEventResolverService : IDomainEventResolverService
 
         return $"{coreOptions.Business}.{coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
     }
-
 }

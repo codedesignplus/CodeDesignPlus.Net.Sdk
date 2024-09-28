@@ -1,31 +1,30 @@
 ﻿namespace CodeDesignPlus.Net.Event.Sourcing.Exceptions;
 
 /// <summary>
-/// Se genera cuando se quiere acceder a un evento que no esta registrado
+/// Thrown when attempting to access an event that is not registered.
 /// </summary>
 public class EventSourcingNotImplementedException : Exception
 {
-
     /// <summary>
-    /// Crea una nueva instancia de <see cref="EventSourcingNotImplementedException"/>
+    /// Initializes a new instance of the <see cref="EventSourcingNotImplementedException"/> class.
     /// </summary>
     public EventSourcingNotImplementedException()
     {
     }
 
     /// <summary>
-    /// Crea una nueva instancia de <see cref="PubSubException"/>
+    /// Initializes a new instance of the <see cref="EventSourcingNotImplementedException"/> class with a specified error message.
     /// </summary>
-    /// <param name="message">Mensaje del error</param>
+    /// <param name="message">The message that describes the error.</param>
     public EventSourcingNotImplementedException(string message) : base(message)
     {
     }
 
     /// <summary>
-    /// Crea una nueva instancia de <see cref="EventSourcingNotImplementedException"/>
+    /// Initializes a new instance of the <see cref="EventSourcingNotImplementedException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
     /// </summary>
-    /// <param name="message">Mensaje del error</param>
-    /// <param name="innerException">Inner Exception</param>
+    /// <param name="message">The error message that explains the reason for the exception.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception.</param>
     public EventSourcingNotImplementedException(string message, Exception innerException) : base(message, innerException)
     {
     }

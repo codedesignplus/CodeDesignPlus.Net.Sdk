@@ -1,7 +1,7 @@
 ﻿namespace CodeDesignPlus.Net.Redis.PubSub.Services;
 
 /// <summary>
-/// Default implementation of the <see cref="IRedisPubSubService"/>
+/// Provides Redis Pub/Sub services for publishing and subscribing to domain events.
 /// </summary>
 public class RedisPubSubService : IRedisPubSubService
 {
@@ -11,11 +11,13 @@ public class RedisPubSubService : IRedisPubSubService
     private readonly IServiceProvider serviceProvider;
 
     /// <summary>
-    /// Initialize a new instance of the <see cref="RedisPubSubService"/>
+    /// Initializes a new instance of the <see cref="RedisPubSubService"/> class.
     /// </summary>
-    /// <param name="redisServiceFactory">Service that management connection with Redis Server</param>
-    /// <param name="serviceProvider">Service provider</param>
-    /// <param name="logger">Service logger</param>
+    /// <param name="redisServiceFactory">The factory to create Redis services.</param>
+    /// <param name="serviceProvider">The service provider.</param>
+    /// <param name="logger">The logger instance.</param>
+    /// <param name="domainEventResolverService">The domain event resolver service.</param>
+    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     public RedisPubSubService(
         IRedisServiceFactory redisServiceFactory,
         IServiceProvider serviceProvider,
@@ -36,14 +38,13 @@ public class RedisPubSubService : IRedisPubSubService
         this.logger.LogInformation("RedisPubSubService initialized.");
     }
 
-
     /// <summary>
-    /// Posts a message to the given channel.
+    /// Publishes a domain event asynchronously.
     /// </summary>
-    /// <param name="event">The event to publish.</param>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
-    /// <exception cref="ArgumentNullException">@event is null</exception>
+    /// <param name="event">The domain event to publish.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the event is null.</exception>
     public Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(@event);
@@ -54,24 +55,24 @@ public class RedisPubSubService : IRedisPubSubService
     }
 
     /// <summary>
-    /// Publish a list of domain events
+    /// Publishes a list of domain events asynchronously.
     /// </summary>
-    /// <param name="event">Domains event to publish</param>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
+    /// <param name="event">The list of domain events to publish.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task PublishAsync(IReadOnlyList<IDomainEvent> @event, CancellationToken cancellationToken)
     {
-        var tasks = @event.Select(@event => this.PublishAsync(@event, cancellationToken));
+        var tasks = @event.Select(x => this.PublishAsync(x, cancellationToken));
 
         return Task.WhenAll(tasks);
     }
 
     /// <summary>
-    /// Posts a message to the given channel.
+    /// Publishes a domain event to the Redis channel.
     /// </summary>
-    /// <typeparam name="TResult">Type result (long)</typeparam>
-    /// <param name="event">The event to publish.</param>
-    /// <returns>The number of clients that received the message.</returns>
+    /// <typeparam name="TResult">The result type.</typeparam>
+    /// <param name="event">The domain event to publish.</param>
+    /// <returns>A task that represents the asynchronous operation, containing the result.</returns>
     private async Task<TResult> PrivatePublishAsync<TResult>(object @event)
     {
         var channel = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
@@ -80,19 +81,18 @@ public class RedisPubSubService : IRedisPubSubService
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
 
-        this.logger.LogInformation("Event {TEvent} published with {notified} notifications.", @event.GetType().Name, notified);
+        this.logger.LogInformation("Event {TEvent} published with {Notified} notifications.", @event.GetType().Name, notified);
 
         return (TResult)Convert.ChangeType(notified, typeof(TResult));
     }
 
     /// <summary>
-    /// This method is invoked when register the subscribe with <see cref="CodeDesignPlus.PubSub.Extensions.PubSubExtensions.SubscribeEventsHandlers{TStartupLogic}(IServiceProvider)"/> extension method
-    /// Subscribe to perform some operation when a message to the preferred/active node is broadcast, without any guarantee of ordered handling.
+    /// Subscribes to a domain event asynchronously.
     /// </summary>
-    /// <typeparam name="TEvent">Type Event</typeparam>
-    /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -105,12 +105,12 @@ public class RedisPubSubService : IRedisPubSubService
     }
 
     /// <summary>
-    /// The handler to invoke when a message is received on channel.
+    /// Handles the received domain event.
     /// </summary>
-    /// <typeparam name="TEvent">Type Event</typeparam>
-    /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
-    /// <param name="value">The value received</param>    
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="value">The received event value.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
     public void ListenerEvent<TEvent, TEventHandler>(RedisValue value, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
@@ -123,12 +123,12 @@ public class RedisPubSubService : IRedisPubSubService
     }
 
     /// <summary>
-    /// Unsubscribe from a specified message channel
+    /// Unsubscribes from a domain event asynchronously.
     /// </summary>
-    /// <typeparam name="TEvent">Type Event</typeparam>
-    /// <typeparam name="TEventHandler">Type Event Handler</typeparam>
-    /// <param name="cancellationToken">The cancellation token that will be assigned to the new task.</param>
-    /// <returns>Return a <see cref="Task"/></returns>
+    /// <typeparam name="TEvent">The type of the domain event.</typeparam>
+    /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>

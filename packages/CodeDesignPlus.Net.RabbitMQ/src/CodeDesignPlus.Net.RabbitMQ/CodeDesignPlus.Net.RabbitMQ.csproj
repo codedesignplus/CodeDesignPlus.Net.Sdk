@@ -2,21 +2,22 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-<ProjectGuid>{3F270385-69CD-4222-B4EC-45C7081D124F}</ProjectGuid>
+	<ProjectGuid>{3F270385-69CD-4222-B4EC-45C7081D124F}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-		<Authors>CodeDesignPlus</Authors>
-		<Description>{Description}</Description>
-		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	<Authors>CodeDesignPlus</Authors>
+	<Description>CodeDesignPlus.Net.RabbitMQ provides a robust framework for integrating RabbitMQ with .NET Core applications. This library simplifies the process of producing and consuming RabbitMQ messages, enabling developers to build scalable and reliable event-driven systems.</Description>
+	<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.RabbitMQ</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.RabbitMQ.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.RabbitMQ.git</PackageProjectUrl>
-		<PackageTags>{tags}</PackageTags>
-		<PackageIcon>logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
+	<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+	<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -45,7 +46,7 @@
 		</None>
 		<None Include="..\..\README.md">
 		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+		  <PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 

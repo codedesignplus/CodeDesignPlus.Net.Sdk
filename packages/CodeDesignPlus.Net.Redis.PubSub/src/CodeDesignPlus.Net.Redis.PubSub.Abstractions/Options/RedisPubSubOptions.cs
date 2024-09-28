@@ -1,17 +1,17 @@
 ﻿namespace CodeDesignPlus.Net.Redis.PubSub.Abstractions.Options;
 
 /// <summary>
-/// Options to setting of the Redis.PubSub
+/// Represents the configuration options for Redis Pub/Sub.
 /// </summary>
-public class RedisPubSubOptions: PubSubOptions
+public class RedisPubSubOptions : PubSubOptions
 {
     /// <summary>
-    /// Name of the setions used in the appsettings
+    /// The name of the configuration section used in the appsettings.
     /// </summary>
     public static new readonly string Section = "RedisPubSub";
 
     /// <summary>
-    /// Get or sets the Enable
+    /// Gets or sets a value indicating whether Redis Pub/Sub is enabled.
     /// </summary>
     public bool Enable { get; set; }
 }

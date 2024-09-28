@@ -5,17 +5,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
 		<Authors>CodeDesignPlus</Authors>
-		<Description>{Description}</Description>
+		<Description>CodeDesignPlus.Net.Criteria provides a robust framework for building and managing dynamic query criteria in .NET Core applications. This library simplifies the creation of complex queries by offering a flexible and extensible criteria system, enabling developers to construct queries dynamically at runtime.</Description>
 		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Criteria</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Criteria.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Criteria.git</PackageProjectUrl>
-		<PackageTags>{tags}</PackageTags>
+   <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
+		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -41,7 +42,7 @@
 		</None>
 		<None Include="..\..\README.md">
 		  <Pack>True</Pack>
-		  <PackagePath>\</PackagePath>
+		  <PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 

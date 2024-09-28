@@ -1,14 +1,14 @@
 ﻿namespace CodeDesignPlus.Net.Core.Abstractions;
 
 /// <summary>
-/// Specification of the contract for the management of custom services in the CodeDesignPlus SDK.
+/// Represents a contract for initializing services during application startup.
 /// </summary>
 public interface IStartupServices
 {
     /// <summary>
-    /// This method is invoked by the CodeDesignPlus SDK at the start of the application to register custom services.
+    /// Initializes the services required by the application.
     /// </summary>
-    /// <param name="services">Provides access to the .net core dependency container.</param>
-    /// <param name="configuration">Provides access to the various configuration sources.</param>
+    /// <param name="services">The collection of services to be initialized.</param>
+    /// <param name="configuration">The configuration settings for the application.</param>
     void Initialize(IServiceCollection services, IConfiguration configuration);
 }

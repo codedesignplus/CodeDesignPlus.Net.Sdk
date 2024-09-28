@@ -6,17 +6,18 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>{Description}</Description>
+    <Description>CodeDesignPlus.Net.Core is a foundational library for .NET Core projects, providing essential utilities and extensions to streamline development, enhance code quality, and support efficient testing and continuous integration. This library serves as the core framework for building robust and maintainable .NET applications.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Core</PackageId>
     <RepositoryType>git</RepositoryType>
-    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Core.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Core.git</PackageProjectUrl>
-    <PackageTags>{tags}</PackageTags>
-    <PackageIcon>https://i.imgur.com/PwbGy0o.png</PackageIcon>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Core</PackageProjectUrl>
+    <PackageTags>.NET; .NET Core; Utilities; Extensions; Code Quality; Testing; Continuous Integration; NuGet; CodeDesignPlus; Microservices</PackageTags>
     <Version>$(Version)</Version>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
+		<PackageIcon>icon/logo.png</PackageIcon>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Core.xml</DocumentationFile>
@@ -25,16 +26,10 @@
     <ProjectReference Include="..\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
+   <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+    <None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="docs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />

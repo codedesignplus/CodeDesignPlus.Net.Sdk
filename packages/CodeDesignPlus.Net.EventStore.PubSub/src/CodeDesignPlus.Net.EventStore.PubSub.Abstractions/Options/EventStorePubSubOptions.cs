@@ -1,22 +1,22 @@
 ﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Abstractions.Options;
 
 /// <summary>
-/// Options to setting of the EventStore.PubSub
+/// Represents the configuration options for EventStore Pub/Sub.
 /// </summary>
-public class EventStorePubSubOptions: PubSubOptions
+public class EventStorePubSubOptions : PubSubOptions
 {
     /// <summary>
-    /// Name of the setions used in the appsettings
+    /// The configuration section name for EventStore Pub/Sub options.
     /// </summary>
     public static new readonly string Section = "EventStorePubSub";
 
     /// <summary>
-    /// Gets or sets the name of the connection to the EventStore
+    /// Gets or sets a value indicating whether EventStore Pub/Sub is enabled.
     /// </summary>
     public bool Enabled { get; set; }
 
     /// <summary>
-    /// Gets or sets the name of the connection to the EventStore
+    /// Gets or sets the group name for the EventStore Pub/Sub subscription.
     /// </summary>
     [Required]
     public string Group { get; set; }

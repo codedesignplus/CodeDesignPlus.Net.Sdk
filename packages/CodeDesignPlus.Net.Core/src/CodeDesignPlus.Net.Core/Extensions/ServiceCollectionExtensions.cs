@@ -1,16 +1,18 @@
 ﻿namespace CodeDesignPlus.Net.Core.Extensions;
 
 /// <summary>
-/// Provides a set of extension methods for CodeDesignPlus.EFCore
+/// Provides extension methods for the <see cref="IServiceCollection"/> interface.
 /// </summary>
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Add CodeDesignPlus.EFCore configuration options
+    /// Adds the core services to the specified <see cref="IServiceCollection"/> using the provided <see cref="IConfiguration"/>.
     /// </summary>
-    /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
-    /// <param name="configuration">The configuration being bound.</param>
-    /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
+    /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
+    /// <param name="configuration">The <see cref="IConfiguration"/> used to configure the core services.</param>
+    /// <returns>The modified <see cref="IServiceCollection"/> instance.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="services"/> or <paramref name="configuration"/> is null.</exception>
+    /// <exception cref="CoreException">Thrown when the required configuration section is missing.</exception>
     public static IServiceCollection AddCore(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);

@@ -1,10 +1,13 @@
 ﻿namespace CodeDesignPlus.Net.Mongo.Diagnostics.Subscriber
 {
     /// <summary>
-    /// Subscriber for the MongoDB driver events
+    /// Subscriber for the MongoDB driver events.
     /// </summary>
     public class DiagnosticsActivityEventSubscriber : IEventSubscriber
     {
+        /// <summary>
+        /// The name of the activity for MongoDB driver events.
+        /// </summary>
         public const string ActivityName = "MongoDB.Driver.Core.Events.Command";
 
         private readonly MongoDiagnosticsOptions options;
@@ -12,10 +15,10 @@
         private readonly ReflectionEventSubscriber subscriber;
 
         /// <summary>
-        /// Create a new instance of <see cref="DiagnosticsActivityEventSubscriber"/>
+        /// Creates a new instance of <see cref="DiagnosticsActivityEventSubscriber"/>.
         /// </summary>
-        /// <param name="options">The options for the diagnostics</param>
-        /// <param name="activityService">The service to manage the activities</param>
+        /// <param name="options">The options for the diagnostics.</param>
+        /// <param name="activityService">The service to manage the activities.</param>
         public DiagnosticsActivityEventSubscriber(IOptions<MongoDiagnosticsOptions> options, IActivityService activityService)
         {
             this.options = options.Value;
@@ -25,20 +28,20 @@
         }
 
         /// <summary>
-        /// Try to get the event handler for the specified type
+        /// Tries to get the event handler for the specified type.
         /// </summary>
-        /// <typeparam name="TEvent">The type of the event</typeparam>
-        /// <param name="handler">The event handler</param></param>
-        /// <returns>Returns true if the event handler was found</returns>
+        /// <typeparam name="TEvent">The type of the event.</typeparam>
+        /// <param name="handler">The event handler.</param>
+        /// <returns>Returns true if the event handler was found.</returns>
         public bool TryGetEventHandler<TEvent>(out Action<TEvent> handler)
         {
             return this.subscriber.TryGetEventHandler(out handler);
         }
 
         /// <summary>
-        /// Handle the <see cref="CommandStartedEvent"/>
+        /// Handles the <see cref="CommandStartedEvent"/>.
         /// </summary>
-        /// <param name="event">The event to handle</param>
+        /// <param name="event">The event to handle.</param>
         public void Handle(CommandStartedEvent @event)
         {
             var activity = this.activityService.StartActivity(ActivityName, ActivityKind.Client);
@@ -78,9 +81,9 @@
         }
 
         /// <summary>
-        /// Handle the <see cref="CommandSucceededEvent"/>
+        /// Handles the <see cref="CommandSucceededEvent"/>.
         /// </summary>
-        /// <param name="event">The event to handle</param>
+        /// <param name="event">The event to handle.</param>
         public void Handle(CommandSucceededEvent @event)
         {
             if (this.activityService.RemoveActivity(@event.RequestId, out var activity))
@@ -95,9 +98,9 @@
         }
 
         /// <summary>
-        /// handle the <see cref="CommandFailedEvent"/>
+        /// Handles the <see cref="CommandFailedEvent"/>.
         /// </summary>
-        /// <param name="event">The event to handle</param>
+        /// <param name="event">The event to handle.</param>
         public void Handle(CommandFailedEvent @event)
         {
             if (this.activityService.RemoveActivity(@event.RequestId, out var activity))
@@ -120,10 +123,10 @@
         }
 
         /// <summary>
-        /// Toogle the current activity
+        /// Toggles the current activity.
         /// </summary>
-        /// <param name="activity">The activity to toogle</param>
-        /// <param name="action">The action to execute</param></param>
+        /// <param name="activity">The activity to toggle.</param>
+        /// <param name="action">The action to execute.</param>
         private static void ToogleActivity(Activity activity, Action action)
         {
             var current = Activity.Current;

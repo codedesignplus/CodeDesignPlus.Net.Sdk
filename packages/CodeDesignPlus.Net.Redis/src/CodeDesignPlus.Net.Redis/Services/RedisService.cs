@@ -1,52 +1,50 @@
 ﻿namespace CodeDesignPlus.Net.Redis.Services;
 
 /// <summary>
-/// The default IServiceProvider. 
+/// Provides Redis services.
 /// </summary>
 public class RedisService : IRedisService
 {
-    /// <summary>
-    /// A generic interface for logging
-    /// </summary>
     private readonly ILogger<RedisService> logger;
-    /// <summary>
-    /// Represents the abstract multiplexer API
-    /// </summary>
-    public IConnectionMultiplexer Connection { get; private set; }
-    /// <summary>
-    /// Describes functionality that is common to both standalone redis servers and redis clusters
-    /// </summary>
-    public IDatabaseAsync Database { get; private set; }
-    /// <summary>
-    /// A redis connection used as the subscriber in a pub/sub scenario
-    /// </summary>
-    public ISubscriber Subscriber { get; private set; }
-    /// <summary>
-    /// Indicates whether any servers are connected
-    /// </summary>
-    public bool IsConnected { get => this.Connection.IsConnected; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RedisService"/>
+    /// Gets the Redis connection multiplexer.
     /// </summary>
-    /// <param name="logger">A generic interface for logging</param>
-    /// <exception cref="ArgumentNullException">options is null</exception>
-    /// <exception cref="ArgumentNullException">logger is null</exception>
+    public IConnectionMultiplexer Connection { get; private set; }
+
+    /// <summary>
+    /// Gets the Redis database.
+    /// </summary>
+    public IDatabaseAsync Database { get; private set; }
+
+    /// <summary>
+    /// Gets the Redis subscriber.
+    /// </summary>
+    public ISubscriber Subscriber { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating whether the Redis connection is connected.
+    /// </summary>
+    public bool IsConnected => this.Connection.IsConnected;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="RedisService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger instance.</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="logger"/> is null.</exception>
     public RedisService(ILogger<RedisService> logger)
     {
         ArgumentNullException.ThrowIfNull(logger);
-
         this.logger = logger;
     }
 
     /// <summary>
-    /// Initiates a connection to the provided Redis instance.
+    /// Initializes the Redis service with the specified instance.
     /// </summary>
-    /// <param name="instance">Configuration details of the Redis instance to connect to.</param>
+    /// <param name="instance">The Redis instance configuration.</param>
     public void Initialize(Instance instance)
     {
         var configuration = instance.CreateConfiguration();
-
         ConfigureSslIfRequired(instance, configuration);
 
         this.Connection = ConnectionMultiplexer.Connect(configuration);
@@ -54,19 +52,16 @@ public class RedisService : IRedisService
         if (this.Connection.IsConnected)
         {
             this.RegisterEvents();
-
             this.Subscriber = this.Connection.GetSubscriber();
-
             this.Database = this.Connection.GetDatabase();
         }
     }
 
     /// <summary>
-    /// Configures the SSL settings if required based on the provided instance and configuration options.
+    /// Configures SSL if required for the Redis connection.
     /// </summary>
-    /// <param name="instance">The instance whose SSL settings need to be configured.</param>
-    /// <param name="configuration">The configuration options associated with the provided instance.</param>
-
+    /// <param name="instance">The Redis instance configuration.</param>
+    /// <param name="configuration">The Redis configuration options.</param>
     private static void ConfigureSslIfRequired(Instance instance, ConfigurationOptions configuration)
     {
         if (configuration.Ssl)
@@ -86,11 +81,11 @@ public class RedisService : IRedisService
     }
 
     /// <summary>
-    /// Selects the appropriate certificate based on provided details.
+    /// Selects the certificate for SSL.
     /// </summary>
     /// <param name="passwordCertificate">The password for the certificate.</param>
-    /// <param name="certificate">The certificate details.</param>
-    /// <returns>A <see cref="X509Certificate2"/> instance constructed based on provided details.</returns>   
+    /// <param name="certificate">The certificate path.</param>
+    /// <returns>The selected certificate.</returns>
     private static X509Certificate2 CertificateSelection(string passwordCertificate, string certificate)
     {
         if (!string.IsNullOrEmpty(passwordCertificate))
@@ -100,31 +95,25 @@ public class RedisService : IRedisService
     }
 
     /// <summary>
-    /// A RemoteCertificateValidationCallback delegate responsible for validating the
-    /// certificate supplied by the remote party; note that this cannot be specified
-    /// in the configuration-string.
+    /// Validates the SSL certificate.
     /// </summary>
-    /// <param name="chain">The chain of certificate authorities associated with the remote certificate.</param>
-    /// <param name="sslPolicyErrors">One or more errors associated with the remote certificate.</param>    
+    /// <param name="chain">The X509 chain.</param>
+    /// <param name="sslPolicyErrors">The SSL policy errors.</param>
     /// <param name="passwordCertificate">The password for the certificate.</param>
-    /// <param name="certificate">The certificate details.</param>
-    /// <returns>A System.Boolean value that determines whether the specified certificate is accepted for authentication.</returns>
+    /// <param name="certificate">The certificate path.</param>
+    /// <returns>True if the certificate is valid; otherwise, false.</returns>
     private static bool CertificateValidation(X509Chain chain, SslPolicyErrors sslPolicyErrors, string passwordCertificate, string certificate)
     {
         if (sslPolicyErrors == SslPolicyErrors.None)
             return true;
 
-        // Extraer el CA del certificado del servidor
         var serverCACertThumbprint = chain.ChainElements[^1].Certificate.Thumbprint;
 
-        // Carga todos los certificados del archivo PFX
         var clientCertCollection = new X509Certificate2Collection();
         clientCertCollection.Import(certificate, passwordCertificate, X509KeyStorageFlags.DefaultKeySet);
 
-        // Encuentra el certificado principal (el que tiene la clave privada, por lo general es el certificado del cliente)
         var clientCert = clientCertCollection.OfType<X509Certificate2>().FirstOrDefault(cert => cert.HasPrivateKey);
 
-        // Construye una cadena para el certificado del cliente utilizando un X509ChainPolicy para considerar todos los certificados en el archivo PFX
         var clientCertChain = new X509Chain();
         var chainPolicy = new X509ChainPolicy
         {
@@ -135,15 +124,13 @@ public class RedisService : IRedisService
         clientCertChain.ChainPolicy = chainPolicy;
         clientCertChain.Build(clientCert);
 
-        // Obten el thumbprint del CA del certificado del cliente
         var clientCACertThumbprint = clientCertChain.ChainElements[^1].Certificate.Thumbprint;
 
-        // Compara ambos thumbprints de los CA
         return serverCACertThumbprint == clientCACertThumbprint;
     }
 
     /// <summary>
-    /// Register event handlers 
+    /// Registers the Redis connection events.
     /// </summary>
     private void RegisterEvents()
     {
@@ -157,10 +144,10 @@ public class RedisService : IRedisService
     }
 
     /// <summary>
-    /// Raised whenever an internal error occurs (this is primarily for debugging)
+    /// Handles the internal error event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">Event information</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The event arguments.</param>
     private void InternalError(object sender, InternalErrorEventArgs args)
     {
         var data = new
@@ -170,14 +157,14 @@ public class RedisService : IRedisService
             args.Origin
         };
 
-        this.logger.LogCritical(args.Exception, "Internal Error - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogCritical(args.Exception, "Internal Error - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
-    /// Raised when a hash-slot has been relocated
+    /// Handles the hash slot moved event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">Event information</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The event arguments.</param>
     private void HashSlotMoved(object sender, HashSlotMovedEventArgs args)
     {
         var data = new
@@ -187,14 +174,14 @@ public class RedisService : IRedisService
             NewEndPoint = args.NewEndPoint.ToString()
         };
 
-        this.logger.LogWarning("Hash Slot Moved - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogWarning("Hash Slot Moved - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
-    /// A server replied with an error message;
+    /// Handles the error message event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">Event information</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The event arguments.</param>
     private void ErrorMessage(object sender, RedisErrorEventArgs args)
     {
         var data = new
@@ -203,14 +190,14 @@ public class RedisService : IRedisService
             args.Message
         };
 
-        this.logger.LogError("Error Message - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogError("Error Message - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
-    /// Raised whenever a physical connection is established
+    /// Handles the connection restored event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">Event information</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The event arguments.</param>
     private void ConnectionRestored(object sender, ConnectionFailedEventArgs args)
     {
         var data = new
@@ -221,14 +208,14 @@ public class RedisService : IRedisService
             physicalNameConnection = args.ToString()
         };
 
-        this.logger.LogInformation(args.Exception, "Connection Restored - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation(args.Exception, "Connection Restored - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
-    /// Raised whenever a physical connection fails
+    /// Handles the connection failed event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">Event information</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The event arguments.</param>
     private void ConnectionFailed(object sender, ConnectionFailedEventArgs args)
     {
         var data = new
@@ -239,14 +226,14 @@ public class RedisService : IRedisService
             physicalNameConnection = args.ToString()
         };
 
-        this.logger.LogInformation(args.Exception, "Connection Failed - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation(args.Exception, "Connection Failed - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
-    /// Raised when nodes are explicitly requested to reconfigure via broadcast; this usually means master/replica changes
+    /// Handles the configuration changed broadcast event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">Event information</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The event arguments.</param>
     private void ConfigurationChangedBroadcast(object sender, EndPointEventArgs args)
     {
         var data = new
@@ -254,14 +241,14 @@ public class RedisService : IRedisService
             EndPoint = args.EndPoint.ToString(),
         };
 
-        this.logger.LogInformation("Configuration Changed Broadcast - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation("Configuration Changed Broadcast - Data: {Data}", JsonSerializer.Serialize(data));
     }
 
     /// <summary>
-    /// Raised when configuration changes are detected
+    /// Handles the configuration changed event.
     /// </summary>
-    /// <param name="sender">The source of the event.</param>
-    /// <param name="args">Event information</param>
+    /// <param name="sender">The event sender.</param>
+    /// <param name="args">The event arguments.</param>
     private void ConfigurationChanged(object sender, EndPointEventArgs args)
     {
         var data = new
@@ -269,6 +256,6 @@ public class RedisService : IRedisService
             EndPoint = args.EndPoint.ToString(),
         };
 
-        this.logger.LogInformation("Configuration Changed - Data: {data}", JsonSerializer.Serialize(data));
+        this.logger.LogInformation("Configuration Changed - Data: {Data}", JsonSerializer.Serialize(data));
     }
 }

@@ -11,10 +11,10 @@ public class KafkaOptionsTest
         var options = new KafkaOptions()
         {
             BootstrapServers = "localhost:9092",
-            Acks = "all",
+            Acks = Confluent.Kafka.Acks.All ,
             BatchSize = 4096,
             LingerMs = 5,
-            CompressionType = "snappy",
+            CompressionType = Confluent.Kafka.CompressionType.Gzip ,
             NameMicroservice = "MicroserviceTest"
         };
 

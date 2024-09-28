@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Entities;
+﻿using System.Net;
+using CodeDesignPlus.Entities;
 using CodeDesignPlus.InMemory;
 using CodeDesignPlus.InMemory.Repositories;
 using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
@@ -6,14 +7,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CodeDesignPlus.Net.EFCore.Test.Repository;
 
-/// <summary>
-/// Unit tests to the RepositoryBase class
-/// </summary>
-public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassFixture<SqlServerContainer>
+[Collection(SqlCollectionFixture.Collection)]
+public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
 {
-    /// <summary>
-    /// Validate that an exception is thrown when the argument is null
-    /// </summary>
+    private readonly SqlServerContainer sqlServerContainer = sqlCollectionFixture.Container;
+
     [Fact]
     public void Constructor_ArgumentIsNull_ArgumentNullException()
     {
@@ -22,9 +20,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal("Value cannot be null. (Parameter 'context')", exception.Message);
     }
 
-    /// <summary>
-    /// Validate that the context can be obtained
-    /// </summary>
     [Fact]
     public void GetContext_CastContext()
     {
@@ -44,9 +39,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.IsType<CodeDesignPlusContextInMemory>(result);
     }
 
-    /// <summary>
-    /// Validate that the entity can be obtained
-    /// </summary>
     [Fact]
     public void GetEntity_EntityExist_NotNull()
     {
@@ -67,9 +59,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal(nameof(Application), dbset.EntityType.ClrType.Name);
     }
 
-    /// <summary>
-    /// Validate exception to be thrown when entity cannot be obtained
-    /// </summary>
     [Fact]
     public void GetEntity_EntityNotExist_Exception()
     {
@@ -93,9 +82,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal($"Cannot create a DbSet for '{nameof(FakeEntity)}' because this type is not included in the model for the context.", exception.Message);
     }
 
-    /// <summary>
-    /// Validate that an exception is generated when the entity is null
-    /// </summary>
     [Fact]
     public async Task CreateAsync_EntityIsNull_ArgumentNullException()
     {
@@ -114,9 +100,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal("Value cannot be null. (Parameter 'entity')", exception.Message);
     }
 
-    /// <summary>
-    /// Validate that the record id is generated
-    /// </summary>
     [Fact]
     public async Task CreateAsync_EntityIsNotNull_IdIsGreeaterThanZero()
     {
@@ -154,9 +137,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal(entity.CreatedAt, result.CreatedAt);
     }
 
-    /// <summary>
-    /// Validate exception to be thrown when entity is null
-    /// </summary>
     [Fact]
     public async Task UpdateAsync_EntityIsNull_ArgumentNullException()
     {
@@ -175,9 +155,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal("Value cannot be null. (Parameter 'entity')", exception.Message);
     }
 
-    /// <summary>
-    /// Validate that the record is updated based on the id and the new information assigned
-    /// </summary>
     [Fact]
     public async Task UpdateAsync_AssignUpdateInfo_Success()
     {
@@ -226,9 +203,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal(applicationCreated.CreatedAt, result.CreatedAt);
     }
 
-    /// <summary>
-    /// Validate that the exception is thrown when the entity is null
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_EntityIsNull_ArgumentNullException()
     {
@@ -247,9 +221,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal("Value cannot be null. (Parameter 'predicate')", exception.Message);
     }
 
-    /// <summary>
-    /// Validate that it returns false when the record does not exist
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_EntityNotExist_False()
     {
@@ -273,9 +244,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Null(result);
     }
 
-    /// <summary>
-    /// Validate that an entity can be removed and return true if the record exists
-    /// </summary>
     [Fact]
     public async Task DeleteAsync_EntityExist_True()
     {
@@ -308,9 +276,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Null(result);
     }
 
-    /// <summary>
-    /// Validate that a recordset cannot be created if the list is empty
-    /// </summary>
     [Fact]
     public async Task CraeteRangeAsync_ListEmpty_ReturnListEmpty()
     {
@@ -334,9 +299,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Empty(result);
     }
 
-    /// <summary>
-    /// Validate that a set of records can be created and the id is assigned
-    /// </summary>
     [Fact]
     public async Task CreateRangeAsync_ListWithData_ReturnListAndIds()
     {
@@ -383,9 +345,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal(entities[1].Id, result[1].Id);
     }
 
-    /// <summary>
-    /// Validate that false is returned when the list is empty
-    /// </summary>
     [Fact]
     public async Task UpdateRangeAsync_ListEmpty_ReturnFalse()
     {
@@ -409,9 +368,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Empty(result);
     }
 
-    /// <summary>
-    /// Validate that true is returned when the records assigned to the list are updated
-    /// </summary>
     [Fact]
     public async Task UpdateRangeAsync_AssignUpdateInfo_Success()
     {
@@ -476,9 +432,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         }
     }
 
-    /// <summary>
-    /// Validate that false is returned when the list is empty
-    /// </summary>
     [Fact]
     public async Task DeleteRangeAsync_ListEmpty_ReturnFalse()
     {
@@ -502,9 +455,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Empty(result);
     }
 
-    /// <summary>
-    /// Validate that true is returned when the records assigned to the list are deleted
-    /// </summary>
     [Fact]
     public async Task DeleteRangeAsync_EntityExist_True()
     {
@@ -554,9 +504,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Empty(result);
     }
 
-    /// <summary>
-    /// Validate that false is returned when the record does not exist
-    /// </summary>
     [Fact]
     public async Task ChangeStateAsync_EntityNotExist_ReturnFalse()
     {
@@ -579,9 +526,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Null(result);
     }
 
-    /// <summary>
-    /// Validate that true is returned when the record exists
-    /// </summary>
     [Fact]
     public async Task ChangeStateAsync_EntityExist_ReturnTrue()
     {
@@ -625,9 +569,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.False(result.IsActive);
     }
 
-    /// <summary>
-    /// Validate that multiple processes in the database are processed in a single transaction
-    /// </summary>
     [Fact]
     public async Task TransactionAsync_CommitedTransaction_ReturnResultDelegate()
     {
@@ -644,7 +585,7 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server={sqlServerContainer.Ip},{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
+        var connectionString = $"Server=localhost,{this.sqlServerContainer.Port};Database=temp1;User Id=sa;Password=Temporal1;Encrypt=True;TrustServerCertificate=True";
 
         var options = builder.UseSqlServer(connectionString, x =>
         {
@@ -653,8 +594,8 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
 
         var context = new CodeDesignPlusContextInMemory(options);
 
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
 
         var repository = new ApplicationRepository(context);
 
@@ -676,9 +617,6 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
         Assert.Equal(applicationCreated.IsActive, result.IsActive);
     }
 
-    /// <summary>
-    /// Validate that multiple processes in the database are rolled back in a single transaction
-    /// </summary>
     [Fact]
     public async Task TransactionAsync_RollbackTransaction_InvalidOperationException()
     {
@@ -695,7 +633,7 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
 
         var builder = new DbContextOptionsBuilder<CodeDesignPlusContextInMemory>();
 
-        var connectionString = $"Server={sqlServerContainer.Ip},{sqlServerContainer.Port};Database=codedesignplusdb;User Id=sa;Password=Temporal1;Encrypt=false;TrustServerCertificate=True";
+        var connectionString = $"Server=localhost,{sqlServerContainer.Port};Database=temp2;User Id=sa;Password=Temporal1;Encrypt=True;TrustServerCertificate=True";
 
         var options = builder.UseSqlServer(connectionString, x =>
         {
@@ -704,8 +642,8 @@ public class RepositoryBaseTest(SqlServerContainer sqlServerContainer) : IClassF
 
         var context = new CodeDesignPlusContextInMemory(options);
 
-        context.Database.EnsureDeleted();
-        context.Database.EnsureCreated();
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
 
         var repository = new ApplicationRepository(context);
 

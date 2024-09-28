@@ -1,5 +1,8 @@
 ﻿namespace CodeDesignPlus.Net.PubSub.Services;
 
+/// <summary>
+/// Provides a service to manage the event queue.
+/// </summary>
 public class EventQueueService : IEventQueueService
 {
     private readonly ConcurrentQueue<IDomainEvent> queue = new();
@@ -8,6 +11,13 @@ public class EventQueueService : IEventQueueService
     private readonly PubSubOptions options;
     private readonly IActivityService activityService;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EventQueueService"/> class.
+    /// </summary>
+    /// <param name="logger">The logger to manage the logs.</param>
+    /// <param name="options">The options for the PubSub service.</param>
+    /// <param name="message">The message service to publish events.</param>
+    /// <param name="activityService">The activity service to manage activities (optional).</param>
     public EventQueueService(ILogger<EventQueueService> logger, IOptions<PubSubOptions> options, IMessage message, IActivityService activityService = null)
     {
         ArgumentNullException.ThrowIfNull(logger);
@@ -22,6 +32,12 @@ public class EventQueueService : IEventQueueService
         this.logger.LogDebug("EventQueueService initialized.");
     }
 
+    /// <summary>
+    /// Enqueues an event to the queue.
+    /// </summary>
+    /// <param name="event">The event to enqueue.</param>
+    /// <param name="cancellationToken">A cancellation token used to propagate notifications that operations should be canceled.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public Task EnqueueAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(@event);
@@ -40,19 +56,24 @@ public class EventQueueService : IEventQueueService
 
             this.queue.Enqueue(@event);
 
-            this.logger.LogDebug("Event of type {name} enqueued.", @event.GetType().Name);
+            this.logger.LogDebug("Event of type {Name} enqueued.", @event.GetType().Name);
 
             activity?.SetStatus(ActivityStatusCode.Ok);
             activity?.Stop();
         }
         else
         {
-            this.logger.LogWarning("Event of type {name} was already in the queue. Skipping.", @event.GetType().Name);
+            this.logger.LogWarning("Event of type {Name} was already in the queue. Skipping.", @event.GetType().Name);
         }
 
         return Task.CompletedTask;
     }
 
+    /// <summary>
+    /// Dequeues events from the queue and processes them.
+    /// </summary>
+    /// <param name="token">A cancellation token used to propagate notifications that operations should be canceled.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
     public async Task DequeueAsync(CancellationToken token)
     {
         while (!token.IsCancellationRequested)
@@ -70,7 +91,6 @@ public class EventQueueService : IEventQueueService
                     activity?.AddTag("event.type", @event.GetType().Name);
                     activity?.AddTag("event.id", @event.EventId.ToString());
                     activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
-
 
                     await this.message.PublishAsync(@event, token).ConfigureAwait(false);
 

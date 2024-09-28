@@ -1,12 +1,12 @@
 ﻿namespace CodeDesignPlus.Net.Security.Exceptions;
 
 /// <summary>
-/// The exception that is thrown when an error occurs within CodeDesignPlus.Net.Security. 
+/// Represents errors that occur during security operations.
 /// </summary>
 public class SecurityException : Exception
 {
     /// <summary>
-    /// Contains the errors
+    /// Gets or sets the collection of error messages.
     /// </summary>
     public IEnumerable<string> Errors { get; set; }
 
@@ -18,16 +18,16 @@ public class SecurityException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SecurityException"/> class.
+    /// Initializes a new instance of the <see cref="SecurityException"/> class with a specified collection of error messages.
     /// </summary>
-    /// <param name="errors">The custom errors</param>
+    /// <param name="errors">The collection of error messages.</param>
     public SecurityException(IEnumerable<string> errors)
     {
         this.Errors = errors;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SecurityException"/> class.
+    /// Initializes a new instance of the <see cref="SecurityException"/> class with a specified error message.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     public SecurityException(string message) : base(message)
@@ -35,36 +35,30 @@ public class SecurityException : Exception
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SecurityException"/> class.
+    /// Initializes a new instance of the <see cref="SecurityException"/> class with a specified error message and a collection of error messages.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
-    /// <param name="errors">The custom errors</param>
+    /// <param name="errors">The collection of error messages.</param>
     public SecurityException(string message, IEnumerable<string> errors) : base(message)
     {
         this.Errors = errors;
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SecurityException"/> class.
+    /// Initializes a new instance of the <see cref="SecurityException"/> class with a specified error message and a reference to the inner exception that is the cause of this exception.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
-    /// <param name="innerException">
-    /// The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic)
-    /// if no inner exception is specified.
-    /// </param>
+    /// <param name="innerException">The exception that is the cause of the current exception.</param>
     public SecurityException(string message, Exception innerException) : base(message, innerException)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SecurityException"/> class.
+    /// Initializes a new instance of the <see cref="SecurityException"/> class with a specified error message, a collection of error messages, and a reference to the inner exception that is the cause of this exception.
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
-    /// <param name="errors">The custom errors</param>
-    /// <param name="innerException">
-    /// The exception that is the cause of the current exception, or a null reference (Nothing in Visual Basic)
-    /// if no inner exception is specified.
-    /// </param>
+    /// <param name="errors">The collection of error messages.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception.</param>
     public SecurityException(string message, IEnumerable<string> errors, Exception innerException) : base(message, innerException)
     {
         this.Errors = errors;

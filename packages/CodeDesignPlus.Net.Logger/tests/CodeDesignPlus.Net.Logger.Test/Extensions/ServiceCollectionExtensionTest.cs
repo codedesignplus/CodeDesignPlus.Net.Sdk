@@ -10,14 +10,17 @@ using Microsoft.Extensions.Options;
 using CodeDesignPlus.Net.Serializers;
 using Serilog.Events;
 using Serilog.Sinks.InMemory;
+using Xunit.Sdk;
 
 namespace CodeDesignPlus.Net.Logger.Test.Extensions;
 
-public class ServiceCollectionExtensionTest : IClassFixture<ObservabilityContainer>
+[Collection(ObservabilityCollectionFixture.Collection)]
+public class ServiceCollectionExtensionTest 
 {
-    public ServiceCollectionExtensionTest(ObservabilityContainer observabilityContainer)
+    public ServiceCollectionExtensionTest(ObservabilityCollectionFixture fixture)
     {
-        ArgumentNullException.ThrowIfNull(observabilityContainer);
+        if(!fixture.Container.IsRunning)
+            throw new TestClassException("The observability container is not running.");
     }
 
     [Fact]
@@ -174,8 +177,12 @@ public class ServiceCollectionExtensionTest : IClassFixture<ObservabilityContain
         Assert.NotNull(jsonResponse);
         Assert.Equal("success", jsonResponse.Status);
 
+        var result = jsonResponse.Data.Result.FirstOrDefault();
 
-        var jsonValues = jsonResponse.Data.Result.FirstOrDefault()!.Values.FirstOrDefault();
+        Assert.NotNull(result);
+        Assert.NotEmpty(result.Values);
+
+        var jsonValues = result.Values.FirstOrDefault();
 
         Assert.NotNull(jsonValues);
         var responseLog = JsonSerializer.Deserialize<LogEntry>(jsonValues.LastOrDefault()!);

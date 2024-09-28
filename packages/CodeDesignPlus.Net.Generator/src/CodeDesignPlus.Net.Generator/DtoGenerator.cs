@@ -1,5 +1,4 @@
-﻿
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,15 +10,27 @@ using CodeDesignPlus.Net.Generator.Core;
 
 namespace CodeDesignPlus.Net.Generator
 {
+    /// <summary>
+    /// Source generator for creating DTO classes.
+    /// </summary>
     [Generator]
     public class DtoGenerator : ISourceGenerator
     {
         private const string PATTERN = @"(Comman?d?s?)$";
+
+        /// <summary>
+        /// Initializes the generator.
+        /// </summary>
+        /// <param name="context">The generator initialization context.</param>
         public void Initialize(GeneratorInitializationContext context)
         {
             context.RegisterForSyntaxNotifications(() => new TargetTypeTracker());
         }
 
+        /// <summary>
+        /// Executes the generator.
+        /// </summary>
+        /// <param name="context">The generator execution context.</param>
         public void Execute(GeneratorExecutionContext context)
         {
             var applicationReference = context.Compilation.ReferencedAssemblyNames.FirstOrDefault(x => x.Name.Contains("Application"));
@@ -41,7 +52,12 @@ namespace CodeDesignPlus.Net.Generator
             GenerateDtos(context, commands);
         }
 
-        private void GenerateDtos(GeneratorExecutionContext context, List<INamedTypeSymbol> commands)
+        /// <summary>
+        /// Generates DTO classes for the specified commands.
+        /// </summary>
+        /// <param name="context">The generator execution context.</param>
+        /// <param name="commands">The list of commands to generate DTOs for.</param>
+        private static void GenerateDtos(GeneratorExecutionContext context, List<INamedTypeSymbol> commands)
         {
             var codeBuilder = new StringBuilder();
 
@@ -64,6 +80,11 @@ namespace CodeDesignPlus.Net.Generator
             }
         }
 
+        /// <summary>
+        /// Adds properties to the DTO class.
+        /// </summary>
+        /// <param name="codeBuilder">The code builder.</param>
+        /// <param name="command">The command symbol.</param>
         private static void AddProperties(StringBuilder codeBuilder, INamedTypeSymbol command)
         {
             var properties = command.GetMembers()
@@ -77,5 +98,4 @@ namespace CodeDesignPlus.Net.Generator
             }
         }
     }
-
 }

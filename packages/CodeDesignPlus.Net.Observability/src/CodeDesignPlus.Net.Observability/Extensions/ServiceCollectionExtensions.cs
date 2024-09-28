@@ -3,7 +3,6 @@ using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.Observability.Abstractions.Options;
 using CodeDesignPlus.Net.Observability.Exceptions;
 using Confluent.Kafka.Extensions.OpenTelemetry;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -15,8 +14,21 @@ using OpenTelemetry.Trace;
 
 namespace CodeDesignPlus.Net.Observability.Extensions;
 
+/// <summary>
+/// Provides extension methods for adding observability services to the service collection.
+/// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Adds observability services to the service collection.
+    /// </summary>
+    /// <param name="services">The service collection.</param>
+    /// <param name="configuration">The configuration.</param>
+    /// <param name="environment">The host environment.</param>
+    /// <param name="metricsBuilder">Optional metrics builder action.</param>
+    /// <param name="traceBuilder">Optional trace builder action.</param>
+    /// <returns>The OpenTelemetry builder.</returns>
+    /// <exception cref="ObservabilityException">Thrown when the observability section is missing in the configuration.</exception>
     public static IOpenTelemetryBuilder AddObservability(this IServiceCollection services, IConfiguration configuration, IHostEnvironment environment, Action<MeterProviderBuilder> metricsBuilder = null, Action<TracerProviderBuilder> traceBuilder = null)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -50,6 +62,13 @@ public static class ServiceCollectionExtensions
         return otel;
     }
 
+    /// <summary>
+    /// Configures metrics for OpenTelemetry.
+    /// </summary>
+    /// <param name="otel">The OpenTelemetry builder.</param>
+    /// <param name="environment">The host environment.</param>
+    /// <param name="observabilityOptions">The observability options.</param>
+    /// <param name="builder">Optional metrics builder action.</param>
     private static void ConfigureMetrics(this IOpenTelemetryBuilder otel, IHostEnvironment environment, ObservabilityOptions observabilityOptions, Action<MeterProviderBuilder> builder)
     {
         if (!observabilityOptions.Metrics.Enable)
@@ -72,12 +91,24 @@ public static class ServiceCollectionExtensions
         });
     }
 
+    /// <summary>
+    /// Adds ASP.NET Core instrumentation for metrics.
+    /// </summary>
+    /// <param name="metricsBuilder">The metrics builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
     private static void AddMetricsAspNetCoreInstrumentation(this MeterProviderBuilder metricsBuilder, bool enable)
     {
         if (enable)
             metricsBuilder.AddAspNetCoreInstrumentation();
     }
 
+    /// <summary>
+    /// Configures tracing for OpenTelemetry.
+    /// </summary>
+    /// <param name="otel">The OpenTelemetry builder.</param>
+    /// <param name="observabilityOptions">The observability options.</param>
+    /// <param name="environment">The host environment.</param>
+    /// <param name="builder">Optional trace builder action.</param>
     private static void ConfigureTracing(this IOpenTelemetryBuilder otel, ObservabilityOptions observabilityOptions, IHostEnvironment environment, Action<TracerProviderBuilder> builder)
     {
         if (!observabilityOptions.Trace.Enable)
@@ -105,6 +136,11 @@ public static class ServiceCollectionExtensions
         });
     }
 
+    /// <summary>
+    /// Adds ASP.NET Core instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
     private static void AddTraceAspNetCoreInstrumentation(this TracerProviderBuilder tracing, bool enable)
     {
         if (enable)
@@ -118,6 +154,11 @@ public static class ServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Adds gRPC client instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
     private static void AddTraceGrpcClientInstrumentation(this TracerProviderBuilder tracing, bool enable)
     {
         if (enable)
@@ -127,12 +168,22 @@ public static class ServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Adds SQL client instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
     private static void AddTraceSqlClientInstrumentation(this TracerProviderBuilder tracing, bool enable)
     {
         if (enable)
             tracing.AddSqlClientInstrumentation();
     }
 
+    /// <summary>
+    /// Adds CodeDesignPlus SDK instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
     private static void AddTraceCodeDesignPlusSdkInstrumentation(this TracerProviderBuilder tracing, bool enable)
     {
         if (enable)
@@ -142,12 +193,22 @@ public static class ServiceCollectionExtensions
         }
     }
 
+    /// <summary>
+    /// Adds Redis instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
     private static void AddTraceRedisInstrumentation(this TracerProviderBuilder tracing, bool enable)
     {
         if (enable)
             tracing.AddRedisInstrumentation();
     }
 
+    /// <summary>
+    /// Adds Kafka instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
     private static void AddTraceKafkaInstrumentation(this TracerProviderBuilder tracing, bool enable)
     {
         if (enable)

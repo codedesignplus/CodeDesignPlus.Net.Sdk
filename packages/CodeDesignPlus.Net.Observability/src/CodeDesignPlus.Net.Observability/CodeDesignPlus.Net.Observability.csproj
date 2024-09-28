@@ -5,17 +5,18 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<Authors>CodeDesignPlus</Authors>
-		<Description>{Description}</Description>
+				<Description>CodeDesignPlus.Net.Observability provides a comprehensive framework for monitoring and observability in .NET Core applications. This library simplifies the process of collecting, analyzing, and visualizing application metrics and logs, enabling developers to build robust and maintainable observability solutions.</Description>
 		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
 		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageId>CodeDesignPlus.Net.Observability</PackageId>
 		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Observability.git</PackageProjectUrl>
-		<PackageTags>{tags}</PackageTags>
+		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
+		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
 		<Version>$(Version)</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Observability.xml</DocumentationFile>
@@ -37,11 +38,11 @@
 		</None>
 		<None Include="..\..\README.md">
 			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
+			<PackagePath></PackagePath>
 		</None>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.3.0" />
+		<PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.4.0" />
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
 		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
 		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
@@ -50,6 +51,6 @@
 		<PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.9.0-beta.1" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
 		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.9.0-beta.1" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.0.0-rc9.13" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.9.0-beta.1" />
 	</ItemGroup>
 </Project>

@@ -10,7 +10,7 @@ public static class CriteriaExtensions
     /// </summary>
     /// <typeparam name="T">The type of the object being filtered.</typeparam>
     /// <param name="criteria">The criteria object.</param>
-    /// <returns>The filter expression as an <see cref="Expression{Func{T, bool}}"/>.</returns>
+    /// <return>Return the filter expression.</return>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="criteria"/> is null.</exception>
     public static Expression<Func<T, bool>> GetFilterExpression<T>(this MC.Criteria criteria)
     {
@@ -31,7 +31,7 @@ public static class CriteriaExtensions
     /// </summary>
     /// <typeparam name="T">The type of the object being sorted.</typeparam>
     /// <param name="criteria">The criteria object.</param>
-    /// <returns>The sort by expression as an <see cref="Expression{Func{T, object}}"/>.</returns>
+    /// <returns>The sort by expression.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the <paramref name="criteria"/> is null.</exception>
     public static Expression<Func<T, object>> GetSortByExpression<T>(this MC.Criteria criteria)
     {
