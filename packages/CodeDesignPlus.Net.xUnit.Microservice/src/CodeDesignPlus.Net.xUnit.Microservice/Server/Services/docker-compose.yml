@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "0:5672"   
+      - "0:15672"
+  
+  redis:
+    image: redis:latest
+    ports:
+      - "0:6379"
+
+  mongo:
+    image: mongo:latest
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--noauth"]
+    ports:
+      - 0:27017
+    environment:
+      MONGO_INITDB_DATABASE: db_archetype
+    healthcheck:
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      start_interval: 1s
+      retries: 30
+    volumes:
+      - "mongo_data:/data/db"
+      - "mongo_config:/data/configdb"
+
+  otel-collector:
+    image: otel/opentelemetry-collector
+    ports:
+      - "0:4317"
+      - "0:4318"
+    volumes:
+      - ./collector-config.yml:/etc/otelcol/config.yaml
+    restart: always
+
+
+volumes:
+  mongo_data:
+  mongo_config:
