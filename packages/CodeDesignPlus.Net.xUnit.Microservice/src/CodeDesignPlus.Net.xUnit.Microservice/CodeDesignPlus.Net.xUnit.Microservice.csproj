@@ -68,8 +68,8 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Server\Services\docker-compose.yml" Pack="true" PackagePath="content" />
-		<None Include="Server\Services\collector-config.yml" Pack="true" PackagePath="content" />
-	</ItemGroup>
+		<None Include="Server\Services\docker-compose.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true"  />
+		<None Include="Server\Services\collector-config.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true" />
+	</ItemGroup>\
 
 </Project>
