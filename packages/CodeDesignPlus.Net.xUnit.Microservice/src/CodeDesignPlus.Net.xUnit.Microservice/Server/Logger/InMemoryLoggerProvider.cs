@@ -8,7 +8,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Server.Logger;
 public class InMemoryLoggerProvider : ILoggerProvider
 {
     private readonly ConcurrentDictionary<string, InMemoryLogger> loggers = new();
-    
+
     /// <summary>
     /// Gets the collection of in-memory loggers.
     /// </summary>

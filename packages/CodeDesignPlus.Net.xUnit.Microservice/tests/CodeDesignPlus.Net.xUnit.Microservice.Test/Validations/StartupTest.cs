@@ -1,8 +1,4 @@
-
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.xUnit.Microservice.Validations.Startup;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations.Startup;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations;
 
 /// <summary>
 /// A class for validating startup services.

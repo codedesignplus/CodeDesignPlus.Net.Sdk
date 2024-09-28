@@ -1,0 +1,6 @@
+@CodeDesignPlus.Net.xUnit.Microservice.Api_HostAddress = http://localhost:5188
+
+GET {{CodeDesignPlus.Net.xUnit.Microservice.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

@@ -12,7 +12,7 @@ public class InMemoryLoggerFactory(InMemoryLoggerProvider provider) : ILoggerFac
     /// <param name="provider">The logger provider to add.</param>
     public void AddProvider(ILoggerProvider provider)
     {
-        
+
     }
 
     /// <summary>

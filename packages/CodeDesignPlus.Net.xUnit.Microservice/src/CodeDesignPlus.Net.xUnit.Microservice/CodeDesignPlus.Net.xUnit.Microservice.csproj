@@ -30,6 +30,7 @@
 		<PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit.extensibility.core" Version="2.5.1" />
+		<PackageReference Include="MediatR" Version="12.2.0" />
 
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +59,12 @@
     <Folder Include="EntryPoints\Rest\" />
     <Folder Include="Server\Authentication\" />
     <Folder Include="Server\Logger\" />
-    <Folder Include="Server\Services\" />
   </ItemGroup>
+  
+	<ItemGroup>
+		<None Update="Server\Services\*.yml">
+			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
+
 </Project>

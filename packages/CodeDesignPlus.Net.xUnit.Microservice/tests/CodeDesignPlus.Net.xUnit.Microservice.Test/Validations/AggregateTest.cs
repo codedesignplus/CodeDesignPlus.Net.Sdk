@@ -1,8 +1,4 @@
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.xUnit.Microservice.Validations.Aggregate;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations.Aggregate;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations;
 
 /// <summary>
 /// A class for validating aggregates.

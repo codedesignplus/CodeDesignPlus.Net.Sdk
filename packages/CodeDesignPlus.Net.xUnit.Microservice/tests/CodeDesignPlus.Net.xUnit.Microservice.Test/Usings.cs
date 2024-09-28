@@ -1,8 +1,10 @@
-﻿global using System.Text;
+﻿global using CodeDesignPlus.Net.Core.Abstractions;
+global using CodeDesignPlus.Net.xUnit.Microservice.Attributes;
+global using CodeDesignPlus.Net.xUnit.Microservice.Utils.Logger;
+global using CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
 global using Microsoft.Extensions.Configuration;
-global using Microsoft.Extensions.Configuration.Json;
-global using Microsoft.Extensions.Configuration.Memory;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;
-global using Microsoft.Extensions.Options;
+global using Moq;
+global using System.Reflection;
 global using Xunit;

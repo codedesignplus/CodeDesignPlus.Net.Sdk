@@ -1,11 +1,9 @@
-﻿using CodeDesignPlus.Net.xUnit.Microservice.Server.Logger;
+﻿using CodeDesignPlus.Net.xUnit.Microservice.Server.Authentication;
+using CodeDesignPlus.Net.xUnit.Microservice.Server.Logger;
 using CodeDesignPlus.Net.xUnit.Microservice.Server.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using CodeDesignPlus.Net.xUnit.Microservice.Server.Authentication;
 
 namespace CodeDesignPlus.Net.xUnit.Microservice.Server;
 
@@ -83,8 +81,4 @@ public class Server<TProgram> : WebApplicationFactory<TProgram> where TProgram :
         services.AddSingleton(this.LoggerProvider);
         services.AddSingleton<ILoggerFactory, InMemoryLoggerFactory>();
     }
-
-
-
-    
 }

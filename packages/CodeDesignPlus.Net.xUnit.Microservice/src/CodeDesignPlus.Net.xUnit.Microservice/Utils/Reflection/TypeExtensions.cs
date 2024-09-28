@@ -1,5 +1,3 @@
-using System.Reflection;
-
 namespace CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
 
 /// <summary>
@@ -7,7 +5,6 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
 /// </summary>
 public static class TypeExtensions
 {
-
     private static readonly Dictionary<Type, Func<object>> defaultValues = new()
     {
         { typeof(string), () => "Test" },

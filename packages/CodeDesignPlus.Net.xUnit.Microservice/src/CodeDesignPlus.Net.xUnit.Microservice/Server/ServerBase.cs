@@ -1,7 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
-using Grpc.Net.Client;
 using CodeDesignPlus.Net.xUnit.Microservice.Server.Logger;
-using Xunit;
+using Grpc.Net.Client;
 
 namespace CodeDesignPlus.Net.xUnit.Microservice.Server;
 /// <summary>

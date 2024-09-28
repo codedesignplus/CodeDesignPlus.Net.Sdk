@@ -1,8 +1,6 @@
-using CodeDesignPlus.Net.Core.Abstractions;
-
 namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
 
-public class ClientEntity: IEntity
+public class ClientEntity : IEntity
 {
     public Guid Id { get; set; }
     public required string Name { get; set; }

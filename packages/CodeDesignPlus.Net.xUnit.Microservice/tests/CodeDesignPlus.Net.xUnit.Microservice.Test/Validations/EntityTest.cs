@@ -1,7 +1,4 @@
-using CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
-using CodeDesignPlus.Net.xUnit.Microservice.Validations.Entities;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations.Entities;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations;
 
 /// <summary>
 /// A class for validating entities.

@@ -1,11 +1,4 @@
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Xunit;
-using Xunit.Sdk;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Validations.Startup;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 
 /// <summary>
 /// A custom attribute for providing data to test methods that validate startup services.

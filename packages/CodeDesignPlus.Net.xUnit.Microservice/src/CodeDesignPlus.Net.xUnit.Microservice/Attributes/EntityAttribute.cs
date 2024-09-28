@@ -1,9 +1,4 @@
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
-using Xunit.Sdk;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Validations.Entities;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 
 /// <summary>
 /// A custom attribute for providing data to test methods that validate entities.
@@ -26,7 +21,7 @@ public class EntityAttribute : DataAttribute
         foreach (var entity in entities)
         {
             var instance = Activator.CreateInstance(entity);
-            
+
             entity.SetValueProperties(instance);
 
             yield return new object[] { entity, instance };

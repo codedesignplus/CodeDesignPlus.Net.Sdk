@@ -1,8 +1,4 @@
-using CodeDesignPlus.Net.Core.Abstractions;
-using System.Reflection;
-using Xunit.Sdk;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Validations.Errors;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 
 /// <summary>
 /// A custom attribute for providing data to test methods that validate error formats.
@@ -16,11 +12,11 @@ public class ErrorsAttribute : DataAttribute
     /// <returns>An enumerable of object arrays representing the data for the test method.</returns>
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
-         var errorClasses = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => !x.FullName.StartsWith("Castle"))
-            .Where(x => typeof(IErrorCodes).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract)
-            .ToList();
+        var errorClasses = AppDomain.CurrentDomain.GetAssemblies()
+           .SelectMany(x => x.GetTypes())
+           .Where(x => !x.FullName.StartsWith("Castle"))
+           .Where(x => typeof(IErrorCodes).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract)
+           .ToList();
 
         foreach (var errorClass in errorClasses)
         {
@@ -31,7 +27,7 @@ public class ErrorsAttribute : DataAttribute
             foreach (var error in errors)
             {
                 var value = error.GetValue(null);
-                
+
                 yield return new object[] { error, value };
             }
         }

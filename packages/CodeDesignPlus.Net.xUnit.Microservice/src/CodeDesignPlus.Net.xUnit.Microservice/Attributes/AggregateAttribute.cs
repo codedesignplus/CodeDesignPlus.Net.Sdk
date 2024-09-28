@@ -1,11 +1,4 @@
-using System;
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Exceptions;
-using CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
-using Xunit.Sdk;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Validations.Aggregate;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 
 /// <summary>
 /// A custom attribute for providing data to test methods that validate aggregates.

@@ -1,9 +1,4 @@
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
-using CodeDesignPlus.Net.xUnit.Microservice.Validations.DomainEvents;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations.DomainEvents;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Validations;
 
 /// <summary>
 /// A class for validating domain events.
@@ -36,6 +31,7 @@ public class DomainEventTest
     public void DomainEvent_CreateMethod_ShouldCreateInstanceWithCustomValues(Type domainEvent, object instance, Dictionary<ParameterInfo, object> values)
     {
         // Assert
+        Assert.NotEmpty(values);
         Assert.NotNull(instance);
 
         var property = domainEvent.GetProperty(nameof(DomainEvent.AggregateId));

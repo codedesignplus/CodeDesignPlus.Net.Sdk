@@ -1,10 +1,4 @@
-using System.Reflection;
-using CodeDesignPlus.Net.Core.Abstractions;
-using CodeDesignPlus.Net.Core.Exceptions;
-using CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
-using Xunit.Sdk;
-
-namespace CodeDesignPlus.Net.xUnit.Microservice.Validations.DomainEvents;
+namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 
 /// <summary>
 /// A custom attribute for providing data to test methods that validate domain events.
@@ -36,7 +30,7 @@ public class DomainEventAttribute(bool useCreateMethod) : DataAttribute
 
                 if (nameConstructor is null)
                     throw new CoreException($"The {domainEvent.Name} class does not have a static Create method.");
-                    
+
                 values = nameConstructor.GetParameters().GetParameterValues();
                 instance = nameConstructor.Invoke(null, [.. values.Values]);
             }

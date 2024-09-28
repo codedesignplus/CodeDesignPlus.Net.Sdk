@@ -1,8 +1,6 @@
-using CodeDesignPlus.Net.Core.Abstractions;
-
 namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
 
-public class Errors: IErrorCodes
+public class Errors : IErrorCodes
 {
     public const string IdOrderIsInvalid = "100 : Id is invalid.";
     public const string TenantIsInvalid = "101 : Tenant is invalid.";

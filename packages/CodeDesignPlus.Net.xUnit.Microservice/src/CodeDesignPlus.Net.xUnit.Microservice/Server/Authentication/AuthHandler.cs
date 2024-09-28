@@ -11,7 +11,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Server.Authentication;
 /// <param name="options">The options monitor for authentication scheme options.</param>
 /// <param name="logger">The logger factory.</param>
 /// <param name="encoder">The URL encoder.</param>
-public class AuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder) 
+public class AuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, ILoggerFactory logger, UrlEncoder encoder)
     : AuthenticationHandler<AuthenticationSchemeOptions>(options, logger, encoder)
 {
     /// <summary>
@@ -34,7 +34,7 @@ public class AuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, I
             new Claim(Claims.ClaimTypes.State, "Mexico"),
             new Claim(Claims.ClaimTypes.JobTitle, "Developer"),
         };
-        
+
         var identity = new ClaimsIdentity(claims, "TestAuthType");
         var principal = new ClaimsPrincipal(identity);
         var ticket = new AuthenticationTicket(principal, "TestAuthType");

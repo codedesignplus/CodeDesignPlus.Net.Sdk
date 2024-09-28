@@ -1,5 +1,3 @@
-using CodeDesignPlus.Net.Core.Abstractions;
-
 namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
 
 public class OrderCreatedDomainEvent(

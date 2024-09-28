@@ -26,5 +26,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.xUnit.Microservice\CodeDesignPlus.Net.xUnit.Microservice.csproj" />
+    <ProjectReference Include="..\CodeDesignPlus.Net.xUnit.Microservice.Api\CodeDesignPlus.Net.xUnit.Microservice.Api.csproj" />
   </ItemGroup>
 </Project>
