@@ -15,4 +15,8 @@
         <SonarQubeExclude>true</SonarQubeExclude>
       </Compile>
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\CodeDesignPlus.Net.Microservice.Domain\CodeDesignPlus.Net.Microservice.Domain.csproj" />
+  </ItemGroup>
 </Project>

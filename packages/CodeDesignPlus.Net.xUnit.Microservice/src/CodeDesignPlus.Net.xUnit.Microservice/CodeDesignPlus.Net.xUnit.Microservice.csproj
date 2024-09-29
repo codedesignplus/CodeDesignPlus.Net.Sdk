@@ -31,10 +31,11 @@
 		<PackageReference Include="Moq" Version="4.20.72" />
 		<PackageReference Include="xunit.extensibility.core" Version="2.5.1" />
 		<PackageReference Include="MediatR" Version="12.2.0" />
+		<PackageReference Include="CodeDesignPlus.Net.Security" Version="0.2.0-alpha.11" />
 
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
+		<!-- <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" /> -->
 	</ItemGroup>
 	<ItemGroup>
 		<None Include="..\..\LICENSE.md">

@@ -9,7 +9,7 @@ public class DataTransferObjectTests
     /// Validates that DTOs can be created and their properties can be set and retrieved correctly.
     /// </summary>
     [Theory]
-    [DataTransferObject]
+    [DataTransferObject<Startup>]
     public void Dtos_GetAndSet_Success(Type dto, object instance)
     {
         // Assert

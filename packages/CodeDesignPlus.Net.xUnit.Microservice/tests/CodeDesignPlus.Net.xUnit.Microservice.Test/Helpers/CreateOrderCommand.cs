@@ -1,4 +1,5 @@
 using MediatR;
+using CodeDesignPlus.Net.Microservice.Domain.Entities;
 
 namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
 

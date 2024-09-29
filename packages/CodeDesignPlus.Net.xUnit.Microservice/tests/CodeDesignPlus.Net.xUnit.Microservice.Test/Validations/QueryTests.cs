@@ -9,7 +9,7 @@ public class QueriesTests
     /// Validates that queries can be created and their properties can be set and retrieved correctly.
     /// </summary>
     [Theory]
-    [Query]
+    [Query<Startup>]
     public void Queries_GetAndSet_Success(Type query, object instance, Dictionary<ParameterInfo, object> values)
     {
         // Assert

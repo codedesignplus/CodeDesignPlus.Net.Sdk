@@ -3,8 +3,9 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// <summary>
 /// A custom attribute for providing data to test methods that validate domain events.
 /// </summary>
+/// <typeparam name="TAssemblyScan">The type of the assembly to scan for domain events.</typeparam>
 /// <param name="useCreateMethod">Indicates whether to use the static Create method or the constructor to create instances of domain events.</param>
-public class DomainEventAttribute(bool useCreateMethod) : DataAttribute
+public class DomainEventAttribute<TAssemblyScan>(bool useCreateMethod) : DataAttribute
 {
     /// <summary>
     /// Gets the data for the test method.

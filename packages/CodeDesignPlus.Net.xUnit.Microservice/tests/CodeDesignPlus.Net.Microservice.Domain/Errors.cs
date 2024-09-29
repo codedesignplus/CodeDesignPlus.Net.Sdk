@@ -1,4 +1,6 @@
-namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
+using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.Microservice.Domain;
 
 public class Errors : IErrorCodes
 {

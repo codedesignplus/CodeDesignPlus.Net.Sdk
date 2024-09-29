@@ -3,7 +3,8 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// <summary>
 /// A custom attribute for providing data to test methods that validate error formats.
 /// </summary>
-public class ErrorsAttribute : DataAttribute
+/// <typeparam name="TAssemblyScan">The type of the assembly to scan for errors.</typeparam>
+public class ErrorsAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
     /// Gets the data for the test method.
