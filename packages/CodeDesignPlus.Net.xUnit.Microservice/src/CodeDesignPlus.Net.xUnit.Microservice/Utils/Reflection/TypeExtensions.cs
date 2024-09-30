@@ -96,7 +96,9 @@ public static class TypeExtensions
             }
             else if (property.PropertyType.IsEnum)
             {
-                property.SetValue(instance, Enum.GetValues(property.PropertyType).GetValue(0)!);
+                var items = Enum.GetValues(property.PropertyType);
+
+                property.SetValue(instance,items.GetValue(items.Length - 1)!);
             }
             else if (property.PropertyType.IsClass && !property.PropertyType.IsAbstract)
             {
