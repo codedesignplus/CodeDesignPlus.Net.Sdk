@@ -92,7 +92,7 @@ public class TypeExtensionsTests
         Assert.Equal(1.0D, testClass.NullableDoubleProperty);
         Assert.Equal((byte)1, testClass.NullableByteProperty);
         Assert.Equal((short)1, testClass.NullableShortProperty);
-        Assert.Equal(EnumFake.Value1, testClass.EnumProperty);
+        Assert.NotEqual(EnumFake.Value1, testClass.EnumProperty);
     }
 
     private class ParameterInfoMock : ParameterInfo

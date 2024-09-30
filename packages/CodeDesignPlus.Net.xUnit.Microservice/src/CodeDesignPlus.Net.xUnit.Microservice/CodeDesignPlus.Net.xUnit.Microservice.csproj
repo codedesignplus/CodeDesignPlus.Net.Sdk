@@ -29,9 +29,9 @@
 		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
 		<PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
 		<PackageReference Include="Moq" Version="4.20.72" />
-		<PackageReference Include="xunit.extensibility.core" Version="2.5.1" />
-		<PackageReference Include="MediatR" Version="12.2.0" />
-		<PackageReference Include="CodeDesignPlus.Net.Security" Version="0.2.0-alpha.11" />
+		<PackageReference Include="xunit.extensibility.core" Version="2.9.2" />
+		<PackageReference Include="MediatR" Version="12.4.1" />
+		<PackageReference Include="CodeDesignPlus.Net.Security" Version="0.2.0-alpha.15" />
 
 	</ItemGroup>
 	<ItemGroup>
@@ -69,7 +69,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="Server\Services\docker-compose.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true"  />
+		<None Include="Server\Services\docker-compose.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true" />
 		<None Include="Server\Services\collector-config.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true" />
 	</ItemGroup>
 
