@@ -3,7 +3,8 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// <summary>
 /// A custom attribute for providing data to test methods that validate queries.
 /// </summary>
-public class QueryAttribute : DataAttribute
+/// <typeparam name="TAssemblyScan">The type of the assembly to scan for queries.</typeparam>
+public class QueryAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
     /// Gets the data for the test method.

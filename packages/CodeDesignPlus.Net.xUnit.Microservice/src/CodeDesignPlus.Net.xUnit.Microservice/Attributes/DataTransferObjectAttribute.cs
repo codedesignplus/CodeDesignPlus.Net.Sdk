@@ -3,7 +3,8 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// <summary>
 /// A custom attribute for providing data to test methods that validate data transfer objects (DTOs).
 /// </summary>
-public class DataTransferObjectAttribute : DataAttribute
+/// <typeparam name="TAssemblyScan">The type of the assembly to scan for DTOs.</typeparam>
+public class DataTransferObjectAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
     /// Gets the data for the test method.

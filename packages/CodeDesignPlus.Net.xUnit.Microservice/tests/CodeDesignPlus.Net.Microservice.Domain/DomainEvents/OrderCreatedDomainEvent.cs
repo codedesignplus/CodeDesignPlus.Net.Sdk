@@ -1,4 +1,7 @@
-namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
+using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Microservice.Domain.Entities;
+
+namespace CodeDesignPlus.Net.Microservice.Domain.DomainEvents;
 
 public class OrderCreatedDomainEvent(
    Guid aggregateId,

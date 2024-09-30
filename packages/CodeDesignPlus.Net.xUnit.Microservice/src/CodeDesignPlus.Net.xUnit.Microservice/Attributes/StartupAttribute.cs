@@ -3,7 +3,8 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// <summary>
 /// A custom attribute for providing data to test methods that validate startup services.
 /// </summary>
-public class StartupValidationAttribute : DataAttribute
+/// <typeparam name="TAssemblyScan">The type of the assembly to scan for startup services.</typeparam>
+public class StartupAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
     /// Gets the data for the test method.

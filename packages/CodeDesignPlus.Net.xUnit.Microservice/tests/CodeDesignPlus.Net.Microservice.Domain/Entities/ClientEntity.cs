@@ -1,4 +1,8 @@
-namespace CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
+using System;
+using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.Microservice.Domain.Entities;
+
 
 public class ClientEntity : IEntity
 {

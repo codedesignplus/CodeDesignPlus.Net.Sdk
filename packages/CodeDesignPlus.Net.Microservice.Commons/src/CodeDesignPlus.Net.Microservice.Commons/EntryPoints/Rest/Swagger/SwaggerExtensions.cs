@@ -1,4 +1,3 @@
-using System.Reflection;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Core.Exceptions;
 using Microsoft.AspNetCore.Builder;
@@ -17,10 +16,11 @@ public static class SwaggerExtensions
     /// <summary>
     /// Adds and configures Swagger in the service container.
     /// </summary>
+    /// <typeparam name="TProgram">The type of the program class.</typeparam>
     /// <param name="services">The service container.</param>
     /// <param name="configuration">The configuration settings.</param>
     /// <returns>The service container with Swagger configured.</returns>
-    public static IServiceCollection AddCoreSwagger(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddCoreSwagger<TProgram>(this IServiceCollection services, IConfiguration configuration) where TProgram : class
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -49,7 +49,7 @@ public static class SwaggerExtensions
         {
             x.SwaggerDoc(coreOptions.Version, info);
 
-            var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            var xmlFile = $"{typeof(TProgram).Assembly.GetName().Name}.xml";
 
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 

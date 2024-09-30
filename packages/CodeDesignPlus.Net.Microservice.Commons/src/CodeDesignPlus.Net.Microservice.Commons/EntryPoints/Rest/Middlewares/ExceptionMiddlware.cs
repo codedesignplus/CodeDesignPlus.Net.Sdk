@@ -1,4 +1,3 @@
-using System;
 using System.Net;
 using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.Exceptions.Models;

@@ -9,7 +9,7 @@ public class AggregateTest
     /// Validates that aggregates can be created using the constructor and their properties can be set and retrieved correctly.
     /// </summary>
     [Theory]
-    [Aggregate(false)]
+    [Aggregate<Errors>(false)]
     public void Aggregate_Constructor_ShouldSetAndRetrievePropertiesCorrectly(Type aggregate, object instance, Dictionary<ParameterInfo, object> values)
     {
         // Assert
@@ -24,7 +24,7 @@ public class AggregateTest
     /// Validates that aggregates can be created using the named constructor with custom values.
     /// </summary>
     [Theory]
-    [Aggregate(true)]
+    [Aggregate<Errors>(true)]
     public void Aggregate_CreateMethod_ShouldCreateInstanceWithCustomValues(Type aggregate, object instance, Dictionary<ParameterInfo, object> values)
     {
         // Assert

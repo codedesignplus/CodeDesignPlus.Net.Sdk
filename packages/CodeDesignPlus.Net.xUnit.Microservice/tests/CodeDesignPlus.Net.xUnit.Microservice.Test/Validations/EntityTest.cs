@@ -9,7 +9,7 @@ public class EntityTest
     /// Validates that entities can be created and their properties can be set and retrieved correctly.
     /// </summary>
     [Theory]
-    [Entity]
+    [Entity<Errors>]
     public void Entity_Properties_ShouldBeSetAndRetrievedCorrectly(Type entity, object instance)
     {
         // Assert

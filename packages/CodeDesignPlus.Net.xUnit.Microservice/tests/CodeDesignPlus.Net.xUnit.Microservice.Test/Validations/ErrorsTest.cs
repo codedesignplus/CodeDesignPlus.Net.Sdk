@@ -9,7 +9,7 @@ public class ErrorTests
     /// Validates that error messages follow the correct format.
     /// </summary>
     [Theory]
-    [Errors]
+    [Errors<Errors>]
     public void Errors_CheckFormat_Success(FieldInfo error, object value)
     {
         // Assert

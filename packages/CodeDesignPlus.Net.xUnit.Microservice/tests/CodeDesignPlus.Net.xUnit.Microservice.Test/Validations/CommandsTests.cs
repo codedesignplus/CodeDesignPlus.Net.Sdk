@@ -9,7 +9,7 @@ public class CommandsTests
     /// Validates that commands can be created and their properties can be set and retrieved correctly.
     /// </summary>
     [Theory]
-    [Command]
+    [Command<Startup>]
     public void Commands_GetAndSet_Success(Type command, object instance, Dictionary<ParameterInfo, object> values)
     {
         // Assert

@@ -9,7 +9,7 @@ public class DomainEventTest
     /// Validates that domain events can be created using the constructor and their properties can be set and retrieved correctly.
     /// </summary>
     [Theory]
-    [DomainEvent(false)]
+    [DomainEvent<Errors>(false)]
     public void DomainEvent_Constructor_ShouldSetAndRetrievePropertiesCorrectly(Type domainEvent, object instance, Dictionary<ParameterInfo, object> data)
     {
         // Assert
@@ -27,7 +27,7 @@ public class DomainEventTest
     /// Validates that domain events can be created using the named constructor with custom values.
     /// </summary>
     [Theory]
-    [DomainEvent(true)]
+    [DomainEvent<Errors>(true)]
     public void DomainEvent_CreateMethod_ShouldCreateInstanceWithCustomValues(Type domainEvent, object instance, Dictionary<ParameterInfo, object> values)
     {
         // Assert
