@@ -4,6 +4,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// A custom attribute for providing data to test methods that validate commands.
 /// </summary>
 /// <typeparam name="TAssemblyScan">The type of the assembly to scan for commands.</typeparam>
+[AttributeUsage(AttributeTargets.Method)]
 public class CommandAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
@@ -13,9 +14,9 @@ public class CommandAttribute<TAssemblyScan> : DataAttribute
     /// <returns>An enumerable of object arrays representing the data for the test method.</returns>
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
-        var commands = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => !x.FullName.StartsWith("Castle"))
+        var commands = typeof(TAssemblyScan).Assembly
+            .GetTypes()
+            .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
             .Where(x => typeof(IRequest).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
             .ToList();
 

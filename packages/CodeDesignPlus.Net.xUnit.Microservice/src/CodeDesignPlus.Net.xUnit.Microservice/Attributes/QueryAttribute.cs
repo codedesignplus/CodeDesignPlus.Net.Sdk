@@ -4,6 +4,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// A custom attribute for providing data to test methods that validate queries.
 /// </summary>
 /// <typeparam name="TAssemblyScan">The type of the assembly to scan for queries.</typeparam>
+[AttributeUsage(AttributeTargets.Method)]
 public class QueryAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
@@ -13,10 +14,10 @@ public class QueryAttribute<TAssemblyScan> : DataAttribute
     /// <returns>An enumerable of object arrays representing the data for the test method.</returns>
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
-        var queries = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => !x.FullName.StartsWith("Castle"))
-            .Where(x => x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequest<>)) && !x.IsInterface && !x.IsAbstract)
+        var queries = typeof(TAssemblyScan).Assembly
+            .GetTypes()
+            .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
+            .Where(x => x.GetInterfaces().ToList().Exists(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IRequest<>)) && !x.IsInterface && !x.IsAbstract)
             .ToList();
 
         foreach (var query in queries)

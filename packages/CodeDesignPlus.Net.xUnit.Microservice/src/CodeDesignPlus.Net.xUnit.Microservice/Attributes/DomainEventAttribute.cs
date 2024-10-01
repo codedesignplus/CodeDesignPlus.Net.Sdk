@@ -5,6 +5,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// </summary>
 /// <typeparam name="TAssemblyScan">The type of the assembly to scan for domain events.</typeparam>
 /// <param name="useCreateMethod">Indicates whether to use the static Create method or the constructor to create instances of domain events.</param>
+[AttributeUsage(AttributeTargets.Method)]
 public class DomainEventAttribute<TAssemblyScan>(bool useCreateMethod) : DataAttribute
 {
     /// <summary>
@@ -14,9 +15,9 @@ public class DomainEventAttribute<TAssemblyScan>(bool useCreateMethod) : DataAtt
     /// <returns>An enumerable of object arrays representing the data for the test method.</returns>
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
-        var domainEvents = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => !x.FullName.StartsWith("Castle"))
+        var domainEvents = typeof(TAssemblyScan).Assembly
+            .GetTypes()
+            .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
             .Where(x => typeof(IDomainEvent).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
             .ToList();
 

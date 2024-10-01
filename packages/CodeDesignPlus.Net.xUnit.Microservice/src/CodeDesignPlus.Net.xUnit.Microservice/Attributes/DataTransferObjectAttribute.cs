@@ -4,6 +4,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// A custom attribute for providing data to test methods that validate data transfer objects (DTOs).
 /// </summary>
 /// <typeparam name="TAssemblyScan">The type of the assembly to scan for DTOs.</typeparam>
+[AttributeUsage(AttributeTargets.Method)]
 public class DataTransferObjectAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
@@ -13,9 +14,9 @@ public class DataTransferObjectAttribute<TAssemblyScan> : DataAttribute
     /// <returns>An enumerable of object arrays representing the data for the test method.</returns>
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
-        var dtos = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => !x.FullName.StartsWith("Castle"))
+        var dtos = typeof(TAssemblyScan).Assembly
+            .GetTypes()
+            .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
             .Where(x => typeof(IDtoBase).IsAssignableFrom(x) && x.IsClass && !x.IsAbstract)
             .ToList();
 
