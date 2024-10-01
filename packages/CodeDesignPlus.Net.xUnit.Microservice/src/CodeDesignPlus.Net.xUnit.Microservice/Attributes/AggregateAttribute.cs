@@ -4,7 +4,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// A custom attribute for providing data to test methods that validate aggregates.
 /// </summary>
 /// <remarks>
-/// Initializes a new instance of the <see cref="AggregateAttribute"/> class.
+/// Initializes a new instance of the <see cref="AggregateAttribute{TAssemblyScan}"/> class.
 /// </remarks>
 /// <typeparam name="TAssemblyScan">The type of the assembly to scan for aggregates.</typeparam>
 /// <param name="useCreateMethod">Indicates whether to use the static Create method or the constructor to create instances of aggregates.</param>
@@ -44,7 +44,7 @@ public class AggregateAttribute<TAssemblyScan>(bool useCreateMethod) : DataAttri
                 var constructor = aggregate.GetConstructor([typeof(Guid)]);
                 values = new Dictionary<ParameterInfo, object>
                 {
-                    { constructor.GetParameters().First(), Guid.NewGuid() }
+                    { constructor.GetParameters()[0], Guid.NewGuid() }
                 };
                 instance = constructor.Invoke([.. values.Values]);
             }
