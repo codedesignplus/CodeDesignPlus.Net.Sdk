@@ -103,7 +103,7 @@ public class AzureFileProvider(
                 }
             }
 
-            await fileClient.CreateAsync(stream.Length, metadata: file.GetMetadata(this.factory.Options.UriDownload), cancellationToken: cancellationToken).ConfigureAwait(false);
+            await fileClient.CreateAsync(stream.Length, new Azure.Storage.Files.Shares.Models.ShareFileCreateOptions() { Metadata = file.GetMetadata(this.factory.Options.UriDownload) }, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             await fileClient.UploadAsync(stream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
