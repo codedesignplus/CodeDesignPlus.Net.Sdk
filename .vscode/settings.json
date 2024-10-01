@@ -20,7 +20,8 @@
         "net.rabbitmq",
         "net.serializers",
         "net.generator",
-        "net.observability"
+        "net.observability",
+        "xunit.microservice"
     ],
     "sonarlint.connectedMode.project": {
         "connectionId": "codedesignplus",
