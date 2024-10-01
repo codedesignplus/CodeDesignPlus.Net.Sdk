@@ -210,7 +210,7 @@ public class AzureFileProviderTest
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
         shareDirectoryClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
-        shareFileClientMock.Verify(x => x.CreateAsync(It.IsAny<long>(), It.IsAny<ShareFileHttpHeaders>(), It.IsAny<IDictionary<string, string>>(), It.IsAny<FileSmbProperties>(), It.IsAny<string>(), It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
+        shareFileClientMock.Verify(x => x.CreateAsync(It.IsAny<long>(), It.IsAny<ShareFileCreateOptions>(), It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
         shareFileClientMock.Verify(x => x.UploadAsync(stream, It.IsAny<ShareFileUploadOptions>(), It.IsAny<CancellationToken>()), Times.Once);
         factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
 

@@ -38,7 +38,18 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : Back
     {
         logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
 
-        Task.Run(() => message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken).ConfigureAwait(false), stoppingToken);
+        Task.Run(() =>
+        {
+            try
+            {
+                message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "An error occurred while registering the event handler {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
+            }
+
+        }, stoppingToken);
 
         return Task.CompletedTask;
     }

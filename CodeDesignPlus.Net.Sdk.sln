@@ -247,6 +247,30 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F5D65D30-B28
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Exceptions", "packages\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj", "{8B8D4F22-EC43-4271-8B18-46153CBC46BE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.Microservice.Commons", "CodeDesignPlus.Net.Microservice.Commons", "{4B3DE87E-4A30-4E12-BDF0-38294FD859A8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{03E9CE3D-F709-43A4-B455-0B8DEC88B8FB}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{08E06C6F-E8F8-4B1D-B733-A851B6A3244D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Microservice.Commons", "packages\CodeDesignPlus.Net.Microservice.Commons\src\CodeDesignPlus.Net.Microservice.Commons\CodeDesignPlus.Net.Microservice.Commons.csproj", "{D1074443-05AC-4C31-AF43-87BF5FC69364}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Microservice.Commons.Test", "packages\CodeDesignPlus.Net.Microservice.Commons\tests\CodeDesignPlus.Net.Microservice.Commons.Test\CodeDesignPlus.Net.Microservice.Commons.Test.csproj", "{EEB3ECA9-FCF4-491D-B5BA-5AC0233279D9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.xUnit.Microservice", "CodeDesignPlus.Net.xUnit.Microservice", "{36C1540F-4E78-49A6-8DD6-C3DC6C3A6AF5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{DACFD562-03F5-4264-9BE9-C21F7D7B0B35}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{20A759CA-C41A-4503-B3AC-C20D6FC4F3A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.xUnit.Microservice", "packages\CodeDesignPlus.Net.xUnit.Microservice\src\CodeDesignPlus.Net.xUnit.Microservice\CodeDesignPlus.Net.xUnit.Microservice.csproj", "{F781BC31-D250-4629-8AA7-53AA13B6491C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Microservice.Domain", "packages\CodeDesignPlus.Net.xUnit.Microservice\tests\CodeDesignPlus.Net.Microservice.Domain\CodeDesignPlus.Net.Microservice.Domain.csproj", "{F1BA120F-DAF7-47EB-981A-01556B93C74D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.xUnit.Microservice.Api", "packages\CodeDesignPlus.Net.xUnit.Microservice\tests\CodeDesignPlus.Net.xUnit.Microservice.Api\CodeDesignPlus.Net.xUnit.Microservice.Api.csproj", "{F4B5F7C4-6597-4101-BF54-D1333081A406}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.xUnit.Microservice.Test", "packages\CodeDesignPlus.Net.xUnit.Microservice\tests\CodeDesignPlus.Net.xUnit.Microservice.Test\CodeDesignPlus.Net.xUnit.Microservice.Test.csproj", "{CFF62A94-1115-4E68-BDDD-42A4A7D357B9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -489,6 +513,30 @@ Global
 		{8B8D4F22-EC43-4271-8B18-46153CBC46BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8B8D4F22-EC43-4271-8B18-46153CBC46BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B8D4F22-EC43-4271-8B18-46153CBC46BE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D1074443-05AC-4C31-AF43-87BF5FC69364}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D1074443-05AC-4C31-AF43-87BF5FC69364}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D1074443-05AC-4C31-AF43-87BF5FC69364}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D1074443-05AC-4C31-AF43-87BF5FC69364}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EEB3ECA9-FCF4-491D-B5BA-5AC0233279D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EEB3ECA9-FCF4-491D-B5BA-5AC0233279D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EEB3ECA9-FCF4-491D-B5BA-5AC0233279D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EEB3ECA9-FCF4-491D-B5BA-5AC0233279D9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F781BC31-D250-4629-8AA7-53AA13B6491C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F781BC31-D250-4629-8AA7-53AA13B6491C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F781BC31-D250-4629-8AA7-53AA13B6491C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F781BC31-D250-4629-8AA7-53AA13B6491C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F1BA120F-DAF7-47EB-981A-01556B93C74D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1BA120F-DAF7-47EB-981A-01556B93C74D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1BA120F-DAF7-47EB-981A-01556B93C74D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1BA120F-DAF7-47EB-981A-01556B93C74D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F4B5F7C4-6597-4101-BF54-D1333081A406}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F4B5F7C4-6597-4101-BF54-D1333081A406}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F4B5F7C4-6597-4101-BF54-D1333081A406}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F4B5F7C4-6597-4101-BF54-D1333081A406}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CFF62A94-1115-4E68-BDDD-42A4A7D357B9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CFF62A94-1115-4E68-BDDD-42A4A7D357B9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CFF62A94-1115-4E68-BDDD-42A4A7D357B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CFF62A94-1115-4E68-BDDD-42A4A7D357B9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -615,6 +663,18 @@ Global
 		{6C02F910-C1A9-4DA1-956D-DC17C76AD91B} = {52B768A1-D6BB-4BEF-9B94-37F91794DD59}
 		{F5D65D30-B28A-4C73-ABDF-1B29CE5DC6BF} = {6C02F910-C1A9-4DA1-956D-DC17C76AD91B}
 		{8B8D4F22-EC43-4271-8B18-46153CBC46BE} = {F5D65D30-B28A-4C73-ABDF-1B29CE5DC6BF}
+		{4B3DE87E-4A30-4E12-BDF0-38294FD859A8} = {52B768A1-D6BB-4BEF-9B94-37F91794DD59}
+		{03E9CE3D-F709-43A4-B455-0B8DEC88B8FB} = {4B3DE87E-4A30-4E12-BDF0-38294FD859A8}
+		{08E06C6F-E8F8-4B1D-B733-A851B6A3244D} = {4B3DE87E-4A30-4E12-BDF0-38294FD859A8}
+		{D1074443-05AC-4C31-AF43-87BF5FC69364} = {03E9CE3D-F709-43A4-B455-0B8DEC88B8FB}
+		{EEB3ECA9-FCF4-491D-B5BA-5AC0233279D9} = {08E06C6F-E8F8-4B1D-B733-A851B6A3244D}
+		{36C1540F-4E78-49A6-8DD6-C3DC6C3A6AF5} = {52B768A1-D6BB-4BEF-9B94-37F91794DD59}
+		{DACFD562-03F5-4264-9BE9-C21F7D7B0B35} = {36C1540F-4E78-49A6-8DD6-C3DC6C3A6AF5}
+		{20A759CA-C41A-4503-B3AC-C20D6FC4F3A0} = {36C1540F-4E78-49A6-8DD6-C3DC6C3A6AF5}
+		{F781BC31-D250-4629-8AA7-53AA13B6491C} = {DACFD562-03F5-4264-9BE9-C21F7D7B0B35}
+		{F1BA120F-DAF7-47EB-981A-01556B93C74D} = {20A759CA-C41A-4503-B3AC-C20D6FC4F3A0}
+		{F4B5F7C4-6597-4101-BF54-D1333081A406} = {20A759CA-C41A-4503-B3AC-C20D6FC4F3A0}
+		{CFF62A94-1115-4E68-BDDD-42A4A7D357B9} = {20A759CA-C41A-4503-B3AC-C20D6FC4F3A0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83B66997-E0D6-493E-86BC-0F2956ABA5B9}

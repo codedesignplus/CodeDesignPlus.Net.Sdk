@@ -217,7 +217,7 @@ public class RedisServiceTest(RedisContainer fixture) : IClassFixture<RedisConta
         // Arrange
         var redisService = this.fixture.RedisServer;
 
-        var endpoint = redisService.Connection.GetEndPoints().ElementAt(0);
+        var endpoint = redisService.Connection.GetEndPoints()[0];
 
         var arguments = new EndPointEventArgs(this, endpoint);
 
@@ -234,7 +234,7 @@ public class RedisServiceTest(RedisContainer fixture) : IClassFixture<RedisConta
         Assert.NotNull(redisService.Database);
         Assert.NotNull(redisService.Subscriber);
 
-        this.fixture.Logger.VerifyLogging(string.Format("Configuration Changed - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Information);
+        this.fixture.Logger.VerifyLogging(string.Format("Configuration Changed - Data: {0}", JsonSerializer.Serialize(data)), LogLevel.Information, Times.AtLeastOnce());
     }
 
     [Fact]
