@@ -4,6 +4,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// A custom attribute for providing data to test methods that validate startup services.
 /// </summary>
 /// <typeparam name="TAssemblyScan">The type of the assembly to scan for startup services.</typeparam>
+[AttributeUsage(AttributeTargets.Method)]
 public class StartupAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
@@ -16,9 +17,9 @@ public class StartupAttribute<TAssemblyScan> : DataAttribute
         var services = new ServiceCollection();
         var configuration = new ConfigurationBuilder().Build();
 
-        var startups = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => !x.FullName.StartsWith("Castle"))
+        var startups = typeof(TAssemblyScan).Assembly
+            .GetTypes()
+            .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
             .Where(x => typeof(IStartupServices).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
             .Select(x => (IStartupServices)Activator.CreateInstance(x))
             .ToList();

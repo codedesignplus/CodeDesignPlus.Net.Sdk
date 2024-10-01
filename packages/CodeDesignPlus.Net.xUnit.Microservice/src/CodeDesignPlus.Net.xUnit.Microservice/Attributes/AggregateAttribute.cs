@@ -8,6 +8,7 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 /// </remarks>
 /// <typeparam name="TAssemblyScan">The type of the assembly to scan for aggregates.</typeparam>
 /// <param name="useCreateMethod">Indicates whether to use the static Create method or the constructor to create instances of aggregates.</param>
+[AttributeUsage(AttributeTargets.Method)]
 public class AggregateAttribute<TAssemblyScan>(bool useCreateMethod) : DataAttribute where TAssemblyScan: IErrorCodes
 {
     /// <summary>
@@ -19,7 +20,7 @@ public class AggregateAttribute<TAssemblyScan>(bool useCreateMethod) : DataAttri
     {
         var aggregates = typeof(TAssemblyScan).Assembly
             .GetTypes()
-            .Where(x => !x.FullName.StartsWith("Castle"))
+            .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
             .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(AggregateRoot)))
             .ToList();
 
