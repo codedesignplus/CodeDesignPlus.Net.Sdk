@@ -317,6 +317,18 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.xUnit.Sa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.xUnit.Microservice.Sample", "examples\CodeDesignPlus.Net.xUnit.Microservice.Sample\CodeDesignPlus.Net.xUnit.Microservice.Sample.csproj", "{02936D74-2082-4D3F-A39E-F72A4CCA7A5F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.Vault", "CodeDesignPlus.Net.Vault", "{9AC4F245-123B-4FDE-8F1E-9C5DE6452274}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{3C12AFD2-B0CD-4B3E-A2BA-49A036B265E5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D81594EA-BB5B-4E82-AA56-B8E138F3BD72}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Vault", "packages\CodeDesignPlus.Net.Vault\src\CodeDesignPlus.Net.Vault\CodeDesignPlus.Net.Vault.csproj", "{6DB14D4A-9313-4591-AF48-4C318303D071}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Vault.Abstractions", "packages\CodeDesignPlus.Net.Vault\src\CodeDesignPlus.Net.Vault.Abstractions\CodeDesignPlus.Net.Vault.Abstractions.csproj", "{08A73191-8FEE-4042-AAA4-89B31745B3A0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Vault.Test", "packages\CodeDesignPlus.Net.Vault\tests\CodeDesignPlus.Net.Vault.Test\CodeDesignPlus.Net.Vault.Test.csproj", "{14FFA544-FA44-4122-882D-4A338DC4C456}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -671,6 +683,18 @@ Global
 		{02936D74-2082-4D3F-A39E-F72A4CCA7A5F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{02936D74-2082-4D3F-A39E-F72A4CCA7A5F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{02936D74-2082-4D3F-A39E-F72A4CCA7A5F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DB14D4A-9313-4591-AF48-4C318303D071}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DB14D4A-9313-4591-AF48-4C318303D071}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DB14D4A-9313-4591-AF48-4C318303D071}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DB14D4A-9313-4591-AF48-4C318303D071}.Release|Any CPU.Build.0 = Release|Any CPU
+		{08A73191-8FEE-4042-AAA4-89B31745B3A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{08A73191-8FEE-4042-AAA4-89B31745B3A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{08A73191-8FEE-4042-AAA4-89B31745B3A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{08A73191-8FEE-4042-AAA4-89B31745B3A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{14FFA544-FA44-4122-882D-4A338DC4C456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{14FFA544-FA44-4122-882D-4A338DC4C456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{14FFA544-FA44-4122-882D-4A338DC4C456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{14FFA544-FA44-4122-882D-4A338DC4C456}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -831,6 +855,12 @@ Global
 		{BE0040E6-4328-4A18-B84F-1699A9A27B82} = {F84CA55E-023D-4321-9183-F0E2F1F091EA}
 		{8CAF0AF3-A3A4-47C2-B785-0A3BF6BBD94A} = {F84CA55E-023D-4321-9183-F0E2F1F091EA}
 		{02936D74-2082-4D3F-A39E-F72A4CCA7A5F} = {F84CA55E-023D-4321-9183-F0E2F1F091EA}
+		{9AC4F245-123B-4FDE-8F1E-9C5DE6452274} = {52B768A1-D6BB-4BEF-9B94-37F91794DD59}
+		{3C12AFD2-B0CD-4B3E-A2BA-49A036B265E5} = {9AC4F245-123B-4FDE-8F1E-9C5DE6452274}
+		{D81594EA-BB5B-4E82-AA56-B8E138F3BD72} = {9AC4F245-123B-4FDE-8F1E-9C5DE6452274}
+		{6DB14D4A-9313-4591-AF48-4C318303D071} = {3C12AFD2-B0CD-4B3E-A2BA-49A036B265E5}
+		{08A73191-8FEE-4042-AAA4-89B31745B3A0} = {3C12AFD2-B0CD-4B3E-A2BA-49A036B265E5}
+		{14FFA544-FA44-4122-882D-4A338DC4C456} = {D81594EA-BB5B-4E82-AA56-B8E138F3BD72}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83B66997-E0D6-493E-86BC-0F2956ABA5B9}

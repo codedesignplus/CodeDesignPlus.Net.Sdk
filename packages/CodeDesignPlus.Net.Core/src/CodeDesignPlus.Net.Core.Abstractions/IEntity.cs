@@ -39,8 +39,4 @@ public interface IEntity : IEntityBase
     /// Get or sets the update by
     /// </summary>
     Guid? UpdatedBy { get; set; }
-    /// <summary>
-    /// Get or set the tenant identifier.
-    /// </summary>
-    Guid Tenant { get; set; }
 }
