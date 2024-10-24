@@ -3,13 +3,10 @@ using Microsoft.Extensions.Configuration;
 
 namespace CodeDesignPlus.Net.Vault.Providers;
 
-public class VaultConfigurationSource(Action<VaultOptions> action) : IConfigurationSource
+public class VaultConfigurationSource(VaultOptions options) : IConfigurationSource
 {
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
-        var options = new VaultOptions();
-        action.Invoke(options);
-
         return new VaultConfigurationProvider(options);
     }
 }

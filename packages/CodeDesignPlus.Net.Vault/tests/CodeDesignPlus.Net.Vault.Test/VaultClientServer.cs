@@ -20,6 +20,8 @@ public class VaultClientServer(VaultCollectionFixture fixture)
         var server = new TestServer(new WebHostBuilder()
             .ConfigureAppConfiguration((context, builder) =>
             {
+                var c = context.Configuration;
+
                 builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
                 builder.AddVault(options =>

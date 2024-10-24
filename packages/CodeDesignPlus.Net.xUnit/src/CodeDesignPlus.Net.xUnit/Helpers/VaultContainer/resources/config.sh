@@ -8,6 +8,7 @@ vault login token=root
 vault secrets enable -path=unit-test-keyvalue kv-v2
 vault secrets enable -path=unit-test-database database
 vault secrets enable -path=unit-test-rabbitmq rabbitmq 
+vault secrets enable -path=unit-test-transit transit 
 
 # List Secrets
 vault secrets list
@@ -90,3 +91,4 @@ vault write unit-test-rabbitmq/roles/my-app-rabbitmq-role \
     vhosts='{"/":{"write": ".*", "read": ".*", "configure": ".*"}}'
 
 vault read unit-test-rabbitmq/creds/my-app-rabbitmq-role
+

@@ -39,4 +39,5 @@ public class VaultOptions
     public KeyVault KeyVault { get; set; } = new();
     public Mongo Mongo { get; set; } = new();
     public RabbitMQ RabbitMQ { get; set; } = new();
+    public Kubernetes Kubernetes { get; set; } = new();
 }

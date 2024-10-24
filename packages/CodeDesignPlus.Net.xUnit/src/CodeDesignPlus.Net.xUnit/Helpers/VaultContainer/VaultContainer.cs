@@ -33,8 +33,6 @@ public class VaultContainer : DockerCompose
 
     public static VaultCredentials GetCredentials()
     {
-        Thread.Sleep(2000);
-
         var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "VaultContainer", "shared", "vault-config", "credentials.json");
         
         if (!File.Exists(filePath))

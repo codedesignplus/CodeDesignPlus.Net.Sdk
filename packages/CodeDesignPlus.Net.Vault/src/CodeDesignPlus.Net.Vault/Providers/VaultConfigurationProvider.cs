@@ -1,5 +1,6 @@
 using System;
 using CodeDesignPlus.Net.Vault.Abstractions.Options;
+using CodeDesignPlus.Net.Vault.Services;
 using Microsoft.Extensions.Configuration;
 using VaultSharp;
 using VaultSharp.V1.AuthMethods.AppRole;
@@ -8,19 +9,14 @@ namespace CodeDesignPlus.Net.Vault.Providers;
 
 public class VaultConfigurationProvider : ConfigurationProvider
 {
-    public VaultOptions config;
-    private IVaultClient client;
+    public readonly VaultOptions config;
+    private readonly IVaultClient client;
 
     public VaultConfigurationProvider(VaultOptions config)
     {
         this.config = config;
 
-        var vaultClientSettings = new VaultClientSettings(
-            this.config.Address,
-            new AppRoleAuthMethodInfo(this.config.RoleId, this.config.SecretId)
-        );
-
-        this.client = new VaultClient(vaultClientSettings);
+        this.client = VaultClientFactory.Create(this.config);
     }
 
     public override void Load()

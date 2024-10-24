@@ -17,7 +17,7 @@ services:
       - ./resources/entrypoint.sh:/resources/entrypoint.sh
     cap_add:
       - IPC_LOCK
-    command: /bin/sh -c "chmod +x /resources/entrypoint.sh && /resources/entrypoint.sh"
+    command: /bin/sh -c "chmod +x /resources/entrypoint.sh && chmod +x /resources/config.sh && /resources/entrypoint.sh"
   
   mongo:
     image: mongo:latest
