@@ -1,0 +1,16 @@
+﻿global using System;
+global using System.Linq;
+global using System.Threading.Tasks;
+global using CodeDesignPlus.Net.Vault.Abstractions;
+global using Microsoft.Extensions.Options;
+global using CodeDesignPlus.Net.Vault.Abstractions.Options;
+global using CodeDesignPlus.Net.Vault.Exceptions;
+global using CodeDesignPlus.Net.Vault.Providers;
+global using CodeDesignPlus.Net.Vault.Services;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using VaultSharp;
+global using VaultSharp.V1.AuthMethods.AppRole;
+global using VaultSharp.V1.AuthMethods.Kubernetes;
+global using System.Text;
+global using VaultSharp.V1.SecretsEngines.Transit;
