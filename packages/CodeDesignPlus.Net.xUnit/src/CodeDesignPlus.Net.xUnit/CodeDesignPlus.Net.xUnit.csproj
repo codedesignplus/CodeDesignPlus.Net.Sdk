@@ -92,5 +92,14 @@
     <None Update="Helpers\SqlServer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+    <None Update="Helpers\VaultContainer\*.yml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+     <None Update="Helpers\VaultContainer\resources\*">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Helpers\VaultContainer\resources\" />
   </ItemGroup>
 </Project>

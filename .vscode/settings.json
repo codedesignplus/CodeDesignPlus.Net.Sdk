@@ -21,7 +21,8 @@
         "net.serializers",
         "net.generator",
         "net.observability",
-        "xunit.microservice"
+        "xunit.microservice",
+        "net.vault"
     ],
     "sonarlint.connectedMode.project": {
         "connectionId": "codedesignplus",
