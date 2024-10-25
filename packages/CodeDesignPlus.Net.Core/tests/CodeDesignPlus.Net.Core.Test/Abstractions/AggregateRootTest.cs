@@ -104,7 +104,7 @@ public class AggregateRootTest
 
         var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
 
-        var domainEventsField = typeof(AggregateRoot).GetField("domainEvents", BindingFlags.NonPublic | BindingFlags.Instance);
+        var domainEventsField = typeof(AggregateRootBase).GetField("domainEvents", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy);
 
         domainEventsField!.SetValue(orderAggregate, null);
 
@@ -125,7 +125,7 @@ public class AggregateRootTest
 
         var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
 
-        var domainEventsField = typeof(AggregateRoot).GetField("domainEvents", BindingFlags.NonPublic | BindingFlags.Instance);
+        var domainEventsField = typeof(AggregateRootBase).GetField("domainEvents", BindingFlags.NonPublic | BindingFlags.Instance);
         domainEventsField!.SetValue(orderAggregate, null);
 
         // Act
