@@ -1,34 +1,60 @@
-using System;
 using CodeDesignPlus.Net.Vault.Abstractions.Options;
 using CodeDesignPlus.Net.Vault.Services;
 using Microsoft.Extensions.Configuration;
 using VaultSharp;
-using VaultSharp.V1.AuthMethods.AppRole;
 
 namespace CodeDesignPlus.Net.Vault.Providers;
 
+
+/// <summary>
+/// Provides configuration settings from a Vault service.
+/// </summary>
 public class VaultConfigurationProvider : ConfigurationProvider
 {
+    /// <summary>
+    /// The configuration options for the Vault.
+    /// </summary>
     public readonly VaultOptions config;
+
+    /// <summary>
+    /// The client used to interact with the Vault service.
+    /// </summary>
     private readonly IVaultClient client;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="VaultConfigurationProvider"/> class.
+    /// </summary>
+    /// <param name="config">The configuration options for the Vault.</param>
+    /// <exception cref="ArgumentNullException">config is null.</exception>
     public VaultConfigurationProvider(VaultOptions config)
     {
-        this.config = config;
+        ArgumentNullException.ThrowIfNull(config);
 
+        this.config = config;
         this.client = VaultClientFactory.Create(this.config);
     }
 
+    /// <summary>
+    /// Loads the configuration settings from the Vault service.
+    /// </summary>
     public override void Load()
     {
         LoadAsync().Wait();
     }
 
+    /// <summary>
+    /// Asynchronously loads the configuration settings from the Vault service.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous load operation.</returns>
     public async Task LoadAsync()
     {
         await GetDatabaseCredentials();
     }
 
+    /// <summary>
+    /// Retrieves database credentials from the Vault service and adds them to the configuration data.
+    /// </summary>
+    /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task GetDatabaseCredentials()
     {
         if (this.config.KeyVault.Enable)
@@ -59,3 +85,7 @@ public class VaultConfigurationProvider : ConfigurationProvider
         }
     }
 }
+
+
+
+

@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using VaultSharp.V1.SecretsEngines.Transit;
 
 namespace CodeDesignPlus.Net.Vault.Abstractions.Options;
 
@@ -40,4 +41,5 @@ public class VaultOptions
     public Mongo Mongo { get; set; } = new();
     public RabbitMQ RabbitMQ { get; set; } = new();
     public Kubernetes Kubernetes { get; set; } = new();
+    public Transit Transit { get; set; } = new();
 }
