@@ -3,7 +3,7 @@ namespace CodeDesignPlus.Net.Vault.Services;
 /// <summary>
 /// Factory for creating instances of <see cref="IVaultClient"/>.
 /// </summary>
-public class VaultClientFactory
+public static class VaultClientFactory
 {
     /// <summary>
     /// Create a new instance of <see cref="IVaultClient"/> with the specified options.
@@ -22,13 +22,10 @@ public class VaultClientFactory
 
         if (options.Kubernetes.Enable)
         {
-            var host = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST");
-            var port = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_PORT");
-
-            var jwt = Path.Combine("/var/run/secrets/kubernetes.io/serviceaccount", "token");
+            var jwt = File.ReadAllText(options.Kubernetes.PathTokenKubernetes);
 
             vaultClientSettings = new VaultClientSettings(
-                $"http://{host}:{port}",
+                options.Address,
                 new KubernetesAuthMethodInfo($"{options.AppName}-{options.Kubernetes.RoleSufix}", jwt)
             );
         }

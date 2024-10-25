@@ -8,10 +8,10 @@ namespace CodeDesignPlus.Net.Vault.Providers;
 public class VaultConfigurationSource(VaultOptions options) : IConfigurationSource
 {
     /// <summary>
-    /// The configuration options for the Vault.
+    /// Builds the <see cref="IConfigurationProvider"/> for this source.
     /// </summary>
-    /// <param name="options">The options used to configure the Vault.</param>
-    /// <returns>The configuration options for the Vault.</returns>
+    /// <param name="builder">The <see cref="IConfigurationBuilder"/>.</param>
+    /// <returns>An <see cref="IConfigurationProvider"/></returns>
     public IConfigurationProvider Build(IConfigurationBuilder builder)
     {
         return new VaultConfigurationProvider(options);

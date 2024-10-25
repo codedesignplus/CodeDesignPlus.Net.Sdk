@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the base class for aggregate roots in the domain.
 /// </summary>
-public abstract class AggregateRoot : AggregateRootBase, IAggregateRoot
+public abstract class AggregateRoot : AggregateRootBase
 {
 
     /// <summary>

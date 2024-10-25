@@ -12,9 +12,11 @@ public class RabbitMQ
     /// <summary>
     /// Gets or sets the sufix to mount the RabbitMQ service.
     /// </summary>
+    [Required]
     public string RoleSufix { get; set; } = "rabbitmq-role";
     /// <summary>
     /// Gets or sets the sufix to mount the RabbitMQ service.
     /// </summary>
+    [Required]
     public string SufixMoundPoint { get; set; } = "rabbitmq";
 }

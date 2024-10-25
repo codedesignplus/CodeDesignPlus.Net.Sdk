@@ -11,7 +11,6 @@ public class VaultOptions : IValidatableObject
     /// Name of the setions used in the appsettings
     /// </summary>
     public static readonly string Section = "Vault";
-
     /// <summary>
     /// Gets or sets the address of the Vault server
     /// </summary>
@@ -43,18 +42,22 @@ public class VaultOptions : IValidatableObject
     /// <summary>
     /// Gets or sets the mongo settings
     /// </summary>
+    [Required]
     public Mongo Mongo { get; set; } = new();
     /// <summary>
     /// Gets or sets the rabbitmq settings
     /// </summary>
+    [Required]
     public RabbitMQ RabbitMQ { get; set; } = new();
     /// <summary>
     /// Gets or sets the kubernetes settings
     /// </summary>
+    [Required]
     public Kubernetes Kubernetes { get; set; } = new();
     /// <summary>
     /// Gets or sets the transit settings
     /// </summary>
+    [Required]
     public Transit Transit { get; set; } = new();
 
     /// <summary>
@@ -64,15 +67,34 @@ public class VaultOptions : IValidatableObject
     /// <returns>Returns a collection with the validation errors</returns>
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrEmpty(this.RoleId) && string.IsNullOrEmpty(this.SecretId) && this.Kubernetes.Enable)
-        {
-            var host = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST");
-            var port = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_PORT");
+        var results = new List<ValidationResult>();
 
-            if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(port))
-            {
-                yield return new ValidationResult("The RoleId or SecretId is required.");
-            }
+        if (string.IsNullOrEmpty(this.RoleId) && string.IsNullOrEmpty(this.SecretId) && this.Kubernetes != null && !this.Kubernetes.Enable)
+        {
+            results.Add(new ValidationResult("The RoleId and SecretId is required."));
         }
+
+        if (this.Mongo != null && this.Mongo.Enable)
+        {
+            var contextMongo = new ValidationContext(this.Mongo, serviceProvider: null, items: null);
+
+            Validator.TryValidateObject(this.Mongo, contextMongo, results, validateAllProperties: true);
+        }
+
+        if (this.RabbitMQ != null && this.RabbitMQ.Enable)
+        {
+            var contextRabbitMQ = new ValidationContext(this.RabbitMQ, serviceProvider: null, items: null);
+
+            Validator.TryValidateObject(this.RabbitMQ, contextRabbitMQ, results, validateAllProperties: true);
+        }
+
+        if (this.Kubernetes != null && this.Kubernetes.Enable)
+        {
+            var contextKubernetes = new ValidationContext(this.Kubernetes, serviceProvider: null, items: null);
+
+            Validator.TryValidateObject(this.Kubernetes, contextKubernetes, results, validateAllProperties: true);
+        }
+
+        return results;
     }
 }

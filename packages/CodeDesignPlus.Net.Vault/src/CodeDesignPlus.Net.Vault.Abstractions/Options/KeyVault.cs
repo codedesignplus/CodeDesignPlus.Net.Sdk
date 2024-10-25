@@ -12,5 +12,6 @@ public class KeyVault
     /// <summary>
     /// Gets or sets the name of the key vault.
     /// </summary>
+    [Required]
     public string SufixMoundPoint { get; set; } = "keyvault";
 }

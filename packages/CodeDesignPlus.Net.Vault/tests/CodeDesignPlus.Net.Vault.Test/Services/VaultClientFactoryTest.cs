@@ -3,8 +3,7 @@ using CodeDesignPlus.Net.Vault.Services;
 
 namespace CodeDesignPlus.Net.Vault.Test.Services;
 
-[Collection(VaultCollectionFixture.Collection)]
-public class VaultClientFactoryTest(VaultCollectionFixture fixture)
+public class VaultClientFactoryTest()
 {
     [Fact]
     public void CreateClient_OptionsIsNull_ThrowArgumentNullException()
@@ -53,17 +52,12 @@ public class VaultClientFactoryTest(VaultCollectionFixture fixture)
         };
 
         options.Kubernetes.Enable = true;
-
-        Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_HOST", "localhost");
-        Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", "8200");
+        options.Kubernetes.PathTokenKubernetes = AppDomain.CurrentDomain.BaseDirectory + "/token";
 
         // Act
         var client = VaultClientFactory.Create(options);
 
         // Assert
         Assert.NotNull(client);
-
-        Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_HOST", null);
-        Environment.SetEnvironmentVariable("KUBERNETES_SERVICE_PORT", null);
     }
 }

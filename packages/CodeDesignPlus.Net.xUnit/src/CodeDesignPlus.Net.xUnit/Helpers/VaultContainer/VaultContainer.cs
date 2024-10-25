@@ -5,6 +5,15 @@ namespace CodeDesignPlus.Net.xUnit.Helpers.VaultContainer;
 /// </summary>
 public class VaultContainer : DockerCompose
 {
+    public VaultCredentials Credentials { get; private set; }
+
+    private readonly string id = Guid.NewGuid().ToString("N");
+
+    public VaultContainer() : base()
+    {
+
+    }
+
     /// <summary>
     /// Builds the Docker Compose service configuration for the SQL Server container.
     /// </summary>
@@ -19,7 +28,11 @@ public class VaultContainer : DockerCompose
             ForceRecreate = true,
             RemoveOrphans = true,
             StopOnDispose = true,
-            AlternativeServiceName = "vault_" + Guid.NewGuid().ToString("N"),
+            AlternativeServiceName = "vault_" + this.id,
+            EnvironmentNameValue = new Dictionary<string, string>
+            {
+                { "FILE_CREDENTIAL", this.id },
+            }
         };
 
         this.EnableGetPort = true;
@@ -31,17 +44,18 @@ public class VaultContainer : DockerCompose
         return compose;
     }
 
-    public static VaultCredentials GetCredentials()
+    protected override void OnContainerInitialized()
     {
-        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "VaultContainer", "shared", "vault-config", "credentials.json");
-        
+        // Wait for the vault container to be ready (RabbitMQ)
+        Thread.Sleep(30000);
+
+        var filePath = Path.Combine(Directory.GetCurrentDirectory(), "Helpers", "VaultContainer", "shared", "vault-config", $"{this.id}-credentials.json");
+
         if (!File.Exists(filePath))
             throw new FileNotFoundException("The file with the credentials was not found.", filePath);
 
         string json = File.ReadAllText(filePath);
-        var credentials = JsonSerializer.Deserialize<VaultCredentials>(json);
-
-        return credentials;
+        this.Credentials = JsonSerializer.Deserialize<VaultCredentials>(json);
     }
 }
 
@@ -49,8 +63,8 @@ public class VaultContainer : DockerCompose
 public class VaultCredentials
 {
     [Newtonsoft.Json.JsonProperty("role_id")]
-    public string? RoleId { get; set; }
+    public string RoleId { get; set; }
     [Newtonsoft.Json.JsonProperty("secret_id")]
-    public string? SecretId { get; set; }
+    public string SecretId { get; set; }
 }
 

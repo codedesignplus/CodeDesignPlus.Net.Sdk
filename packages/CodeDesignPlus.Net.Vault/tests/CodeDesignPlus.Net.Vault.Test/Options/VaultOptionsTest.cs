@@ -1,71 +1,118 @@
 ﻿using CodeDesignPlus.Net.Vault.Abstractions.Options;
+using CodeDesignPlus.Net.xUnit.Helpers;
 
 namespace CodeDesignPlus.Net.Vault.Test.Options;
 
 public class VaultOptionsTest
 {
-    // [Fact]
-    // public void VaultOptions_DefaultValues_Valid()
-    // {
-    //     // Arrange
-    //     var options = new VaultOptions()
-    //     {
-    //         Name = Guid.NewGuid().ToString()
-    //     };
+    [Fact]
+    public void VaultOptions_DefaultValues_Valid()
+    {
+        // Arrange
+        var options = new VaultOptions()
+        {
+            Address = "http://localhost:8200",
+            RoleId = "role-id",
+            AppName = "app-name",
+            SecretId = "secre",
+            Solution = "solution-name"
+        };
 
-    //     // Act
-    //     var results = options.Validate();
+        // Act
+        var results = options.Validate();
 
-    //     // Assert
-    //     Assert.Empty(results);
-    // }
+        // Assert
+        Assert.Empty(results);
+    }
 
-    // [Fact]
-    // public void VaultOptions_NameIsRequired_FailedValidation()
-    // {
-    //     // Arrange
-    //     var options = new VaultOptions();
+    [Fact]
+    public void VaultOptions_InvalidValues_Failed()
+    {
+        // Arrange
+        var options = new VaultOptions()
+        {
+            Address = null,
+            RoleId = null,
+            AppName = null,
+            SecretId = null,
+            Solution = null
+        };
 
-    //     // Act
-    //     var results = options.Validate();
+        options.Mongo.RoleSufix = null;
+        options.Mongo.SufixMoundPoint = null;
+        options.Mongo.TemplateConnectionString = null;
 
-    //     // Assert
-    //     Assert.Contains(results, x => x.ErrorMessage == "The Name field is required.");
-    // }
+        options.Kubernetes.Enable = false;
+        options.Kubernetes.RoleSufix = null;
+        options.Kubernetes.SufixMoundPoint = null;
 
-    // [Fact]
-    // public void VaultOptions_EmailIsRequired_FailedValidation()
-    // {
-    //     // Arrange
-    //     var options = new VaultOptions()
-    //     {
-    //         Enable = true,
-    //         Name = Guid.NewGuid().ToString(),
-    //         Email = null
-    //     };
+        options.RabbitMQ.RoleSufix = null;
+        options.RabbitMQ.SufixMoundPoint = null;
 
-    //     // Act
-    //     var results = options.Validate();
+        // Act
+        var results = options.Validate();
 
-    //     // Assert
-    //     Assert.Contains(results, x => x.ErrorMessage == "The Email field is required.");
-    // }
+        // Assert
+        Assert.NotEmpty(results);
+        Assert.Contains(results, x => x.ErrorMessage == "The Address field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The RoleId and SecretId is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The AppName field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The Solution field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The RoleSufix field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The SufixMoundPoint field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The TemplateConnectionString field is required.");
+    }
 
-    // [Fact]
-    // public void VaultOptions_EmailIsInvalid_FailedValidation()
-    // {
-    //     // Arrange
-    //     var options = new VaultOptions()
-    //     {
-    //         Enable = true,
-    //         Name = Guid.NewGuid().ToString(),
-    //         Email = "asdfasdfsdfgs"
-    //     };
+    [Fact]
+    public void VaultOptions_ObjectsAreNull_Failed()
+    {
+        // Arrange
+        var options = new VaultOptions()
+        {
+            Address = null,
+            RoleId = null,
+            AppName = null,
+            SecretId = null,
+            Solution = null,
+            Mongo = null,
+            Kubernetes = null,
+            RabbitMQ = null
+        };
 
-    //     // Act
-    //     var results = options.Validate();
+        // Act
+        var results = options.Validate();
 
-    //     // Assert
-    //     Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
-    // }
+        // Assert
+        Assert.NotEmpty(results);
+        Assert.Contains(results, x => x.ErrorMessage == "The Address field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The AppName field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The Solution field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The Mongo field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The Kubernetes field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The RabbitMQ field is required.");
+    }
+
+     [Fact]
+    public void VaultOptions_KubernetesValues_Valid()
+    {
+        // Arrange
+        var options = new VaultOptions()
+        {
+            Address = "http://localhost:8200",
+            RoleId = null,
+            AppName = "app-name",
+            SecretId = null,
+            Solution = "solution-name"
+        };
+
+        options.Kubernetes.Enable = true;
+        options.Kubernetes.PathTokenKubernetes = AppDomain.CurrentDomain.BaseDirectory + "/token";
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Empty(results);
+    }
+
 }

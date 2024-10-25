@@ -7,19 +7,13 @@ public class VaultTransitTest(VaultCollectionFixture fixture)
     [Fact]
     public async Task Encrypt_Decrypt_Sucessfully()
     {
-        await Task.Delay(20000);
-
-        var credentials = VaultContainer.GetCredentials();
-
-        await Task.Delay(1000);
-
         var configurationBuilder = new ConfigurationBuilder();
 
         configurationBuilder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
         configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>() {
-            { "Vault:RoleId", credentials.RoleId },
-            { "Vault:SecretId", credentials.SecretId },
+            { "Vault:RoleId", fixture.Container.Credentials.RoleId },
+            { "Vault:SecretId", fixture.Container.Credentials.SecretId },
             { "Vault:Address", $"http://localhost:{fixture.Container.Port}" }
         });
 
@@ -46,17 +40,13 @@ public class VaultTransitTest(VaultCollectionFixture fixture)
     [Fact]
     public async Task Encrypt_Decrypt_List_Sucessfully()
     {
-        await Task.Delay(20000);
-
-        var credentials = VaultContainer.GetCredentials();
-
         var configurationBuilder = new ConfigurationBuilder();
 
         configurationBuilder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 
         configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>() {
-            { "Vault:RoleId", credentials.RoleId },
-            { "Vault:SecretId", credentials.SecretId },
+            { "Vault:RoleId", fixture.Container.Credentials.RoleId },
+            { "Vault:SecretId", fixture.Container.Credentials.SecretId },
             { "Vault:Address", $"http://localhost:{fixture.Container.Port}" }
         });
 
@@ -78,6 +68,67 @@ public class VaultTransitTest(VaultCollectionFixture fixture)
 
         Assert.Contains("Custom Value 1", decrypt);
         Assert.Contains("Custom Value 2", decrypt);
+    }
+
+    [Fact]
+    public async Task EncryptAsync_PlainTextIsEmpty_ReturnTuplaEmpty()
+    {
+        var configurationBuilder = new ConfigurationBuilder();
+
+        configurationBuilder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>() {
+            { "Vault:RoleId", fixture.Container.Credentials.RoleId },
+            { "Vault:SecretId", fixture.Container.Credentials.SecretId },
+            { "Vault:Address", $"http://localhost:{fixture.Container.Port}" }
+        });
+
+        var configuration = configurationBuilder.Build();
+
+        var serviceCollection = new ServiceCollection();
+
+        serviceCollection.AddVault(configuration);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        var transit = serviceProvider.GetRequiredService<IVaultTransit>();
+
+        var context = Guid.NewGuid().ToString();
+
+        var (key, ciphertext) = await transit.EncryptAsync([], context);
+
+        Assert.Equal(Guid.Empty.ToString(), key);
+        Assert.Empty(ciphertext);
+    }
+
+    
+    [Fact]
+    public async Task DencryptAsync_CipherIsEmpty_ReturnEmpty() {
+        var configurationBuilder = new ConfigurationBuilder();
+
+        configurationBuilder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>() {
+            { "Vault:RoleId", fixture.Container.Credentials.RoleId },
+            { "Vault:SecretId", fixture.Container.Credentials.SecretId },
+            { "Vault:Address", $"http://localhost:{fixture.Container.Port}" }
+        });
+
+        var configuration = configurationBuilder.Build();
+
+        var serviceCollection = new ServiceCollection();
+
+        serviceCollection.AddVault(configuration);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        var transit = serviceProvider.GetRequiredService<IVaultTransit>();
+
+        var context = Guid.NewGuid().ToString();
+
+        var decrypt = await transit.DecryptAsync(Guid.Empty.ToString(), [], context);
+
+        Assert.Empty(decrypt);
     }
 
 }

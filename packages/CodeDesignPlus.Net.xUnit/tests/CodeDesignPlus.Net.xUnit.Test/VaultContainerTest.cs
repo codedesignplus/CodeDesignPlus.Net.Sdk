@@ -12,20 +12,14 @@ public class VaultContainerTest(VaultCollectionFixture fixture)
     [Fact]
     public async Task CheckConnectionService()
     {
-        var credentials = VaultContainer.GetCredentials();
-
-        IAuthMethodInfo authMethod = new AppRoleAuthMethodInfo(credentials.RoleId, credentials.SecretId);
+        IAuthMethodInfo authMethod = new AppRoleAuthMethodInfo(fixture.Container.Credentials.RoleId, fixture.Container.Credentials.SecretId);
         var vaultClientSettings = new VaultClientSettings($"http://localhost:{fixture.Container.Port}", authMethod);
 
         IVaultClient vaultClient = new VaultClient(vaultClientSettings);
 
-        var kv1Secret = await vaultClient.V1.Secrets.KeyValue.V2.ReadSecretAsync("puc/appid", mountPoint: "accounting");
+        var kv1Secret = await vaultClient.V1.Secrets.KeyValue.V2.ReadSecretAsync("my-app", mountPoint: "unit-test-keyvalue");
 
-        // key = foo, value = world2
-
-        Assert.True(kv1Secret.Data.Data.ContainsKey("foo"));
-        Assert.Equal("world2", kv1Secret.Data.Data["foo"]);
+        Assert.True(kv1Secret.Data.Data.ContainsKey("Security:ClientId"));
+        Assert.Equal("a74cb192-598c-4757-95ae-b315793bbbca", kv1Secret.Data.Data["Security:ClientId"]);
     }
-
-    
 }

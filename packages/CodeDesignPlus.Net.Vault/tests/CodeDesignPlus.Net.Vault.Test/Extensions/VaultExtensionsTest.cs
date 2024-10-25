@@ -96,11 +96,6 @@ public class VaultExtensionsTest(VaultCollectionFixture fixture)
     [Fact]
     public void AddVault_ConfigurationBuilder_OvverideAppSettings()
     {
-        // Wait for the vault container to be ready (RabbitMQ)
-        Thread.Sleep(20000);
-
-        var credentials = VaultContainer.GetCredentials();
-
         var server = new TestServer(new WebHostBuilder()
             .ConfigureAppConfiguration((context, builder) =>
             {
@@ -109,8 +104,8 @@ public class VaultExtensionsTest(VaultCollectionFixture fixture)
                 builder.AddVault(options =>
                 {
                     options.Address = $"http://localhost:{fixture.Container.Port}";
-                    options.RoleId = credentials.RoleId;
-                    options.SecretId = credentials.SecretId;
+                    options.RoleId = fixture.Container.Credentials.RoleId;
+                    options.SecretId = fixture.Container.Credentials.SecretId;
                     options.Solution = "unit-test";
                     options.KeyVault.Enable = true;
                     options.Mongo.Enable = true;

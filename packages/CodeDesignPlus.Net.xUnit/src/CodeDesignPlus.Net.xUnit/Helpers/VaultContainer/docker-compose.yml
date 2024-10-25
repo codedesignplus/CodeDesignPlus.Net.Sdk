@@ -9,6 +9,7 @@ services:
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+      FILE_CREDENTIAL: ${FILE_CREDENTIAL}
     volumes:
       - ./shared/vault-data:/vault/file
       - ./shared/vault-config:/vault/config
@@ -30,7 +31,7 @@ services:
   redis:
     image: redis:latest
     ports:
-      - 6379:6379
+      - 0:6379
 
   rabbitmq:
     image: rabbitmq:3-management
