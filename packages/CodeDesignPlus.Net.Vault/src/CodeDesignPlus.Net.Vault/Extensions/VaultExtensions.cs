@@ -1,10 +1,3 @@
-using CodeDesignPlus.Net.Vault.Abstractions.Options;
-using CodeDesignPlus.Net.Vault.Exceptions;
-using CodeDesignPlus.Net.Vault.Providers;
-using CodeDesignPlus.Net.Vault.Services;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-
 namespace CodeDesignPlus.Net.Vault.Extensions;
 
 /// <summary>
@@ -43,7 +36,6 @@ public static class VaultExtensions
 
         return services;
     }
-
 
     /// <summary>
     /// Adds Vault configuration to the specified <see cref="IConfigurationBuilder"/>.

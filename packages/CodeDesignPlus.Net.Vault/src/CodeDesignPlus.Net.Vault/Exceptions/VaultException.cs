@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace CodeDesignPlus.Net.Vault.Exceptions;
+﻿namespace CodeDesignPlus.Net.Vault.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.Vault. 

@@ -2,11 +2,11 @@
   <PropertyGroup>
 		<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
-<ProjectGuid>{1695F00C-8718-44C7-AA3E-A4FBE640BD73}</ProjectGuid>
+    <ProjectGuid>{1695F00C-8718-44C7-AA3E-A4FBE640BD73}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-        <Description>CodeDesignPlus.Net.Security provides a comprehensive framework for implementing security features in .NET Core applications. This library simplifies the process of managing authentication, authorization, and other security-related tasks, enabling developers to build secure and robust applications.</Description>
+    <Description>CodeDesignPlus.Net.Security provides a comprehensive framework for implementing security features in .NET Core applications. This library simplifies the process of managing authentication, authorization, and other security-related tasks, enabling developers to build secure and robust applications.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Security</PackageId>
@@ -17,7 +17,6 @@
     <PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Security.xml</DocumentationFile>

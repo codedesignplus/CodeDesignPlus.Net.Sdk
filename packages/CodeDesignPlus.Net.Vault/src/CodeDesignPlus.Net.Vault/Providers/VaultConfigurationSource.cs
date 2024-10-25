@@ -1,6 +1,3 @@
-using CodeDesignPlus.Net.Vault.Abstractions.Options;
-using Microsoft.Extensions.Configuration;
-
 namespace CodeDesignPlus.Net.Vault.Providers;
 
 /// <summary>

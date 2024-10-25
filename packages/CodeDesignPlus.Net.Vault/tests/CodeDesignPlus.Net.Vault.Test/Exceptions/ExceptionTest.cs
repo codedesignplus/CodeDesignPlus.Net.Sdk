@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace CodeDesignPlus.Net.Vault.Test.Exceptions;
+﻿namespace CodeDesignPlus.Net.Vault.Test.Exceptions;
 
 public class VaultExceptionTest
 {

@@ -1,12 +1,4 @@
-using System;
-using CodeDesignPlus.Net.xUnit.Helpers.VaultContainer;
-using Microsoft.AspNetCore.Hosting;
-using CodeDesignPlus.Net.Vault.Extensions;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-
 namespace CodeDesignPlus.Net.Vault.Test.Services;
-
 
 [Collection(VaultCollectionFixture.Collection)]
 public class VaultTransitTest(VaultCollectionFixture fixture)
@@ -15,7 +7,7 @@ public class VaultTransitTest(VaultCollectionFixture fixture)
     [Fact]
     public async Task Encrypt_Decrypt_Sucessfully()
     {
-        await Task.Delay(16000);
+        await Task.Delay(20000);
 
         var credentials = VaultContainer.GetCredentials();
 
@@ -54,11 +46,9 @@ public class VaultTransitTest(VaultCollectionFixture fixture)
     [Fact]
     public async Task Encrypt_Decrypt_List_Sucessfully()
     {
-        await Task.Delay(16000);
+        await Task.Delay(20000);
 
         var credentials = VaultContainer.GetCredentials();
-
-        await Task.Delay(1000);
 
         var configurationBuilder = new ConfigurationBuilder();
 

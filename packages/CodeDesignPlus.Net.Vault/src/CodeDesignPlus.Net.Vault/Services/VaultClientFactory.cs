@@ -1,8 +1,3 @@
-using CodeDesignPlus.Net.Vault.Abstractions.Options;
-using VaultSharp;
-using VaultSharp.V1.AuthMethods.AppRole;
-using VaultSharp.V1.AuthMethods.Kubernetes;
-
 namespace CodeDesignPlus.Net.Vault.Services;
 
 /// <summary>
@@ -20,20 +15,20 @@ public class VaultClientFactory
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        var kubernetesHost = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST");
-        var kubernetesPort = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_PORT");
-
         var vaultClientSettings = new VaultClientSettings(
             options.Address,
             new AppRoleAuthMethodInfo(options.RoleId, options.SecretId)
         );
 
-        if (!options.Kubernetes.Enable)
+        if (options.Kubernetes.Enable)
         {
+            var host = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_HOST");
+            var port = Environment.GetEnvironmentVariable("KUBERNETES_SERVICE_PORT");
+
             var jwt = Path.Combine("/var/run/secrets/kubernetes.io/serviceaccount", "token");
 
             vaultClientSettings = new VaultClientSettings(
-                $"http://{kubernetesHost}:{kubernetesPort}",
+                $"http://{host}:{port}",
                 new KubernetesAuthMethodInfo($"{options.AppName}-{options.Kubernetes.RoleSufix}", jwt)
             );
         }
