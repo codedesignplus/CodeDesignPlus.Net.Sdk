@@ -5,8 +5,6 @@
     <img src="https://i.imgur.com/PwbGy0o.png" alt="Logo">
   </a>
 
-  <h3 align="center">CodeDesignPlus.Net.Core</h3>
-
   <p align="center">
     .NET Core archetype for efficient development, unit testing, and continuous integration of NuGet libraries.
     <br />
