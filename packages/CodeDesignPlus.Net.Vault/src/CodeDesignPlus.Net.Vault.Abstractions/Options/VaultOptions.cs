@@ -12,6 +12,31 @@ public class VaultOptions : IValidatableObject
     /// </summary>
     public static readonly string Section = "Vault";
     /// <summary>
+    /// Gets the type of authentication to use in the Vault
+    /// </summary>
+    public TypeAuth TypeAuth
+    {
+        get
+        {
+            if (!string.IsNullOrEmpty(this.Token))
+                return TypeAuth.Token;
+            else if (!string.IsNullOrEmpty(this.RoleId) && !string.IsNullOrEmpty(this.SecretId))
+                return TypeAuth.AppRole;
+            else if (this.Kubernetes != null && this.Kubernetes.Enable)
+                return TypeAuth.Kubernetes;
+
+            return TypeAuth.None;
+        }
+    }
+    /// <summary>
+    /// Gets or sets the enable of the Vault server
+    /// </summary>
+    public bool Enable { get; set; }
+    /// <summary>
+    /// Gets or sets the token of the Vault server
+    /// </summary>
+    public string Token { get; set; }
+    /// <summary>
     /// Gets or sets the address of the Vault server
     /// </summary>
     [Required]
@@ -69,10 +94,8 @@ public class VaultOptions : IValidatableObject
     {
         var results = new List<ValidationResult>();
 
-        if (string.IsNullOrEmpty(this.RoleId) && string.IsNullOrEmpty(this.SecretId) && this.Kubernetes != null && !this.Kubernetes.Enable)
-        {
-            results.Add(new ValidationResult("The RoleId and SecretId is required."));
-        }
+        if (this.TypeAuth == TypeAuth.None)
+            results.Add(new ValidationResult("The TypeAuth is required."));
 
         if (this.Mongo != null && this.Mongo.Enable)
         {

@@ -55,12 +55,12 @@ public class VaultOptionsTest
         // Assert
         Assert.NotEmpty(results);
         Assert.Contains(results, x => x.ErrorMessage == "The Address field is required.");
-        Assert.Contains(results, x => x.ErrorMessage == "The RoleId and SecretId is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The AppName field is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The Solution field is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The RoleSufix field is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The SufixMoundPoint field is required.");
         Assert.Contains(results, x => x.ErrorMessage == "The TemplateConnectionString field is required.");
+        Assert.Contains(results, x => x.ErrorMessage == "The TypeAuth is required.");
     }
 
     [Fact]
@@ -114,5 +114,4 @@ public class VaultOptionsTest
         // Assert
         Assert.Empty(results);
     }
-
 }

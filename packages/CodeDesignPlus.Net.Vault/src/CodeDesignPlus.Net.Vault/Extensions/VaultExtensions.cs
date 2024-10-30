@@ -42,19 +42,18 @@ public static class VaultExtensions
     /// </summary>
     /// <param name="builder">The <see cref="IConfigurationBuilder"/> to add configuration to.</param>
     /// <param name="options">An action to configure the <see cref="VaultOptions"/>.</param>
-    /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> or <paramref name="options"/> is null.</exception>
+    /// <exception cref="ArgumentNullException">Thrown if <paramref name="builder"/> is null.</exception>
     /// <exception cref="VaultException">Thrown if the Vault configuration section does not exist.</exception>
     /// <returns>The updated <see cref="IConfigurationBuilder"/>.</returns>
-    public static IConfigurationBuilder AddVault(this IConfigurationBuilder builder, Action<VaultOptions> options)
+    public static IConfigurationBuilder AddVault(this IConfigurationBuilder builder, Action<VaultOptions> options = null)
     {
         ArgumentNullException.ThrowIfNull(builder);
-        ArgumentNullException.ThrowIfNull(options);
 
         var configuration = builder.Build();
 
         var vaultOptions = configuration.GetSection(VaultOptions.Section).Get<VaultOptions>();
 
-        options.Invoke(vaultOptions);
+        options?.Invoke(vaultOptions);
 
         var source = new VaultConfigurationSource(vaultOptions);
 
