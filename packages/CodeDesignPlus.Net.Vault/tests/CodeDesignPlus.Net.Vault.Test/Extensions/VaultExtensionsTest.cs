@@ -140,4 +140,50 @@ public class VaultExtensionsTest(VaultCollectionFixture fixture)
         Assert.NotNull(server);
     }
 
+    [Fact]
+    public void AddVault_ConfigurationBuilder_TokenAppSettings()
+    {
+        var server = new TestServer(new WebHostBuilder()
+            .ConfigureAppConfiguration((context, builder) =>
+            {
+                builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+                builder.AddVault(options =>
+                {
+                    options.Address = $"http://localhost:{fixture.Container.Port}";
+                    options.Token = "root";
+                    options.Solution = "unit-test";
+                    options.KeyVault.Enable = true;
+                    options.Mongo.Enable = true;
+                    options.RabbitMQ.Enable = true;
+                    options.AppName = "my-app";
+                });
+            }).ConfigureServices(services =>
+            {
+
+            }).Configure(app =>
+            {
+                var configuration = app.ApplicationServices.GetRequiredService<IConfiguration>();
+
+                var securityOptions = configuration.GetSection("Security").Get<SecurityOptions>();
+                var mongoOptions = configuration.GetSection("Mongo").Get<MongoOptions>();
+                var rabbitMQOptions = configuration.GetSection("RabbitMQ").Get<RabbitMQOptions>();
+
+                Assert.NotNull(securityOptions);
+                Assert.NotEmpty(securityOptions.ValidAudiences);
+                Assert.NotNull(securityOptions.ClientId);
+
+                Assert.NotNull(mongoOptions);
+                Assert.NotNull(mongoOptions.ConnectionString);
+                Assert.NotEqual("mongodb://localhost:27017", mongoOptions.ConnectionString);
+
+                Assert.NotNull(rabbitMQOptions);
+                Assert.NotNull(rabbitMQOptions.UserName);
+                Assert.NotNull(rabbitMQOptions.Password);
+            })
+        );
+
+        Assert.NotNull(server);
+    }
+
 }
