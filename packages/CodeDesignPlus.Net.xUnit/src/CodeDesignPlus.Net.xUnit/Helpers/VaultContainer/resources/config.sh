@@ -1,3 +1,5 @@
+#!/bin/sh
+
 export VAULT_ADDR="http://0.0.0.0:8200"
 
 vault login token=root
