@@ -1,3 +1,5 @@
+using VaultSharp.V1.AuthMethods.Token;
+
 namespace CodeDesignPlus.Net.Vault.Services;
 
 /// <summary>
@@ -15,22 +17,23 @@ public static class VaultClientFactory
     {
         ArgumentNullException.ThrowIfNull(options);
 
-        var vaultClientSettings = new VaultClientSettings(
-            options.Address,
-            new AppRoleAuthMethodInfo(options.RoleId, options.SecretId)
-        );
+        if (options.TypeAuth == TypeAuth.Token)
+            return new VaultClient(new VaultClientSettings(options.Address, new TokenAuthMethodInfo(options.Token)));
 
-        if (options.Kubernetes.Enable)
+        if (options.TypeAuth == TypeAuth.AppRole)
+            return new VaultClient(new VaultClientSettings(options.Address, new AppRoleAuthMethodInfo(options.RoleId, options.SecretId)));
+
+        if (options.TypeAuth == TypeAuth.Kubernetes)
         {
             var jwt = File.ReadAllText(options.Kubernetes.PathTokenKubernetes);
 
-            vaultClientSettings = new VaultClientSettings(
+            return new VaultClient(new VaultClientSettings(
                 options.Address,
                 new KubernetesAuthMethodInfo($"{options.AppName}-{options.Kubernetes.RoleSufix}", jwt)
-            );
+            ));
         }
 
-        return new VaultClient(vaultClientSettings);
+        throw new VaultException("The authentication type is not defined.");
     }
 
 }

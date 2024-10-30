@@ -5,7 +5,6 @@ services:
     image: hashicorp/vault:latest
     ports:
       - "0:8200"
-    restart: unless-stopped
     environment:
       VAULT_DEV_ROOT_TOKEN_ID: "root"
       VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
@@ -18,8 +17,9 @@ services:
       - ./resources/entrypoint.sh:/resources/entrypoint.sh
     cap_add:
       - IPC_LOCK
-    command: /bin/sh -c "chmod +x /resources/entrypoint.sh && chmod +x /resources/config.sh && /resources/entrypoint.sh"
-  
+    entrypoint: /bin/sh -c "chmod +x /resources/entrypoint.sh && chmod +x /resources/config.sh && /resources/entrypoint.sh" 
+
+
   mongo:
     image: mongo:latest
     environment:

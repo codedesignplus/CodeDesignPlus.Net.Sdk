@@ -1,4 +1,4 @@
-#!/bin/sh
+echo "Hello, world!"
 
 echo "Starting Vault server in dev mode..."
 vault server -dev &
