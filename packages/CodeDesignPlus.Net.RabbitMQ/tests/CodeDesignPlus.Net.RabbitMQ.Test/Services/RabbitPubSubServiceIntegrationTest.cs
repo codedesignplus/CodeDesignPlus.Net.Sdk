@@ -40,7 +40,7 @@ public class RabbitPubSubServiceIntegrationTest
         serviceCollection.AddLogging();
         serviceCollection.AddSingleton(configuration);
         serviceCollection.AddCore(configuration);
-        serviceCollection.AddRabbitMQ(configuration);
+        serviceCollection.AddRabbitMQ<RabbitPubSubServiceIntegrationTest>(configuration);
         serviceCollection.AddSingleton<UserCreatedDomainEventHandler>();
         serviceCollection.AddSingleton<ProductCreatedDomainEventHandler>();
         serviceCollection.AddSingleton<IMemoryHandler, MemoryHandler>();

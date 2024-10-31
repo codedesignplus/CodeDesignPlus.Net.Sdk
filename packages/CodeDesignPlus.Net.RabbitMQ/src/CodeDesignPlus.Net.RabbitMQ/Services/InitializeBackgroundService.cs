@@ -3,13 +3,11 @@ using Microsoft.Extensions.Hosting;
 namespace CodeDesignPlus.Net.RabbitMQ.Services;
 
 /// <summary>
-/// Background service to initialize RabbitMQ exchanges for domain events.
+/// Background service that initializes the RabbitMQ exchanges for all domain events.
 /// </summary>
-/// <remarks>
-/// Initializes a new instance of the <see cref="InitializeBackgroundService"/> class.
-/// </remarks>
-/// <param name="channelProvider">The channel provider to declare exchanges.</param>
-public class InitializeBackgroundService(IChannelProvider channelProvider) : BackgroundService
+/// <typeparam name="TAssembly">The assembly where the domain events are located.</typeparam>
+/// <param name="channelProvider">The provider of the RabbitMQ channels.</param>
+public class InitializeBackgroundService<TAssembly>(IChannelProvider channelProvider) : BackgroundService
 {
     private readonly IChannelProvider channelProvider = channelProvider;
 
@@ -20,7 +18,7 @@ public class InitializeBackgroundService(IChannelProvider channelProvider) : Bac
     /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
     protected override Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var types = AppDomain.CurrentDomain.GetAssemblies().SelectMany(x => x.GetTypes());
+        var types = typeof(TAssembly).Assembly.GetTypes();
 
         var domainEvents = types.Where(x => x.IsSubclassOf(typeof(DomainEvent)));
 
