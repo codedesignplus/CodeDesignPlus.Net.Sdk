@@ -9,6 +9,7 @@
     "affected:build": "npx nx affected --skip-nx-cache --parallel 1 --target build --head=HEAD --base=remotes/origin/main",
     "affected:test": "npx nx affected --skip-nx-cache --target test --head=HEAD --base=remotes/origin/main",
     "affected:sonarqube": "npx nx affected --skip-nx-cache --parallel 1 --target sonarqube --head=HEAD --base=remotes/origin/main", 
+    "affected:graph": "npx nx affected --skip-nx-cache --target dep-graph --head=HEAD --base=remotes/origin/main",
     "all:restore": "npx nx run-many --all --skip-nx-cache --target restore",
     "all:format": "npx nx run-many --all --skip-nx-cache --target format",
     "all:build": "npx nx run-many --all --skip-nx-cache --target build --parallel 1",
