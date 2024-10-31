@@ -3,19 +3,20 @@
   <PropertyGroup>
 	<TargetFramework>netstandard2.0</TargetFramework>
 	<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-		<Authors>CodeDesignPlus</Authors>
-				<Description>CodeDesignPlus.Net.Generator provides a powerful framework for generating code in .NET Core applications. This library simplifies the process of creating boilerplate code, enabling developers to increase productivity and maintain consistency across their projects.</Description>
-		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	<Authors>CodeDesignPlus</Authors>
+	<Description>CodeDesignPlus.Net.Generator provides a powerful framework for generating code in .NET Core applications. This library simplifies the process of creating boilerplate code, enabling developers to increase productivity and maintain consistency across their projects.</Description>
+	<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageId>CodeDesignPlus.Net.Generator</PackageId>
     <RepositoryType>git</RepositoryType>
-   <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
-		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-		<PackageIcon>logo.png</PackageIcon>
+   	<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Generator</PackageProjectUrl>
+	<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+	<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	<EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -23,6 +24,7 @@
 	</PropertyGroup>
 
   <ItemGroup>
+  	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
 	<PackageReference Include="Microsoft.CodeAnalysis" Version="4.11.0" />
 	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
 	<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />

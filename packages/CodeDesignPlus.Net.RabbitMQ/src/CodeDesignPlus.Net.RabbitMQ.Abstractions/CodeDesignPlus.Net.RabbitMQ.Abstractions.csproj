@@ -2,22 +2,23 @@
 
 	<PropertyGroup>
 		<TargetFramework>net8.0</TargetFramework>
-<ProjectGuid>{4B1350D1-89C2-4541-8F1C-8D0ED85048F2}</ProjectGuid>
+		<ProjectGuid>{4B1350D1-89C2-4541-8F1C-8D0ED85048F2}</ProjectGuid>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>disable</Nullable>
 		<Authors>CodeDesignPlus</Authors>
-				<Description>CodeDesignPlus.Net.RabbitMQ.Abstractions provides essential interfaces and abstract classes for integrating RabbitMQ with .NET Core applications. This library defines core contracts and abstractions that facilitate a clean and maintainable architecture for event-driven systems using RabbitMQ, enabling better testing and extensibility.</Description>
+		<Description>CodeDesignPlus.Net.RabbitMQ.Abstractions provides essential interfaces and abstract classes for integrating RabbitMQ with .NET Core applications. This library defines core contracts and abstractions that facilitate a clean and maintainable architecture for event-driven systems using RabbitMQ, enabling better testing and extensibility.</Description>
 		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
 		<PackageId>CodeDesignPlus.Net.RabbitMQ.Abstractions</PackageId>
 		<RepositoryType>git</RepositoryType>
 		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.RabbitMQ</PackageProjectUrl>
 		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
 		<PackageIcon>logo.png</PackageIcon>
 		<Version>$(Version)</Version>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -26,6 +27,7 @@
 
 
 	<ItemGroup>
+    	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
 		<PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
 		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub\CodeDesignPlus.Net.PubSub.csproj" />
 	</ItemGroup>

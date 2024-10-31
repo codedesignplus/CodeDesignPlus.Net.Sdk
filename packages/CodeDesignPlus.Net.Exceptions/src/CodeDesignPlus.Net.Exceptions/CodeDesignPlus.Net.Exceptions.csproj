@@ -2,22 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
-<ProjectGuid>{A8FD24D7-B4D0-416A-B6B5-2593DBCC8140}</ProjectGuid>
+    <ProjectGuid>{A8FD24D7-B4D0-416A-B6B5-2593DBCC8140}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
-		<Authors>CodeDesignPlus</Authors>
-				<Description>CodeDesignPlus.Net.Exceptions provides a comprehensive framework for handling exceptions in .NET Core applications. This library simplifies the process of defining, throwing, and managing custom exceptions, enabling developers to build robust and maintainable error handling mechanisms.</Description>
-		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	<Authors>CodeDesignPlus</Authors>
+	<Description>CodeDesignPlus.Net.Exceptions provides a comprehensive framework for handling exceptions in .NET Core applications. This library simplifies the process of defining, throwing, and managing custom exceptions, enabling developers to build robust and maintainable error handling mechanisms.</Description>
+	<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
     <PackageId>CodeDesignPlus.Net.Exceptions</PackageId>
     <RepositoryType>git</RepositoryType>
-   <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</PackageProjectUrl>
-		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-		<PackageIcon>logo.png</PackageIcon>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+	<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Exceptions</PackageProjectUrl>
+	<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+	<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	<EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -25,6 +27,7 @@
 	</PropertyGroup>
 
   <ItemGroup>
+  	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="FluentValidation" Version="11.10.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
