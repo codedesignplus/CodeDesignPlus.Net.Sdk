@@ -8,12 +8,13 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds RabbitMQ services to the specified <see cref="IServiceCollection"/>.
     /// </summary>
+    /// <typeparam name="TAssembly">The assembly where the domain events are located.</typeparam>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     /// <param name="configuration">The configuration to bind the RabbitMQ options.</param>
     /// <returns>The <see cref="IServiceCollection"/> so that additional calls can be chained.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="services"/> or <paramref name="configuration"/> is null.</exception>
     /// <exception cref="RabbitMQException">Thrown if the RabbitMQ configuration section does not exist.</exception>
-    public static IServiceCollection AddRabbitMQ(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddRabbitMQ<TAssembly>(this IServiceCollection services, IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -43,7 +44,7 @@ public static class ServiceCollectionExtensions
             services.TryAddSingleton<IRabbitPubSubService, RabbitPubSubService>();
             services.TryAddSingleton<IRabbitConnection, RabbitConnection>();
             services.TryAddSingleton<IChannelProvider, ChannelProvider>();
-            services.AddHostedService<InitializeBackgroundService>();
+            services.AddHostedService<InitializeBackgroundService<TAssembly>>();
         }
 
         return services;

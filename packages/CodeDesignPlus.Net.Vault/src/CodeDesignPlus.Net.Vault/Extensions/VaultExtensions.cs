@@ -30,9 +30,11 @@ public static class VaultExtensions
 
         var options = section.Get<VaultOptions>();
 
-        services
-            .AddSingleton<IVaultTransit, VaultTransit>()
-            .AddSingleton(x => VaultClientFactory.Create(options));
+        if (options.Enable)
+        {
+            services.AddSingleton<IVaultTransit, VaultTransit>();
+            services.AddSingleton(x => VaultClientFactory.Create(options));
+        }
 
         return services;
     }

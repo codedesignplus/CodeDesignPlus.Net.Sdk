@@ -51,6 +51,42 @@ public class VaultExtensionsTest(VaultCollectionFixture fixture)
         // Assert
         Assert.Equal("The section Vault is required.", exception.Message);
     }
+    
+    [Fact]
+    public void AddVault_VaualtDisable_Success()
+    {
+        // Arrange
+        var configurationBuilder = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { "Vault:Enable", "false" },
+                { "Vault:Address", "http://localhost:8200" },
+                { "Vault:Solution", "unit-test" },
+                { "Vault:AppName", "my-app" },
+                { "Vault:Token", "*******" },
+            });
+
+        var configuration = configurationBuilder.Build();
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddVault(configuration);
+
+        // Assert
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        var factory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IVaultClient));
+        var vaultTransit = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IVaultTransit));
+        var vaultOptions = serviceProvider.GetRequiredService<IOptions<VaultOptions>>().Value;
+
+        Assert.Null(factory);
+
+        Assert.Null(vaultTransit);
+
+        Assert.NotNull(vaultOptions);
+        Assert.False(vaultOptions.Enable);
+    }
 
     [Fact]
     public void AddVault_RegisterServicesAndOptions_Susscess()
