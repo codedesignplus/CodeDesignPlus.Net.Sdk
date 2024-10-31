@@ -3,6 +3,10 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/CodeDesignPlus.Net.Kafka",
+  "implicitDependencies": [
+    "CodeDesignPlus.Net.Core",
+    "CodeDesignPlus.Net.PubSub"
+  ],
   "targets": {
     "restore": {
       "executor": "nx:run-commands",
