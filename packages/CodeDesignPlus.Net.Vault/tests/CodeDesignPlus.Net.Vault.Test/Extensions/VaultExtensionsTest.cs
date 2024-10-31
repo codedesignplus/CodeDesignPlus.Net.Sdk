@@ -95,6 +95,7 @@ public class VaultExtensionsTest(VaultCollectionFixture fixture)
         var configurationBuilder = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
+                { "Vault:Enable", "true" },
                 { "Vault:Address", "http://localhost:8200" },
                 { "Vault:RoleId", "role-id" },
                 { "Vault:SecretId", "secret-id" },
