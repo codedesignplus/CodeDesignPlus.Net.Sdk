@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Mongo.Extensions;
+﻿using MongoDB.Bson.Serialization.Serializers;
+
+namespace CodeDesignPlus.Net.Mongo.Extensions;
 
 /// <summary>
 /// Provides extension methods for adding and configuring MongoDB services.
@@ -51,6 +53,8 @@ public static class ServiceCollectionExtensions
                 };
 
             var mongoClient = new MongoClient(clientSettings);
+
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
             return mongoClient;
         });
