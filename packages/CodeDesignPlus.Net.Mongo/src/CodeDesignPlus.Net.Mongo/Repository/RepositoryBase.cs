@@ -4,25 +4,16 @@ namespace CodeDesignPlus.Net.Mongo.Repository;
 /// <summary>
 /// Base class for MongoDB repository operations.
 /// </summary>
-public abstract class RepositoryBase : IRepositoryBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="RepositoryBase"/> class.
+/// </remarks>
+/// <param name="serviceProvider">The service provider.</param>
+/// <param name="mongoOptions">The MongoDB options.</param>
+/// <param name="logger">The logger instance.</param>
+/// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
+public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger logger) : IRepositoryBase
 {
-    private readonly IServiceProvider serviceProvider;
-    private readonly ILogger logger;
-    private readonly MongoOptions mongoOptions;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RepositoryBase"/> class.
-    /// </summary>
-    /// <param name="serviceProvider">The service provider.</param>
-    /// <param name="mongoOptions">The MongoDB options.</param>
-    /// <param name="logger">The logger instance.</param>
-    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
-    protected RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger logger)
-    {
-        this.serviceProvider = serviceProvider;
-        this.logger = logger;
-        this.mongoOptions = mongoOptions.Value;
-    }
+    private readonly MongoOptions mongoOptions = mongoOptions.Value;
 
     /// <summary>
     /// Gets the MongoDB collection for the specified entity type.
@@ -32,7 +23,7 @@ public abstract class RepositoryBase : IRepositoryBase
     public IMongoCollection<TEntity> GetCollection<TEntity>()
         where TEntity : class, IEntityBase
     {
-        var client = this.serviceProvider.GetRequiredService<IMongoClient>();
+        var client = serviceProvider.GetRequiredService<IMongoClient>();
 
         var database = client.GetDatabase(this.mongoOptions.Database);
 
@@ -170,7 +161,7 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <exception cref="ArgumentNullException">Thrown when the process is null.</exception>
     public async Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken)
     {
-        var client = this.serviceProvider.GetRequiredService<IMongoClient>();
+        var client = serviceProvider.GetRequiredService<IMongoClient>();
 
         var database = client.GetDatabase(this.mongoOptions.Database);
 
@@ -188,8 +179,25 @@ public abstract class RepositoryBase : IRepositoryBase
         {
             await session.AbortTransactionAsync(cancellationToken);
 
-            this.logger.LogError(ex, "Failed to execute transaction");
+            logger.LogError(ex, "Failed to execute transaction");
         }
+    }
+
+    /// <summary>
+    /// Finds an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous find operation.</returns>
+    public Task<TEntity> FindAsync<TEntity>(Guid id, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+
+        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id);
+
+        return collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
     }
 
     /// <summary>

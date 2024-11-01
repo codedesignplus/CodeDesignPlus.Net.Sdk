@@ -371,6 +371,36 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     }
 
     [Fact]
+    public async Task FindAsync_WhenEntityIsValid_ReturnEntityFound()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var (client, collection) = GetCollection();
+        var serviceProvider = GetServiceProvider(client, collection);
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.FindAsync<Client>(entity.Id, cancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(entity.Id, result.Id);
+        Assert.Equal(entity.Name, result.Name);
+        Assert.Equal(entity.IsActive, result.IsActive);
+        Assert.Equal(entity.CreatedAt, result.CreatedAt);
+    }
+
+    [Fact]
     public async Task MatchingAsync_CheckFiltersWithSubDocuments_Success()
     {
         // Arrange

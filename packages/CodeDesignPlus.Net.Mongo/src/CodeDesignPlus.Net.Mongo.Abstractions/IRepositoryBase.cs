@@ -78,6 +78,15 @@ public interface IRepositoryBase
     Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Finds an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous find operation.</returns>
+    Task<TEntity> FindAsync<TEntity>(Guid id, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+
+    /// <summary>
     /// Finds entities matching the specified criteria asynchronously.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
