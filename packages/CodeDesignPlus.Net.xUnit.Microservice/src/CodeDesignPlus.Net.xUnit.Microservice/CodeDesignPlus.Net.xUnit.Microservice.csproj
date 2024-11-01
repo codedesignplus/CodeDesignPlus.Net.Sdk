@@ -11,13 +11,21 @@
 		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.xUnit.Microservice</PackageProjectUrl>
 		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-		<PackageIcon>logo.png</PackageIcon>
-		<Version>$(Version)</Version>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-		<IsPackable>true</IsPackable>
+		<Version>$(Version)</Version>		
+		<PackageIcon>icon/logo.png</PackageIcon>
+		<PackageReadmeFile>docs/README.md</PackageReadmeFile>
+		<PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
 		<PublishRepositoryUrl>true</PublishRepositoryUrl>
 		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+		<None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+	</ItemGroup>
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.xUnit.Microservice.xml</DocumentationFile>
@@ -39,22 +47,6 @@
 		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<None Include="..\..\LICENSE.md">
-			<Pack>True</Pack>
-			<PackagePath>
-			</PackagePath>
-		</None>
-		<None Include="..\..\logo.png">
-			<Pack>True</Pack>
-			<PackagePath>
-			</PackagePath>
-		</None>
-		<None Include="..\..\README.md">
-			<Pack>True</Pack>
-			<PackagePath>\</PackagePath>
-		</None>
-	</ItemGroup>
-	<ItemGroup>
 		<Folder Include="EntryPoints\" />
 		<Folder Include="EntryPoints\AsyncWorkers\" />
 		<Folder Include="EntryPoints\gRpc\" />
@@ -73,7 +65,6 @@
 		<None Include="Server\Services\docker-compose.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true" />
 		<None Include="Server\Services\collector-config.yml" Pack="true" PackagePath="content" PackageCopyToOutput="true" />
 	</ItemGroup>
-
 	
 	<ItemGroup>
 		<Content Include="CodeDesignPlus.Net.xUnit.Microservice.targets" PackagePath="build/CodeDesignPlus.Net.xUnit.Microservice.targets" />

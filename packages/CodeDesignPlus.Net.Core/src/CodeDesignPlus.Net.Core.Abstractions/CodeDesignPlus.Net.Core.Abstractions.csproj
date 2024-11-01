@@ -14,30 +14,24 @@
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Core</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <Version>$(Version)</Version>
-    <PackageIcon>logo.png</PackageIcon>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+		<PackageIcon>icon/logo.png</PackageIcon>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+    <None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Core.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md">
-      <Pack>True</Pack>
-      <PackagePath>
-      </PackagePath>
-    </None>
-		<None Include="..\..\logo.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-    <None Include="..\..\README.md">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
-  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />

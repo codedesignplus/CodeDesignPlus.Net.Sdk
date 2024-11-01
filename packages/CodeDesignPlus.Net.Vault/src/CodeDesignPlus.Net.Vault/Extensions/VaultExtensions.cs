@@ -57,9 +57,8 @@ public static class VaultExtensions
 
         options?.Invoke(vaultOptions);
 
-        var source = new VaultConfigurationSource(vaultOptions);
-
-        builder.Add(source);
+        if(vaultOptions.Enable)
+            builder.Add(new VaultConfigurationSource(vaultOptions));
 
         return builder;
     }

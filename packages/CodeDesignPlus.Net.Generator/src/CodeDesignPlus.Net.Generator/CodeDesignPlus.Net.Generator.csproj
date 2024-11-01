@@ -11,15 +11,24 @@
    	<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
 	<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Generator</PackageProjectUrl>
 	<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-	<PackageIcon>logo.png</PackageIcon>
     <Version>$(Version)</Version>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
-	<PublishRepositoryUrl>true</PublishRepositoryUrl>
-	<EmbedUntrackedSources>true</EmbedUntrackedSources>
+	<PackageIcon>icon/logo.png</PackageIcon>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
   </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+    <None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+  </ItemGroup>
 
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Generator.xml</DocumentationFile>
 	</PropertyGroup>
 
@@ -29,22 +38,6 @@
 	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
 	<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
   </ItemGroup>
-
-  <ItemGroup>
-		<None Include="..\..\LICENSE.md">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\..\logo.png">
-			<Pack>True</Pack>
-			<PackagePath></PackagePath>
-		</None>
-		<None Include="..\..\README.md">
-		  <Pack>True</Pack>
-		  <PackagePath></PackagePath>
-		</None>
-	</ItemGroup>
-
 	
   <ItemGroup>
     <!-- Package the generator in the analyzer directory of the nuget package -->

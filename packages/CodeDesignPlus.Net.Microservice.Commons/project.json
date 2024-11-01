@@ -65,7 +65,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Microservice.Commons.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.Microservice.Commons"
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Microservice.Commons.sln --configuration Release /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:Version={args.version} --output dist/CodeDesignPlus.Net.Microservice.Commons"
       }
     },
     "push": {

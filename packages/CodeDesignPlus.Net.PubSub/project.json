@@ -63,7 +63,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.PubSub.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.PubSub"
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.PubSub.sln --configuration Release /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:Version={args.version} --output dist/CodeDesignPlus.Net.PubSub"
       }
     },
     "push": {
