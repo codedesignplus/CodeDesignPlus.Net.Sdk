@@ -40,6 +40,9 @@ public static class ServiceCollectionExtensions
                 x.EnableCommandText = options.Diagnostic.EnableCommandText;
             });
 
+        if (BsonSerializer.LookupSerializer(typeof(Guid)) == null)
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+
         services.AddSingleton<IMongoClient>((serviceProvider) =>
         {
             var mongoUrl = MongoUrl.Create(options.ConnectionString);
@@ -53,8 +56,6 @@ public static class ServiceCollectionExtensions
                 };
 
             var mongoClient = new MongoClient(clientSettings);
-
-            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
             return mongoClient;
         });
