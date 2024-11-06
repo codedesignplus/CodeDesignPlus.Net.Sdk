@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.EFCore.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.EFCore.Abstractions.Options;
 
 /// <summary>
 /// Options for configuring EFCore.
@@ -13,8 +11,12 @@ public class EFCoreOptions
     public static readonly string Section = "EFCore";
 
     /// <summary>
-    /// Gets or sets the claims identity.
+    /// Gets or sets the connection string to the database.
     /// </summary>
-    [Required]
-    public ClaimsOption ClaimsIdentity { get; set; }
+    public bool Enable { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets the connection string to the database.
+    /// </summary>
+    public bool RegisterRepositories { get; set; } = true;
 }

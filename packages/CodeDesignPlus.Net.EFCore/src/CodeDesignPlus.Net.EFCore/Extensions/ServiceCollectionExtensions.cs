@@ -13,7 +13,7 @@ public static class ServiceCollectionExtensions
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the services or configuration is null.</exception>
     /// <exception cref="EFCoreException">Thrown when the required configuration section does not exist.</exception>
-    public static IServiceCollection AddEFCore(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEFCore<TDbContext>(this IServiceCollection services, IConfiguration configuration) where TDbContext : DbContext
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -28,6 +28,11 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
+        var options = section.Get<EFCoreOptions>();
+
+        if (options.Enable && options.RegisterRepositories)
+            services.AddRepositories<DbContext>();
+
         return services;
     }
 
@@ -36,7 +41,7 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="TContext">Represents a session with the database and can be used to query and save instances of your entities.</typeparam>
     /// <param name="services">The IServiceCollection to add services to.</param>
-    public static void AddRepositories<TContext>(this IServiceCollection services)
+    private static void AddRepositories<TContext>(this IServiceCollection services)
         where TContext : DbContext
     {
         var assembly = typeof(TContext).GetTypeInfo().Assembly;
