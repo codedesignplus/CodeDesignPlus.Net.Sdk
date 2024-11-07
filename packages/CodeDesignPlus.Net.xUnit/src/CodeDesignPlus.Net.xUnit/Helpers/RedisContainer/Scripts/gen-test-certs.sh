@@ -1,9 +1,14 @@
 #!/bin/bash
 
-# Generate some test certificates:
+# sudo apt-get install dos2unix
+# dos2unix gen-test-certs.sh
+# bash ./gen-test-certs.sh
+# openssl pkcs12 -export -out client.pfx -inkey client.key -in client.crt -certfile ca.crt -password pass:Temporal1
+# openssl pkcs12 -export -out client-without-pass.pfx -inkey client.key -in client.crt -certfile ca.crt -password pass:
+# openssl pkcs12 -export -out server.pfx -inkey server.key -in server.crt -certfile ca.crt -password pass:Temporal1
 
 generate_cert() {
-    local name=$1
+    local name="$1"
     local cn="$2"
     local opts="$3"
     local conf="$4"

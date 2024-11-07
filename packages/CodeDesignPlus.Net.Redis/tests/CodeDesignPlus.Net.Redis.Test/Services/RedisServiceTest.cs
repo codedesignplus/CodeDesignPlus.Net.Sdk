@@ -249,7 +249,7 @@ public class RedisServiceTest(RedisContainer fixture) : IClassFixture<RedisConta
         var certificate = "fakeCertificate";
 
         // Act
-        var result = (bool)method!.Invoke(service, new object[] { chain, sslPolicyErrors, passwordCertificate, certificate })!;
+        var result = (bool)method!.Invoke(service, [chain, sslPolicyErrors, passwordCertificate, certificate])!;
 
         // Assert
         Assert.True(result);
@@ -265,5 +265,4 @@ public class RedisServiceTest(RedisContainer fixture) : IClassFixture<RedisConta
 
         eventHandler?.Invoke(this, arguments);
     }
-
 }
