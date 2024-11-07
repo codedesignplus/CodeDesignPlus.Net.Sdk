@@ -33,7 +33,7 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.xUnit.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="Ductus.FluentDocker.XUnit" Version="2.10.59" />
     <PackageReference Include="Moq" Version="4.20.72" />
     <PackageReference Include="xunit" Version="2.9.2" />
@@ -93,5 +93,9 @@
      <None Update="Helpers\VaultContainer\resources\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Helpers/RedisContainer/Scripts/tests/" />
+    <Folder Include="Helpers/RedisContainer/Scripts/tests/tls/" />
   </ItemGroup>
 </Project>

@@ -73,7 +73,7 @@ public class RedisContainer : DockerCompose
 
         var dockerCompose = new DockerComposeConfig
         {
-            ComposeFilePath = new List<string> { file },
+            ComposeFilePath = [file],
             ForceRecreate = true,
             RemoveOrphans = true,
             StopOnDispose = true,
