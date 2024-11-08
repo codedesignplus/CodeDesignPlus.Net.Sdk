@@ -45,11 +45,12 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IMongoClient>((serviceProvider) =>
         {
-            var mongoUrl = MongoUrl.Create(options.ConnectionString);
+            var mongoOptions = serviceProvider.GetRequiredService<IOptions<MongoOptions>>().Value;
+            var mongoUrl = MongoUrl.Create(mongoOptions.ConnectionString);
 
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
 
-            if (options.Diagnostic.Enable)
+            if (mongoOptions.Diagnostic.Enable)
                 clientSettings.ClusterConfigurator = builder =>
                 {
                     builder.SubscribeDiagnosticsActivityEventSubscriber(serviceProvider);
