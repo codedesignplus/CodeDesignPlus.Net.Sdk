@@ -61,10 +61,6 @@ public class EventStorePubSubService : IEventStorePubSubService
 
         var stream = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        @event.Metadata.Add("OccurredAt", @event.OccurredAt);
-        @event.Metadata.Add("EventId", @event.EventId);
-        @event.Metadata.Add("EventType", stream);
-
         var eventData = new EventData(
             @event.EventId,
             stream,
