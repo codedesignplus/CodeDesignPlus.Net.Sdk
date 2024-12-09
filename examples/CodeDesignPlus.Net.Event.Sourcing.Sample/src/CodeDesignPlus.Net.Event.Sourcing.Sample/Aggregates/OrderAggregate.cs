@@ -1,9 +1,7 @@
-using System;
 using CodeDesignPlus.Net.Event.Sourcing.Abstractions;
 using CodeDesignPlus.Net.Event.Sourcing.Sample.Events;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Sample.Aggregates;
-
 
 public class OrderAggregate : AggregateRoot
 {

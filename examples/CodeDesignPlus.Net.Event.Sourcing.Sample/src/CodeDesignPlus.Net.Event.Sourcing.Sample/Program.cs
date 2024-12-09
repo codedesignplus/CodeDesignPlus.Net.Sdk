@@ -37,6 +37,3 @@ var events = orderAggregate.GetAndClearEvents();
 var orderRehidrated = OrderAggregate.Rehydrate<OrderAggregate>(Guid.NewGuid(), events);
 
 Console.WriteLine($"Order Id: {orderRehidrated.Id}");
-
-
-
