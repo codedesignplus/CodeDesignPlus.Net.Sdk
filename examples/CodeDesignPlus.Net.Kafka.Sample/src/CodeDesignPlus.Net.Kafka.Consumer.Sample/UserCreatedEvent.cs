@@ -1,8 +1,11 @@
 using System;
 using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
 namespace CodeDesignPlus.Net.Kafka.Consumer.Sample;
 
+
+[EventKey<UserEntity>(1, "created")]
 public class UserCreatedEvent(
     Guid aggregateId,
     string name,

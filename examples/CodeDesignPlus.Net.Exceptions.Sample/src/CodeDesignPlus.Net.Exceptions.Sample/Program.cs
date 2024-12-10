@@ -1,59 +1,42 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿// This is a simple example of how to use the library CodeDesignPlus.Net.Exceptions
 using CodeDesignPlus.Net.Exceptions;
-using CodeDesignPlus.Net.Exceptions.Extensions;
 using CodeDesignPlus.Net.Exceptions.Guards;
-using CodeDesignPlus.Net.Exceptions.Sample;
+using CodeDesignPlus.Net.Exceptions.Sample.Errors;
 
-Console.WriteLine("This is a sample project to show how to use the CodeDesignPlus.Net.Exceptions library. \n");
+string? user = null;
 
-// Use the clause guard to validate the input parameters
-string? stringIsNull = null;
-
+// This is a simple example of how to use the library CodeDesignPlus.Net.Exceptions with the DomainGuard
 try
 {
-    Console.WriteLine(" \n1. This is a sample to  DomainGuard");
-
-    DomainGuard.IsNull(stringIsNull, ErrorsDomain.Unknown);
+    DomainGuard.IsNullOrEmpty(user, ErrorDomain.UserIsRequired);
 }
 catch (CodeDesignPlusException ex)
 {
-    Console.WriteLine("Layer: " + ex.Layer);
-    Console.WriteLine("Code: " + ex.Code);
-    Console.WriteLine("Message: " + ex.Message);
+    Console.WriteLine(ex.Message);
+    Console.WriteLine(ex.Code);
+    Console.WriteLine(ex.Layer);
 }
 
-
+// This is a simple example of how to use the library CodeDesignPlus.Net.Exceptions with the ApplicationGuard
 try
 {
-    Console.WriteLine(" \n2. This is a sample to  ApplicationGuard");
-
-    ApplicationGuard.IsNull(stringIsNull, ErrorsDomain.Unknown);
+    ApplicationGuard.IsNullOrEmpty(user, ErrorApplication.UserIsRequired);
 }
 catch (CodeDesignPlusException ex)
 {
-    Console.WriteLine("Layer: " + ex.Layer);
-    Console.WriteLine("Code: " + ex.Code);
-    Console.WriteLine("Message: " + ex.Message);
+    Console.WriteLine(ex.Message);
+    Console.WriteLine(ex.Code);
+    Console.WriteLine(ex.Layer);
 }
 
+// This is a simple example of how to use the library CodeDesignPlus.Net.Exceptions with the InfrastructureGuard
 try
 {
-    Console.WriteLine("\n3. This is a sample to InfrastructureGuard");
-
-    InfrastructureGuard.IsNull(stringIsNull, ErrorsDomain.Unknown);
+    InfrastructureGuard.IsNullOrEmpty(user, ErrorInfrastructure.UserIsRequired);
 }
 catch (CodeDesignPlusException ex)
 {
-    Console.WriteLine("Layer: " + ex.Layer);
-    Console.WriteLine("Code: " + ex.Code);
-    Console.WriteLine("Message: " + ex.Message);
+    Console.WriteLine(ex.Message);
+    Console.WriteLine(ex.Code);
+    Console.WriteLine(ex.Layer);
 }
-
-// Get the code and message of the error
-Console.WriteLine("\n4. This is a sample to get the code and message of the error");
-
-var code = ErrorsDomain.Unknown.GetCode();
-var message = ErrorsDomain.Unknown.GetMessage();
-
-Console.WriteLine("Code: " + code);
-Console.WriteLine("Message: " + message);

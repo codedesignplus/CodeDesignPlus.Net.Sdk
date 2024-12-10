@@ -5,7 +5,7 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C82E2035-CDF8-48AD-8C57-9FDC83E4129A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Exceptions.Sample", "CodeDesignPlus.Net.Exceptions.Sample\CodeDesignPlus.Net.Exceptions.Sample.csproj", "{D58FD0EA-BDF7-4D7D-A34E-C8DD90989430}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Exceptions.Sample", "src\CodeDesignPlus.Net.Exceptions.Sample\CodeDesignPlus.Net.Exceptions.Sample.csproj", "{846089E2-3816-48B2-9FCE-2F9AEBB3DDE3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,15 +13,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D58FD0EA-BDF7-4D7D-A34E-C8DD90989430}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D58FD0EA-BDF7-4D7D-A34E-C8DD90989430}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D58FD0EA-BDF7-4D7D-A34E-C8DD90989430}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D58FD0EA-BDF7-4D7D-A34E-C8DD90989430}.Release|Any CPU.Build.0 = Release|Any CPU
+		{846089E2-3816-48B2-9FCE-2F9AEBB3DDE3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{846089E2-3816-48B2-9FCE-2F9AEBB3DDE3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{846089E2-3816-48B2-9FCE-2F9AEBB3DDE3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{846089E2-3816-48B2-9FCE-2F9AEBB3DDE3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{D58FD0EA-BDF7-4D7D-A34E-C8DD90989430} = {C82E2035-CDF8-48AD-8C57-9FDC83E4129A}
+		{846089E2-3816-48B2-9FCE-2F9AEBB3DDE3} = {C82E2035-CDF8-48AD-8C57-9FDC83E4129A}
 	EndGlobalSection
 EndGlobal
