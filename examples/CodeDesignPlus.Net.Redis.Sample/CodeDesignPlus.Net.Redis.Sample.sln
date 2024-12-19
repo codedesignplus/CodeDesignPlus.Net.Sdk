@@ -3,12 +3,46 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{54D24B2C-5F34-4157-88C2-74C4770B0660}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Redis.Cluster.Sample", "src\CodeDesignPlus.Net.Redis.Cluster.Sample\CodeDesignPlus.Net.Redis.Cluster.Sample.csproj", "{32EE1B23-93D7-4C17-95AD-72F131DD5F40}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Redis.Standalone.Sample", "src\CodeDesignPlus.Net.Redis.Standalone.Sample\CodeDesignPlus.Net.Redis.Standalone.Sample.csproj", "{722C9DA9-F827-4B74-B80C-C849E06D6E78}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Redis.Standalone.Tls.Sample", "src\CodeDesignPlus.Net.Redis.Standalone.Tls.Sample\CodeDesignPlus.Net.Redis.Standalone.Tls.Sample.csproj", "{8BC65D9D-DA0D-4BF9-B1C1-7A5C94217B6B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Redis.Cluster.Tls.Sample", "src\CodeDesignPlus.Net.Redis.Cluster.Tls.Sample\CodeDesignPlus.Net.Redis.Cluster.Tls.Sample.csproj", "{78ABA7FE-F5AA-408B-9274-BD873C465B23}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{32EE1B23-93D7-4C17-95AD-72F131DD5F40}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32EE1B23-93D7-4C17-95AD-72F131DD5F40}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32EE1B23-93D7-4C17-95AD-72F131DD5F40}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32EE1B23-93D7-4C17-95AD-72F131DD5F40}.Release|Any CPU.Build.0 = Release|Any CPU
+		{722C9DA9-F827-4B74-B80C-C849E06D6E78}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{722C9DA9-F827-4B74-B80C-C849E06D6E78}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{722C9DA9-F827-4B74-B80C-C849E06D6E78}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{722C9DA9-F827-4B74-B80C-C849E06D6E78}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BC65D9D-DA0D-4BF9-B1C1-7A5C94217B6B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC65D9D-DA0D-4BF9-B1C1-7A5C94217B6B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC65D9D-DA0D-4BF9-B1C1-7A5C94217B6B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC65D9D-DA0D-4BF9-B1C1-7A5C94217B6B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{78ABA7FE-F5AA-408B-9274-BD873C465B23}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{78ABA7FE-F5AA-408B-9274-BD873C465B23}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{78ABA7FE-F5AA-408B-9274-BD873C465B23}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{78ABA7FE-F5AA-408B-9274-BD873C465B23}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{32EE1B23-93D7-4C17-95AD-72F131DD5F40} = {54D24B2C-5F34-4157-88C2-74C4770B0660}
+		{722C9DA9-F827-4B74-B80C-C849E06D6E78} = {54D24B2C-5F34-4157-88C2-74C4770B0660}
+		{8BC65D9D-DA0D-4BF9-B1C1-7A5C94217B6B} = {54D24B2C-5F34-4157-88C2-74C4770B0660}
+		{78ABA7FE-F5AA-408B-9274-BD873C465B23} = {54D24B2C-5F34-4157-88C2-74C4770B0660}
 	EndGlobalSection
 EndGlobal
