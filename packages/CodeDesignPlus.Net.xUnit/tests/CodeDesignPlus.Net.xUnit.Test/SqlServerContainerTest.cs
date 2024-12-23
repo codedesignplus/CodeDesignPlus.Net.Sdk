@@ -1,6 +1,6 @@
 using System;
 using System.Net;
-using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
+using CodeDesignPlus.Net.xUnit.Containers.SqlServer;
 using Microsoft.Data.SqlClient;
 
 namespace CodeDesignPlus.Net.xUnit.Test;

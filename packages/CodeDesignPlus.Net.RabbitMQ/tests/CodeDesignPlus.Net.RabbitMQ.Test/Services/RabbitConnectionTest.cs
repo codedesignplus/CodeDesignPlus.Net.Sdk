@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.xUnit.Containers.RabbitMQContainer;
 using Moq;
 using O = Microsoft.Extensions.Options;
 

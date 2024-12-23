@@ -1,7 +1,7 @@
 using System;
 using System.Net;
 using CodeDesignPlus.Net.Observability.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers.OpenTelemetry;
+using CodeDesignPlus.Net.xUnit.Containers.OpenTelemetry;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -50,7 +50,7 @@ public class CheckServerTest
 
     private static TestServer CreateServer(string environment = "Development")
     {
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration(new
+        var configuration = xUnit.Extensions.ConfigurationUtil.GetConfiguration(new
         {
             Core = Helpers.ConfigurationUtil.CoreOptions,
             Observability = Helpers.ConfigurationUtil.ObservabilityOptions

@@ -3,7 +3,7 @@ global using CodeDesignPlus.Net.Redis.PubSub.Exceptions;
 global using CodeDesignPlus.Net.Redis.PubSub.Abstractions.Options;
 global using CodeDesignPlus.Net.Redis.PubSub.Services;
 global using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers;
-global using CodeDesignPlus.Net.xUnit.Helpers;
+global using CodeDesignPlus.Net.xUnit.Extensions;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Logging;

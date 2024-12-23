@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
+﻿using CodeDesignPlus.Net.xUnit.Extensions;
 using Moq;
 using O = Microsoft.Extensions.Options;
 
