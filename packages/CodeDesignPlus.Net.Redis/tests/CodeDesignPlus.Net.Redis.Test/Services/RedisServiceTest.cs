@@ -1,5 +1,5 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
+﻿using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.xUnit.Containers.RedisContainer;
 using Moq;
 using StackExchange.Redis;
 using System.Net.Security;

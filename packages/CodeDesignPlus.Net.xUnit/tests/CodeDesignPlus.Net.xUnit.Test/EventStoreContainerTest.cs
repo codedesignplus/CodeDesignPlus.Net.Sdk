@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
+﻿using CodeDesignPlus.Net.xUnit.Containers.EventStoreContainer;
 using EventStore.ClientAPI;
 
 namespace CodeDesignPlus.Net.xUnit.Test;

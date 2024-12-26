@@ -50,52 +50,53 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Redis\src\CodeDesignPlus.Net.Redis\CodeDesignPlus.Net.Redis.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Update="Helpers\KafkaContainer\*.yml">
+   <None Update="Containers\KafkaContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\RedisContainer\Certificates\*">
+    <None Update="Containers\RedisContainer\Certificates\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\RedisContainer\*.yml">
+    <None Update="Containers\RedisContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\RedisContainer\Settings\*">
+    <None Update="Containers\RedisContainer\Settings\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\RedisContainer\Scripts\*">
+    <None Update="Containers\RedisContainer\Scripts\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\EventStoreContainer\*.yml">
+    <None Update="Containers\EventStoreContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\MongoContainer\*.yml">
+    <None Update="Containers\MongoContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\ObservabilityContainer\*.yml">
+    <None Update="Containers\ObservabilityContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\ObservabilityContainer\configs\*.yaml">
+    <None Update="Containers\ObservabilityContainer\configs\*.yaml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\RabbitMQContainer\*.yml">
+    <None Update="Containers\RabbitMQContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\OpenTelemetry\*.yml">
+    <None Update="Containers\OpenTelemetry\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\SqlServer\*.yml">
+    <None Update="Containers\SqlServer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-    <None Update="Helpers\VaultContainer\*.yml">
+    <None Update="Containers\VaultContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-     <None Update="Helpers\VaultContainer\resources\*">
+     <None Update="Containers\VaultContainer\resources\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Helpers/RedisContainer/Scripts/tests/" />
-    <Folder Include="Helpers/RedisContainer/Scripts/tests/tls/" />
+    <Folder Include="Containers/RedisContainer/Scripts/tests/" />
+    <Folder Include="Containers/RedisContainer/Scripts/tests/tls/" />
   </ItemGroup>
 </Project>

@@ -81,7 +81,10 @@ public static class ServiceCollectionExtensions
 
         foreach (var repository in repositories)
         {
-            var @interface = repository.GetInterface($"I{repository.Name}", false);
+            var @interface = repository.GetInterfaces().FirstOrDefault(x => x.Name == $"I{repository.Name}");
+
+            if (@interface is null)
+                throw new Exceptions.MongoException($"The interface I{repository.Name} is required.");
 
             services.AddSingleton(@interface, repository);
         }

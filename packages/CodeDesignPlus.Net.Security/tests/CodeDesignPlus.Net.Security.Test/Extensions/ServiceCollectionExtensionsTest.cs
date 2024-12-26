@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Security.Extensions;
 using CodeDesignPlus.Net.Security.Test.Helpers.Server;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;

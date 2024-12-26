@@ -1,4 +1,4 @@
-using CodeDesignPlus.Net.xUnit.Helpers.KafkaContainer;
+using CodeDesignPlus.Net.xUnit.Containers.KafkaContainer;
 using Confluent.Kafka;
 using Confluent.Kafka.Admin;
 

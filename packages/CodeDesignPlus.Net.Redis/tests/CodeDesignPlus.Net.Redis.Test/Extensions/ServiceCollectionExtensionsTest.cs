@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Redis.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using Moq;
 
 namespace CodeDesignPlus.Net.Redis.Test.Extensions;

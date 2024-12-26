@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Vault.Abstractions.Options;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.Vault.Test.Options;
 

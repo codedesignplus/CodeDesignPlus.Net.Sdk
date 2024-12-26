@@ -1,0 +1,120 @@
+networks:
+  redis-cluster-compose:
+    driver: bridge
+
+services:
+  redis0:
+    image: redis:6.2.0
+    volumes:
+      - ./Settings/redis0.conf:/usr/local/etc/redis/redis.conf
+      - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
+      - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
+      - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - redis-cluster-compose
+    ports:
+      - "7379:7379"
+    restart: always
+
+  redis1:
+    image: redis:6.2.0
+    volumes:
+      - ./Settings/redis1.conf:/usr/local/etc/redis/redis.conf
+      - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
+      - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
+      - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - redis-cluster-compose
+    ports:
+      - "7380:7380"
+    restart: always
+
+  redis2:
+    image: redis:6.2.0
+    volumes:
+      - ./Settings/redis2.conf:/usr/local/etc/redis/redis.conf
+      - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
+      - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
+      - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - redis-cluster-compose
+    ports:
+      - "7381:7381"
+    restart: always
+
+  redis3:
+    image: redis:6.2.0
+    volumes:
+      - ./Settings/redis3.conf:/usr/local/etc/redis/redis.conf
+      - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
+      - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
+      - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - redis-cluster-compose
+    ports:
+      - "7382:7382"
+    restart: always
+
+  redis4:
+    image: redis:6.2.0
+    volumes:
+      - ./Settings/redis4.conf:/usr/local/etc/redis/redis.conf
+      - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
+      - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
+      - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - redis-cluster-compose
+    ports:
+      - "7383:7383"
+    restart: always
+
+  redis5:
+    image: redis:6.2.0
+    volumes:
+      - ./Settings/redis5.conf:/usr/local/etc/redis/redis.conf
+      - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
+      - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
+      - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
+    command: ["redis-server", "/usr/local/etc/redis/redis.conf"]
+    networks:
+      - redis-cluster-compose
+    ports:
+      - "7384:7384"
+    restart: always
+
+  redis-cluster-creator:
+    image: redis:6.2.0
+    volumes:
+      - ./Scripts/start-cluster.sh:/start-cluster.sh
+      - ./Certificates/redis.crt:/usr/local/etc/redis/redis.crt
+      - ./Certificates/redis.key:/usr/local/etc/redis/redis.key
+      - ./Certificates/ca.crt:/usr/local/etc/redis/ca.crt
+    command: ["/bin/bash", "/start-cluster.sh"]
+    depends_on:
+      - redis0
+      - redis1
+      - redis2
+      - redis3
+      - redis4
+      - redis5
+    networks:
+      - redis-cluster-compose
+
+  console-app:
+    build:
+      # Set context to the root of the repository and the dockerfile can be found in the path of the packages
+      context: ../../../../../
+      dockerfile: examples/CodeDesignPlus.Net.Redis.Sample/src/CodeDesignPlus.Net.Redis.Cluster.Tls.Sample/Dockerfile
+    ports:
+      - 5000:80
+    networks:
+      - redis-cluster-compose
+    depends_on:
+      - redis-cluster-creator      
+  
+

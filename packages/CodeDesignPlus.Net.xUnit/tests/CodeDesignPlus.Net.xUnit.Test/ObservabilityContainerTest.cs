@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.ObservabilityContainer;
+﻿using CodeDesignPlus.Net.xUnit.Containers.ObservabilityContainer;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 

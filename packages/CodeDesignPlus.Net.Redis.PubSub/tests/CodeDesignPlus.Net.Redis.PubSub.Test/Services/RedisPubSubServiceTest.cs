@@ -4,7 +4,7 @@ using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.PubSub.Extensions;
 using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events;
 using CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Memory;
-using CodeDesignPlus.Net.xUnit.Helpers.RedisContainer;
+using CodeDesignPlus.Net.xUnit.Containers.RedisContainer;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using StackExchange.Redis;

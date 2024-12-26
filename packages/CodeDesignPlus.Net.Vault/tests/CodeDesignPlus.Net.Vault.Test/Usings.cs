@@ -12,5 +12,5 @@ global using Xunit;
 global using Microsoft.AspNetCore.Hosting;
 global using Microsoft.AspNetCore.TestHost;
 global using CodeDesignPlus.Net.Vault.Extensions;
-global using CodeDesignPlus.Net.xUnit.Helpers.VaultContainer;
+global using CodeDesignPlus.Net.xUnit.Containers.VaultContainer;
 global using CodeDesignPlus.Net.Vault.Test.Helpers.Options;

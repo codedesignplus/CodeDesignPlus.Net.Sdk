@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
+﻿using CodeDesignPlus.Net.xUnit.Containers.RabbitMQContainer;
 using RabbitMQ.Client;
 
 namespace CodeDesignPlus.Net.xUnit.Test;

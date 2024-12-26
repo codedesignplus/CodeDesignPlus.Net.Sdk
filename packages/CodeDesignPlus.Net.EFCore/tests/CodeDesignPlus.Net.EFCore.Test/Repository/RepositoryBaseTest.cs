@@ -2,7 +2,7 @@
 using CodeDesignPlus.Entities;
 using CodeDesignPlus.InMemory;
 using CodeDesignPlus.InMemory.Repositories;
-using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
+using CodeDesignPlus.Net.xUnit.Containers.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodeDesignPlus.Net.EFCore.Test.Repository;

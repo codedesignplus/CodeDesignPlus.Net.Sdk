@@ -1,4 +1,4 @@
-using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
+using CodeDesignPlus.Net.xUnit.Containers.RabbitMQContainer;
 
 namespace CodeDesignPlus.Net.xUnit.Test.Definitions;
 

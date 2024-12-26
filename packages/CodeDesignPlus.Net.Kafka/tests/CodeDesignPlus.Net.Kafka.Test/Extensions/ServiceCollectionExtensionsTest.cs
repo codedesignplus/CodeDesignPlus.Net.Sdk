@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Kafka.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Extensions;
 

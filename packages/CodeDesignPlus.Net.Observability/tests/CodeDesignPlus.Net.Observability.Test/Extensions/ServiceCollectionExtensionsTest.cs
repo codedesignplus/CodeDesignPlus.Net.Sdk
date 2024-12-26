@@ -1,18 +1,9 @@
 ﻿using Moq;
 using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.TestHost;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using OpenTelemetry;
-using OpenTelemetry.Metrics;
-using CodeDesignPlus.Net.xUnit.Helpers.OpenTelemetry;
-using OpenTelemetry.Trace;
-using OpenTelemetry.Logs;
-using OpenTelemetry.Exporter;
-using System.Net;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.Observability.Extensions;
 
-namespace CodeDesignPlus.Net.Observability.Extensions;
+namespace CodeDesignPlus.Net.Observability.Test.Extensions;
 
 public class ServiceCollectionExtensionsTest
 {
@@ -47,7 +38,7 @@ public class ServiceCollectionExtensionsTest
     {
         // Arrange
         var serviceCollection = new ServiceCollection();
-        var options = xUnit.Helpers.ConfigurationUtil.GetConfiguration(Test.Helpers.ConfigurationUtil.ObservabilityOptions);
+        var options = ConfigurationUtil.GetConfiguration(Test.Helpers.ConfigurationUtil.ObservabilityOptions);
 
         // Act
         var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddObservability(options, null));
@@ -60,7 +51,7 @@ public class ServiceCollectionExtensionsTest
     public void AddObservability_SectionNotExist_ObservabilityException()
     {
         // Arrange
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration(new object() { });
+        var configuration = ConfigurationUtil.GetConfiguration(new object() { });
         var environment = Mock.Of<IHostEnvironment>();
 
         var serviceCollection = new ServiceCollection();
@@ -76,7 +67,7 @@ public class ServiceCollectionExtensionsTest
     public void AddObservability_AddServices_Success()
     {
         // Arrange
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration(new
+        var configuration = ConfigurationUtil.GetConfiguration(new
         {
             Core = Test.Helpers.ConfigurationUtil.CoreOptions,
             Observability = Test.Helpers.ConfigurationUtil.ObservabilityOptions
@@ -100,7 +91,7 @@ public class ServiceCollectionExtensionsTest
         options.Metrics.Enable = false;
         options.Trace.Enable = false;
 
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration(new
+        var configuration = ConfigurationUtil.GetConfiguration(new
         {
             Core = Test.Helpers.ConfigurationUtil.CoreOptions,
             Observability = options
@@ -142,7 +133,7 @@ public class ServiceCollectionExtensionsTest
             }
         };
 
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration(new
+        var configuration = ConfigurationUtil.GetConfiguration(new
         {
             Core = Test.Helpers.ConfigurationUtil.CoreOptions,
             Observability = options
@@ -183,7 +174,7 @@ public class ServiceCollectionExtensionsTest
             }
         };
 
-        var configuration = xUnit.Helpers.ConfigurationUtil.GetConfiguration(new
+        var configuration = ConfigurationUtil.GetConfiguration(new
         {
             Core = Test.Helpers.ConfigurationUtil.CoreOptions,
             Observability = options

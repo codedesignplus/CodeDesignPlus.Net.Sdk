@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.Security.Abstractions;
-using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Driver;
 using Moq;
 

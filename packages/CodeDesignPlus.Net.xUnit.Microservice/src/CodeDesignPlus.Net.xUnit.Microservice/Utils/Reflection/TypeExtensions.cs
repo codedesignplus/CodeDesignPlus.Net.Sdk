@@ -63,7 +63,17 @@ public static class TypeExtensions
             }
             else if (property.ParameterType.IsClass && !property.ParameterType.IsAbstract)
             {
-                values.Add(property, Activator.CreateInstance(property.ParameterType)!);
+                if (property.ParameterType.GetProperties().Length > 0)
+                {
+                    var instance = property.ParameterType.CreateInstance();
+
+                    values.Add(property, instance);
+                }
+                else
+                {
+                    values.Add(property, Activator.CreateInstance(property.ParameterType)!);
+                }
+
             }
             else if (property.ParameterType.IsGenericType && property.ParameterType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
@@ -77,6 +87,33 @@ public static class TypeExtensions
         }
 
         return values;
+    }
+
+    /// <summary>
+    /// Creates an instance of the specified type.
+    /// </summary>
+    /// <param name="type">The type to create an instance of.</param>
+    /// <returns>An instance of the specified type.</returns>
+    /// <exception cref="CoreException">The type does not have a static Create method.</exception>
+    public static object CreateInstance(this Type type)
+    {
+        var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
+
+        if (constructors.Length == 0)
+        {
+            var nameConstructor = type.GetMethod("Create", BindingFlags.Static | BindingFlags.Public);
+
+            if (nameConstructor is null)
+                throw new CoreException($"The {type.Name} class does not have a static Create method.");
+
+            var valuesMethod = nameConstructor.GetParameters().GetParameterValues();
+
+            return nameConstructor.Invoke(null, [.. valuesMethod.Values]);
+        }
+
+        var constructor = type.GetConstructors().FirstOrDefault()!;
+        var valuesConstructor = constructor.GetParameters().GetParameterValues();
+        return constructor.Invoke([.. valuesConstructor.Values]);
     }
 
     /// <summary>
@@ -98,7 +135,7 @@ public static class TypeExtensions
             {
                 var items = Enum.GetValues(property.PropertyType);
 
-                property.SetValue(instance,items.GetValue(items.Length - 1)!);
+                property.SetValue(instance, items.GetValue(items.Length - 1)!);
             }
             else if (property.PropertyType.IsClass && !property.PropertyType.IsAbstract)
             {

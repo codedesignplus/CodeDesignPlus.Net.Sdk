@@ -1,7 +1,7 @@
 ﻿using CodeDesignPlus.Net.Mongo.Repository;
 using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Driver;
 using Moq;
 using System.Linq.Expressions;

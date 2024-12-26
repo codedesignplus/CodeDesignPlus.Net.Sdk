@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{FAEFF219-BE7F-40EC-B244-BDDB1AC6122A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Security.Sample", "src\CodeDesignPlus.Net.Security.Sample\CodeDesignPlus.Net.Security.Sample.csproj", "{42A83CCF-99D3-48EB-9D33-949951E399C1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{42A83CCF-99D3-48EB-9D33-949951E399C1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{42A83CCF-99D3-48EB-9D33-949951E399C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{42A83CCF-99D3-48EB-9D33-949951E399C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{42A83CCF-99D3-48EB-9D33-949951E399C1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{42A83CCF-99D3-48EB-9D33-949951E399C1} = {FAEFF219-BE7F-40EC-B244-BDDB1AC6122A}
+	EndGlobalSection
+EndGlobal

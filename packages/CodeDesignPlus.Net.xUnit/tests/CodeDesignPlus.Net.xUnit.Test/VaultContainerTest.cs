@@ -1,4 +1,4 @@
-using CodeDesignPlus.Net.xUnit.Helpers.VaultContainer;
+using CodeDesignPlus.Net.xUnit.Containers.VaultContainer;
 using VaultSharp;
 using VaultSharp.V1.AuthMethods;
 using VaultSharp.V1.AuthMethods.AppRole;

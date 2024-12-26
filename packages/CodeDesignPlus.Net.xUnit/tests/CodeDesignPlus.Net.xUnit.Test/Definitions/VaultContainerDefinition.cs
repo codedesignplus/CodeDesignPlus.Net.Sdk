@@ -1,5 +1,5 @@
 using System;
-using CodeDesignPlus.Net.xUnit.Helpers.VaultContainer;
+using CodeDesignPlus.Net.xUnit.Containers.VaultContainer;
 
 namespace CodeDesignPlus.Net.xUnit.Test.Definitions;
 

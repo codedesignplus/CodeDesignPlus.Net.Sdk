@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{CB115FF3-AF2B-412C-B9FF-C4817CB74EC1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Event.Sourcing.Sample", "src\CodeDesignPlus.Net.Event.Sourcing.Sample\CodeDesignPlus.Net.Event.Sourcing.Sample.csproj", "{659E185D-C603-4F71-BF3C-AC4A6A4CAA22}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{659E185D-C603-4F71-BF3C-AC4A6A4CAA22}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{659E185D-C603-4F71-BF3C-AC4A6A4CAA22}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{659E185D-C603-4F71-BF3C-AC4A6A4CAA22}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{659E185D-C603-4F71-BF3C-AC4A6A4CAA22}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{659E185D-C603-4F71-BF3C-AC4A6A4CAA22} = {CB115FF3-AF2B-412C-B9FF-C4817CB74EC1}
+	EndGlobalSection
+EndGlobal
