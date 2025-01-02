@@ -37,7 +37,7 @@ jobs:
       - name: Setup .NET SDK 🚧
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 9.0.x
 
       - name: Install Docker Compose
         uses: ndeloof/install-compose-action@v0.0.1
