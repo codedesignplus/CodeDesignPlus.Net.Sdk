@@ -1,21 +1,23 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>  
+
+  <PropertyGroup>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <ProjectGuid>{E2CEBBAF-6DF7-41E9-815D-9AD4CF90C844}</ProjectGuid>
-		<PublishAot>false</PublishAot>
+    <ProjectGuid>{4B22AF46-5122-482B-9524-78A4F77A4DD7}</ProjectGuid>
+	<PublishAot>false</PublishAot>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>disable</Nullable>
-    <Authors>CodeDesignPlus</Authors>
-    <Description>CodeDesignPlus.Net.Core is a foundational library for .NET Core projects, providing essential utilities and extensions to streamline development, enhance code quality, and support efficient testing and continuous integration. This library serves as the core framework for building robust and maintainable .NET applications.</Description>
-    <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-    <PackageId>CodeDesignPlus.Net.Core</PackageId>
+    <Nullable>enable</Nullable>
+	<Authors>CodeDesignPlus</Authors>
+	<Description>CodeDesignPlus.Net.Cache is a library that provides a simple and easy-to-use cache abstraction for .NET applications. It supports in-memory and distributed caching, allowing developers to use the same API to interact with different cache providers.</Description>
+	<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+	<PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageId>CodeDesignPlus.Net.Cache</PackageId>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Core</PackageProjectUrl>
-    <PackageTags>.NET; .NET Core; Utilities; Extensions; Code Quality; Testing; Continuous Integration; NuGet; CodeDesignPlus; Microservices</PackageTags>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Cache</PackageProjectUrl>
+	<PackageTags>.NET; .NET Core; Cache; In-Memory; Distributed; CodeDesignPlus; Microservices</PackageTags>
     <Version>$(Version)</Version>
-		<PackageIcon>icon/logo.png</PackageIcon>
+	<PackageIcon>icon/logo.png</PackageIcon>
     <PackageReadmeFile>docs/README.md</PackageReadmeFile>
     <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -31,17 +33,19 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Core.xml</DocumentationFile>
+  	<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Cache.xml</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>
+ <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
   </ItemGroup>
-  <ItemGroup>  
-    <ProjectReference Include="..\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
+
+  <ItemGroup>
+    <ProjectReference Include="..\CodeDesignPlus.Net.Cache.Abstractions\CodeDesignPlus.Net.Cache.Abstractions.csproj" />
   </ItemGroup>
+
+
 </Project>

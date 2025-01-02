@@ -1,0 +1,78 @@
+{
+  "name": "CodeDesignPlus.Net.Redis.Cache",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/CodeDesignPlus.Net.Redis.Cache",
+  "targets": {
+    "restore": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.Redis.Cache.sln"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.Redis.Cache.sln"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Redis.Cache.sln"
+      },
+      "configurations": {
+        "production": {
+          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.Redis.Cache.sln --configuration Release"
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.Cache.sln"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.Redis.Cache.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+        }
+      }
+    },
+    "sonarqube": {
+      "executor": "@koliveira15/nx-sonarqube:scan",
+      "options": {
+        "name": "CodeDesignPlus.Net.Redis.Cache",
+        "hostUrl": "https://sonarcloud.io/",
+        "projectKey": "CodeDesignPlus.Net.Redis.Cache.Key",
+        "organization": "codedesignplus",
+        "skipTargetDefaults": false,
+        "branches": false,
+        "qualityGate": false,
+        "qualityGateTimeout": "600",
+        "skipImplicitDeps": false,
+        "exclusions": "**Tests*.cs",
+        "extra": {
+          "sonar.cs.opencover.reportsPaths": "{projectRoot}/tests/CodeDesignPlus.Net.Redis.Cache.Test/coverage.opencover.xml"
+        }
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Redis.Cache.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.Redis.Cache"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.Redis.Cache/*.nupkg --source {args.source} --api-key {args.token}"
+      }
+    }
+  }
+}
