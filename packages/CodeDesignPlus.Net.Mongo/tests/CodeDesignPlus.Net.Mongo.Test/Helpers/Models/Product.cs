@@ -1,4 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization.Attributes;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 

@@ -42,7 +42,16 @@ public static class ServiceCollectionExtensions
             });
             services.TryAddSingleton<IMessage, RabbitPubSubService>();
             services.TryAddSingleton<IRabbitPubSubService, RabbitPubSubService>();
-            services.TryAddSingleton<IRabbitConnection, RabbitConnection>();
+            services.TryAddSingleton<IRabbitConnection>(x => {
+                var rabbitOptions = x.GetRequiredService<IOptions<RabbitMQOptions>>();
+                var coreOptions = x.GetRequiredService<IOptions<CoreOptions>>();
+
+                var connection = new RabbitConnection(x.GetRequiredService<ILogger<RabbitConnection>>());
+
+                connection.ConnectAsync(rabbitOptions.Value, coreOptions.Value.AppName).GetAwaiter().GetResult();
+
+                return connection;
+            });
             services.TryAddSingleton<IChannelProvider, ChannelProvider>();
             services.AddHostedService<InitializeBackgroundService<TAssembly>>();
         }

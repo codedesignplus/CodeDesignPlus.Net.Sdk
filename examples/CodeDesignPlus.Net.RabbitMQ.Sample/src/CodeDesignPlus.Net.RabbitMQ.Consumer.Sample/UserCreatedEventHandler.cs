@@ -9,7 +9,7 @@ public class UserCreatedEventHandler(ILogger<UserCreatedEventHandler> logger) : 
 {
     public Task HandleAsync(UserCreatedEvent data, CancellationToken token)
     {
-        logger.LogDebug("Invoked Event: {Json}", JsonSerializer.Serialize(data));
+        logger.LogInformation("Invoked Event: {Json}", JsonSerializer.Serialize(data));
 
         return Task.CompletedTask;
     }

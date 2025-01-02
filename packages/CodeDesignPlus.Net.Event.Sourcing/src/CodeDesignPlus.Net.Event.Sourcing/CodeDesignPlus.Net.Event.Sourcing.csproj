@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <ProjectGuid>{73300987-F925-4D9B-9F40-ABD3D03CFC89}</ProjectGuid>
-		<PublishAot>false</PublishAot>
-    <TargetFramework>net8.0</TargetFramework>
+    <PublishAot>false</PublishAot>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
@@ -15,7 +15,7 @@
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <Version>$(Version)</Version>
     <NoWarn>S3011</NoWarn>
-	  <PackageIcon>icon/logo.png</PackageIcon>
+    <PackageIcon>icon/logo.png</PackageIcon>
     <PackageReadmeFile>docs/README.md</PackageReadmeFile>
     <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -34,13 +34,13 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Event.Sourcing.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0" />
   </ItemGroup>
-  <ItemGroup>  
+  <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Event.Sourcing.Abstractions\CodeDesignPlus.Net.Event.Sourcing.Abstractions.csproj" />
   </ItemGroup>
 </Project>

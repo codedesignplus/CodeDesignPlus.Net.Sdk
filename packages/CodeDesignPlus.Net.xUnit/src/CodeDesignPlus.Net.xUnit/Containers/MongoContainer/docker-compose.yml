@@ -1,24 +1,17 @@
-version: "3.8"
-
 services:
-  mongo:
+  mongo1:
     image: mongo:latest
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017", "--noauth"]
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "${PORT_CUSTOM}"]
     ports:
-      - 0:27017
-    environment:
-      MONGO_INITDB_DATABASE: dbtestmongo
+      - ${PORT_CUSTOM}:${PORT_CUSTOM}
     healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:27017'}]}) }" | mongosh --port 27017 --quiet
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'localhost:${PORT_CUSTOM}'}]}) }" | mongosh --port ${PORT_CUSTOM} --quiet
       interval: 5s
       timeout: 30s
       start_period: 0s
       start_interval: 1s
       retries: 30
-    volumes:
-      - "mongo_data:/data/db"
-      - "mongo_config:/data/configdb"
-
-volumes:
-  mongo_data:
-  mongo_config:
+    networks:
+      - backend
+networks:
+  backend:

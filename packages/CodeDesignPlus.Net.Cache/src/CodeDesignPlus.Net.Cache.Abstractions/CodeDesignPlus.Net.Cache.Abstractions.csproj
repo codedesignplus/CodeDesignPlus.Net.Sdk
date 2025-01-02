@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <ProjectGuid>{306DB2DE-C0BF-46FB-8766-C634BF89452D}</ProjectGuid>
+    <PublishAot>false</PublishAot>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Authors>CodeDesignPlus</Authors>
+    <Description>CodeDesignPlus.Net.Cache.Abstractions is a library that provides a simple and easy-to-use cache abstraction for .NET applications. It supports in-memory and distributed caching, allowing developers to use the same API to interact with different cache providers.</Description>
+    <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+    <PackageId>CodeDesignPlus.Net.Cache.Abstractions</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Cache</PackageProjectUrl>
+    <PackageTags>.NET; .NET Core; Cache; In-Memory; Distributed; CodeDesignPlus; Microservices</PackageTags>
+    <Version>$(Version)</Version>
+    <PackageIcon>icon/logo.png</PackageIcon>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+    <None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Cache.Abstractions.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="9.0.0" />
+  </ItemGroup>
+</Project>

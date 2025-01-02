@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-		<PublishAot>false</PublishAot>
-    <TargetFramework>net8.0</TargetFramework>
+    <PublishAot>false</PublishAot>
+    <TargetFramework>net9.0</TargetFramework>
     <ProjectGuid>{481CD0B3-7FDA-4D39-AE44-7076439328F0}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
@@ -15,7 +15,7 @@
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <NoWarn>CS1574</NoWarn>
     <Version>$(Version)</Version>
-	  <PackageIcon>icon/logo.png</PackageIcon>
+    <PackageIcon>icon/logo.png</PackageIcon>
     <PackageReadmeFile>docs/README.md</PackageReadmeFile>
     <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -33,11 +33,11 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Redis.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
-  <ItemGroup>  
+  <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="StackExchange.Redis" Version="2.8.16" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
   </ItemGroup>
 </Project>

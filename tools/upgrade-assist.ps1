@@ -6,5 +6,5 @@ foreach ($proyecto in $proyectos)
 {
     Write-Host "Update $($proyecto.FullName)" -ForegroundColor Green
 
-    upgrade-assistant upgrade --targetFramework LTS --non-interactive $proyecto.FullName 
+    upgrade-assistant upgrade --operation Inplace --targetFramework net9.0  --non-interactive $proyecto.FullName 
 }

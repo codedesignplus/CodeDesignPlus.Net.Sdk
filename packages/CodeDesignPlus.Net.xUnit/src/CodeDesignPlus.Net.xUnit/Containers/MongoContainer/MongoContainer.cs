@@ -11,6 +11,7 @@ public class MongoContainer : DockerCompose
     /// <returns>An <see cref="ICompositeService"/> representing the Docker Compose service.</returns>
     protected override ICompositeService Build()
     {
+        var port = new Random().Next(27017, 28000);
         // Define the path to the Docker Compose file.
         var file = Path.Combine(Directory.GetCurrentDirectory(), "Containers", "MongoContainer", "docker-compose.yml");
 
@@ -22,11 +23,15 @@ public class MongoContainer : DockerCompose
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = "mongo_" + Guid.NewGuid().ToString("N"),
+            EnvironmentNameValue = new Dictionary<string, string>
+            {
+                { "PORT_CUSTOM", port.ToString() },
+            }
         };
 
         // Enable port retrieval and set the internal port and container name.
         this.EnableGetPort = true;
-        this.InternalPort = 27017;
+        this.InternalPort = port;
         this.ContainerName = $"{dockerCompose.AlternativeServiceName}-mongo";
 
         // Create and return the Docker Compose service.

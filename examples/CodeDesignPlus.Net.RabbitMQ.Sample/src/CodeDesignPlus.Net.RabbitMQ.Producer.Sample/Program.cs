@@ -18,10 +18,13 @@ var serviceProvider = serviceCollection.BuildServiceProvider();
 
 var producer = serviceProvider.GetRequiredService<IMessage>();
 
-var userCreatedDomainEvent = new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com");
+do
+{
+    var userCreatedDomainEvent = new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com");
 
-await producer.PublishAsync(userCreatedDomainEvent, CancellationToken.None);
+    await producer.PublishAsync(userCreatedDomainEvent, CancellationToken.None);
 
-Console.WriteLine("Message published successfully");
+    Console.WriteLine("Message published successfully");
 
-Console.ReadLine();
+    await Task.Delay(1000);
+} while ( true);

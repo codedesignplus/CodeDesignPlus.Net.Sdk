@@ -6,29 +6,42 @@ using MongoDB.Driver;
 using Moq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Repository;
 
+[Collection(MongoCollectionFixture.Collection)]
 public class RepositoryBaseTest : IClassFixture<MongoContainer>
 {
     private readonly Mock<ILogger<ClientRepository>> loggerMock;
     private readonly MongoContainer mongoContainer;
 
     private readonly IOptions<MongoOptions> options;
+    private readonly IMongoCollection<Client> collection;
+    private readonly IServiceProvider serviceProvider;
 
     public RepositoryBaseTest(MongoContainer mongoContainer)
-    {
+    {        
+        
+        BsonSerializer.TryRegisterSerializer<Guid>(new GuidSerializer(GuidRepresentation.Standard));
+
         this.mongoContainer = mongoContainer;
         this.loggerMock = new Mock<ILogger<ClientRepository>>();
         this.options = Microsoft.Extensions.Options.Options.Create(OptionsUtil.GetOptions(this.mongoContainer.Port));
+
+        var (client, collection) = this.GetCollection();
+
+        this.collection = collection;
+
+        this.serviceProvider = GetServiceProvider(client, collection);
     }
     [Fact]
     public async Task ChangeStateAsync_WhenEntityIsInvalid_ReturnFalse()
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
         var guid = Guid.NewGuid();
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
@@ -47,8 +60,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -80,8 +91,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -110,8 +119,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -152,8 +159,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -181,8 +186,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -221,8 +224,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -254,8 +255,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -303,8 +302,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -340,8 +337,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -375,8 +370,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -406,8 +399,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -438,8 +429,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -474,8 +463,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -513,8 +500,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -553,8 +538,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {

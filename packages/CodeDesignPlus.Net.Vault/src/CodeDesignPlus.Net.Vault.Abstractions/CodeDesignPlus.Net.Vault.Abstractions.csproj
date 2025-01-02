@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
@@ -11,8 +11,8 @@
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Vault.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Vault</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-    <Version>$(Version)</Version>   
-	  <PackageIcon>icon/logo.png</PackageIcon>
+    <Version>$(Version)</Version>
+    <PackageIcon>icon/logo.png</PackageIcon>
     <PackageReadmeFile>docs/README.md</PackageReadmeFile>
     <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -31,7 +31,7 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Vault.Abstractions.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="VaultSharp" Version="1.7.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="VaultSharp" Version="1.17.5.1" />
   </ItemGroup>
 </Project>

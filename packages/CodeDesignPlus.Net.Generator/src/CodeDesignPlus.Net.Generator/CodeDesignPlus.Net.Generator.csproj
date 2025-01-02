@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-  <PropertyGroup>
-	<TargetFramework>netstandard2.0</TargetFramework>
-	<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-	<Authors>CodeDesignPlus</Authors>
-	<Description>CodeDesignPlus.Net.Generator provides a powerful framework for generating code in .NET Core applications. This library simplifies the process of creating boilerplate code, enabling developers to increase productivity and maintain consistency across their projects.</Description>
-	<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+  <PropertyGroup>  
+    <LangVersion>9</LangVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+    <Authors>CodeDesignPlus</Authors>
+    <Description>CodeDesignPlus.Net.Generator provides a powerful framework for generating code in .NET Core applications. This library simplifies the process of creating boilerplate code, enabling developers to increase productivity and maintain consistency across their projects.</Description>
+    <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageId>CodeDesignPlus.Net.Generator</PackageId>
     <RepositoryType>git</RepositoryType>
    	<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-	<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Generator</PackageProjectUrl>
-	<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Generator</PackageProjectUrl>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <Version>$(Version)</Version>
-	<PackageIcon>icon/logo.png</PackageIcon>
+	  <PackageIcon>icon/logo.png</PackageIcon>
     <PackageReadmeFile>docs/README.md</PackageReadmeFile>
     <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -33,10 +33,10 @@
 	</PropertyGroup>
 
   <ItemGroup>
-  	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-	<PackageReference Include="Microsoft.CodeAnalysis" Version="4.11.0" />
-	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.11.0" PrivateAssets="all" />
-	<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
+  	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+	<PackageReference Include="Microsoft.CodeAnalysis" Version="4.12.0" />
+	<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
+	<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
   </ItemGroup>
 	
   <ItemGroup>

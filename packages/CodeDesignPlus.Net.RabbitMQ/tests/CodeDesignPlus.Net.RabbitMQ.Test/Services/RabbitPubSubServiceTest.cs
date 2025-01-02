@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using Moq;
 using RabbitMQ.Client;
 using O = Microsoft.Extensions.Options;
@@ -55,7 +56,7 @@ public class RabbitPubSubServiceTest
     public void UnsubscribeAsync_ConsumerTagIsNull_ReturnTaskCompleted()
     {
         // Arrange
-        var channelMock = new Mock<IModel>();
+        var channelMock = new Mock<IChannel>();
         var channelProviderMock = new Mock<IChannelProvider>();
         var loggerMock = new Mock<ILogger<RabbitPubSubService>>();
         var serviceProviderMock = new Mock<IServiceProvider>();
@@ -66,8 +67,8 @@ public class RabbitPubSubServiceTest
 
         rabbitMQOptions.SetupGet(r => r.Value).Returns(new RabbitMQOptions());
 
-        channelMock.Setup(c => c.CreateBasicProperties()).Returns(Mock.Of<IBasicProperties>());
-        connection.Setup(c => c.CreateModel()).Returns(channelMock.Object);
+        // channelMock.Setup(c => c.CreateBasicProperties()).Returns(Mock.Of<IBasicProperties>());
+        // connection.Setup(c => c.CreateModel()).Returns(channelMock.Object);
         channelProviderMock.Setup(x => x.GetConsumerTag<UserCreatedDomainEvent, UserCreatedDomainEventHandler>()).Returns((string)null!);
 
         var rabbitPubSubService = new RabbitPubSubService(loggerMock.Object, serviceProviderMock.Object, domainEventResolverServiceMock.Object, channelProviderMock.Object, coreOptionsMock.Object, rabbitMQOptions.Object);
@@ -77,6 +78,7 @@ public class RabbitPubSubServiceTest
 
         // Assert
         Assert.True(result.IsCompletedSuccessfully);
+
         channelProviderMock.Verify(x => x.GetConsumerTag<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(), Times.Once);
     }
 

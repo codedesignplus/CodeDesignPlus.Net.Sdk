@@ -1,4 +1,4 @@
-﻿
+
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
@@ -11,9 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{EFB948E0
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.xUnit.Microservice.Test", "tests\CodeDesignPlus.Net.xUnit.Microservice.Test\CodeDesignPlus.Net.xUnit.Microservice.Test.csproj", "{4AACB1E5-7957-4DE4-8753-3962E4C81375}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.xUnit.Microservice.Api", "tests\CodeDesignPlus.Net.xUnit.Microservice.Api\CodeDesignPlus.Net.xUnit.Microservice.Api.csproj", "{203FA62A-6290-45D9-BFEF-2FA7698ADDFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.xUnit.Microservice.Api", "tests\CodeDesignPlus.Net.xUnit.Microservice.Api\CodeDesignPlus.Net.xUnit.Microservice.Api.csproj", "{203FA62A-6290-45D9-BFEF-2FA7698ADDFA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Microservice.Domain", "tests\CodeDesignPlus.Net.Microservice.Domain\CodeDesignPlus.Net.Microservice.Domain.csproj", "{41149B8A-8E14-45EC-BC7A-B57FC5027B0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.Microservice.Domain", "tests\CodeDesignPlus.Net.Microservice.Domain\CodeDesignPlus.Net.Microservice.Domain.csproj", "{41149B8A-8E14-45EC-BC7A-B57FC5027B0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
