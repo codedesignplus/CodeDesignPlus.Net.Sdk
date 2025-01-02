@@ -36,16 +36,16 @@
 		<ProjectReference Include="..\CodeDesignPlus.Net.Observability.Abstractions\CodeDesignPlus.Net.Observability.Abstractions.csproj" />
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
 		<PackageReference Include="Confluent.Kafka.Extensions.OpenTelemetry" Version="0.4.0" />
-		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="8.0.1" />
-		<PackageReference Include="Microsoft.Extensions.Options" Version="8.0.2" />
-		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="8.0.0" />
-		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
-		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.9.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.9.0-beta.1" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.9.0" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.9.0-beta.1" />
-		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.9.0-beta.1" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0" />
+		<PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.10.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.GrpcNetClient" Version="1.10.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.10.0" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.SqlClient" Version="1.10.0-beta.1" />
+		<PackageReference Include="OpenTelemetry.Instrumentation.StackExchangeRedis" Version="1.10.0-beta.1" />
 	</ItemGroup>
 </Project>

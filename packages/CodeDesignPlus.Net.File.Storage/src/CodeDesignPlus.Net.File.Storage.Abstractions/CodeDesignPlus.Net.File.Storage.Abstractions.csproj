@@ -39,12 +39,12 @@
     <EmbeddedResource Include="mime-types.json" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All"/>
-    <PackageReference Include="Azure.Identity" Version="1.12.1" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.22.1" />
-    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.20.0" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Azure.Identity" Version="1.13.1" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.23.0" />
+    <PackageReference Include="Azure.Storage.Files.Shares" Version="12.21.0" />
     <PackageReference Include="Microsoft.Azure.Storage.Common" Version="11.2.3" />
-    <PackageReference Include="Semver" Version="2.3.0" />
+    <PackageReference Include="Semver" Version="3.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
