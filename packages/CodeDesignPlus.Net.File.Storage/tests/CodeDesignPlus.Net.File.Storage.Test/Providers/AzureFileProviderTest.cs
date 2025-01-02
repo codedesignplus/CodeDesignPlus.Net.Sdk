@@ -206,7 +206,7 @@ public class AzureFileProviderTest
     {
         Assert.True(result.Success);
 
-        shareClientMock.Verify(x => x.CreateIfNotExistsAsync(It.IsAny<IDictionary<string, string>>(), It.IsAny<int?>(), It.IsAny<CancellationToken>()), Times.Once);
+        shareClientMock.Verify(x => x.CreateIfNotExistsAsync(It.IsAny<ShareCreateOptions>(), It.IsAny<CancellationToken>()), Times.Once);
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
         shareDirectoryClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);

@@ -1,20 +1,20 @@
 ﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
-using CodeDesignPlus.Net.Generator.Extensions;
-using CodeDesignPlus.Net.Generator.Core;
-
 namespace CodeDesignPlus.Net.Generator
 {
     /// <summary>
     /// Source generator for creating DTO classes.
     /// </summary>
+    /// <remarks>https://andrewlock.net/series/creating-a-source-generator/</remarks>
     [Generator]
-    public class DtoGenerator : ISourceGenerator
+    public class DtoGenerator : IIncrementalGenerator
     {
         private const string PATTERN = @"(Comman?d?s?)$";
 
@@ -22,62 +22,56 @@ namespace CodeDesignPlus.Net.Generator
         /// Initializes the generator.
         /// </summary>
         /// <param name="context">The generator initialization context.</param>
-        public void Initialize(GeneratorInitializationContext context)
+        public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            context.RegisterForSyntaxNotifications(() => new TargetTypeTracker());
+            // 1. Obtener todos los símbolos de clase decorados con el atributo DtoGenerator
+           IncrementalValuesProvider<INamedTypeSymbol> commands = context.SyntaxProvider.CreateSyntaxProvider(
+               predicate: static (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax classDeclaration && classDeclaration.AttributeLists.Count > 0,
+               transform: static (ctx, _) => GetClassWithDtoGeneratorAttribute(ctx)
+            )
+           .Where(static m => m is not null)
+           .Select(static (m, _) => m!);
+
+            // 2. Generar los DTOs para cada clase encontrada
+             context.RegisterSourceOutput(commands, static (context, command) => GenerateDto(context, command));
         }
 
-        /// <summary>
-        /// Executes the generator.
+          /// <summary>
+        /// Obtains the class if it is decorated with the DtoGenerator Attribute
         /// </summary>
-        /// <param name="context">The generator execution context.</param>
-        public void Execute(GeneratorExecutionContext context)
+        /// <param name="ctx">The GeneratorSyntaxContext to use</param>
+        /// <returns>The INamedTypeSymbol if the class is decorated with the DtoGenerator attribute, null otherwise</returns>
+        private static INamedTypeSymbol? GetClassWithDtoGeneratorAttribute(GeneratorSyntaxContext ctx)
         {
-            var applicationReference = context.Compilation.ReferencedAssemblyNames.FirstOrDefault(x => x.Name.Contains("Application"));
+             if (!(ctx.Node is ClassDeclarationSyntax classDeclarationSyntax)) return null;
 
-            if (applicationReference is null)
-                return;
+                if (ctx.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) is not INamedTypeSymbol namedTypeSymbol) return null;
 
-            var assembly = context.Compilation.References
-                .Select(r => context.Compilation.GetAssemblyOrModuleSymbol(r))
-                .OfType<IAssemblySymbol>()
-                .First(x => x.Name == applicationReference.Name);
+               if (!namedTypeSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == "DtoGenerator")) return null;
 
-            var allTypes = assembly.GlobalNamespace.GetNamespaceTypes().ToList();
-
-            var commands = allTypes
-                .Where(t => t.GetAttributes().Any(attr => attr.AttributeClass.Name == "DtoGeneratorAttribute"))
-                .ToList();
-
-            GenerateDtos(context, commands);
+             return namedTypeSymbol;
         }
 
-        /// <summary>
-        /// Generates DTO classes for the specified commands.
+         /// <summary>
+        /// Generates DTO classes for the specified command.
         /// </summary>
         /// <param name="context">The generator execution context.</param>
-        /// <param name="commands">The list of commands to generate DTOs for.</param>
-        private static void GenerateDtos(GeneratorExecutionContext context, List<INamedTypeSymbol> commands)
+        /// <param name="command">The command symbol.</param>
+        private static void GenerateDto(SourceProductionContext context, INamedTypeSymbol command)
         {
             var codeBuilder = new StringBuilder();
+            var dtoName = command.ContainingType != null ? $"{command.ContainingType.Name}Dto" : Regex.Replace(command.Name, PATTERN, "Dto", RegexOptions.None, System.TimeSpan.FromSeconds(1));
+            codeBuilder.AppendLine($"namespace CodeDesignPlus.Microservice.Api.Dtos");
+            codeBuilder.AppendLine("{");
+            codeBuilder.AppendLine($"public class {dtoName}");
+            codeBuilder.AppendLine("{");
 
-            foreach (var command in commands)
-            {
-                var dtoName = command.ContainingType != null ? $"{command.ContainingType.Name}Dto" : Regex.Replace(command.Name, PATTERN, "Dto", RegexOptions.None, System.TimeSpan.FromSeconds(1));
+            AddProperties(codeBuilder, command);
 
-                codeBuilder.AppendLine($"namespace CodeDesignPlus.Microservice.Api.Dtos");
-                codeBuilder.AppendLine("{");
-                codeBuilder.AppendLine($"public class {dtoName}");
-                codeBuilder.AppendLine("{");
+            codeBuilder.AppendLine("}");
+            codeBuilder.AppendLine("}");
 
-                AddProperties(codeBuilder, command);
-
-                codeBuilder.AppendLine("}");
-                codeBuilder.AppendLine("}");
-
-                context.AddSource($"{dtoName}.g.cs", SourceText.From(codeBuilder.ToString(), Encoding.UTF8));
-                codeBuilder.Clear();
-            }
+            context.AddSource($"{dtoName}.g.cs", SourceText.From(codeBuilder.ToString(), Encoding.UTF8));
         }
 
         /// <summary>

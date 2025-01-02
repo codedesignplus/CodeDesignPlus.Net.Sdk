@@ -1,43 +1,39 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
-	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
-		<ProjectGuid>{4B1350D1-89C2-4541-8F1C-8D0ED85048F2}</ProjectGuid>
-		<ImplicitUsings>enable</ImplicitUsings>
-		<Nullable>disable</Nullable>
-		<Authors>CodeDesignPlus</Authors>
-		<Description>CodeDesignPlus.Net.RabbitMQ.Abstractions provides essential interfaces and abstract classes for integrating RabbitMQ with .NET Core applications. This library defines core contracts and abstractions that facilitate a clean and maintainable architecture for event-driven systems using RabbitMQ, enabling better testing and extensibility.</Description>
-		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-		<PackageId>CodeDesignPlus.Net.RabbitMQ.Abstractions</PackageId>
-		<RepositoryType>git</RepositoryType>
-		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.RabbitMQ</PackageProjectUrl>
-		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-		<Version>$(Version)</Version>
-		<PackageIcon>icon/logo.png</PackageIcon>
-		<PackageReadmeFile>docs/README.md</PackageReadmeFile>
-		<PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
-		<PublishRepositoryUrl>true</PublishRepositoryUrl>
-		<EmbedUntrackedSources>true</EmbedUntrackedSources>
-		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-	</PropertyGroup>
-	<ItemGroup>
-		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
-		<None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
-		<None Include="..\..\README.md" Pack="true" PackagePath="docs" />
-	</ItemGroup>
-
-	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-	</PropertyGroup>
-	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.RabbitMQ.Abstractions.xml</DocumentationFile>
-	</PropertyGroup>
-
-	<ItemGroup>
-    	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-		<PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
-		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub\CodeDesignPlus.Net.PubSub.csproj" />
-	</ItemGroup>
-
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ProjectGuid>{4B1350D1-89C2-4541-8F1C-8D0ED85048F2}</ProjectGuid>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <Authors>CodeDesignPlus</Authors>
+    <Description>CodeDesignPlus.Net.RabbitMQ.Abstractions provides essential interfaces and abstract classes for integrating RabbitMQ with .NET Core applications. This library defines core contracts and abstractions that facilitate a clean and maintainable architecture for event-driven systems using RabbitMQ, enabling better testing and extensibility.</Description>
+    <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+    <PackageId>CodeDesignPlus.Net.RabbitMQ.Abstractions</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.RabbitMQ</PackageProjectUrl>
+    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+    <Version>$(Version)</Version>
+    <PackageIcon>icon/logo.png</PackageIcon>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+    <None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.RabbitMQ.Abstractions.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub\CodeDesignPlus.Net.PubSub.csproj" />
+  </ItemGroup>
 </Project>

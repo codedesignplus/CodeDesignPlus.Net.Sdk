@@ -16,7 +16,7 @@ public class InitializeBackgroundService<TAssembly>(IChannelProvider channelProv
     /// </summary>
     /// <param name="stoppingToken">Triggered when the host is performing a graceful shutdown.</param>
     /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var types = typeof(TAssembly).Assembly.GetTypes();
 
@@ -24,9 +24,7 @@ public class InitializeBackgroundService<TAssembly>(IChannelProvider channelProv
 
         foreach (var domainEvent in domainEvents)
         {
-            channelProvider.ExchangeDeclare(domainEvent);
+            await channelProvider.ExchangeDeclareAsync(domainEvent);
         }
-
-        return Task.CompletedTask;
     }
 }

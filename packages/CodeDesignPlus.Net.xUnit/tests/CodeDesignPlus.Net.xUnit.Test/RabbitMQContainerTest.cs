@@ -29,7 +29,7 @@ public class RabbitMQContainerTest(RabbitMQCollectionFixture rabbitMQCollectionF
         {
             try
             {
-                connection = factory.CreateConnection();
+                connection = await factory.CreateConnectionAsync();
 
                 // Assert
                 Assert.True(connection.IsOpen, "Connection should be open.");

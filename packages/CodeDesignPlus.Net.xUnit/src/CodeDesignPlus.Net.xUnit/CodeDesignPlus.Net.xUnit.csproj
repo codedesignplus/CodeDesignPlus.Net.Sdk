@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-		<PublishAot>false</PublishAot>
-    <TargetFramework>net8.0</TargetFramework>
+    <PublishAot>false</PublishAot>
+    <TargetFramework>net9.0</TargetFramework>
     <ProjectGuid>{49D2CC5A-78F7-44D3-BC12-C7D2C103BE9C}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
@@ -13,8 +13,8 @@
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
     <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.xUnit</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-    <Version>$(Version)</Version>    
-	  <PackageIcon>icon/logo.png</PackageIcon>
+    <Version>$(Version)</Version>
+    <PackageIcon>icon/logo.png</PackageIcon>
     <PackageReadmeFile>docs/README.md</PackageReadmeFile>
     <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
@@ -50,9 +50,8 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Redis\src\CodeDesignPlus.Net.Redis\CodeDesignPlus.Net.Redis.csproj" />
   </ItemGroup>
-
   <ItemGroup>
-   <None Update="Containers\KafkaContainer\*.yml">
+    <None Update="Containers\KafkaContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
     <None Update="Containers\RedisContainer\Certificates\*">
@@ -91,7 +90,7 @@
     <None Update="Containers\VaultContainer\*.yml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
-     <None Update="Containers\VaultContainer\resources\*">
+    <None Update="Containers\VaultContainer\resources\*">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

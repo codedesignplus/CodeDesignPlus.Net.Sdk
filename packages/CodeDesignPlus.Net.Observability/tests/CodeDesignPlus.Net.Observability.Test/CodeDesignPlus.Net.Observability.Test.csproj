@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-<ProjectGuid>{7BA7B763-B90B-4E6D-9263-68C66928C0A1}</ProjectGuid>
+    <TargetFramework>net9.0</TargetFramework>
+    <ProjectGuid>{7BA7B763-B90B-4E6D-9263-68C66928C0A1}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -25,9 +25,8 @@
     </PackageReference>
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="8.0.11" />
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="9.0.0" />
     <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.10.0" />
-    
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Observability\CodeDesignPlus.Net.Observability.csproj" />

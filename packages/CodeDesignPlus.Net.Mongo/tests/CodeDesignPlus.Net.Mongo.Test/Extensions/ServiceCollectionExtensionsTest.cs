@@ -5,6 +5,9 @@ using MongoDB.Driver;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
+
+[Collection(MongoCollectionFixture.Collection)]
+
 public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassFixture<MongoContainer>
 {
     [Fact]

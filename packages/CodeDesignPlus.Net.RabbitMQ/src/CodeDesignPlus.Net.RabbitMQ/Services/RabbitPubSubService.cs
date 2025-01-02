@@ -74,36 +74,37 @@ public class RabbitPubSubService : IRabbitPubSubService
     /// </summary>
     /// <param name="event">The domain event to publish.</param>
     /// <returns>A task that represents the asynchronous publish operation.</returns>
-    private Task PrivatePublishAsync(IDomainEvent @event)
+    private async Task PrivatePublishAsync(IDomainEvent @event)
     {
-        var channel = this.channelProvider.GetChannelPublish(@event.GetType());
+        var channel = await this.channelProvider.GetChannelPublishAsync(@event.GetType());
 
-        var exchangeName = this.channelProvider.ExchangeDeclare(@event.GetType());
+        var exchangeName = await this.channelProvider.ExchangeDeclareAsync(@event.GetType());
 
         var message = JsonSerializer.Serialize(@event);
 
         var body = Encoding.UTF8.GetBytes(message);
 
-        var properties = channel.CreateBasicProperties();
-        properties.Persistent = true;
-        properties.AppId = coreOptions.AppName;
-        properties.Type = @event.GetType().Name;
-        properties.Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-        properties.MessageId = @event.EventId.ToString();
-        properties.CorrelationId = Guid.NewGuid().ToString();
-        properties.ContentEncoding = "utf-8";
-        properties.ContentType = "application/json";
+        var properties = new BasicProperties
+        {
+            Persistent = true,
+            AppId = coreOptions.AppName,
+            Type = @event.GetType().Name,
+            Timestamp = new AmqpTimestamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds()),
+            MessageId = @event.EventId.ToString(),
+            CorrelationId = Guid.NewGuid().ToString(),
+            ContentEncoding = "utf-8",
+            ContentType = "application/json"
+        };
 
-        channel.BasicPublish(
+        await channel.BasicPublishAsync(
             exchange: exchangeName,
             routingKey: string.Empty,
+            mandatory: true,
             basicProperties: properties,
             body: body
         );
 
         this.logger.LogInformation("Event {TEvent} published ", @event.GetType().Name);
-
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -113,31 +114,29 @@ public class RabbitPubSubService : IRabbitPubSubService
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous subscribe operation.</returns>
-    public Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
+    public async Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = this.channelProvider.GetChannelConsumer<TEvent, TEventHandler>();
+        var channel = await this.channelProvider.GetChannelConsumerAsync<TEvent, TEventHandler>();
 
         var queueNameAttribute = typeof(TEventHandler).GetCustomAttribute<QueueNameAttribute>();
         var queueName = queueNameAttribute.GetQueueName(coreOptions.AppName, coreOptions.Business, coreOptions.Version);
 
-        var exchangeName = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
+        var exchangeName = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
-        ConfigQueue(channel, queueName, exchangeName);
-        ConfigQueueDlx(channel, queueName, exchangeName);
+        await ConfigQueueAsync(channel, queueName, exchangeName);
+        await ConfigQueueDlxAsync(channel, queueName, exchangeName);
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
-        var eventConsumer = new EventingBasicConsumer(channel);
+        var eventConsumer = new AsyncEventingBasicConsumer(channel);
 
-        eventConsumer.Received += async (_, ea) => await RecivedEvent<TEvent, TEventHandler>(channel, ea, cancellationToken);
+        eventConsumer.ReceivedAsync += async (_, ea) => await RecivedEvent<TEvent, TEventHandler>(channel, ea, cancellationToken);
 
-        var consumerTag = channel.BasicConsume(queue: queueName, autoAck: false, consumer: eventConsumer);
+        var consumerTag = await channel.BasicConsumeAsync(queue: queueName, autoAck: false, consumer: eventConsumer, cancellationToken: cancellationToken);
 
         this.channelProvider.SetConsumerTag<TEvent, TEventHandler>(consumerTag);
-
-        return Task.CompletedTask;
     }
 
     /// <summary>
@@ -149,7 +148,7 @@ public class RabbitPubSubService : IRabbitPubSubService
     /// <param name="eventArguments">The event arguments.</param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task RecivedEvent<TEvent, TEventHandler>(IModel channel, BasicDeliverEventArgs eventArguments, CancellationToken cancellationToken)
+    public async Task RecivedEvent<TEvent, TEventHandler>(IChannel channel, BasicDeliverEventArgs eventArguments, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -167,13 +166,13 @@ public class RabbitPubSubService : IRabbitPubSubService
 
             await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
 
-            channel.BasicAck(deliveryTag: eventArguments.DeliveryTag, multiple: false);
+            await channel.BasicAckAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, cancellationToken: cancellationToken);
         }
         catch (Exception ex)
         {
             this.logger.LogError(ex, "Error processing event: {TEvent}.", typeof(TEvent).Name);
 
-            channel.BasicNack(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: false);
+            await channel.BasicNackAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: false, cancellationToken: cancellationToken);
         }
     }
 
@@ -183,12 +182,12 @@ public class RabbitPubSubService : IRabbitPubSubService
     /// <param name="channel">The RabbitMQ channel.</param>
     /// <param name="queue">The queue name.</param>
     /// <param name="exchangeName">The exchange name.</param>
-    private void ConfigQueue(IModel channel, string queue, string exchangeName)
+    private async Task ConfigQueueAsync(IChannel channel, string queue, string exchangeName)
     {
         argumentsQueue["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName);
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
-        channel.QueueDeclare(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: argumentsQueue);
-        channel.QueueBind(queue: queue, exchange: exchangeName, routingKey: string.Empty);
+        await channel.ExchangeDeclareAsync(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
+        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: argumentsQueue);
+        await channel.QueueBindAsync(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 
     /// <summary>
@@ -197,14 +196,14 @@ public class RabbitPubSubService : IRabbitPubSubService
     /// <param name="channel">The RabbitMQ channel.</param>
     /// <param name="queue">The queue name.</param>
     /// <param name="exchangeName">The exchange name.</param>
-    private static void ConfigQueueDlx(IModel channel, string queue, string exchangeName)
+    private static async Task ConfigQueueDlxAsync(IChannel channel, string queue, string exchangeName)
     {
         exchangeName = GetExchangeNameDlx(exchangeName);
         queue = GetQueueNameDlx(queue);
 
-        channel.ExchangeDeclare(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
-        channel.QueueDeclare(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
-        channel.QueueBind(queue: queue, exchange: exchangeName, routingKey: string.Empty);
+        await channel.ExchangeDeclareAsync(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
+        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        await channel.QueueBindAsync(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 
     /// <summary>
@@ -228,7 +227,7 @@ public class RabbitPubSubService : IRabbitPubSubService
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous unsubscribe operation.</returns>
-    public Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
+    public async Task UnsubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
@@ -236,11 +235,9 @@ public class RabbitPubSubService : IRabbitPubSubService
 
         if (!string.IsNullOrEmpty(consumerTag))
         {
-            var channel = this.channelProvider.GetChannelConsumer<TEvent, TEventHandler>();
-            channel.BasicCancel(consumerTag);
+            var channel = await this.channelProvider.GetChannelConsumerAsync<TEvent, TEventHandler>();
+            await channel.BasicCancelAsync(consumerTag, cancellationToken: cancellationToken);
             logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);
         }
-
-        return Task.CompletedTask;
     }
 }

@@ -1,11 +1,16 @@
 ﻿using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.Security.Abstractions;
 using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 using Moq;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Operations;
 
+
+[Collection(MongoCollectionFixture.Collection)]
 public class OperationBaseTest : IClassFixture<MongoContainer>
 {
     private readonly Mock<ILogger<ProductRepository>> loggerMock;
@@ -14,6 +19,8 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
 
     public OperationBaseTest(MongoContainer mongoContainer)
     {
+        BsonSerializer.TryRegisterSerializer<Guid>(new GuidSerializer(GuidRepresentation.Standard));
+
         this.mongoContainer = mongoContainer;
         this.loggerMock = new Mock<ILogger<ProductRepository>>();
         this.options = Microsoft.Extensions.Options.Options.Create(OptionsUtil.GetOptions(this.mongoContainer.Port));

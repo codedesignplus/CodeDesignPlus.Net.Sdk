@@ -10,7 +10,7 @@ public interface IChannelProvider
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
     /// <returns>The channel for publishing.</returns>
-    IModel GetChannelPublish(Type domainEventType);
+    Task<IChannel> GetChannelPublishAsync(Type domainEventType);
 
     /// <summary>
     /// Gets the channel for publishing the specified domain event.
@@ -18,7 +18,7 @@ public interface IChannelProvider
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
     /// <returns>The channel for publishing.</returns>
-    IModel GetChannelPublish<TDomainEvent>(TDomainEvent domainEvent) 
+    Task<IChannel> GetChannelPublishAsync<TDomainEvent>(TDomainEvent domainEvent) 
         where TDomainEvent : IDomainEvent;
 
     /// <summary>
@@ -26,7 +26,7 @@ public interface IChannelProvider
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
     /// <returns>The name of the declared exchange.</returns>
-    string ExchangeDeclare(Type domainEventType);
+    Task<string> ExchangeDeclareAsync(Type domainEventType);
 
     /// <summary>
     /// Declares an exchange for the specified domain event.
@@ -34,7 +34,7 @@ public interface IChannelProvider
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
     /// <returns>The name of the declared exchange.</returns>
-    string ExchangeDeclare<TDomainEvent>(TDomainEvent domainEvent) 
+    Task<string> ExchangeDeclareAsync<TDomainEvent>(TDomainEvent domainEvent) 
         where TDomainEvent : IDomainEvent;
 
     /// <summary>
@@ -43,7 +43,7 @@ public interface IChannelProvider
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
     /// <returns>The channel for consuming.</returns>
-    IModel GetChannelConsumer<TEvent, TEventHandler>()
+    Task<IChannel> GetChannelConsumerAsync<TEvent, TEventHandler>()
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>;
 
