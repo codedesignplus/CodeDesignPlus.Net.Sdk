@@ -17,6 +17,9 @@ public class DtoGeneratorTest
         // Arrange
         var sourceExpected = "namespace CodeDesignPlus.Microservice.Api.Dtos\r\n{\r\npublic class CreateUserDto\r\n{\r\n\t\t public string? Name { get; set; }\r\n\t\t public int? Age { get; set; }\r\n}\r\n}\r\n";
 
+        if (Environment.OSVersion.Platform != PlatformID.Win32NT)
+            sourceExpected = sourceExpected.Replace("\r\n", "\n");
+
         var source = """
         using System;
         
