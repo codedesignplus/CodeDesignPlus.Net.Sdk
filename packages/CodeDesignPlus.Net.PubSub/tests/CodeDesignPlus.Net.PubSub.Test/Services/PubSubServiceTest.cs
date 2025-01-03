@@ -70,7 +70,7 @@ public class PubSubTest
         // Arrange
         var options = Microsoft.Extensions.Options.Options.Create(new PubSubOptions { UseQueue = true });
         var eventMock = new Mock<IDomainEvent>();
-        var eventQueueServiceMock = new Mock<IEventQueueService>();
+        var eventQueueServiceMock = new Mock<IEventQueue>();
 
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton(eventQueueServiceMock.Object);

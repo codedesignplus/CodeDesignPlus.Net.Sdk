@@ -3,14 +3,14 @@
 /// <summary>
 /// Provides Pub/Sub services for interacting with EventStore.
 /// </summary>
-public class EventStorePubSubService : IEventStorePubSubService
+public class EventStorePubSubService : IEventStorePubSub
 {
     private readonly IEventStoreFactory eventStoreFactory;
     private readonly IServiceProvider serviceProvider;
     private readonly ILogger<EventStorePubSubService> logger;
     private readonly EventStorePubSubOptions options;
     private readonly PersistentSubscriptionSettings settings;
-    private readonly IDomainEventResolverService domainEventResolverService;
+    private readonly IDomainEventResolver domainEventResolverService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EventStorePubSubService"/> class.
@@ -28,7 +28,7 @@ public class EventStorePubSubService : IEventStorePubSubService
         IServiceProvider serviceProvider,
         ILogger<EventStorePubSubService> logger,
         IOptions<EventStorePubSubOptions> eventStorePubSubOptions,
-        IDomainEventResolverService domainEventResolverService)
+        IDomainEventResolver domainEventResolverService)
     {
         ArgumentNullException.ThrowIfNull(eventStoreFactory);
         ArgumentNullException.ThrowIfNull(serviceProvider);

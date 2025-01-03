@@ -3,7 +3,7 @@
 /// <summary>
 /// Manages the connection to the Redis cluster.
 /// </summary>
-public interface IRedisService
+public interface IRedis
 {
     /// <summary>
     /// Gets the Redis connection multiplexer.

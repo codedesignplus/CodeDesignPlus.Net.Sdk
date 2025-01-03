@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a service for resolving domain event types and keys.
 /// </summary>
-public interface IDomainEventResolverService
+public interface IDomainEventResolver
 {
     /// <summary>
     /// Gets the type of the domain event based on the event name.

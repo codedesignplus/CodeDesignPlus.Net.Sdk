@@ -10,7 +10,7 @@ public class StartupTest
     /// </summary>
     [Theory]
     [Startup<Startup>]
-    public void Sturtup_CheckNotThrowException(IStartupServices startup, Exception exception)
+    public void Sturtup_CheckNotThrowException(IStartup startup, Exception exception)
     {
         // Assert
         Assert.NotNull(startup);

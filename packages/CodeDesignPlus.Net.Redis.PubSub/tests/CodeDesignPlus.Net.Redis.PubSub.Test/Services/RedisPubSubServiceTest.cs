@@ -28,7 +28,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
 
         // Act & Assert
@@ -39,11 +39,11 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_ServiceProviderIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
+        var factory = Mock.Of<IRedisFactory>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
 
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, null, logger, domainEventResolverService));
@@ -53,11 +53,11 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_LoggerIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
+        var factory = Mock.Of<IRedisFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
 
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new RedisPubSubService(factory, serviceProvider, null, domainEventResolverService));
@@ -67,7 +67,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public void Constructor_DomainEventResolverServiceIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
+        var factory = Mock.Of<IRedisFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
         var options = O.Options.Create(OptionsUtil.RedisPubSubOptions);
@@ -81,11 +81,11 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
     public async Task PublishAsync_EventIsNull_ArgumentNullException()
     {
         // Arrange
-        var factory = Mock.Of<IRedisServiceFactory>();
+        var factory = Mock.Of<IRedisFactory>();
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<RedisPubSubService>>();
 
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         var redisPubSubService = new RedisPubSubService(factory, serviceProvider, logger, domainEventResolverService);
 
@@ -126,10 +126,10 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
                 @eventSend = JsonSerializer.Deserialize<UserCreatedEvent>(value!);
             });
 
-        var redisService = new Mock<IRedisService>();
+        var redisService = new Mock<Redis.Abstractions.IRedis>();
         redisService.SetupGet(x => x.Subscriber).Returns(subscriber.Object);
 
-        var factory = new Mock<IRedisServiceFactory>();
+        var factory = new Mock<IRedisFactory>();
         factory.Setup(x => x.Create(It.IsAny<string>())).Returns(redisService.Object);
 
         var redisPubSubService = new RedisPubSubService(factory.Object, serviceProvider, logger, domainEventResolverService);
@@ -177,7 +177,7 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
 
         var hostServices = serviceProvider.GetServices<IHostedService>();
         var memory = serviceProvider.GetRequiredService<IMemoryService>();
-        var evenBus = serviceProvider.GetRequiredService<IRedisPubSubService>();
+        var evenBus = serviceProvider.GetRequiredService<IRedisPubSub>();
 
         foreach (var hostService in hostServices)
             await hostService.StartAsync(CancellationToken.None);
@@ -224,10 +224,10 @@ public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
                 channelUnsubscribe = channel;
             });
 
-        var redisService = new Mock<IRedisService>();
+        var redisService = new Mock<Redis.Abstractions.IRedis>();
         redisService.SetupGet(x => x.Subscriber).Returns(subscriber.Object);
 
-        var factory = new Mock<IRedisServiceFactory>();
+        var factory = new Mock<IRedisFactory>();
         factory.Setup(x => x.Create(It.IsAny<string>())).Returns(redisService.Object);
 
         var redisPubSubService = new RedisPubSubService(factory.Object, serviceProvider, logger, domainEventResolverService);

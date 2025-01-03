@@ -255,7 +255,7 @@ public class RedisServiceTest(RedisContainer fixture) : IClassFixture<RedisConta
         Assert.True(result);
     }
 
-    private void InvokeHandler<TEventArgs>(IRedisService redisService, TEventArgs arguments, string member)
+    private void InvokeHandler<TEventArgs>(Abstractions.IRedis redisService, TEventArgs arguments, string member)
     {
         var typeConnection = redisService.Connection.GetType();
 

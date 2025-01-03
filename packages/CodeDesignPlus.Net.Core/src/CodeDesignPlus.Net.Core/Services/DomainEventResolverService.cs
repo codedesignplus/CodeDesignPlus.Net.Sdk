@@ -3,7 +3,7 @@
 /// <summary>
 /// Service responsible for resolving domain event types based on event names and attributes.
 /// </summary>
-public class DomainEventResolverService : IDomainEventResolverService
+public class DomainEventResolverService : IDomainEventResolver
 {
     /// <summary>
     /// Dictionary that maps event names to their corresponding types.

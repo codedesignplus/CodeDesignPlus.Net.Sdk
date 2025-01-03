@@ -5,7 +5,7 @@
 /// </summary>
 public class KafkaPubSub : IKafkaPubSub
 {
-    private readonly IDomainEventResolverService domainEventResolverService;
+    private readonly IDomainEventResolver domainEventResolverService;
     private readonly ILogger<KafkaPubSub> logger;
     private readonly KafkaOptions options;
     private readonly IServiceProvider serviceProvider;
@@ -18,7 +18,7 @@ public class KafkaPubSub : IKafkaPubSub
     /// <param name="options">The Kafka options.</param>
     /// <param name="serviceProvider">The service provider.</param>
     /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
-    public KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolverService domainEventResolverService, IOptions<KafkaOptions> options, IServiceProvider serviceProvider)
+    public KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domainEventResolverService, IOptions<KafkaOptions> options, IServiceProvider serviceProvider)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(options);

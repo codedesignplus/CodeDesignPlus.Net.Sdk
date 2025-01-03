@@ -3,12 +3,12 @@
 /// <summary>
 /// Factory for creating and managing Redis services.
 /// </summary>
-public class RedisServiceFactory : IRedisServiceFactory
+public class RedisServiceFactory : IRedisFactory
 {
     private readonly IServiceProvider serviceProvider;
     private readonly RedisOptions options;
     private readonly ILogger<RedisServiceFactory> logger;
-    private readonly ConcurrentDictionary<string, IRedisService> instances = new();
+    private readonly ConcurrentDictionary<string, Abstractions.IRedis> instances = new();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RedisServiceFactory"/> class.
@@ -37,7 +37,7 @@ public class RedisServiceFactory : IRedisServiceFactory
     /// <returns>The Redis service.</returns>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="name"/> is null or empty.</exception>
     /// <exception cref="Exceptions.RedisException">Thrown when the Redis instance with the specified name is not registered.</exception>
-    public IRedisService Create(string name)
+    public Abstractions.IRedis Create(string name)
     {
         if (string.IsNullOrEmpty(name))
             throw new ArgumentNullException(nameof(name));
@@ -48,7 +48,7 @@ public class RedisServiceFactory : IRedisServiceFactory
         if (this.instances.TryGetValue(name, out var service))
             return service;
 
-        service = this.serviceProvider.GetRequiredService<IRedisService>();
+        service = this.serviceProvider.GetRequiredService<Abstractions.IRedis>();
 
         service.Initialize(value);
 

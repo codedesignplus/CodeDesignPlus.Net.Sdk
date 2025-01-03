@@ -8,14 +8,14 @@ public class RedisServiceFactoryTests
 {
     private readonly Mock<IServiceProvider> mockServiceProvider;
     private readonly Mock<IOptions<RedisOptions>> mockOptions;
-    private readonly Mock<IRedisService> mockRedisService;
+    private readonly Mock<IRedis> mockRedisService;
     private readonly Mock<ILogger<RedisServiceFactory>> mockLogger;
 
     public RedisServiceFactoryTests()
     {
         this.mockServiceProvider = new Mock<IServiceProvider>();
         this.mockOptions = new Mock<IOptions<RedisOptions>>();
-        this.mockRedisService = new Mock<IRedisService>();
+        this.mockRedisService = new Mock<IRedis>();
         this.mockLogger = new Mock<ILogger<RedisServiceFactory>>();
     }
 
@@ -120,7 +120,7 @@ public class RedisServiceFactoryTests
             ConnectionString = "localhost:6379"
         };
 
-        var redisService = new Mock<IRedisService>();
+        var redisService = new Mock<IRedis>();
 
         redisService
             .Setup(x => x.Initialize(It.IsAny<Instance>()))

@@ -14,10 +14,10 @@ namespace CodeDesignPlus.Net.Redis.Cache.Services;
 /// <param name="factory">The factory used to create Redis connections.</param>
 /// <param name="logger">The logger for logging messages.</param>
 /// <param name="options">The options for configuring the Redis cache.</param>
-public class RedisCacheManager(IRedisServiceFactory factory, ILogger<RedisCacheManager> logger, IOptions<RedisCacheOptions> options) : IRedisCacheManager
+public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager> logger, IOptions<RedisCacheOptions> options) : IRedisCacheManager
 {
     private readonly RedisCacheOptions cacheOptions = options.Value;
-    private readonly IRedisService redis = factory.Create(FactoryConst.RedisCore);
+    private readonly IRedis redis = factory.Create(FactoryConst.RedisCore);
 
     /// <summary>
     /// Clears all data from the Redis cache.

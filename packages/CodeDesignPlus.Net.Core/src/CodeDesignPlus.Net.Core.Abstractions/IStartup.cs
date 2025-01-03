@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents a contract for initializing services during application startup.
 /// </summary>
-public interface IStartupServices
+public interface IStartup
 {
     /// <summary>
     /// Initializes the services required by the application.

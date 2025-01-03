@@ -26,6 +26,6 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Cache\CodeDesignPlus.Net.Cache.csproj" />
+    <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Cache.Abstractions\CodeDesignPlus.Net.Cache.Abstractions.csproj" />
   </ItemGroup>
 </Project>

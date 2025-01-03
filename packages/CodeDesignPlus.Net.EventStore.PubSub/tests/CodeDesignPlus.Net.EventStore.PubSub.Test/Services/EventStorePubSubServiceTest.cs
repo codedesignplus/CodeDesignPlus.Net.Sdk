@@ -29,7 +29,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
         var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, eventStorePubSubOptions, domainEventResolverService));
@@ -43,7 +43,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
         var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, eventStorePubSubOptions, domainEventResolverService));
@@ -56,7 +56,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         IServiceProvider serviceProvider = null!;
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, null!, domainEventResolverService));
@@ -69,7 +69,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         var serviceProvider = Mock.Of<IServiceProvider>();
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
         var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, null!, eventStorePubSubOptions, domainEventResolverService));
@@ -189,7 +189,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         var serviceProviderMock = new Mock<IServiceProvider>();
         var loggerMock = new Mock<ILogger<EventStorePubSubService>>();
         var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
-        var domainEventResolverService = Mock.Of<IDomainEventResolverService>();
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         var service = new EventStorePubSubService(eventStoreFactoryMock.Object, serviceProviderMock.Object, loggerMock.Object, eventStorePubSubOptions, domainEventResolverService);
 

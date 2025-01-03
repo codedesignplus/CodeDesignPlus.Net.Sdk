@@ -57,7 +57,7 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddRabbitMQ<ServiceCollectionExtensionsTest>(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRabbitPubSubService));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRabbitPubSub));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);

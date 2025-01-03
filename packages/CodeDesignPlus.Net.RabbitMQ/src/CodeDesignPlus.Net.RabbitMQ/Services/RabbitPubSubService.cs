@@ -3,11 +3,11 @@
 /// <summary>
 /// Service to publish and subscribe to domain events using RabbitMQ.
 /// </summary>
-public class RabbitPubSubService : IRabbitPubSubService
+public class RabbitPubSubService : IRabbitPubSub
 {
     private readonly ILogger<RabbitPubSubService> logger;
     private readonly IServiceProvider serviceProvider;
-    private readonly IDomainEventResolverService domainEventResolverService;
+    private readonly IDomainEventResolver domainEventResolverService;
     private readonly CoreOptions coreOptions;
     private readonly IChannelProvider channelProvider;
     private readonly Dictionary<string, object> argumentsQueue;
@@ -21,7 +21,7 @@ public class RabbitPubSubService : IRabbitPubSubService
     /// <param name="channelProvider">The channel provider.</param>
     /// <param name="coreOptions">The core options.</param>
     /// <param name="rabbitMQOptions">The RabbitMQ options.</param>
-    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolverService domainEventResolverService, IChannelProvider channelProvider, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions)
+    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolver domainEventResolverService, IChannelProvider channelProvider, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(serviceProvider);

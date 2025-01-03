@@ -3,7 +3,7 @@
 /// <summary>
 /// Represents the service that allows to publish and subscribe to events in EventStore.
 /// </summary>
-public interface IEventStorePubSubService : IMessage
+public interface IEventStorePubSub : IMessage
 {
 
 }

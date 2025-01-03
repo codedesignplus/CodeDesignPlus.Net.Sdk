@@ -9,10 +9,10 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services;
 /// <param name="connection">The RabbitMQ connection.</param>
 /// <param name="domainEventResolver">The domain event resolver service.</param>
 /// <param name="options">The core options.</param>
-public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverService domainEventResolver, IOptions<CoreOptions> options) : IChannelProvider
+public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver domainEventResolver, IOptions<CoreOptions> options) : IChannelProvider
 {
     private readonly IRabbitConnection connection = connection;
-    private readonly IDomainEventResolverService domainEventResolver = domainEventResolver;
+    private readonly IDomainEventResolver domainEventResolver = domainEventResolver;
     private readonly IOptions<CoreOptions> options = options;
     private readonly ConcurrentDictionary<string, ChannelModel> channels = new();
     private readonly ConcurrentDictionary<string, string> exchanges = new();

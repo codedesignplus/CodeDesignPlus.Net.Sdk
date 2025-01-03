@@ -18,7 +18,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var value = Guid.NewGuid();
         var redisService = fixture.RedisServer;
 
-        var redisFactory = new Mock<IRedisServiceFactory>();
+        var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
         var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));
@@ -40,7 +40,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var value = Guid.NewGuid();
         var redisService = fixture.RedisServer;
 
-        var redisFactory = new Mock<IRedisServiceFactory>();
+        var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
         var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));
@@ -62,7 +62,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var value = Guid.NewGuid();
         var redisService = fixture.RedisServer;
 
-        var redisFactory = new Mock<IRedisServiceFactory>();
+        var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
         var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));
@@ -86,7 +86,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var value = Guid.NewGuid();
         var redisService = fixture.RedisServer;
 
-        var redisFactory = new Mock<IRedisServiceFactory>();
+        var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
         var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));

@@ -16,7 +16,7 @@ public static class MediatRExtensions
     /// <param name="services">The service container.</param>
     /// <returns>The service container with MediatR configured.</returns>
     public static IServiceCollection AddMediatR<TApplication>(this IServiceCollection services) 
-        where TApplication : IStartupServices
+        where TApplication : IStartup
     {
         var assembly = typeof(TApplication).Assembly;
 

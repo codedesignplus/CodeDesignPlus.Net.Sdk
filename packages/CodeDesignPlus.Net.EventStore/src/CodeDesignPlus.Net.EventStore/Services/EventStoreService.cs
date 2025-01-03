@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides services for interacting with EventStore.
 /// </summary>
-public class EventStoreService : IEventStoreService
+public class EventStoreService : IEventStore
 {
     private const string GuidInvalid = "The provided aggregate ID cannot be an empty GUID.";
 
@@ -16,7 +16,7 @@ public class EventStoreService : IEventStoreService
     private readonly IEventStoreFactory eventStoreFactory;
     private readonly ILogger<EventStoreService> logger;
     private readonly EventSourcingOptions options;
-    private readonly IDomainEventResolverService domainEventResolverService;
+    private readonly IDomainEventResolver domainEventResolverService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EventStoreService"/> class.
@@ -29,7 +29,7 @@ public class EventStoreService : IEventStoreService
     /// <exception cref="ArgumentNullException">The domainEventResolverService is null.</exception>
     /// <exception cref="ArgumentNullException">The options is null.</exception>
     /// <exception cref="ArgumentNullException">The logger is null.</exception>
-    public EventStoreService(IEventStoreFactory eventStoreFactory, IDomainEventResolverService domainEventResolverService, ILogger<EventStoreService> logger, IOptions<EventSourcingOptions> options)
+    public EventStoreService(IEventStoreFactory eventStoreFactory, IDomainEventResolver domainEventResolverService, ILogger<EventStoreService> logger, IOptions<EventSourcingOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
         ArgumentNullException.ThrowIfNull(eventStoreFactory);

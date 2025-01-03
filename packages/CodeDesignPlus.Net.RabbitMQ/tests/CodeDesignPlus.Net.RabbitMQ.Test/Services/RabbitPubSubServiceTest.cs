@@ -14,14 +14,14 @@ public class RabbitPubSubServiceTest
     public void Constructor_LoggerIsNull_ThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(null!, Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolverService>(), Mock.Of<IChannelProvider>(), Mock.Of<O.IOptions<CoreOptions>>(), Mock.Of<O.IOptions<RabbitMQOptions>>()));
+        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(null!, Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolver>(), Mock.Of<IChannelProvider>(), Mock.Of<O.IOptions<CoreOptions>>(), Mock.Of<O.IOptions<RabbitMQOptions>>()));
     }
 
     [Fact]
     public void Constructor_ServiceProviderIsNull_ThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), null!, Mock.Of<IDomainEventResolverService>(), Mock.Of<IChannelProvider>(), Mock.Of<O.IOptions<CoreOptions>>(), Mock.Of<O.IOptions<RabbitMQOptions>>()));
+        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), null!, Mock.Of<IDomainEventResolver>(), Mock.Of<IChannelProvider>(), Mock.Of<O.IOptions<CoreOptions>>(), Mock.Of<O.IOptions<RabbitMQOptions>>()));
     }
 
     [Fact]
@@ -35,21 +35,21 @@ public class RabbitPubSubServiceTest
     public void Constructor_RabbitConnectionIsNull_ThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolverService>(), null!, Mock.Of<O.IOptions<CoreOptions>>(), Mock.Of<O.IOptions<RabbitMQOptions>>()));
+        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolver>(), null!, Mock.Of<O.IOptions<CoreOptions>>(), Mock.Of<O.IOptions<RabbitMQOptions>>()));
     }
 
     [Fact]
     public void Constructor_CoreOptionsIsNull_ThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolverService>(), Mock.Of<IChannelProvider>(), null!, Mock.Of<O.IOptions<RabbitMQOptions>>()));
+        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolver>(), Mock.Of<IChannelProvider>(), null!, Mock.Of<O.IOptions<RabbitMQOptions>>()));
     }
 
     [Fact]
     public void Constructor_RabbitMQOptionsIsNull_ThrowArgumentNullException()
     {
         // Arrange & Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolverService>(), Mock.Of<IChannelProvider>(), Mock.Of<O.IOptions<CoreOptions>>(), null!));
+        Assert.Throws<ArgumentNullException>(() => new RabbitPubSubService(Mock.Of<ILogger<RabbitPubSubService>>(), Mock.Of<IServiceProvider>(), Mock.Of<IDomainEventResolver>(), Mock.Of<IChannelProvider>(), Mock.Of<O.IOptions<CoreOptions>>(), null!));
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public class RabbitPubSubServiceTest
         var channelProviderMock = new Mock<IChannelProvider>();
         var loggerMock = new Mock<ILogger<RabbitPubSubService>>();
         var serviceProviderMock = new Mock<IServiceProvider>();
-        var domainEventResolverServiceMock = new Mock<IDomainEventResolverService>();
+        var domainEventResolverServiceMock = new Mock<IDomainEventResolver>();
         var coreOptionsMock = new Mock<IOptions<CoreOptions>>();
         var connection = new Mock<IConnection>();
         var rabbitMQOptions = new Mock<IOptions<RabbitMQOptions>>();

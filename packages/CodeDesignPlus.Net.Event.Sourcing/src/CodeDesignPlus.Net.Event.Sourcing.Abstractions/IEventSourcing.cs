@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides operations for interacting with an event store in an Event Sourcing system.
 /// </summary>
-public interface IEventSourcingService
+public interface IEventSourcing
 {
     /// <summary>
     /// Counts the number of events for a specific category and aggregate ID.
