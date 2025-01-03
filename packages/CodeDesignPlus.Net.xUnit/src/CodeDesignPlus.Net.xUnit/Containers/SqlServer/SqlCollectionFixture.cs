@@ -24,9 +24,6 @@ public sealed class SqlCollectionFixture : IDisposable
     {
         this.Container = new SqlServerContainer();
 
-        // Set the security protocol to TLS 1.2.
-        ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
-
         // Wait for the SQL Server container to be fully initialized.
         Thread.Sleep(10000);
     }

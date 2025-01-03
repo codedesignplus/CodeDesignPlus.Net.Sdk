@@ -87,6 +87,6 @@ public class SecurityOptions
         if (!File.Exists(path))
             throw new FileNotFoundException($"The certificate file not found in the path: {path}");
 
-        return new X509Certificate2(this.CertificatePath, this.CertificatePassword);
+        return X509CertificateLoader.LoadPkcs12FromFile(path, this.CertificatePassword);
     }
 }

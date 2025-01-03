@@ -5,7 +5,7 @@ namespace CodeDesignPlus.Net.Serializers;
 /// <summary>
 /// Provides methods for validating JSON strings.
 /// </summary>
-public class JsonValidate
+public static class JsonValidate
 {
     /// <summary>
     /// Determines whether the specified JSON string is valid.
