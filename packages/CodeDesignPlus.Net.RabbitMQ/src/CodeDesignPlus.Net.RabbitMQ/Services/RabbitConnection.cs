@@ -3,6 +3,7 @@
     /// <summary>
     /// Manages the RabbitMQ connection.
     /// </summary>
+    /// <param name="logger">The logger for logging messages.</param>
     public class RabbitConnection(ILogger<RabbitConnection> logger) : IRabbitConnection
     {
         /// <summary>
