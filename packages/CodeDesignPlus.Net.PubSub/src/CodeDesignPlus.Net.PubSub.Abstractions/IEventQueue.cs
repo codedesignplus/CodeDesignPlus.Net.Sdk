@@ -3,7 +3,7 @@
 /// <summary>
 /// Interface for managing a queue of domain events.
 /// </summary>
-public interface IEventQueueService
+public interface IEventQueue
 {
     /// <summary>
     /// Adds an event to the end of the concurrent queue.

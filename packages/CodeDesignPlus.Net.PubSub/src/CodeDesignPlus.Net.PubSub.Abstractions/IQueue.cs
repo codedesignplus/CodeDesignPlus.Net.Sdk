@@ -4,7 +4,7 @@
 /// Service that allows managing a queue of events.
 /// </summary>
 /// <typeparam name="TEvent">The domain event to manage.</typeparam>
-public interface IQueueService<in TEvent>
+public interface IQueue<in TEvent>
     where TEvent : IDomainEvent
 {
     /// <summary>

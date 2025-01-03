@@ -62,7 +62,7 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddFileStorage(configuration);
 
         // Assert
-        var fileService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorageService));
+        var fileService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorage));
         var azureBlobProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureBlobProvider));
         var azureFileProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureFileProvider));
         var localProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(ILocalProvider));

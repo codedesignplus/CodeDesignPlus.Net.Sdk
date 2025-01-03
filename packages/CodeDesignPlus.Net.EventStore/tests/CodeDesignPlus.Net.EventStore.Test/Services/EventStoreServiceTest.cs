@@ -19,7 +19,7 @@ namespace CodeDesignPlus.Net.EventStore.Test.Services;
 public class EventStoreServiceTest(EventStoreCollectionFixture fixture) 
 {
     private readonly EventStoreContainer container = fixture.Container;
-    private readonly IDomainEventResolverService domainEventResolverService = new DomainEventResolverService(MO.Options.Create(OptionsUtil.GetCoreOptions()));
+    private readonly IDomainEventResolver domainEventResolverService = new DomainEventResolverService(MO.Options.Create(OptionsUtil.GetCoreOptions()));
 
     [Fact]
     public void Constructor_NullEventStoreFactory_ThrowsArgumentNullException()
@@ -696,7 +696,7 @@ public class EventStoreServiceTest(EventStoreCollectionFixture fixture)
         Assert.Empty(orderExpected.GetAndClearEvents());
     }
 
-    private IEventSourcingService GetService()
+    private IEventSourcing GetService()
     {
         var configuration = ConfigurationUtil.GetConfiguration(new
         {
@@ -729,7 +729,7 @@ public class EventStoreServiceTest(EventStoreCollectionFixture fixture)
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var eventSourcing = serviceProvider.GetRequiredService<IEventSourcingService>();
+        var eventSourcing = serviceProvider.GetRequiredService<IEventSourcing>();
         return eventSourcing;
     }
 

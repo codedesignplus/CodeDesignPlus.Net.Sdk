@@ -3,6 +3,6 @@
 /// <summary>
 /// Interface for RabbitMQ publish-subscribe service.
 /// </summary>
-public interface IRabbitPubSubService : IMessage
+public interface IRabbitPubSub : IMessage
 {
 }

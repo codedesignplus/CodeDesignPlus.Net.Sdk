@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides Redis services.
 /// </summary>
-public class RedisService : IRedisService
+public class RedisService : Abstractions.IRedis
 {
     private readonly ILogger<RedisService> logger;
 

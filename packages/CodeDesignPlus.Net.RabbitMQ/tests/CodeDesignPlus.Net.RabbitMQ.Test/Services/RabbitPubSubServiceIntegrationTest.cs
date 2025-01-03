@@ -46,7 +46,7 @@ public class RabbitPubSubServiceIntegrationTest
         serviceCollection.AddSingleton<IMemoryHandler, MemoryHandler>();
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        var domainEventResolverService = serviceProvider.GetRequiredService<IDomainEventResolverService>();
+        var domainEventResolverService = serviceProvider.GetRequiredService<IDomainEventResolver>();
         var channelProvider = serviceProvider.GetRequiredService<IChannelProvider>();
         var coreOptions = serviceProvider.GetRequiredService<O.IOptions<CoreOptions>>();
         var rabbitMQOptions = serviceProvider.GetRequiredService<O.IOptions<RabbitMQOptions>>();

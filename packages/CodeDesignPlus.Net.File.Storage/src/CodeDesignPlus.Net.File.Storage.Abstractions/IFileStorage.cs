@@ -2,7 +2,7 @@
 /// <summary>
 /// Interface for file storage services.
 /// </summary>
-public interface IFileStorageService
+public interface IFileStorage
 {
     /// <summary>
     /// Uploads a file to the storage service.

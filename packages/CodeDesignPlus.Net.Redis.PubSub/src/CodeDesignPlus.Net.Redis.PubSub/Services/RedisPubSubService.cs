@@ -3,11 +3,11 @@
 /// <summary>
 /// Provides Redis Pub/Sub services for publishing and subscribing to domain events.
 /// </summary>
-public class RedisPubSubService : IRedisPubSubService
+public class RedisPubSubService : IRedisPubSub
 {
     private readonly ILogger<RedisPubSubService> logger;
-    private readonly IRedisService redisService;
-    private readonly IDomainEventResolverService domainEventResolverService;
+    private readonly Redis.Abstractions.IRedis redisService;
+    private readonly IDomainEventResolver domainEventResolverService;
     private readonly IServiceProvider serviceProvider;
 
     /// <summary>
@@ -19,10 +19,10 @@ public class RedisPubSubService : IRedisPubSubService
     /// <param name="domainEventResolverService">The domain event resolver service.</param>
     /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     public RedisPubSubService(
-        IRedisServiceFactory redisServiceFactory,
+        IRedisFactory redisServiceFactory,
         IServiceProvider serviceProvider,
         ILogger<RedisPubSubService> logger,
-        IDomainEventResolverService domainEventResolverService)
+        IDomainEventResolver domainEventResolverService)
     {
         ArgumentNullException.ThrowIfNull(redisServiceFactory);
         ArgumentNullException.ThrowIfNull(serviceProvider);

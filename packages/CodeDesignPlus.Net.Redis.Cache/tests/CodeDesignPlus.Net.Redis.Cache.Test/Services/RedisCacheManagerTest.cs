@@ -20,8 +20,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
@@ -42,8 +42,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
         var databaseMock = new Mock<IDatabase>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
@@ -65,7 +65,7 @@ public class RedisCacheManagerTest
         // Arrange
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
 
         var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
 
@@ -83,8 +83,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
@@ -106,8 +106,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
         var databaseMock = new Mock<IDatabase>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
@@ -129,7 +129,7 @@ public class RedisCacheManagerTest
         // Arrange
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
 
         var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
 
@@ -147,8 +147,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
@@ -170,8 +170,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
         var databaseMock = new Mock<IDatabase>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
@@ -197,8 +197,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
         var databaseMock = new Mock<IDatabase>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
@@ -225,7 +225,7 @@ public class RedisCacheManagerTest
         // Arrange
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
 
         var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
 
@@ -243,8 +243,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
@@ -265,8 +265,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
         var databaseMock = new Mock<IDatabase>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
@@ -288,7 +288,7 @@ public class RedisCacheManagerTest
         // Arrange
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
 
         var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
 
@@ -305,7 +305,7 @@ public class RedisCacheManagerTest
         // Arrange
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
 
         var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
 
@@ -323,8 +323,8 @@ public class RedisCacheManagerTest
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
@@ -350,8 +350,8 @@ public class RedisCacheManagerTest
             Expiration = TimeSpan.FromMinutes(5)
         };
         var options = Microsoft.Extensions.Options.Options.Create(redisCacheOptions);
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
         var databaseMock = new Mock<IDatabase>();
 
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);

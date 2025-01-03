@@ -57,7 +57,7 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddRedisPubSub(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisPubSubService));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisPubSub));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);

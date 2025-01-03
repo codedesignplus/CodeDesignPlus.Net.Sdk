@@ -16,7 +16,7 @@ public static class ServiceCollectionExtensions
     /// <returns>The IServiceCollection so that additional calls can be chained.</returns>
     /// <exception cref="ArgumentNullException">Thrown when services or configuration is null.</exception>
     /// <exception cref="Exceptions.MongoException">Thrown when the MongoOptions section is missing.</exception>
-    public static IServiceCollection AddMongo<TStartup>(this IServiceCollection services, IConfiguration configuration) where TStartup : IStartupServices
+    public static IServiceCollection AddMongo<TStartup>(this IServiceCollection services, IConfiguration configuration) where TStartup : IStartup
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -73,7 +73,7 @@ public static class ServiceCollectionExtensions
     /// <typeparam name="TStartup">The type of the startup class.</typeparam>
     /// <param name="services">The IServiceCollection to add the repositories to.</param>
     /// <exception cref="ArgumentNullException">Thrown when services is null.</exception>
-    public static void AddRepositories<TStartup>(this IServiceCollection services) where TStartup : IStartupServices
+    public static void AddRepositories<TStartup>(this IServiceCollection services) where TStartup : IStartup
     {
         var types = typeof(TStartup).Assembly.GetTypes();
 

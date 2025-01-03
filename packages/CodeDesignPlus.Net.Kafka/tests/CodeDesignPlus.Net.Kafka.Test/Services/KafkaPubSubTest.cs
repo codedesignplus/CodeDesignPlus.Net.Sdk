@@ -24,7 +24,7 @@ public class KafkaPubSubTest
     private readonly Mock<ILogger<KafkaPubSub>> _mockLogger = new();
     private readonly Mock<IOptions<KafkaOptions>> _mockKafkaOptions = new();
     private readonly IServiceProvider serviceProvider;
-    private readonly Mock<IDomainEventResolverService> _mockDomainEventResolverService = new();
+    private readonly Mock<IDomainEventResolver> _mockDomainEventResolverService = new();
     private readonly Mock<IProducer<string, IDomainEvent>> _mockProducer = new();
 
 

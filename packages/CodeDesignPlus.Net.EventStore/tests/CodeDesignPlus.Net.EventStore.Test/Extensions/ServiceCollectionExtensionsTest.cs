@@ -62,7 +62,7 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddEventStore(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventStoreService));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventStore));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);

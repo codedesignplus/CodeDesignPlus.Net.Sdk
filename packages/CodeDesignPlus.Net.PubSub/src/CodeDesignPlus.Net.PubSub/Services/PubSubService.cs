@@ -45,7 +45,7 @@ public class PubSubService : IPubSub
         {
             this.logger.LogDebug("UseQueue is true, enqueuing event of type {Name}.", @event.GetType().Name);
 
-            var eventQueueService = this.serviceProvider.GetRequiredService<IEventQueueService>();
+            var eventQueueService = this.serviceProvider.GetRequiredService<IEventQueue>();
 
             return eventQueueService.EnqueueAsync(@event, cancellationToken);
         }

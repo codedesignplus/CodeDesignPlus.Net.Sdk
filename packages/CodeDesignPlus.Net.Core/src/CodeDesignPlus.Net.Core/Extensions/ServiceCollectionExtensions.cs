@@ -28,7 +28,7 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.TryAddSingleton<IDomainEventResolverService, DomainEventResolverService>();
+        services.TryAddSingleton<IDomainEventResolver, DomainEventResolverService>();
 
         return services;
     }

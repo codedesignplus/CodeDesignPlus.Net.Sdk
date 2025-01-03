@@ -37,7 +37,7 @@ public static class ServiceCollectionExtensions
 
         if (options.UseQueue)
         {
-            services.TryAddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddSingleton<IEventQueue, EventQueueService>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
         }
 
@@ -77,7 +77,7 @@ public static class ServiceCollectionExtensions
 
         if (pubSubOptions.UseQueue)
         {
-            services.TryAddSingleton<IEventQueueService, EventQueueService>();
+            services.TryAddSingleton<IEventQueue, EventQueueService>();
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
         }
 

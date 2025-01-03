@@ -41,7 +41,7 @@ public static class ServiceCollectionExtensions
                 x.UseQueue = options.UseQueue;
             });
             services.TryAddSingleton<IMessage, RabbitPubSubService>();
-            services.TryAddSingleton<IRabbitPubSubService, RabbitPubSubService>();
+            services.TryAddSingleton<IRabbitPubSub, RabbitPubSubService>();
             services.TryAddSingleton<IRabbitConnection>(x => {
                 var rabbitOptions = x.GetRequiredService<IOptions<RabbitMQOptions>>();
                 var coreOptions = x.GetRequiredService<IOptions<CoreOptions>>();

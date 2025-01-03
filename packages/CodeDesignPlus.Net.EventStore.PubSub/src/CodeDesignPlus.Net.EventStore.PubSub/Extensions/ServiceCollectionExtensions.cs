@@ -44,7 +44,7 @@ public static class ServiceCollectionExtensions
                 x.UseQueue = options.UseQueue;
             });
             services.TryAddSingleton<IMessage, EventStorePubSubService>();
-            services.TryAddSingleton<IEventStorePubSubService, EventStorePubSubService>();
+            services.TryAddSingleton<IEventStorePubSub, EventStorePubSubService>();
         }
 
         return services;

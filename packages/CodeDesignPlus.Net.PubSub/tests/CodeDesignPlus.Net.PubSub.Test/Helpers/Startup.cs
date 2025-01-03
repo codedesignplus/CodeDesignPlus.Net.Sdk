@@ -3,9 +3,9 @@
 namespace CodeDesignPlus.Net.PubSub.Test.Helpers;
 
 /// <summary>
-/// Implementación por defecto del servicio <see cref="IStartupServices"/>
+/// Implementación por defecto del servicio <see cref="IStartup"/>
 /// </summary>
-public class Startup : IStartupServices
+public class Startup : IStartup
 {
     /// <summary>
     /// Este metodo es invocado por el SDK CodeDesignPlus en el momento de iniciar la aplicación para registrar servicios personalizados.

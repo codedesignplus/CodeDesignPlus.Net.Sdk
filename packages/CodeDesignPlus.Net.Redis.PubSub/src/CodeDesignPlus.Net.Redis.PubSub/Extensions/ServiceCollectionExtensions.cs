@@ -41,7 +41,7 @@ public static class ServiceCollectionExtensions
                 x.SecondsWaitQueue = options.SecondsWaitQueue;
             });
             services.TryAddSingleton<IMessage, RedisPubSubService>();
-            services.TryAddSingleton<IRedisPubSubService, RedisPubSubService>();
+            services.TryAddSingleton<IRedisPubSub, RedisPubSubService>();
         }
 
         return services;
