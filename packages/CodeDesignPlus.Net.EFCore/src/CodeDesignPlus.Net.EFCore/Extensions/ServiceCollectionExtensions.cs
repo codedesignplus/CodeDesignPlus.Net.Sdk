@@ -8,6 +8,7 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds CodeDesignPlus.EFCore configuration options.
     /// </summary>
+    /// <typeparam name="TDbContext">Represents a session with the database and can be used to query and save instances of your entities.</typeparam>
     /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
     /// <param name="configuration">The configuration being bound.</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
@@ -31,7 +32,7 @@ public static class ServiceCollectionExtensions
         var options = section.Get<EFCoreOptions>();
 
         if (options.Enable && options.RegisterRepositories)
-            services.AddRepositories<DbContext>();
+            services.AddRepositories<TDbContext>();
 
         return services;
     }

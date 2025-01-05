@@ -15,7 +15,7 @@ public interface IRabbitConnection : IDisposable
     /// <summary>
     /// Connects to the RabbitMQ server.
     /// </summary>
-    /// <param name="logger">The logger for logging messages.</param>
+    /// <param name="appName">The name of the application.</param>
     /// <param name="settings">The options for configuring the RabbitMQ connection.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown if <paramref name="settings"/> or <paramref name="appName"/> is null.</exception>

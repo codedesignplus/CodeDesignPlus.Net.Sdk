@@ -2,7 +2,6 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,34 +24,38 @@ namespace CodeDesignPlus.Net.Generator
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
             // 1. Obtener todos los símbolos de clase decorados con el atributo DtoGenerator
-           IncrementalValuesProvider<INamedTypeSymbol> commands = context.SyntaxProvider.CreateSyntaxProvider(
-               predicate: static (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax classDeclaration && classDeclaration.AttributeLists.Count > 0,
-               transform: static (ctx, _) => GetClassWithDtoGeneratorAttribute(ctx)
-            )
-           .Where(static m => m is not null)
-           .Select(static (m, _) => m!);
+            IncrementalValuesProvider<INamedTypeSymbol> commands = context.SyntaxProvider
+             .CreateSyntaxProvider(
+                 predicate: static (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax classDeclaration && classDeclaration.AttributeLists.Count > 0,
+                 transform: static (ctx, _) => GetClassWithDtoGeneratorAttribute(ctx)
+             )
+             .Where(static m => m is not null)
+             .Select(static (m, _) => m!);
 
             // 2. Generar los DTOs para cada clase encontrada
-             context.RegisterSourceOutput(commands, static (context, command) => GenerateDto(context, command));
+            context.RegisterSourceOutput(commands, static (context, command) => GenerateDto(context, command));
         }
 
-          /// <summary>
+        /// <summary>
         /// Obtains the class if it is decorated with the DtoGenerator Attribute
         /// </summary>
         /// <param name="ctx">The GeneratorSyntaxContext to use</param>
         /// <returns>The INamedTypeSymbol if the class is decorated with the DtoGenerator attribute, null otherwise</returns>
-        private static INamedTypeSymbol? GetClassWithDtoGeneratorAttribute(GeneratorSyntaxContext ctx)
+        private static INamedTypeSymbol GetClassWithDtoGeneratorAttribute(GeneratorSyntaxContext ctx)
         {
-             if (!(ctx.Node is ClassDeclarationSyntax classDeclarationSyntax)) return null;
+            if (ctx.Node is not ClassDeclarationSyntax classDeclarationSyntax)
+                return null;
 
-                if (ctx.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) is not INamedTypeSymbol namedTypeSymbol) return null;
+            if (ctx.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) is not INamedTypeSymbol namedTypeSymbol)
+                return null;
 
-               if (!namedTypeSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == "DtoGenerator")) return null;
+            if (!namedTypeSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == "DtoGenerator"))
+                return null;
 
-             return namedTypeSymbol;
+            return namedTypeSymbol;
         }
 
-         /// <summary>
+        /// <summary>
         /// Generates DTO classes for the specified command.
         /// </summary>
         /// <param name="context">The generator execution context.</param>

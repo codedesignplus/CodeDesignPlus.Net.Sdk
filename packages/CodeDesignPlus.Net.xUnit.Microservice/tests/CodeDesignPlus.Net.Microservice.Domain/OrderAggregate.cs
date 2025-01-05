@@ -9,9 +9,14 @@ public class OrderAggregate(Guid id) : AggregateRoot(id)
 
     public string? OrderStatus { get; private set; }
 
-    public static OrderAggregate Create(Guid id)
+    public static OrderAggregate Create(Guid id, ClientEntity client, string orderStatus, Guid createdBy)
     {
-        return new OrderAggregate(id);
+        return new OrderAggregate(id){
+            Client = client, 
+            OrderStatus = orderStatus,
+            CreatedBy = createdBy,
+            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+        };
     }
 
 }
