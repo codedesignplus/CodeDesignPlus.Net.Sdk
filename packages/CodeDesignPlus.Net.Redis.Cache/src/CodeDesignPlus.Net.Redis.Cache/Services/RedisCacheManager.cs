@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Redis.Abstractions;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Cache.Abstractions.Options;
 using CodeDesignPlus.Net.Serializers;
 using Newtonsoft.Json.Linq;
@@ -13,10 +14,10 @@ namespace CodeDesignPlus.Net.Redis.Cache.Services;
 /// </remarks>
 /// <param name="factory">The factory used to create Redis connections.</param>
 /// <param name="logger">The logger for logging messages.</param>
-/// <param name="options">The options for configuring the Redis cache.</param>
-public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager> logger, IOptions<RedisCacheOptions> options) : IRedisCacheManager
+/// <param name="cacheOptions">The options for configuring the Redis cache.</param>
+/// <param name="coreOptions">The options for configuring the core of the application.</param>
+public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager> logger, IOptions<RedisCacheOptions> cacheOptions, IOptions<CoreOptions> coreOptions) : IRedisCacheManager
 {
-    private readonly RedisCacheOptions cacheOptions = options.Value;
     private readonly IRedis redis = factory.Create(FactoryConst.RedisCore);
 
     /// <summary>
@@ -49,14 +50,16 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
         if (string.IsNullOrEmpty(key))
             ArgumentNullException.ThrowIfNull(key);
 
+        var internalKey = GetKey(key);
+
         if (this.redis.Database == null)
         {
-            logger.LogWarning("The key {key} could not be verified because the connection to the Redis server could not be established", key);
+            logger.LogWarning("The key {key} could not be verified because the connection to the Redis server could not be established", internalKey);
 
             return Task.FromResult(false);
         }
 
-        return this.redis.Database.KeyExistsAsync(key);
+        return this.redis.Database.KeyExistsAsync(internalKey);
     }
 
     /// <summary>
@@ -70,19 +73,21 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
     {
         if (string.IsNullOrEmpty(key))
             ArgumentNullException.ThrowIfNull(key);
+            
+        var internalKey = GetKey(key);
 
         if (this.redis.Database == null)
         {
-            logger.LogWarning("The key {key} could not be retrieved because the connection to the Redis server could not be established", key);
+            logger.LogWarning("The key {key} could not be retrieved because the connection to the Redis server could not be established", internalKey);
 
             return default;
         }
 
-        var data = await this.redis.Database.StringGetAsync(key);
+        var data = await this.redis.Database.StringGetAsync(internalKey);
 
         if (data.IsNullOrEmpty)
         {
-            logger.LogDebug("The key {key} does not exist in the cache", key);
+            logger.LogDebug("The key {key} does not exist in the cache", internalKey);
 
             return default;
         }
@@ -100,17 +105,19 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
     {
         if (string.IsNullOrEmpty(key))
             ArgumentNullException.ThrowIfNull(key);
+            
+        var internalKey = GetKey(key);
 
         if (this.redis.Database == null)
         {
-            logger.LogWarning("The key {key} could not be removed because the connection to the Redis server could not be established", key);
+            logger.LogWarning("The key {key} could not be removed because the connection to the Redis server could not be established", internalKey);
 
             return Task.CompletedTask;
         }
 
-        logger.LogDebug("The key {key} will be removed from the cache", key);
+        logger.LogDebug("The key {key} will be removed from the cache", internalKey);
 
-        return this.redis.Database.KeyDeleteAsync(key);
+        return this.redis.Database.KeyDeleteAsync(internalKey);
     }
 
     /// <summary>
@@ -130,19 +137,31 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
         if(value == null)
             ArgumentNullException.ThrowIfNull(value);
 
+        var internalKey = GetKey(key);
+
         if (this.redis.Database == null)
         {
-            logger.LogWarning("The key {key} could not be stored because the connection to the Redis server could not be established", key);
+            logger.LogWarning("The key {key} could not be stored because the connection to the Redis server could not be established", internalKey);
 
             return Task.CompletedTask;
         }
 
         if (expiration == null)
-            expiration = this.cacheOptions.Expiration;
+            expiration = cacheOptions.Value.Expiration;
 
-        logger.LogDebug("The key {key} will be stored in the cache for {expiration} seconds", key, expiration.Value.TotalSeconds);
+        logger.LogDebug("The key {key} will be stored in the cache for {expiration} seconds", internalKey, expiration.Value.TotalSeconds);
 
-        return this.redis.Database.StringSetAsync(key, JsonSerializer.Serialize(value), expiration);
+        return this.redis.Database.StringSetAsync(internalKey, JsonSerializer.Serialize(value), expiration);
+    }
+
+    /// <summary>
+    /// Retrieves a value from the Redis cache based on the provided key.
+    /// </summary>
+    /// <param name="key">The key of the value to retrieve.</param>
+    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, returning the value associated with the key if found, otherwise <c>default</c>.</returns>
+    private string GetKey(string key)
+    {
+        return $"{coreOptions.Value.Business}:{coreOptions.Value.AppName}:{key}";
     }
 
 }

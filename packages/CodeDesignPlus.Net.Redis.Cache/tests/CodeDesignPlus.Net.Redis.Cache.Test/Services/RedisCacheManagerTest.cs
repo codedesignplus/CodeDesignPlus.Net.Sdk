@@ -1,11 +1,10 @@
 ﻿using System.Reflection;
+using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Cache.Abstractions.Options;
-using CodeDesignPlus.Net.Redis.Cache.Services;
 using CodeDesignPlus.Net.Redis.Cache.Test.Helpers;
 using CodeDesignPlus.Net.Serializers;
 using CodeDesignPlus.Net.xUnit.Extensions;
-using Microsoft.Extensions.Logging;
 using Moq;
 using StackExchange.Redis;
 
@@ -13,6 +12,29 @@ namespace CodeDesignPlus.Net.Redis.Cache.Test.Services;
 
 public class RedisCacheManagerTest
 {
+
+    private readonly CoreOptions core ;
+
+    private readonly IOptions<CoreOptions> coreOptions;
+
+    public RedisCacheManagerTest()
+    {
+        this.core = new ()
+        {
+            AppName = "ms-test",
+                Business = "CodeDesignPlus",
+                Description = "Unit test",
+                Version = "1",
+                Contact = new Contact()
+                {
+                    Email = "codedesignplus@codedesignplus.com",
+                    Name = "CodeDesignPlus"
+                }
+        };
+
+        this.coreOptions = Microsoft.Extensions.Options.Options.Create(core);
+    }
+
     [Fact]
     public async Task ClearAsync_DatabaseIsNull_WriteWarning()
     {
@@ -26,7 +48,7 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         await cacheManager.ClearAsync();
@@ -49,7 +71,7 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         await cacheManager.ClearAsync();
@@ -67,7 +89,7 @@ public class RedisCacheManagerTest
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
         var redisFactoryMock = new Mock<IRedisFactory>();
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => cacheManager.ExistsAsync(null!));
@@ -89,13 +111,13 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var result = await cacheManager.ExistsAsync(expected);
 
         // Assert
-        loggerMock.VerifyLogging($"The key {expected} could not be verified because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
+        loggerMock.VerifyLogging($"The key {GetKey(expected)} could not be verified because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
         Assert.False(result);
     }
 
@@ -113,13 +135,13 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var result = await cacheManager.ExistsAsync(expected);
 
         // Assert
-        databaseMock.Verify(x => x.KeyExistsAsync(expected, It.IsAny<CommandFlags>()), Times.Once());
+        databaseMock.Verify(x => x.KeyExistsAsync(GetKey(expected), It.IsAny<CommandFlags>()), Times.Once());
         Assert.False(result);
     }
 
@@ -131,7 +153,7 @@ public class RedisCacheManagerTest
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
         var redisFactoryMock = new Mock<IRedisFactory>();
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => cacheManager.GetAsync<string>(null!));
@@ -153,13 +175,13 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var result = await cacheManager.GetAsync<string>(expected);
 
         // Assert
-        loggerMock.VerifyLogging($"The key {expected} could not be retrieved because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
+        loggerMock.VerifyLogging($"The key {GetKey(expected)} could not be retrieved because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
         Assert.Null(result);
     }
 
@@ -177,14 +199,14 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var result = await cacheManager.GetAsync<string>(expected);
 
         // Assert
-        databaseMock.Verify(x => x.StringGetAsync(expected, It.IsAny<CommandFlags>()), Times.Once());
-        loggerMock.VerifyLogging($"The key {expected} does not exist in the cache", LogLevel.Debug, Times.Once());
+        databaseMock.Verify(x => x.StringGetAsync(GetKey(expected), It.IsAny<CommandFlags>()), Times.Once());
+        loggerMock.VerifyLogging($"The key {GetKey(expected)} does not exist in the cache", LogLevel.Debug, Times.Once());
         Assert.Null(result);
     }
 
@@ -203,9 +225,9 @@ public class RedisCacheManagerTest
 
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
-        databaseMock.Setup(x => x.StringGetAsync(expected, It.IsAny<CommandFlags>())).ReturnsAsync(serialized);
+        databaseMock.Setup(x => x.StringGetAsync(GetKey(expected), It.IsAny<CommandFlags>())).ReturnsAsync(serialized);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var method = typeof(RedisCacheManager).GetMethod("GetAsync");
@@ -215,7 +237,7 @@ public class RedisCacheManagerTest
         var result = awaitable.GetAwaiter().GetResult();
 
         // Assert
-        databaseMock.Verify(x => x.StringGetAsync(expected, It.IsAny<CommandFlags>()), Times.Once());
+        databaseMock.Verify(x => x.StringGetAsync(GetKey(expected), It.IsAny<CommandFlags>()), Times.Once());
         Assert.Equal(data, result);
     }
 
@@ -227,7 +249,7 @@ public class RedisCacheManagerTest
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
         var redisFactoryMock = new Mock<IRedisFactory>();
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => cacheManager.RemoveAsync(null!));
@@ -249,13 +271,13 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         await cacheManager.RemoveAsync(expected);
 
         // Assert
-        loggerMock.VerifyLogging($"The key {expected} could not be removed because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
+        loggerMock.VerifyLogging($"The key {GetKey(expected)} could not be removed because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
     }
 
     [Fact]
@@ -272,14 +294,14 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         await cacheManager.RemoveAsync(expected);
 
         // Assert
-        loggerMock.VerifyLogging($"The key {expected} will be removed from the cache", LogLevel.Debug, Times.Once());
-        databaseMock.Verify(x => x.KeyDeleteAsync(expected, It.IsAny<CommandFlags>()), Times.Once());
+        loggerMock.VerifyLogging($"The key {GetKey(expected)} will be removed from the cache", LogLevel.Debug, Times.Once());
+        databaseMock.Verify(x => x.KeyDeleteAsync(GetKey(expected), It.IsAny<CommandFlags>()), Times.Once());
     }
 
     [Fact]
@@ -290,7 +312,7 @@ public class RedisCacheManagerTest
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
         var redisFactoryMock = new Mock<IRedisFactory>();
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => cacheManager.SetAsync(null!, "value"));
@@ -307,7 +329,7 @@ public class RedisCacheManagerTest
         var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
         var redisFactoryMock = new Mock<IRedisFactory>();
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => cacheManager.SetAsync<string>(Guid.NewGuid().ToString(), null!));
@@ -329,13 +351,13 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         await cacheManager.SetAsync(expected, "value");
 
         // Assert
-        loggerMock.VerifyLogging($"The key {expected} could not be stored because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
+        loggerMock.VerifyLogging($"The key {GetKey(expected)} could not be stored because the connection to the Redis server could not be established", LogLevel.Warning, Times.Once());
     }
 
     [Theory]
@@ -345,7 +367,8 @@ public class RedisCacheManagerTest
         // Arrange
         var expected = Guid.NewGuid().ToString();
         var loggerMock = new Mock<ILogger<RedisCacheManager>>();
-        var redisCacheOptions = new RedisCacheOptions() {
+        var redisCacheOptions = new RedisCacheOptions()
+        {
             Enable = true,
             Expiration = TimeSpan.FromMinutes(5)
         };
@@ -357,13 +380,18 @@ public class RedisCacheManagerTest
         redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
         redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
 
-        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options);
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
 
         // Act
         await cacheManager.SetAsync(expected, data);
 
         // Assert
-        loggerMock.VerifyLogging($"The key {expected} will be stored in the cache for {redisCacheOptions.Expiration.TotalSeconds} seconds", LogLevel.Debug, Times.Once());
-        databaseMock.Verify(x => x.StringSetAsync(expected, JsonSerializer.Serialize(data), redisCacheOptions.Expiration, false, When.Always, CommandFlags.None), Times.Once());
+        loggerMock.VerifyLogging($"The key {GetKey(expected)} will be stored in the cache for {redisCacheOptions.Expiration.TotalSeconds} seconds", LogLevel.Debug, Times.Once());
+        databaseMock.Verify(x => x.StringSetAsync(GetKey(expected), JsonSerializer.Serialize(data), redisCacheOptions.Expiration, false, When.Always, CommandFlags.None), Times.Once());
+    }
+
+    private string GetKey(string key)
+    {
+        return $"{core.Business}:{core.AppName}:{key}";
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Redis.Abstractions;
 using CodeDesignPlus.Net.Redis.Cache.Abstractions.Options;
 using CodeDesignPlus.Net.Redis.Cache.Test.Helpers;
@@ -8,8 +9,33 @@ using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.Redis.Cache.Test.Services;
 
-public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFixture<RedisContainer>
+public class RedisCacheManagerIntegrationTest : IClassFixture<RedisContainer>
 {
+    private readonly RedisContainer fixture;
+    private readonly CoreOptions core ;
+
+    private readonly IOptions<CoreOptions> coreOptions;
+
+    public RedisCacheManagerIntegrationTest(RedisContainer fixture)
+    {
+        this.fixture = fixture;
+        
+        this.core = new ()
+        {
+            AppName = "ms-test",
+                Business = "CodeDesignPlus",
+                Description = "Unit test",
+                Version = "1",
+                Contact = new Contact()
+                {
+                    Email = "codedesignplus@codedesignplus.com",
+                    Name = "CodeDesignPlus"
+                }
+        };
+
+        this.coreOptions = Microsoft.Extensions.Options.Options.Create(core);
+    }
+    
     [Fact]
     public async Task SetAsync_GetAsync_Success()
     {
@@ -21,7 +47,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
-        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));
+        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()), coreOptions);
 
         // Act
         await redisCacheManager.SetAsync(expected, value, TimeSpan.FromMinutes(5));
@@ -43,7 +69,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
-        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));
+        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()), coreOptions);
 
         // Act
         await redisCacheManager.SetAsync(expected, value, TimeSpan.FromMinutes(5));
@@ -65,7 +91,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
-        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));
+        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()), coreOptions);
 
         // Act
         await redisCacheManager.SetAsync(expected, value, TimeSpan.FromMinutes(5));
@@ -89,7 +115,7 @@ public class RedisCacheManagerIntegrationTest(RedisContainer fixture) : IClassFi
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
 
-        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()));
+        var redisCacheManager = new RedisCacheManager(redisFactory.Object, Mock.Of<ILogger<RedisCacheManager>>(), O.Options.Create(new RedisCacheOptions()), coreOptions);
 
         // Act
         await redisCacheManager.SetAsync(expected, value, TimeSpan.FromMinutes(5));
