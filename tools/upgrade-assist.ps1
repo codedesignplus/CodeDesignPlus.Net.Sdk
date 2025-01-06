@@ -1,6 +1,6 @@
 dotnet tool install -g upgrade-assistant
 
-$proyectos = Get-ChildItem -Path "./../packages/" -Recurse -Filter "*.csproj"
+$proyectos = Get-ChildItem -Path "./../samples/" -Recurse -Filter "*.csproj"
 
 foreach ($proyecto in $proyectos) 
 {

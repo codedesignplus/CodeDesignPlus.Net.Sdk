@@ -36,10 +36,10 @@ public class DtoGeneratorTest
         var syntaxTree = SyntaxFactory.ParseSyntaxTree(source);
 
         var compilation = CSharpCompilation.Create("CodeDesignPlus.Net.Dummy",
-            syntaxTrees: new[] { syntaxTree },
-             references: new[] { MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+            syntaxTrees: [syntaxTree],
+             references: [ MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
               MetadataReference.CreateFromFile(typeof(CodeDesignPlus.Net.Generator.DtoGenerator).Assembly.Location)
-            },
+            ],
             options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
         );
 

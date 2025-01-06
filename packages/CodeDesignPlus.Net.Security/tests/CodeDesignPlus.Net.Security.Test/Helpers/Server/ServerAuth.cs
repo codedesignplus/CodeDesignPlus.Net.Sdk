@@ -18,7 +18,7 @@ public class ServerAuth
     {
 
         var path = Path.Combine(AppContext.BaseDirectory, "Helpers", "Certificates", "identity.pfx");
-        var cert = new X509Certificate2(path, "Temporal1");
+        var cert = X509CertificateLoader.LoadPkcs12FromFile(path, "Temporal1");
 
         var builder = new WebHostBuilder()
             .ConfigureServices((context, services) =>
