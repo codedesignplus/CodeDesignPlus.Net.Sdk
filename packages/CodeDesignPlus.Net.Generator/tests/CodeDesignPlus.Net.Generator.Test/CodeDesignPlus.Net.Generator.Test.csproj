@@ -10,6 +10,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Core\**" />
+    <Compile Remove="Extensions\**" />
+    <Compile Remove="Helpers\**" />
+    <EmbeddedResource Remove="Core\**" />
+    <EmbeddedResource Remove="Extensions\**" />
+    <EmbeddedResource Remove="Helpers\**" />
+    <None Remove="Core\**" />
+    <None Remove="Extensions\**" />
+    <None Remove="Helpers\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="coverlet.msbuild" Version="6.0.3">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
@@ -35,12 +47,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Generator\CodeDesignPlus.Net.Generator.csproj" />
     <ProjectReference Include="..\CodeDesignPlus.Net.Generator.Application\CodeDesignPlus.Net.Generator.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Core\" />
-    <Folder Include="Extensions\" />
-    <Folder Include="Helpers\" />
   </ItemGroup>
 
   <!-- <ItemGroup>

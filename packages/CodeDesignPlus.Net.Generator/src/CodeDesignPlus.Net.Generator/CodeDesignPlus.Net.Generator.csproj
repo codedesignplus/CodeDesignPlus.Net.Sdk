@@ -1,56 +1,56 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>  
-    <LangVersion>9</LangVersion>
-    <TargetFramework>netstandard2.0</TargetFramework>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-    <Authors>CodeDesignPlus</Authors>
-    <Description>CodeDesignPlus.Net.Generator provides a powerful framework for generating code in .NET Core applications. This library simplifies the process of creating boilerplate code, enabling developers to increase productivity and maintain consistency across their projects.</Description>
-    <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-    <PackageId>CodeDesignPlus.Net.Generator</PackageId>
-    <RepositoryType>git</RepositoryType>
-   	<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Generator</PackageProjectUrl>
-    <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
-    <Version>$(Version)</Version>
-	  <PackageIcon>icon/logo.png</PackageIcon>
-    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
-    <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
-    <PublishRepositoryUrl>true</PublishRepositoryUrl>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
-    <None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
-    <None Include="..\..\README.md" Pack="true" PackagePath="docs" />
-  </ItemGroup>
+	<PropertyGroup>
+		<LangVersion>9</LangVersion>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<Authors>CodeDesignPlus</Authors>
+		<Description>CodeDesignPlus.Net.Generator provides a powerful framework for generating code in .NET Core applications. This library simplifies the process of creating boilerplate code, enabling developers to increase productivity and maintain consistency across their projects.</Description>
+		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+		<PackageId>CodeDesignPlus.Net.Generator</PackageId>
+		<RepositoryType>git</RepositoryType>
+		<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+		<PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Generator</PackageProjectUrl>
+		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+		<Version>$(Version)</Version>
+		<PackageIcon>icon/logo.png</PackageIcon>
+		<PackageReadmeFile>docs/README.md</PackageReadmeFile>
+		<PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+		<None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+	</ItemGroup>
 
 	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
 		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Generator.xml</DocumentationFile>
 	</PropertyGroup>
 
-  <ItemGroup>
-  	<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
-    <PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" PrivateAssets="all" />
+		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.0" PrivateAssets="all" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Remove="bin\Debug\netstandard2.0\\CodeDesignPlus.Net.Generator.dll" />
-  </ItemGroup>
-	
-  <ItemGroup>
-    <!-- Package the generator in the analyzer directory of the nuget package -->
-    <None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="bin\Debug\netstandard2.0\\CodeDesignPlus.Net.Generator.dll" />
+	</ItemGroup>
 
-  <PropertyGroup>
-    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
-    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
-  </PropertyGroup>
+	<ItemGroup>
+		<!-- Package the generator in the analyzer directory of the nuget package -->
+		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+	</ItemGroup>
+
+	<PropertyGroup>
+		<EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+		<CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
+	</PropertyGroup>
 
 </Project>
