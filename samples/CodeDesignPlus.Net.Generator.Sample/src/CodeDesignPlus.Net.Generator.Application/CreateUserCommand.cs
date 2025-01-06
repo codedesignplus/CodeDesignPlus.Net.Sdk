@@ -15,4 +15,6 @@ public class CreateUserCommand
     public DateTime Birthdate { get; set; }
 
     public required string Password { get; set; }
+
+    public required string ConfirmPassword { get; set; }
 }

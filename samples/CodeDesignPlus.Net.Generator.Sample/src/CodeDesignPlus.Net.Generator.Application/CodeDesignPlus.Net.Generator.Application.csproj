@@ -8,8 +8,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.12.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.12.0" />
     <!-- <PackageReference Include="CodeDesignPlus.Net.Generator" Version="0.5.0-beta.39" /> -->
-
-     <ProjectReference Include="..\..\..\..\packages\CodeDesignPlus.Net.Generator\src\CodeDesignPlus.Net.Generator\CodeDesignPlus.Net.Generator.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <ItemGroup>

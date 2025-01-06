@@ -25,7 +25,7 @@ public class DtoGeneratorTest
         
         namespace CodeDesignPlus.Microservice.Application.Commands
         {
-           [DtoGenerator]
+           [DtoGeneratorAttribute]
             public class CreateUserCommand
             {
                 public string? Name { get; set; }
@@ -59,11 +59,11 @@ public class DtoGeneratorTest
 
         var generatedSource = runResult.Results[0].GeneratedSources[0];
 
-         Assert.Equal(sourceExpected.Trim(), generatedSource.SourceText.ToString().Trim());
+        Assert.Equal(sourceExpected.Trim(), generatedSource.SourceText.ToString().Trim());
     }
 
 
-   [Fact]
+    [Fact]
     public void Execute_AssemblyApplicationNotExist_DoesNotGenerateDto()
     {
         // Arrange
@@ -90,7 +90,7 @@ public class DtoGeneratorTest
 
         var generator = new DtoGenerator();
 
-         // Act
+        // Act
         GeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
         driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var diagnostics);
 
@@ -103,8 +103,8 @@ public class DtoGeneratorTest
         // Obtain the generator run result
         GeneratorDriverRunResult runResult = driver.GetRunResult();
 
-         // The runResult should have no generated trees
-         Assert.Empty(runResult.GeneratedTrees);
+        // The runResult should have no generated trees
+        Assert.Empty(runResult.GeneratedTrees);
         Assert.Empty(runResult.Diagnostics);
 
         // Access individual results on a by-generator basis

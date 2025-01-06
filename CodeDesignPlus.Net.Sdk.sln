@@ -305,6 +305,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Cache.Ab
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Cache.Test", "packages\CodeDesignPlus.Net.Cache\tests\CodeDesignPlus.Net.Cache.Test\CodeDesignPlus.Net.Cache.Test.csproj", "{F4D1154D-260B-423D-B6ED-D65C53278190}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Generator.Application", "packages\CodeDesignPlus.Net.Generator\tests\CodeDesignPlus.Net.Generator.Application\CodeDesignPlus.Net.Generator.Application.csproj", "{6D654A71-056F-4018-A760-176D04192A13}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -603,6 +605,10 @@ Global
 		{F4D1154D-260B-423D-B6ED-D65C53278190}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F4D1154D-260B-423D-B6ED-D65C53278190}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F4D1154D-260B-423D-B6ED-D65C53278190}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6D654A71-056F-4018-A760-176D04192A13}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6D654A71-056F-4018-A760-176D04192A13}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6D654A71-056F-4018-A760-176D04192A13}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6D654A71-056F-4018-A760-176D04192A13}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -758,6 +764,7 @@ Global
 		{6CC1656E-77D2-407F-910A-BE68510CE924} = {A7CC1A5B-24A1-423C-87D4-E9B6280EFE7D}
 		{306DB2DE-C0BF-46FB-8766-C634BF89452D} = {FBD4C89D-D062-4821-AA95-88B90150FCD8}
 		{F4D1154D-260B-423D-B6ED-D65C53278190} = {C705F0F5-E118-47D7-A43B-2E21BF533C13}
+		{6D654A71-056F-4018-A760-176D04192A13} = {95FA80F3-FC9F-4C4E-9533-509AF533D146}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {83B66997-E0D6-493E-86BC-0F2956ABA5B9}

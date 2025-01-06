@@ -19,7 +19,11 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
 
     public OperationBaseTest(MongoContainer mongoContainer)
     {
-        BsonSerializer.TryRegisterSerializer<Guid>(new GuidSerializer(GuidRepresentation.Standard));
+        try
+        {
+            BsonSerializer.TryRegisterSerializer<Guid>(new GuidSerializer(GuidRepresentation.Standard));
+        }
+        catch { }
 
         this.mongoContainer = mongoContainer;
         this.loggerMock = new Mock<ILogger<ProductRepository>>();

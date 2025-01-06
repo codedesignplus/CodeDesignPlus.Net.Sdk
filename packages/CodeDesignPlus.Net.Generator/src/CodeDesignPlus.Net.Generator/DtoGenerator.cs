@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using CodeDesignPlus.Net.Generator.Attributes;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
@@ -23,9 +24,6 @@ namespace CodeDesignPlus.Net.Generator
         /// <param name="context">The generator initialization context.</param>
         public void Initialize(IncrementalGeneratorInitializationContext context)
         {
-            //Debugger.Launch();
-
-            // 1. Obtener todos los símbolos de clase decorados con el atributo DtoGenerator
             IncrementalValuesProvider<INamedTypeSymbol> commands = context.SyntaxProvider
              .CreateSyntaxProvider(
                  predicate: static (syntaxNode, _) => syntaxNode is ClassDeclarationSyntax classDeclaration && classDeclaration.AttributeLists.Count > 0,
@@ -34,7 +32,6 @@ namespace CodeDesignPlus.Net.Generator
              .Where(static m => m is not null)
              .Select(static (m, _) => m!);
 
-            // 2. Generar los DTOs para cada clase encontrada
             context.RegisterSourceOutput(commands, static (context, command) => GenerateDto(context, command));
         }
 
@@ -51,7 +48,7 @@ namespace CodeDesignPlus.Net.Generator
             if (ctx.SemanticModel.GetDeclaredSymbol(classDeclarationSyntax) is not INamedTypeSymbol namedTypeSymbol)
                 return null;
 
-            if (!namedTypeSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == "DtoGenerator"))
+            if (!namedTypeSymbol.GetAttributes().Any(attr => attr.AttributeClass?.Name == nameof(DtoGeneratorAttribute)))
                 return null;
 
             return namedTypeSymbol;
@@ -67,31 +64,16 @@ namespace CodeDesignPlus.Net.Generator
             codeBuilder.AppendLine($"public class {dtoName}");
             codeBuilder.AppendLine("{");
             
-            //Log para generar la clase dto
-             context.ReportDiagnostic(Diagnostic.Create(
-                new DiagnosticDescriptor("CDP005", "Generating DTO", $"Generating DTO {dtoName}", "CodeDesignPlus.Generator", DiagnosticSeverity.Info, isEnabledByDefault: true),
-                command.Locations.FirstOrDefault()));
-
-            AddProperties(codeBuilder, command, context);
+            AddProperties(codeBuilder, command);
 
             codeBuilder.AppendLine("}");
             codeBuilder.AppendLine("}");
 
             context.AddSource($"{dtoName}.g.cs", SourceText.From(codeBuilder.ToString(), Encoding.UTF8));
-
-            //Log para indicar que se finalizo la generacion
-             context.ReportDiagnostic(Diagnostic.Create(
-                new DiagnosticDescriptor("CDP006", "Generated DTO", $"Generated DTO {dtoName}", "CodeDesignPlus.Generator", DiagnosticSeverity.Info, isEnabledByDefault: true),
-                command.Locations.FirstOrDefault()));
         }
 
-        private static void AddProperties(StringBuilder codeBuilder, INamedTypeSymbol command, SourceProductionContext context)
+        private static void AddProperties(StringBuilder codeBuilder, INamedTypeSymbol command)
         {
-             //Log para agregar las propiedades
-             context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor("CDP007", "Adding Properties", $"Adding properties for {command.Name}", "CodeDesignPlus.Generator", DiagnosticSeverity.Info, isEnabledByDefault: true),
-                    command.Locations.FirstOrDefault()));
-
             var properties = command.GetMembers()
                 .OfType<IPropertySymbol>()
                 .Where(prop => prop.DeclaredAccessibility == Accessibility.Public && !prop.IsStatic && !prop.IsReadOnly && prop.Name != "EqualityContract")
@@ -100,11 +82,6 @@ namespace CodeDesignPlus.Net.Generator
             foreach (var property in properties)
             {
                 codeBuilder.AppendLine(property);
-
-                //Log individual de la propiedad agregada
-                  context.ReportDiagnostic(Diagnostic.Create(
-                    new DiagnosticDescriptor("CDP008", "Added Property", $"Added property {property}", "CodeDesignPlus.Generator", DiagnosticSeverity.Info, isEnabledByDefault: true),
-                     command.Locations.FirstOrDefault()));
             }
         }
     }
