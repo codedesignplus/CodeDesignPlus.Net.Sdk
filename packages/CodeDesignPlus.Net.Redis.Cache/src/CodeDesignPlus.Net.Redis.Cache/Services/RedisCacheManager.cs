@@ -134,7 +134,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
         if (string.IsNullOrEmpty(key))
             ArgumentNullException.ThrowIfNull(key);
 
-        if(value == null)
+        if (EqualityComparer<T>.Default.Equals(value, default))
             ArgumentNullException.ThrowIfNull(value);
 
         var internalKey = GetKey(key);
