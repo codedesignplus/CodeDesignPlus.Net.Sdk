@@ -40,7 +40,9 @@ public static class ServiceCollectionExtensions
                 x.EnableCommandText = options.Diagnostic.EnableCommandText;
             });
 
-        if (BsonSerializer.LookupSerializer<Guid>() == null)
+        var serializer = BsonSerializer.SerializerRegistry.GetSerializer<GuidSerializer>();
+
+        if (serializer is null)
             BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
         services.AddSingleton<IMongoClient>((serviceProvider) =>

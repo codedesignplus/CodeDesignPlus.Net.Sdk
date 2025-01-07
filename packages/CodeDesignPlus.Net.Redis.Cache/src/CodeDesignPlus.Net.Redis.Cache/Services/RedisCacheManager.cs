@@ -149,7 +149,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
         if (expiration == null)
             expiration = cacheOptions.Value.Expiration;
 
-        logger.LogDebug("The key {InternalKey} will be stored in the cache for {TotalSeconds} seconds", internalKey, expiration.Value.TotalSeconds);
+        logger.LogDebug("The key {InternalKey} will be stored in the cache for {Expiration.Value.TotalSeconds} seconds", internalKey, expiration.Value.TotalSeconds);
 
         return this.redis.Database.StringSetAsync(internalKey, JsonSerializer.Serialize(value), expiration);
     }
