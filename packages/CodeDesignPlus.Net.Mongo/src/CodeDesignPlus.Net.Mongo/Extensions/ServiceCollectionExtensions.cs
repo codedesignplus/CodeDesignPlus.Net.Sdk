@@ -40,14 +40,13 @@ public static class ServiceCollectionExtensions
                 x.EnableCommandText = options.Diagnostic.EnableCommandText;
             });
 
-        var serializer = BsonSerializer.SerializerRegistry.GetSerializer<GuidSerializer>();
-
-        if (serializer is null)
-            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-
         services.AddSingleton<IMongoClient>((serviceProvider) =>
         {
+            var logger = serviceProvider.GetRequiredService<ILogger<MongoClient>>();
             var mongoOptions = serviceProvider.GetRequiredService<IOptions<MongoOptions>>().Value;
+
+            TryRegisterSerializer(logger);
+
             var mongoUrl = MongoUrl.Create(mongoOptions.ConnectionString);
 
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
@@ -67,6 +66,24 @@ public static class ServiceCollectionExtensions
             services.AddRepositories<TStartup>();
 
         return services;
+    }
+
+    /// <summary>
+    /// Try to register the GuidSerializer StandardInstance.
+    /// </summary>
+    /// <param name="logger">The logger to write messages.</param>
+    private static void TryRegisterSerializer(ILogger<MongoClient> logger)
+    {
+        try
+        {
+            BsonSerializer.TryRegisterSerializer(GuidSerializer.StandardInstance);
+
+            logger.LogDebug("The GuidSerializer StandardInstance was registered.");
+        }
+        catch(BsonSerializationException exception)
+        {
+            logger.LogWarning(exception, "The GuidSerializer StandardInstance already exists.");
+        }
     }
 
     /// <summary>

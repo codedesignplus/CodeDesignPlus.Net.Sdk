@@ -60,6 +60,7 @@ public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassF
         var serviceCollection = new ServiceCollection();
 
         // Act
+        serviceCollection.AddLogging();
         serviceCollection.AddMongo<StartupFake>(configuration);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
