@@ -1,18 +1,14 @@
-﻿using Xunit;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using System.Linq;
-using System.Diagnostics;
-using Microsoft.CodeAnalysis.Text;
-using System.Text;
-using CodeDesignPlus.Net.Generator;
 
 namespace CodeDesignPlus.Net.Generator.Test;
 
 public class DtoGeneratorTest
 {
-    [Fact]
-    public void Execute_CommandExist_CreateDto()
+    [Theory]
+    [InlineData("Class")]
+    [InlineData("Record")]
+    public void Execute_CommandExist_CreateDto(string commandType)
     {
         // Arrange
         var sourceExpected = "namespace CodeDesignPlus.Microservice.Api.Dtos\r\n{\r\npublic class CreateUserDto\r\n{\r\n\t\t public string? Name { get; set; }\r\n\t\t public int? Age { get; set; }\r\n}\r\n}\r\n";
@@ -20,12 +16,22 @@ public class DtoGeneratorTest
         if (Environment.OSVersion.Platform != PlatformID.Win32NT)
             sourceExpected = sourceExpected.Replace("\r\n", "\n");
 
-        var source = """
+        var sourceRecord = """
         using System;
         
         namespace CodeDesignPlus.Microservice.Application.Commands
         {
            [DtoGeneratorAttribute]
+           public record CreateUserCommand(string? Name, int? Age);
+        }
+        """;
+
+        var sourceClass = """
+        using System;
+        
+        namespace CodeDesignPlus.Microservice.Application.Commands
+        {
+            [DtoGeneratorAttribute]
             public class CreateUserCommand
             {
                 public string? Name { get; set; }
@@ -33,6 +39,9 @@ public class DtoGeneratorTest
             }
         }
         """;
+
+        var source = commandType == "Record" ? sourceRecord : sourceClass;
+        
         var syntaxTree = SyntaxFactory.ParseSyntaxTree(source);
 
         var compilation = CSharpCompilation.Create("CodeDesignPlus.Net.Dummy",

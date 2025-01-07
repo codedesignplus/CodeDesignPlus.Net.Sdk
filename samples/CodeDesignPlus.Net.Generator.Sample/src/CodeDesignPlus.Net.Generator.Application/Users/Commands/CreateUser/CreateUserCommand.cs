@@ -1,7 +1,6 @@
-using System;
 using CodeDesignPlus.Net.Generator.Attributes;
 
-namespace CodeDesignPlus.Net.Generator.Application;
+namespace CodeDesignPlus.Net.Generator.Application.Users.Commands.CreateUser;
 
 [DtoGenerator]
 public class CreateUserCommand
@@ -16,5 +15,5 @@ public class CreateUserCommand
 
     public required string Password { get; set; }
 
-    public required string ConfirmPassword { get; set; }
+    public required string Other { get; set; }
 }
