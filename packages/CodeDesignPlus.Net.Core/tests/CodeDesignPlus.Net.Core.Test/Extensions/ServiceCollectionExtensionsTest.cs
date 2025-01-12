@@ -66,5 +66,19 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(ConfigurationUtil.CoreOptions.AppName, value.AppName);
     }
 
+    [Fact]
+    public void AddStartups_Success()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddStartups(configuration);
+
+        // Assert
+        Assert.True(StartupFake.Initialized);
+    }
 
 }
