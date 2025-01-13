@@ -75,7 +75,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddStartups(configuration);
+        serviceCollection.AddCore(configuration);
 
         // Assert
         Assert.True(StartupFake.Initialized);

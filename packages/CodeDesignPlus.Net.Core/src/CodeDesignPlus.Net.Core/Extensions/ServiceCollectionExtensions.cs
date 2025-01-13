@@ -29,6 +29,8 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services.TryAddSingleton<IDomainEventResolver, DomainEventResolverService>();
+        
+        services.AddStartups(configuration);
 
         return services;
     }
@@ -39,7 +41,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     /// <param name="configuration">The <see cref="IConfiguration"/> used to configure the services.</param>
     /// <returns>The modified <see cref="IServiceCollection"/> instance.</returns>
-    public static IServiceCollection AddStartups(this IServiceCollection services, IConfiguration configuration)
+    private static IServiceCollection AddStartups(this IServiceCollection services, IConfiguration configuration)
     {
         var startups = AppDomain.CurrentDomain
             .GetAssemblies()
