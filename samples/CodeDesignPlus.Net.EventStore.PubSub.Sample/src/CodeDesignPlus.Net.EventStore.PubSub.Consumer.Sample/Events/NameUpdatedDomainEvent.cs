@@ -1,10 +1,10 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
-using CodeDesignPlus.Net.EventStore.PubSub.Sample.Aggregates;
+using CodeDesignPlus.Net.EventStore.PubSub.Consumer.Sample.Aggregates;
 
-namespace CodeDesignPlus.Net.EventStore.PubSub.Sample.Events;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Consumer.Sample.Events;
 
-[EventKey<OrderAggregate>(1, "updated")]
+[EventKey<OrderAggregate>(1, "updated", "sample-eventstore-producer")]
 public class NameUpdatedDomainEvent(
     Guid aggregateId,
     string name,

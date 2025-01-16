@@ -1,4 +1,3 @@
-using System;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.Serializers;
 

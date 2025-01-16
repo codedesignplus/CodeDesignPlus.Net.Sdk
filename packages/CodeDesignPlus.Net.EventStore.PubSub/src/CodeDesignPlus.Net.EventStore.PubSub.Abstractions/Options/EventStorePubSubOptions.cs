@@ -14,10 +14,4 @@ public class EventStorePubSubOptions : PubSubOptions
     /// Gets or sets a value indicating whether EventStore Pub/Sub is enabled.
     /// </summary>
     public bool Enabled { get; set; }
-
-    /// <summary>
-    /// Gets or sets the group name for the EventStore Pub/Sub subscription.
-    /// </summary>
-    [Required]
-    public string Group { get; set; }
 }

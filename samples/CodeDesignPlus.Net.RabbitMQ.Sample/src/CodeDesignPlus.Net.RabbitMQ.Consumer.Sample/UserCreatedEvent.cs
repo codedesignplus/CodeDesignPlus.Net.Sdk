@@ -3,7 +3,7 @@ using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Consumer.Sample;
 
-[EventKey<UserEntity>(1, "created")]
+[EventKey<UserEntity>(1, "created", "sample-rabbitmq-producer")]
 public class UserCreatedEvent(
     Guid aggregateId,
     string name,
