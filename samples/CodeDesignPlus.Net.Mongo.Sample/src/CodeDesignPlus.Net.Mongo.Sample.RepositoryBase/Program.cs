@@ -2,6 +2,7 @@
 using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
 using CodeDesignPlus.Net.Mongo.Extensions;
 using CodeDesignPlus.Net.Mongo.Sample.RepositoryBase;
+using CodeDesignPlus.Net.Mongo.Sample.RepositoryBase.DTOs;
 using CodeDesignPlus.Net.Mongo.Sample.RepositoryBase.Entities;
 using CodeDesignPlus.Net.Mongo.Sample.RepositoryBase.Respositories;
 using Microsoft.Extensions.Configuration;
@@ -30,38 +31,17 @@ var product = new ProductEntity
     IsActive = true
 };
 
-var user = new UserEntity
-{
-    Id = Guid.NewGuid(),
-    Name = "John Doe",
-    Email = "john.doe@codedesignplus.com",
-    CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-    CreatedBy = Guid.NewGuid(),
-    IsActive = true
-};
+var tenant = Guid.NewGuid();
+var createdBy = Guid.NewGuid();
 
-user.Products.Add(product);
+var user = UserAggregate.Create(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com", tenant, createdBy);
 
-var users = new List<UserEntity>
+user.AddProduct(product);
+
+var users = new List<UserAggregate>
 {
-    new()
-    {
-        Id = Guid.NewGuid(),
-        Name = "Jane Doe",
-        Email = "jane.doe@codedesignplus.com",
-        CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-        CreatedBy = Guid.NewGuid(),
-        IsActive = true
-    },
-    new()
-    {
-        Id = Guid.NewGuid(),
-        Name = "John Smith",
-        Email = "john.smith@codedesignplus.com",
-        CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
-        CreatedBy = Guid.NewGuid(),
-        IsActive = true
-    }
+    UserAggregate.Create(Guid.NewGuid(), "Jane Doe", "jane.doe@codedesignplus.com", tenant, createdBy),
+    UserAggregate.Create(Guid.NewGuid(), "John Smith", "john.smith@codedesignplus.com", tenant, createdBy)
 };
 
 // Create a new user
@@ -71,10 +51,10 @@ await repository.CreateAsync(user, CancellationToken.None);
 await repository.CreateRangeAsync(users, CancellationToken.None);
 
 // Change state
-await repository.ChangeStateAsync<UserEntity>(user.Id, false, CancellationToken.None);
+await repository.ChangeStateAsync<UserAggregate>(user.Id, false, tenant, CancellationToken.None);
 
 // Find a user
-var userFound = await repository.FindAsync<UserEntity>(user.Id, CancellationToken.None);
+var userFound = await repository.FindAsync<UserAggregate>(user.Id, tenant, CancellationToken.None);
 
 // Criteris to find users
 var criteria = new Criteria
@@ -82,54 +62,49 @@ var criteria = new Criteria
     Filters = "IsActive=true"
 };
 
-var usersFound = await repository.MatchingAsync<UserEntity>(criteria, CancellationToken.None);
+var usersFound = await repository.MatchingAsync<UserAggregate>(criteria, tenant, CancellationToken.None);
 
 // Criteria with projection
-var projection = await repository.MatchingAsync<UserEntity, UserEntity>(criteria, x => new UserEntity
+var projection = await repository.MatchingAsync<UserAggregate, UserDto>(criteria, x => new UserDto
 {
     Id = x.Id,
     Name = x.Name,
     Email = x.Email
-}, CancellationToken.None);
+}, tenant, CancellationToken.None);
 
 // Criteria at subdocument level and projection
-var projectionSubdocument = await repository.MatchingAsync<UserEntity, ProductEntity>(user.Id, criteria, x => x.Products, CancellationToken.None);
+var projectionSubdocument = await repository.MatchingAsync<UserAggregate, ProductEntity>(user.Id, criteria, x => x.Products, tenant, CancellationToken.None);
 
 // Update user
-var userUpdate = await repository.FindAsync<UserEntity>(user.Id, CancellationToken.None);
+var userUpdate = await repository.FindAsync<UserAggregate>(user.Id, tenant, CancellationToken.None);
 
-userUpdate.Name = "John Doe Updated";
+userUpdate.UpdateName("John Doe Updated");
 
 await repository.UpdateAsync(userUpdate, CancellationToken.None);
 
 // Update some users
-var usersUpdate = await repository.MatchingAsync<UserEntity>(criteria, CancellationToken.None);
+var usersUpdate = await repository.MatchingAsync<UserAggregate>(criteria, tenant, CancellationToken.None);
 
-usersUpdate.ForEach(x => x.Name = $"{x.Name} Updated");
+usersUpdate.ForEach(x => x.UpdateName($"{x.Name} Updated"));
 
 await repository.UpdateRangeAsync(usersUpdate, CancellationToken.None);
 
 // Transaction
 await repository.TransactionAsync(async (database, session) =>
 {
-    var userTransaction = new UserEntity
-    {
-        Id = Guid.NewGuid(),
-        Name = "John Doe Transaction",
-        Email = "john.doe@codedesignplus.com"
-    };
+    var userTransaction = UserAggregate.Create(Guid.NewGuid(), "John Doe Transaction", "john.doe@codedesignplus.com", tenant, createdBy);
 
-    var collection = database.GetCollection<UserEntity>(typeof(UserEntity).Name);
+    var collection = database.GetCollection<UserAggregate>(typeof(UserAggregate).Name);
 
     await collection.InsertOneAsync(session, userTransaction, cancellationToken: CancellationToken.None);
 
 }, CancellationToken.None);
 
 // Delete user
-var filterUser = Builders<UserEntity>.Filter.Eq(x => x.Id, user.Id);
+var filterUser = Builders<UserAggregate>.Filter.Eq(x => x.Id, user.Id);
 
-await repository.DeleteAsync(filterUser, CancellationToken.None);
+await repository.DeleteAsync(filterUser, tenant, CancellationToken.None);
 
 // Delete some users
-await repository.DeleteRangeAsync(users, CancellationToken.None);
+await repository.DeleteRangeAsync(users, tenant, CancellationToken.None);
 

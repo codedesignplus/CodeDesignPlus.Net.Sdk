@@ -3,11 +3,9 @@
 /// <summary>
 /// Converts LINQ expressions to MongoDB BSON documents.
 /// </summary>
-public class ExpressionConverter(ParameterExpression parameter, string alias) : MBS.ExpressionVisitor
+public class ExpressionConverter(ParameterExpression parameter, string alias, bool isAggregation = false) : MBS.ExpressionVisitor
 {
-    private readonly ParameterExpression parameter = parameter;
-    private readonly string alias = alias;
-    private readonly BsonDocument filterDocument = new BsonDocument();
+    private BsonDocument filterDocument;
 
     /// <summary>
     /// Converts the specified expression to a BSON document.
@@ -17,6 +15,7 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
     /// <exception cref="Exceptions.MongoException">Thrown when the expression contains unsupported operators or expressions.</exception>
     public BsonDocument Convert(Expression expression)
     {
+        filterDocument = [];
         Visit(expression);
         return filterDocument;
     }
@@ -32,32 +31,33 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
         var left = node.Left;
         var right = node.Right;
 
+
         switch (node.NodeType)
         {
             case ExpressionType.Equal:
-                filterDocument.Add(new BsonElement("$eq", new BsonArray { $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
+                AddFilterElement("$eq", left, right);
                 break;
             case ExpressionType.AndAlso:
-                var leftAnd = new ExpressionConverter(parameter, alias).Convert(left);
-                var rightAnd = new ExpressionConverter(parameter, alias).Convert(right);
+                var leftAnd = new ExpressionConverter(parameter, alias, isAggregation).Convert(left);
+                var rightAnd = new ExpressionConverter(parameter, alias, isAggregation).Convert(right);
                 filterDocument.Add("$and", new BsonArray { leftAnd, rightAnd });
                 break;
             case ExpressionType.OrElse:
-                var leftOr = new ExpressionConverter(parameter, alias).Convert(left);
-                var rightOr = new ExpressionConverter(parameter, alias).Convert(right);
+                var leftOr = new ExpressionConverter(parameter, alias, isAggregation).Convert(left);
+                var rightOr = new ExpressionConverter(parameter, alias, isAggregation).Convert(right);
                 filterDocument.Add("$or", new BsonArray { leftOr, rightOr });
                 break;
             case ExpressionType.LessThan:
-                filterDocument.Add(new BsonElement("$lt", new BsonArray { $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
+                AddFilterElement("$lt", left, right);
                 break;
             case ExpressionType.LessThanOrEqual:
-                filterDocument.Add(new BsonElement("$lte", new BsonArray { $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
+                AddFilterElement("$lte", left, right);
                 break;
             case ExpressionType.GreaterThan:
-                filterDocument.Add(new BsonElement("$gt", new BsonArray { $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
+                AddFilterElement("$gt", left, right);
                 break;
             case ExpressionType.GreaterThanOrEqual:
-                filterDocument.Add(new BsonElement("$gte", new BsonArray { $"$${alias}.{GetFieldName(left)}", GetConstantValue(right) }));
+                AddFilterElement("$gte", left, right);
                 break;
             default:
                 throw new Exceptions.MongoException($"The operator '{node.NodeType}' is not supported.");
@@ -65,6 +65,24 @@ public class ExpressionConverter(ParameterExpression parameter, string alias) : 
 
         return node;
     }
+
+    /// <summary>
+    /// Adds a filter element to the BsonDocument with the correct structure.
+    /// </summary>
+    /// <param name="operatorName">The MongoDB operator name (e.g., $eq, $lt, $gt).</param>
+    /// <param name="left">The left side of the expression (field name).</param>
+    /// <param name="right">The right side of the expression (value).</param>
+    private void AddFilterElement(string operatorName, Expression left, Expression right)
+    {
+        var fieldName = GetFieldName(left);
+        var constantValue = GetConstantValue(right);
+
+        if (isAggregation)
+           filterDocument.Add(operatorName, new BsonArray { $"$$entity.{fieldName}", constantValue });
+        else
+          filterDocument.Add(fieldName, new BsonDocument(operatorName, constantValue));
+    }
+
 
     /// <summary>
     /// Gets the field name from the specified expression.
