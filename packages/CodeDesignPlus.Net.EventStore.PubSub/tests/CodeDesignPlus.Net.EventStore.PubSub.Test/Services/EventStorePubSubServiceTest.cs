@@ -28,11 +28,11 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         IEventStoreFactory eventStoreFactory = null!;
         var serviceProvider = Mock.Of<IServiceProvider>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
-        var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
+        var coreOptions = MO.Options.Create(OptionsUtil.CoreOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, eventStorePubSubOptions, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, coreOptions, domainEventResolverService));
     }
 
     [Fact]
@@ -42,11 +42,11 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         IServiceProvider serviceProvider = null!;
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
-        var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
+        var coreOptions = MO.Options.Create(OptionsUtil.CoreOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, eventStorePubSubOptions, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, coreOptions, domainEventResolverService));
     }
 
     [Fact]
@@ -68,11 +68,11 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         // Arrange
         var serviceProvider = Mock.Of<IServiceProvider>();
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
-        var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
+        var coreOptions = MO.Options.Create(OptionsUtil.CoreOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, null!, eventStorePubSubOptions, domainEventResolverService));
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, null!, coreOptions, domainEventResolverService));
     }
 
     [Fact]
@@ -82,10 +82,10 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         var serviceProvider = Mock.Of<IServiceProvider>();
         var eventStoreFactory = Mock.Of<IEventStoreFactory>();
         var logger = Mock.Of<ILogger<EventStorePubSubService>>();
-        var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
+        var coreOptions = MO.Options.Create(OptionsUtil.CoreOptions);
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, eventStorePubSubOptions, null!));
+        Assert.Throws<ArgumentNullException>(() => new EventStorePubSubService(eventStoreFactory, serviceProvider, logger, coreOptions, null!));
     }
 
     [Fact]
@@ -188,10 +188,10 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
         var serviceProviderMock = new Mock<IServiceProvider>();
         var loggerMock = new Mock<ILogger<EventStorePubSubService>>();
-        var eventStorePubSubOptions = MO.Options.Create(new EventStorePubSubOptions());
+        var coreOptions = MO.Options.Create(OptionsUtil.CoreOptions);
         var domainEventResolverService = Mock.Of<IDomainEventResolver>();
 
-        var service = new EventStorePubSubService(eventStoreFactoryMock.Object, serviceProviderMock.Object, loggerMock.Object, eventStorePubSubOptions, domainEventResolverService);
+        var service = new EventStorePubSubService(eventStoreFactoryMock.Object, serviceProviderMock.Object, loggerMock.Object, coreOptions, domainEventResolverService);
 
         // Act
         var task = service.UnsubscribeAsync<DomainEvent, IEventHandler<DomainEvent>>(CancellationToken.None);
@@ -255,7 +255,6 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
             EventStorePubSub = new EventStorePubSubOptions
             {
                 Enabled = true,
-                Group = "testGroup",
                 UseQueue = enableQueue 
             }
         });

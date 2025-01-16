@@ -105,7 +105,7 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.NotEmpty(serviceCollection);
-        Assert.Equal(20, serviceCollection.Count);
+        Assert.Equal(22, serviceCollection.Count);
     }
 
     [Fact]
@@ -147,7 +147,7 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.NotEmpty(serviceCollection);
-        Assert.Equal(36, serviceCollection.Count);
+        Assert.Equal(38, serviceCollection.Count);
     }
 
     [Fact]
@@ -188,6 +188,6 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.NotEmpty(serviceCollection);
-        Assert.Equal(49, serviceCollection.Count);
+        Assert.Equal(51, serviceCollection.Count);
     }
 }

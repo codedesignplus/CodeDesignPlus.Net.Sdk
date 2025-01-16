@@ -1,4 +1,4 @@
-Microsoft Visual Studio Solution File, Format Version 12.00
+﻿Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
@@ -21,8 +21,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.Event.Sourcing.Sample", "samples\CodeDesignPlus.Net.Event.Sourcing.Sample\src\CodeDesignPlus.Net.Event.Sourcing.Sample\CodeDesignPlus.Net.Event.Sourcing.Sample.csproj", "{010E25DF-0FE4-448A-85C9-08F6DE36B14E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.EventStore.PubSub.Sample", "CodeDesignPlus.Net.EventStore.PubSub.Sample", "{151F280D-44D7-4A38-8CBD-AF3120608CB5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.EventStore.PubSub.Sample", "samples\CodeDesignPlus.Net.EventStore.PubSub.Sample\src\CodeDesignPlus.Net.EventStore.PubSub.Sample\CodeDesignPlus.Net.EventStore.PubSub.Sample.csproj", "{F6D8D673-8575-4CF6-BBF6-54F694FDA6AD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.EventStore.Sample", "CodeDesignPlus.Net.EventStore.Sample", "{AA43A4A4-24D6-4DF0-8EE8-23F2DE833F65}"
 EndProject
@@ -110,6 +108,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "CodeDesignPlus.Net.xUnit.Sa
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeDesignPlus.Net.xUnit.Sample", "samples\CodeDesignPlus.Net.xUnit.Sample\src\CodeDesignPlus.Net.xUnit.Sample.csproj", "{6C811372-8974-467F-BF55-D4C1A6F5AAF9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.EventStore.PubSub.Consumer.Sample", "samples\CodeDesignPlus.Net.EventStore.PubSub.Sample\src\CodeDesignPlus.Net.EventStore.PubSub.Consumer.Sample\CodeDesignPlus.Net.EventStore.PubSub.Consumer.Sample.csproj", "{6E0B54A5-B4F3-481E-AF4A-2D8E0E0918B3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CodeDesignPlus.Net.EventStore.PubSub.Producer.Sample", "samples\CodeDesignPlus.Net.EventStore.PubSub.Sample\src\CodeDesignPlus.Net.EventStore.PubSub.Producer.Sample\CodeDesignPlus.Net.EventStore.PubSub.Producer.Sample.csproj", "{6A31B375-6C6C-4C9B-9AE0-2B4781C90856}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -136,10 +138,6 @@ Global
 		{010E25DF-0FE4-448A-85C9-08F6DE36B14E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{010E25DF-0FE4-448A-85C9-08F6DE36B14E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{010E25DF-0FE4-448A-85C9-08F6DE36B14E}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F6D8D673-8575-4CF6-BBF6-54F694FDA6AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F6D8D673-8575-4CF6-BBF6-54F694FDA6AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F6D8D673-8575-4CF6-BBF6-54F694FDA6AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F6D8D673-8575-4CF6-BBF6-54F694FDA6AD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E8C52B9-08C8-45B8-BBA5-980FA99070DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3E8C52B9-08C8-45B8-BBA5-980FA99070DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E8C52B9-08C8-45B8-BBA5-980FA99070DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -244,6 +242,14 @@ Global
 		{6C811372-8974-467F-BF55-D4C1A6F5AAF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6C811372-8974-467F-BF55-D4C1A6F5AAF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6C811372-8974-467F-BF55-D4C1A6F5AAF9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6E0B54A5-B4F3-481E-AF4A-2D8E0E0918B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6E0B54A5-B4F3-481E-AF4A-2D8E0E0918B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6E0B54A5-B4F3-481E-AF4A-2D8E0E0918B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6E0B54A5-B4F3-481E-AF4A-2D8E0E0918B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A31B375-6C6C-4C9B-9AE0-2B4781C90856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A31B375-6C6C-4C9B-9AE0-2B4781C90856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A31B375-6C6C-4C9B-9AE0-2B4781C90856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A31B375-6C6C-4C9B-9AE0-2B4781C90856}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -254,7 +260,6 @@ Global
 		{A769C0CE-C39C-46DF-A6C9-21F1CAF6CEC7} = {B5F436C6-96B8-40A3-B821-0A6611F4F556}
 		{0F204178-AF8C-46C9-8697-D1D174C9766C} = {B5F436C6-96B8-40A3-B821-0A6611F4F556}
 		{010E25DF-0FE4-448A-85C9-08F6DE36B14E} = {C8513156-FD77-4AEA-9ACB-A3B50F0A317E}
-		{F6D8D673-8575-4CF6-BBF6-54F694FDA6AD} = {151F280D-44D7-4A38-8CBD-AF3120608CB5}
 		{3E8C52B9-08C8-45B8-BBA5-980FA99070DD} = {AA43A4A4-24D6-4DF0-8EE8-23F2DE833F65}
 		{FDAFD8C3-23D8-4942-BE71-011A1B81C7DE} = {60A0BC3F-335F-468F-9DCE-1376A4184BD0}
 		{0C041128-0A2E-4BA5-B774-B33F541F1D32} = {EA534BB4-72BB-4308-AC8E-F6353970D009}
@@ -281,5 +286,7 @@ Global
 		{B57F9E97-FCB6-41F5-A869-CB847544398D} = {26C22097-745F-4C69-8146-A4DFCAA8D644}
 		{41F23C52-1C7A-487A-84E4-57D3D84BAA8D} = {EB08A5CC-41CA-428C-AB59-6D85ECA77969}
 		{6C811372-8974-467F-BF55-D4C1A6F5AAF9} = {B424D0DB-19F6-4978-BA84-E9FC30644E98}
+		{6E0B54A5-B4F3-481E-AF4A-2D8E0E0918B3} = {151F280D-44D7-4A38-8CBD-AF3120608CB5}
+		{6A31B375-6C6C-4C9B-9AE0-2B4781C90856} = {151F280D-44D7-4A38-8CBD-AF3120608CB5}
 	EndGlobalSection
 EndGlobal

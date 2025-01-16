@@ -14,6 +14,6 @@ public class Startup : IStartup
     /// <param name="configuration">Provee acceso a las diferentes fuentes de configuración</param>
     public void Initialize(IServiceCollection services, IConfiguration configuration)
     {
-        throw new NotImplementedException();
+       
     }
 }

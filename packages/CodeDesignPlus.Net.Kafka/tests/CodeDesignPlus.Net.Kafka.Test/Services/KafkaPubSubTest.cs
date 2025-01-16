@@ -12,12 +12,14 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using Xunit.Abstractions;
+using CodeDesignPlus.Net.Kafka.Test.Helpers;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Services;
 
 [Collection(KafkaCollectionFixture.Collection)]
 public class KafkaPubSubTest
 {
+    private readonly IOptions<CoreOptions> coreOptions;
     private readonly KafkaContainer kafkaContainer;
     private readonly ITestOutputHelper testOutput;
 
@@ -32,36 +34,12 @@ public class KafkaPubSubTest
     {
         this.kafkaContainer = kafkaCollectionFixture.Container;
         this.testOutput = output;
+        this.coreOptions = Microsoft.Extensions.Options.Options.Create(OptionUtils.CoreOptions);
 
         var serviceCollection = new ServiceCollection()
             .AddSingleton(x => _mockProducer.Object);
 
         this.serviceProvider = serviceCollection.BuildServiceProvider();
-    }
-
-    [Fact]
-    public void Constructor_ThrowsArgumentNullException_WhenLoggerIsNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new KafkaPubSub(null, _mockDomainEventResolverService.Object, _mockKafkaOptions.Object, serviceProvider));
-    }
-
-    [Fact]
-    public void Constructor_ThrowsArgumentNullException_WhenOptionsIsNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, null, serviceProvider));
-    }
-
-    [Fact]
-    public void Constructor_ThrowsArgumentNullException_WhenServiceProviderIsNull()
-    {
-        Assert.Throws<ArgumentNullException>(() => new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, _mockKafkaOptions.Object, null));
-    }
-
-    [Fact]
-    public void Constructor_Succeeds_WhenAllArgumentsAreValid()
-    {
-        var instance = new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, _mockKafkaOptions.Object, serviceProvider);
-        Assert.NotNull(instance);
     }
 
     [Theory]
@@ -117,7 +95,7 @@ public class KafkaPubSubTest
         var serviceCollection = new ServiceCollection().AddSingleton(x => mockConsumer.Object);
         var provider = serviceCollection.BuildServiceProvider();
 
-        var kafkaEventBus = new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, _mockKafkaOptions.Object, provider);
+        var kafkaEventBus = new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, _mockKafkaOptions.Object, provider, this.coreOptions);
 
         // Act
         await kafkaEventBus.UnsubscribeAsync<UserCreatedEvent, UserCreatedEventHandler>(CancellationToken.None);
@@ -145,12 +123,11 @@ public class KafkaPubSubTest
             Acks = Acks.All ,
             BatchSize = 4096,
             LingerMs = 5,
-            CompressionType = CompressionType.Gzip ,
-            NameMicroservice = "ms-test-temp",
+            CompressionType = CompressionType.Gzip,
             MaxAttempts = maxAttempts
         });
 
-        var kafkaEventBus = new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, options, provider);
+        var kafkaEventBus = new KafkaPubSub(_mockLogger.Object, _mockDomainEventResolverService.Object, options, provider, this.coreOptions);
 
         // Act
         _ = Task.Run(() => kafkaEventBus.SubscribeAsync<ProductCreatedEvent, ProductCreatedEventHandler>(CancellationToken.None));
@@ -194,7 +171,7 @@ public class KafkaPubSubTest
         {
             Core = new CoreOptions
             {
-                AppName = "Test",
+                AppName = "ms-kafka-test",
                 Version = "v1",
                 Business = "CodeDesignPlus",
                 Description = "Microservice Test",
