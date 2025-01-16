@@ -21,21 +21,18 @@ var serviceProvider = serviceCollection.BuildServiceProvider();
 
 var repository = serviceProvider.GetRequiredService<IUserRepository>();
 
-var user = new UserEntity
-{
-    Id = Guid.NewGuid(),
-    Name = "John Doe",
-    Email = "john.doe@codedesignplus.com",
-    IsActive = true
-};
+var tenant = Guid.NewGuid();
+var createdBy = Guid.NewGuid();
+
+var user = UserAggregate.Create(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com", tenant, createdBy);
 
 // Create a new user
 await repository.CreateAsync(user, CancellationToken.None);
 
 // Find a user to update
-user.Name = "John Doe Updated";
+user.UpdateName("John Doe Updated");
 
-await repository.UpdateAsync(user.Id, user, CancellationToken.None);
+await repository.UpdateAsync(user.Id, user, tenant, CancellationToken.None);
 
 // Delete a user
-await repository.DeleteAsync(user.Id, CancellationToken.None);
+await repository.DeleteAsync(user.Id, tenant, CancellationToken.None);
