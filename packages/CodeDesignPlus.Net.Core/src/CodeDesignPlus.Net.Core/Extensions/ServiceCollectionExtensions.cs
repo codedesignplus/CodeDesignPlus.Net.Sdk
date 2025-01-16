@@ -26,7 +26,8 @@ public static class ServiceCollectionExtensions
         services
             .AddOptions<CoreOptions>()
             .Bind(section)
-            .ValidateDataAnnotations();
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
 
         services.TryAddSingleton<IDomainEventResolver, DomainEventResolverService>();
         

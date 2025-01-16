@@ -32,7 +32,7 @@ foreach (var backgroundService in backgroundServices)
 // Wait for the background services to start
 await Task.Delay(1000);
 
-var message = serviceProvider.GetRequiredService<IMessage>();
+var pubSub = serviceProvider.GetRequiredService<IPubSub>();
 
 var orderAggregate = OrderAggregate.Create(Guid.NewGuid(), "Order 1", Guid.NewGuid());
 
@@ -45,7 +45,7 @@ orderAggregate.AddProduct("Product 5");
 
 foreach (var @event in orderAggregate.GetAndClearEvents())
 {
-    _ = message.PublishAsync(@event, CancellationToken.None);
+    _ = pubSub.PublishAsync(@event, CancellationToken.None);
 
     Console.WriteLine($"Event {@event.GetType().Name} published, id: {@event.EventId}, aggregate id: {@event.AggregateId}");
 }

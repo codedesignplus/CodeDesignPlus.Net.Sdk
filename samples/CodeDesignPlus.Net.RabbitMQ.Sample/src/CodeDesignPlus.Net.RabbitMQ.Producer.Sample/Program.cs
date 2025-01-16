@@ -16,13 +16,13 @@ serviceCollection.AddRabbitMQ<Program>(configuration);
 
 var serviceProvider = serviceCollection.BuildServiceProvider();
 
-var producer = serviceProvider.GetRequiredService<IMessage>();
+var pubSub = serviceProvider.GetRequiredService<IPubSub>();
 
 do
 {
     var userCreatedDomainEvent = new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com");
 
-    await producer.PublishAsync(userCreatedDomainEvent, CancellationToken.None);
+    await pubSub.PublishAsync(userCreatedDomainEvent, CancellationToken.None);
 
     Console.WriteLine("Message published successfully");
 
