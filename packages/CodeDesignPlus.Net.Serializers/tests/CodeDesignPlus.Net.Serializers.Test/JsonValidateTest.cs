@@ -10,6 +10,7 @@ public class JsonValidateTest
     [InlineData("{name:\"John\"}", true)]
     [InlineData("[{\"name\":\"John\"}]", true)]
     [InlineData("[{name:\"John\"}]", true)]
+    [InlineData("[{name:\"John\"]", false)]
     public void IsValidJson_ShouldReturnExpectedResult(string? jsonString, bool expected)
     {
         // Act

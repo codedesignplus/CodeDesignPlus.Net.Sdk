@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
         if (options.UseQueue)
         {
             services.TryAddSingleton<IEventQueue, EventQueueService>();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, EventQueueBackgroundService>());
         }
 
         if (options.EnableDiagnostic)
@@ -78,7 +78,7 @@ public static class ServiceCollectionExtensions
         if (pubSubOptions.UseQueue)
         {
             services.TryAddSingleton<IEventQueue, EventQueueService>();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), typeof(EventQueueBackgroundService)));
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, EventQueueBackgroundService>());
         }
 
         if (pubSubOptions.EnableDiagnostic)
@@ -86,7 +86,7 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
-    
+
     /// <summary>
     /// Adds event handlers to the specified IServiceCollection.
     /// </summary>

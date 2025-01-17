@@ -1,9 +1,9 @@
 ﻿
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
-using CodeDesignPlus.Net.EventStore.PubSub.Sample.Aggregates;
+using CodeDesignPlus.Net.EventStore.PubSub.Producer.Sample.Aggregates;
 
-namespace CodeDesignPlus.Net.EventStore.PubSub.Sample.Events;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Producer.Sample.Events;
 
 [EventKey<OrderAggregate>(1, "created")]
 public class OrderCreatedDomainEvent(

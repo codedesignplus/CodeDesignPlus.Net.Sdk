@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+
+namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
 
 /// <summary>
 /// Provides Pub/Sub services for interacting with EventStore.
@@ -8,7 +10,7 @@ public class EventStorePubSubService : IEventStorePubSub
     private readonly IEventStoreFactory eventStoreFactory;
     private readonly IServiceProvider serviceProvider;
     private readonly ILogger<EventStorePubSubService> logger;
-    private readonly EventStorePubSubOptions options;
+    private readonly CoreOptions options;
     private readonly PersistentSubscriptionSettings settings;
     private readonly IDomainEventResolver domainEventResolverService;
 
@@ -18,29 +20,29 @@ public class EventStorePubSubService : IEventStorePubSub
     /// <param name="eventStoreFactory">The factory to create EventStore connections.</param>
     /// <param name="serviceProvider">The service provider for resolving dependencies.</param>
     /// <param name="logger">The logger instance.</param>
-    /// <param name="eventStorePubSubOptions">The EventStore Pub/Sub options.</param>
+    /// <param name="coreOptions">The EventStore Pub/Sub options.</param>
     /// <param name="domainEventResolverService">The service to resolve domain events.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="eventStoreFactory"/>, <paramref name="serviceProvider"/>, <paramref name="logger"/>, <paramref name="eventStorePubSubOptions"/>, or <paramref name="domainEventResolverService"/> is null.
+    /// Thrown when <paramref name="eventStoreFactory"/>, <paramref name="serviceProvider"/>, <paramref name="logger"/>, <paramref name="coreOptions"/>, or <paramref name="domainEventResolverService"/> is null.
     /// </exception>
     public EventStorePubSubService(
         IEventStoreFactory eventStoreFactory,
         IServiceProvider serviceProvider,
         ILogger<EventStorePubSubService> logger,
-        IOptions<EventStorePubSubOptions> eventStorePubSubOptions,
+        IOptions<CoreOptions> coreOptions,
         IDomainEventResolver domainEventResolverService)
     {
         ArgumentNullException.ThrowIfNull(eventStoreFactory);
         ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(logger);
-        ArgumentNullException.ThrowIfNull(eventStorePubSubOptions);
+        ArgumentNullException.ThrowIfNull(coreOptions);
         ArgumentNullException.ThrowIfNull(domainEventResolverService);
 
         this.eventStoreFactory = eventStoreFactory;
         this.serviceProvider = serviceProvider;
         this.logger = logger;
         this.domainEventResolverService = domainEventResolverService;
-        this.options = eventStorePubSubOptions.Value;
+        this.options = coreOptions.Value;
 
         this.settings = PersistentSubscriptionSettings
             .Create()
@@ -107,7 +109,7 @@ public class EventStorePubSubService : IEventStorePubSub
         {
             await connection.CreatePersistentSubscriptionAsync(
                 stream,
-                options.Group,
+                options.AppName,
                 this.settings,
                 userCredentials
             ).ConfigureAwait(false);
@@ -119,7 +121,7 @@ public class EventStorePubSubService : IEventStorePubSub
 
         await connection.ConnectToPersistentSubscriptionAsync(
             stream,
-            options.Group,
+            options.AppName,
             (_, evt) => EventAppearedAsync<TEvent, TEventHandler>(evt, cancellationToken).ConfigureAwait(false),
             (sub, reason, exception) => this.logger.LogDebug("Subscription dropped: {Reason}", reason)
         ).ConfigureAwait(false);

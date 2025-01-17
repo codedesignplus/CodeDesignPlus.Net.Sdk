@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 
-public class Product : IEntity
+public class ProductEntity : IEntity
 {
     public Guid Id { get; set; }
     public string? Name { get; set; }

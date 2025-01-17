@@ -89,9 +89,8 @@ public class DomainEventResolverService : IDomainEventResolver
 
         var attribute = type.GetCustomAttribute<EventKeyAttribute>();
 
-        if (attribute is null)
-            throw new CoreException($"The event {type.Name} does not have the KeyAttribute");
+        CoreException.ThrowIfNull(attribute, type.Name);
 
-        return $"{coreOptions.Business}.{coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
+        return $"{coreOptions.Business}.{attribute.AppName ?? coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
     }
 }

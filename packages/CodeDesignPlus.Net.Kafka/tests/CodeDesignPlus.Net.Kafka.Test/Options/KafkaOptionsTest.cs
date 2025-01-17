@@ -14,8 +14,7 @@ public class KafkaOptionsTest
             Acks = Confluent.Kafka.Acks.All ,
             BatchSize = 4096,
             LingerMs = 5,
-            CompressionType = Confluent.Kafka.CompressionType.Gzip ,
-            NameMicroservice = "MicroserviceTest"
+            CompressionType = Confluent.Kafka.CompressionType.Gzip
         };
 
         // Act

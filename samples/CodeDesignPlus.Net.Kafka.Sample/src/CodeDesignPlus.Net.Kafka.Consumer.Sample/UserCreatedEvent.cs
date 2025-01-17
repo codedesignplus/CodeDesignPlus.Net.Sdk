@@ -5,7 +5,7 @@ using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 namespace CodeDesignPlus.Net.Kafka.Consumer.Sample;
 
 
-[EventKey<UserEntity>(1, "created")]
+[EventKey<UserEntity>(1, "created", "sample-kafka-producer")]
 public class UserCreatedEvent(
     Guid aggregateId,
     string name,

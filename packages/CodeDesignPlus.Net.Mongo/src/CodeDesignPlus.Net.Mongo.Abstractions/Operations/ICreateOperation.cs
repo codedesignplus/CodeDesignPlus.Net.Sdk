@@ -12,5 +12,5 @@ public interface ICreateOperation<in TEntity> where TEntity : class, IEntityBase
     /// <param name="entity">The entity to create.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous create operation.</returns>
-    Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default);
+    Task CreateAsync(TEntity entity, CancellationToken cancellationToken);
 }

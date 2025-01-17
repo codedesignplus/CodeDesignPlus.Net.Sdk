@@ -24,7 +24,6 @@ public static class OptionUtils
         Acks = Confluent.Kafka.Acks.All,
         BatchSize = 4096,
         LingerMs = 5,
-        CompressionType = Confluent.Kafka.CompressionType.Snappy,
-        NameMicroservice = "Microservice.Test"
+        CompressionType = Confluent.Kafka.CompressionType.Snappy
     };
 }

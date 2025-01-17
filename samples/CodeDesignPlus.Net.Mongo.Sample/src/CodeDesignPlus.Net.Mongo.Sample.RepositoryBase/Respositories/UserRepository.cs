@@ -10,7 +10,7 @@ public class UserRepository(IServiceProvider serviceProvider, IOptions<MongoOpti
 {
     public Task CustomMethodAsync()
     {
-        var collection = this.GetCollection<UserEntity>();
+        var collection = this.GetCollection<UserAggregate>();
 
         // Do something with the collection
 

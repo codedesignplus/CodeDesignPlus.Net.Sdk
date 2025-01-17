@@ -12,7 +12,8 @@ public interface IRepositoryBase
     /// <param name="entity">The entity to create.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous create operation.</returns>
-    Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Creates a range of new entities asynchronously.
@@ -21,7 +22,8 @@ public interface IRepositoryBase
     /// <param name="entities">The entities to create.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous create operation.</returns>
-    Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Updates an entity asynchronously.
@@ -30,7 +32,8 @@ public interface IRepositoryBase
     /// <param name="entity">The entity to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous update operation.</returns>
-    Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Updates a range of entities asynchronously.
@@ -39,7 +42,8 @@ public interface IRepositoryBase
     /// <param name="entities">The entities to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous update operation.</returns>
-    Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Deletes an entity asynchronously.
@@ -48,7 +52,19 @@ public interface IRepositoryBase
     /// <param name="filter">The filter definition to identify the entity to delete.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous delete operation.</returns>
-    Task DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
+    
+    /// <summary>
+    /// Deletes an entity by its filter asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="filter">The filter definition.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    Task DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Deletes a range of entities asynchronously.
@@ -57,7 +73,19 @@ public interface IRepositoryBase
     /// <param name="entities">The entities to delete.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous delete operation.</returns>
-    Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
+
+    /// <summary>
+    /// Deletes a range of entities asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entities">The entities to delete.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete range operation.</returns>
+    Task DeleteRangeAsync<TEntity>(List<TEntity> entities, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Changes the state of an entity by its identifier asynchronously.
@@ -67,7 +95,21 @@ public interface IRepositoryBase
     /// <param name="state">The new state of the entity.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous change state operation.</returns>
-    Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken) where TEntity : class, IEntity;
+    Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken) 
+        where TEntity : class, IEntity;
+    
+    /// <summary>
+    /// Changes the state of an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="state">The new state of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous change state operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
+    Task ChangeStateAsync<TEntity>(Guid id, bool state, Guid tenant, CancellationToken cancellationToken) 
+        where TEntity : class, IEntity;
 
     /// <summary>
     /// Executes a transaction asynchronously.
@@ -84,7 +126,19 @@ public interface IRepositoryBase
     /// <param name="id">The identifier of the entity.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous find operation.</returns>
-    Task<TEntity> FindAsync<TEntity>(Guid id, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task<TEntity> FindAsync<TEntity>(Guid id, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
+
+    /// <summary>
+    /// Finds an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous find operation.</returns>
+    Task<TEntity> FindAsync<TEntity>(Guid id, Guid tenant, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Finds entities matching the specified criteria asynchronously.
@@ -93,7 +147,19 @@ public interface IRepositoryBase
     /// <param name="criteria">The criteria to match.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous find operation.</returns>
-    Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
+
+    /// <summary>
+    /// Finds entities matching the specified criteria asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, Guid tenant, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Finds entities matching the specified criteria and projects them to the specified result type asynchronously.
@@ -104,7 +170,21 @@ public interface IRepositoryBase
     /// <param name="projection">The projection expression.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous find operation.</returns>
-    Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken) where TEntity : class, IEntityBase;
+    Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken) 
+        where TEntity : class, IEntityBase;
+
+    /// <summary>
+    /// Finds entities matching the specified criteria and projects them to the specified result type asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="projection">The projection expression.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase;
 
     /// <summary>
     /// Finds entities matching the specified criteria and projects them to the specified projection type asynchronously.
@@ -117,6 +197,21 @@ public interface IRepositoryBase
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous find operation.</returns>
     Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+        where TProjection : class, IEntityBase;
+        
+    /// <summary>
+    /// Finds entities matching the specified criteria and projects them to the specified projection type asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TProjection">The type of the projection.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="projection">The projection expression.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, Guid tenant, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
         where TProjection : class, IEntityBase;
 }

@@ -11,7 +11,7 @@ public class Order : IEntity
     public long CreatedAt { get; set; }
     public long? UpdatedAt { get; set; }
     public Client? Client { get; set; }
-    public List<Product> Products { get; set; } = [];
+    public List<ProductEntity> Products { get; set; } = [];
     public bool IsActive { get; set; }
     public Guid CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }

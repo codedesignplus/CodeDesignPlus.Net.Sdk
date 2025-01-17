@@ -7,7 +7,7 @@ public static class ConfigurationUtil
     public static readonly CoreOptions CoreOptions = new()
     {
         Business = nameof(Core.Abstractions.Options.CoreOptions.Business),
-        AppName = nameof(Core.Abstractions.Options.CoreOptions.AppName),
+        AppName = "ms-test",
         Version = "v1",
         Description = nameof(Core.Abstractions.Options.CoreOptions.Description),
         Contact = new Contact()

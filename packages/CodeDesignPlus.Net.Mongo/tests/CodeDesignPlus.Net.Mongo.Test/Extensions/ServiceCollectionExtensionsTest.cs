@@ -2,6 +2,7 @@
 using CodeDesignPlus.Net.xUnit.Extensions;
 using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Driver;
+using Moq;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
@@ -122,4 +123,5 @@ public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassF
         Assert.Equal(ServiceLifetime.Singleton, clientRepository.Lifetime);
         Assert.Equal(ServiceLifetime.Singleton, productRepository.Lifetime);
     }
+
 }

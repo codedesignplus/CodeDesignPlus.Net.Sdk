@@ -1,7 +1,7 @@
-using CodeDesignPlus.Net.EventStore.PubSub.Sample.Events;
+using CodeDesignPlus.Net.EventStore.PubSub.Consumer.Sample.Events;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 
-namespace CodeDesignPlus.Net.EventStore.PubSub.Sample.Consumers;
+namespace CodeDesignPlus.Net.EventStore.PubSub.Consumer.Sample.Consumers;
 
 public class OrderCreatedEventHandler : IEventHandler<OrderCreatedDomainEvent>
 {
