@@ -82,4 +82,25 @@ public class ServiceCollectionExtensionsTest
 
         repository.ForEach(x => Assert.Equal(ServiceLifetime.Transient, x.Lifetime));
     }
+
+    [Fact]
+    public void AddEFCore_DisableAndDisableRepositorires_NotRegisterRepositories()
+    {
+        // Arrange        
+        var efCoreOptions = ConfigurationUtil.EFCoreOptions;
+        efCoreOptions.Enable = false;
+        efCoreOptions.RegisterRepositories = false;
+
+        var configuration = ConfigurationUtil.GetConfiguration(new AppSettings { EFCore = efCoreOptions });
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddEFCore<CodeDesignPlusContextInMemory>(configuration);
+
+        // Assert
+        var repository = serviceCollection.Where(x => typeof(IRepositoryBase).IsAssignableFrom(x.ServiceType)).ToList();
+
+        Assert.Empty(repository);
+    }
 }

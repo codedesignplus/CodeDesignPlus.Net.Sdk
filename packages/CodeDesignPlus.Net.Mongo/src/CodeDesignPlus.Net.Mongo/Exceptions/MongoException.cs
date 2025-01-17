@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Mongo.Exceptions;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CodeDesignPlus.Net.Mongo.Exceptions;
 
 /// <summary>
 /// The exception that is thrown when an error occurs within CodeDesignPlus.Net.Mongo.
@@ -62,5 +64,18 @@ public class MongoException : Exception
     public MongoException(string message, IEnumerable<string> errors, Exception innerException) : base(message, innerException)
     {
         this.Errors = errors;
+    }
+
+    /// <summary>
+    /// Throws an <see cref="MongoException"/> if the argument is null.
+    /// </summary>
+    /// <param name="argument">The argument to check.</param>
+    /// <param name="message">The message that describes the error.</param>
+    /// <exception cref="MongoException">Thrown when the argument is null.</exception>
+    [DoesNotReturn]
+    public static void ThrowIfNull([NotNull] object argument, string message)
+    {
+        if (argument is null)
+            throw new MongoException(message);
     }
 }

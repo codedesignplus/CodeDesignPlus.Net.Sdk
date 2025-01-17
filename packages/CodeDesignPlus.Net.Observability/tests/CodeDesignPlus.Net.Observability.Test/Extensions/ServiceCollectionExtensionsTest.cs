@@ -138,16 +138,18 @@ public class ServiceCollectionExtensionsTest
             Core = Test.Helpers.ConfigurationUtil.CoreOptions,
             Observability = options
         });
-        var environment = Mock.Of<IHostEnvironment>();
+        var environmentMock = new Mock<IHostEnvironment>();
+
+        environmentMock.SetupGet(x => x.EnvironmentName).Returns(Environments.Development);
 
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddObservability(configuration, environment);
+        serviceCollection.AddObservability(configuration, environmentMock.Object);
 
         // Assert
         Assert.NotEmpty(serviceCollection);
-        Assert.Equal(38, serviceCollection.Count);
+        Assert.Equal(39, serviceCollection.Count);
     }
 
     [Fact]
@@ -179,15 +181,17 @@ public class ServiceCollectionExtensionsTest
             Core = Test.Helpers.ConfigurationUtil.CoreOptions,
             Observability = options
         });
-        var environment = Mock.Of<IHostEnvironment>();
+        var environmentMock = new Mock<IHostEnvironment>();
+
+        environmentMock.SetupGet(x => x.EnvironmentName).Returns(Environments.Development);
 
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddObservability(configuration, environment);
+        serviceCollection.AddObservability(configuration, environmentMock.Object);
 
         // Assert
         Assert.NotEmpty(serviceCollection);
-        Assert.Equal(51, serviceCollection.Count);
+        Assert.Equal(52, serviceCollection.Count);
     }
 }

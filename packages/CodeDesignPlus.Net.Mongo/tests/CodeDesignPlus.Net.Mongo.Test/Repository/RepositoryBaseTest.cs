@@ -556,7 +556,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         await repository.CreateRangeAsync(orders, cancellationToken);
 
         // Act
-        var result = await repository.MatchingAsync<Order, Product>(order.Id, criteria, x => x.Products, cancellationToken);
+        var result = await repository.MatchingAsync<Order, ProductEntity>(order.Id, criteria, x => x.Products, cancellationToken);
 
         // Assert
         Assert.NotNull(order);

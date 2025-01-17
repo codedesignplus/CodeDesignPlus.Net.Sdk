@@ -42,10 +42,9 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<IMongoClient>((serviceProvider) =>
         {
-            var logger = serviceProvider.GetRequiredService<ILogger<MongoClient>>();
             var mongoOptions = serviceProvider.GetRequiredService<IOptions<MongoOptions>>().Value;
 
-            TryRegisterSerializer(logger);
+            BsonSerializer.TryRegisterSerializer(GuidSerializer.StandardInstance);
 
             var mongoUrl = MongoUrl.Create(mongoOptions.ConnectionString);
 
@@ -69,24 +68,6 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Try to register the GuidSerializer StandardInstance.
-    /// </summary>
-    /// <param name="logger">The logger to write messages.</param>
-    private static void TryRegisterSerializer(ILogger<MongoClient> logger)
-    {
-        try
-        {
-            BsonSerializer.TryRegisterSerializer(GuidSerializer.StandardInstance);
-
-            logger.LogDebug("The GuidSerializer StandardInstance was registered.");
-        }
-        catch(BsonSerializationException exception)
-        {
-            logger.LogWarning(exception, "The GuidSerializer StandardInstance already exists.");
-        }
-    }
-
-    /// <summary>
     /// Adds repositories to the specified IServiceCollection.
     /// </summary>
     /// <typeparam name="TStartup">The type of the startup class.</typeparam>
@@ -102,8 +83,7 @@ public static class ServiceCollectionExtensions
         {
             var @interface = repository.GetInterfaces().FirstOrDefault(x => x.Name == $"I{repository.Name}");
 
-            if (@interface is null)
-                throw new Exceptions.MongoException($"The interface I{repository.Name} is required.");
+            Exceptions.MongoException.ThrowIfNull(@interface, $"The interface I{repository.Name} is required.");
 
             services.AddSingleton(@interface, repository);
         }

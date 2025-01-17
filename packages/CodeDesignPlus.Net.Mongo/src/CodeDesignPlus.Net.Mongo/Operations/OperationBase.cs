@@ -48,8 +48,7 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
     public virtual Task CreateAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         if (entity is IEntity auditTrailEntity)
         {

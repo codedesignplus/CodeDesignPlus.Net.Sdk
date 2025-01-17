@@ -298,7 +298,7 @@ public class EventStoreService : IEventStore
         ES.StreamEventsSlice currentSlice;
         var nextSliceStart = (long)ES.StreamPosition.Start;
 
-        var key = domainEventResolverService.GetKeyDomainEvent(typeof(TDomainEvent));
+        var key = domainEventResolverService.GetKeyDomainEvent<TDomainEvent>();
 
         do
         {

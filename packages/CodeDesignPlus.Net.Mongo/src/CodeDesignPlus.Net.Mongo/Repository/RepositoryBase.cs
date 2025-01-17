@@ -361,7 +361,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         var filterCriteria = criteria.GetFilterExpression<TProjection>();
 
-        var filterDefinition = filterCriteria.ToFilterDefinition("entity", true).BuildFilter(tenant);
+        var filterDefinition = filterCriteria.ToFilterDefinition(true).BuildFilter(tenant);
 
         var bsonFilter = ((BsonDocumentFilterDefinition<TProjection>)filterDefinition).Document;
 

@@ -75,13 +75,13 @@ public class CoreException : Exception
     /// Throws an <see cref="CoreException"/> if <paramref name="argument"/> is null.
     /// </summary>
     /// <param name="argument">The reference type argument to validate as non-null.</param>
-    /// <param name="paramName">The name of the parameter with which <paramref name="argument"/> corresponds.</param>
+    /// <param name="domainEvent">The name of the domain event.</param> 
     /// <exception cref="CoreException">The event does not have the KeyAttribute.</exception>
     /// <exception cref="ArgumentNullException">The argument is null.</exception>
     [DoesNotReturn]
-    public static void ThrowIfNull([NotNull] object argument, [CallerArgumentExpression(nameof(argument))] string paramName = null)
+    public static void ThrowIfNull([NotNull] object argument, string domainEvent = null)
     {
         if (argument is null)
-            throw new CoreException($"The event {paramName} does not have the KeyAttribute");
+            throw new CoreException($"The event {domainEvent} does not have the KeyAttribute");
     }
 }

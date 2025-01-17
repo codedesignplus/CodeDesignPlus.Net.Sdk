@@ -3,7 +3,7 @@
 /// <summary>
 /// Converts LINQ expressions to MongoDB BSON documents.
 /// </summary>
-public class ExpressionConverter(ParameterExpression parameter, string alias, bool isAggregation = false) : MBS.ExpressionVisitor
+public class ExpressionConverter(ParameterExpression parameter, bool isAggregation = false) : MBS.ExpressionVisitor
 {
     private BsonDocument filterDocument;
 
@@ -38,13 +38,13 @@ public class ExpressionConverter(ParameterExpression parameter, string alias, bo
                 AddFilterElement("$eq", left, right);
                 break;
             case ExpressionType.AndAlso:
-                var leftAnd = new ExpressionConverter(parameter, alias, isAggregation).Convert(left);
-                var rightAnd = new ExpressionConverter(parameter, alias, isAggregation).Convert(right);
+                var leftAnd = new ExpressionConverter(parameter, isAggregation).Convert(left);
+                var rightAnd = new ExpressionConverter(parameter, isAggregation).Convert(right);
                 filterDocument.Add("$and", new BsonArray { leftAnd, rightAnd });
                 break;
             case ExpressionType.OrElse:
-                var leftOr = new ExpressionConverter(parameter, alias, isAggregation).Convert(left);
-                var rightOr = new ExpressionConverter(parameter, alias, isAggregation).Convert(right);
+                var leftOr = new ExpressionConverter(parameter, isAggregation).Convert(left);
+                var rightOr = new ExpressionConverter(parameter, isAggregation).Convert(right);
                 filterDocument.Add("$or", new BsonArray { leftOr, rightOr });
                 break;
             case ExpressionType.LessThan:
@@ -78,9 +78,9 @@ public class ExpressionConverter(ParameterExpression parameter, string alias, bo
         var constantValue = GetConstantValue(right);
 
         if (isAggregation)
-           filterDocument.Add(operatorName, new BsonArray { $"$$entity.{fieldName}", constantValue });
+            filterDocument.Add(operatorName, new BsonArray { $"$$entity.{fieldName}", constantValue });
         else
-          filterDocument.Add(fieldName, new BsonDocument(operatorName, constantValue));
+            filterDocument.Add(fieldName, new BsonDocument(operatorName, constantValue));
     }
 
 

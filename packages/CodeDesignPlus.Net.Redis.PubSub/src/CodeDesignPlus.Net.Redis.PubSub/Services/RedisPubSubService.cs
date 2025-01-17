@@ -97,7 +97,7 @@ public class RedisPubSubService : IRedisPubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
+        var channel = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
@@ -133,7 +133,7 @@ public class RedisPubSubService : IRedisPubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
+        var channel = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
         this.redisService.Subscriber.Unsubscribe(RedisChannel.Literal(channel));
 
