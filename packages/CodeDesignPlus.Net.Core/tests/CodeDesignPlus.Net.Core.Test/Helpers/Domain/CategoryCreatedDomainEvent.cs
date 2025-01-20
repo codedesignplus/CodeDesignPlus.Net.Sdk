@@ -1,4 +1,5 @@
 using System;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.Core.Test.Helpers.Domain;
 
@@ -9,7 +10,7 @@ public class CategoryCreatedDomainEvent
     Guid id,
     string name,
     Guid? eventId = null,
-    DateTime? occurredAt = null
+    Instant? occurredAt = null
 ) : DomainEvent(id, eventId, occurredAt)
 {
 
