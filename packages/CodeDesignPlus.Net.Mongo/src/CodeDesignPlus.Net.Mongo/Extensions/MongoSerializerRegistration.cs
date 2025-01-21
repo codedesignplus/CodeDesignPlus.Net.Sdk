@@ -13,47 +13,45 @@ public static class MongoSerializerRegistration
     /// </summary>
     public static void RegisterSerializers()
     {
-        var serializer = BsonSerializer.SerializerRegistry as BsonSerializerRegistry;
-
-        RegisterGuidSerializer(serializer);
-        RegisterInstantSerializer(serializer);
-        RegisterNullableInstantSerializer(serializer);
+        RegisterGuidSerializer();
+        RegisterInstantSerializer();
+        RegisterNullableInstantSerializer();
     }
 
     /// <summary>
     /// Registers the <see cref="NullableInstantSerializer"/> if it has not been registered yet.
     /// </summary>
-    /// <param name="serializer">The <see cref="BsonSerializerRegistry"/> instance.</param>
-    private static void RegisterNullableInstantSerializer(BsonSerializerRegistry serializer)
+    private static void RegisterNullableInstantSerializer()
     {
-        var nullableInstantSerializer = serializer.GetSerializer<Instant?>();
-
-        if (nullableInstantSerializer is null)
+        try
+        {
             BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
+        }
+        catch { }
     }
 
     /// <summary>
     /// Registers the <see cref="InstantSerializer"/> if it has not been registered yet.
     /// </summary>
-    /// <param name="serializer">The <see cref="BsonSerializerRegistry"/> instance.</param>
-    private static void RegisterInstantSerializer(BsonSerializerRegistry serializer)
+    private static void RegisterInstantSerializer()
     {
-        var instantSerializer = serializer.GetSerializer<Instant>();
-
-        if (instantSerializer is null)
+        try
+        {
             BsonSerializer.TryRegisterSerializer(new InstantSerializer());
+        }
+        catch { }
     }
 
     /// <summary>
     /// Registers the <see cref="GuidSerializer"/> if it has not been registered yet.
     /// </summary>
-    /// <param name="serializer">The <see cref="BsonSerializerRegistry"/> instance.</param>
-    private static void RegisterGuidSerializer(BsonSerializerRegistry serializer)
+    private static void RegisterGuidSerializer()
     {
-        var guidSerializer = serializer.GetSerializer<Guid>();
-
-        if (guidSerializer is not GuidSerializer)
+        try
+        {
             BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+        }
+        catch { }
     }
 }
 
