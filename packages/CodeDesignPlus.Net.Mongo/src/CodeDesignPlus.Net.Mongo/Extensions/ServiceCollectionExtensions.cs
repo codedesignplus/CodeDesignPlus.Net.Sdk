@@ -46,12 +46,8 @@ public static class ServiceCollectionExtensions
             var mongoOptions = serviceProvider.GetRequiredService<IOptions<MongoOptions>>().Value;
 
             BsonSerializer.TryRegisterSerializer(GuidSerializer.StandardInstance);
-
-            if (BsonSerializer.LookupSerializer<Instant>() == null)
-                BsonSerializer.RegisterSerializer(new InstantSerializer());
-
-            if (BsonSerializer.LookupSerializer<Instant?>() == null)
-                BsonSerializer.RegisterSerializer(new NullableInstantSerializer());
+            BsonSerializer.TryRegisterSerializer(new InstantSerializer());
+            BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
 
             var mongoUrl = MongoUrl.Create(mongoOptions.ConnectionString);
 
