@@ -12,14 +12,11 @@ using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.Redis.PubSub.Test.Services;
 
-public class RedisPubSubServiceTest : IClassFixture<RedisContainer>
-{
-    private readonly RedisContainer redisContainer;
 
-    public RedisPubSubServiceTest(RedisContainer redisContainer)
-    {
-        this.redisContainer = redisContainer;
-    }
+[Collection(RedisCollectionFixture.Collection)]
+public class RedisPubSubServiceTest(RedisCollectionFixture fixture)
+{
+    private readonly RedisContainer redisContainer = fixture.Container;
 
     [Fact]
     public void Constructor_RedisIsNull_ArgumentNullException()

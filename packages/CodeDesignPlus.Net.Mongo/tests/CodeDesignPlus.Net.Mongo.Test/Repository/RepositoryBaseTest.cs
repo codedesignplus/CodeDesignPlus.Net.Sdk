@@ -13,7 +13,7 @@ using MongoDB.Bson;
 namespace CodeDesignPlus.Net.Mongo.Test.Repository;
 
 [Collection(MongoCollectionFixture.Collection)]
-public class RepositoryBaseTest : IClassFixture<MongoContainer>
+public class RepositoryBaseTest 
 {
     private readonly Mock<ILogger<ClientRepository>> loggerMock;
     private readonly MongoContainer mongoContainer;
@@ -22,7 +22,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     private readonly IMongoCollection<Client> collection;
     private readonly IServiceProvider serviceProvider;
 
-    public RepositoryBaseTest(MongoContainer mongoContainer)
+    public RepositoryBaseTest(MongoCollectionFixture fixture)
     {
         try
         {
@@ -30,7 +30,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         }
         catch { }
 
-        this.mongoContainer = mongoContainer;
+        this.mongoContainer = fixture.Container;
         this.loggerMock = new Mock<ILogger<ClientRepository>>();
         this.options = Microsoft.Extensions.Options.Options.Create(OptionsUtil.GetOptions(this.mongoContainer.Port));
 
