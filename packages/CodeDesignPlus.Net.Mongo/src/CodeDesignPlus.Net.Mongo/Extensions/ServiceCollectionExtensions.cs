@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Serializers;
+﻿using CodeDesignPlus.Net.Mongo.Serializers;
+using MongoDB.Bson.Serialization.Serializers;
 
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
@@ -45,6 +46,12 @@ public static class ServiceCollectionExtensions
             var mongoOptions = serviceProvider.GetRequiredService<IOptions<MongoOptions>>().Value;
 
             BsonSerializer.TryRegisterSerializer(GuidSerializer.StandardInstance);
+
+            if (BsonSerializer.LookupSerializer<Instant>() == null)
+                BsonSerializer.RegisterSerializer(new InstantSerializer());
+
+            if (BsonSerializer.LookupSerializer<Instant?>() == null)
+                BsonSerializer.RegisterSerializer(new NullableInstantSerializer());
 
             var mongoUrl = MongoUrl.Create(mongoOptions.ConnectionString);
 

@@ -78,7 +78,7 @@ public class File
             { "Renowned", this.Renowned.ToString() },
             { "Mime", this.Mime.ToString() },
             { "Uri", uri.ToString()},
-            { "CreatedAt", DateTime.UtcNow.ToString() }
+            { "CreatedAt", SystemClock.Instance.GetCurrentInstant().ToString() }
         };
     }
 

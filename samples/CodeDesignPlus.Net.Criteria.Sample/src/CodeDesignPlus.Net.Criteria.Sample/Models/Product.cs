@@ -10,5 +10,5 @@ public class Product
 
     public decimal Price { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public Instant CreatedAt { get; set; }
 }

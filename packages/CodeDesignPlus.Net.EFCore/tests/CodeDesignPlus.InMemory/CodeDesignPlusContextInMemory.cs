@@ -1,11 +1,12 @@
 ﻿using CodeDesignPlus.Entities;
+using CodeDesignPlus.Net.EFCore;
 using CodeDesignPlus.Net.EFCore.Extensions;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CodeDesignPlus.InMemory
 {
-    public class CodeDesignPlusContextInMemory : DbContext
+    public class CodeDesignPlusContextInMemory : DbContextBase
     {
         public CodeDesignPlusContextInMemory([NotNull] DbContextOptions options) : base(options)
         {

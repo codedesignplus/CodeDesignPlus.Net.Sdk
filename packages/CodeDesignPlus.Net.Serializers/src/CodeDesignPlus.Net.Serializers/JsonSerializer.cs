@@ -1,10 +1,24 @@
-﻿namespace CodeDesignPlus.Net.Serializers;
+﻿using CodeDesignPlus.Net.Serializers.Converters;
+
+namespace CodeDesignPlus.Net.Serializers;
 
 /// <summary>
 /// Provides methods for serializing and deserializing objects to and from JSON.
 /// </summary>
 public static class JsonSerializer
 {
+    private static readonly InstantJsonConverter InstantJsonConverter = new();
+
+    /// <summary>
+    /// The settings to use during serialization and deserialization.
+    /// </summary>
+    private static readonly JsonSerializerSettings settings = new()
+    {
+        Converters = {
+            InstantJsonConverter
+        }
+    };
+
     /// <summary>
     /// Serializes an object to a JSON string.
     /// </summary>
@@ -12,7 +26,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value)
     {
-        return JsonConvert.SerializeObject(value);
+        return JsonConvert.SerializeObject(value, settings);
     }
 
     /// <summary>
@@ -23,6 +37,8 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, JsonSerializerSettings settings)
     {
+        settings.Converters.Add(InstantJsonConverter);
+
         return JsonConvert.SerializeObject(value, settings);
     }
 
@@ -34,7 +50,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, Formatting formatting)
     {
-        return JsonConvert.SerializeObject(value, formatting);
+        return JsonConvert.SerializeObject(value, formatting, settings);
     }
 
     /// <summary>
@@ -46,6 +62,8 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, Formatting formatting, JsonSerializerSettings settings)
     {
+        settings.Converters.Add(InstantJsonConverter);
+
         return JsonConvert.SerializeObject(value, formatting, settings);
     }
 
@@ -57,7 +75,7 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static T Deserialize<T>(string json)
     {
-        return JsonConvert.DeserializeObject<T>(json);
+        return JsonConvert.DeserializeObject<T>(json, settings);
     }
 
     /// <summary>
@@ -69,6 +87,8 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static T Deserialize<T>(string json, JsonSerializerSettings settings)
     {
+        settings.Converters.Add(InstantJsonConverter);
+
         return JsonConvert.DeserializeObject<T>(json, settings);
     }
 
@@ -80,7 +100,7 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static object Deserialize(string json, Type type)
     {
-        return JsonConvert.DeserializeObject(json, type);
+        return JsonConvert.DeserializeObject(json, type, settings);
     }
 
     /// <summary>
@@ -92,6 +112,8 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static object Deserialize(string json, Type type, JsonSerializerSettings settings)
     {
+        settings.Converters.Add(InstantJsonConverter);
+
         return JsonConvert.DeserializeObject(json, type, settings);
     }
 }

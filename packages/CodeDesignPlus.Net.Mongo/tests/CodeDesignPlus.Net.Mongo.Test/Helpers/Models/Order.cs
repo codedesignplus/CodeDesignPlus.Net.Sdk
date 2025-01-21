@@ -8,8 +8,8 @@ public class Order : IEntity
     public required string Name { get; set; }
     public string? Description { get; set; }
     public decimal Total { get; set; }
-    public long CreatedAt { get; set; }
-    public long? UpdatedAt { get; set; }
+    public Instant CreatedAt { get; set; }
+    public Instant? UpdatedAt { get; set; }
     public Client? Client { get; set; }
     public List<ProductEntity> Products { get; set; } = [];
     public bool IsActive { get; set; }

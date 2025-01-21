@@ -11,6 +11,7 @@ public class AllTypesFake
     public Guid GuidProperty { get; set; }
     public DateTime DateTimeProperty { get; set; }
     public DateTimeOffset DateTimeOffsetProperty { get; set; }
+    public Instant InstantProperty { get; set; }
     public bool BoolProperty { get; set; }
     public decimal DecimalProperty { get; set; }
     public float FloatProperty { get; set; }
@@ -31,6 +32,7 @@ public class AllTypesFake
     public Guid? NullableGuidProperty { get; set; }
     public DateTime? NullableDateTimeProperty { get; set; }
     public DateTimeOffset? NullableDateTimeOffsetProperty { get; set; }
+    public Instant? NullableInstantProperty { get; set; }
     public bool? NullableBoolProperty { get; set; }
     public decimal? NullableDecimalProperty { get; set; }
     public float? NullableFloatProperty { get; set; }

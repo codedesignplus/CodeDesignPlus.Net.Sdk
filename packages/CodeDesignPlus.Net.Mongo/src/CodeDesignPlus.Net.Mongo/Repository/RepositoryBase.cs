@@ -65,7 +65,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
         var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id).BuildFilter(tenant);
         var update = Builders<TEntity>.Update
             .Set(e => e.IsActive, state)
-            .Set(e => e.UpdatedAt, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            .Set(e => e.UpdatedAt, SystemClock.Instance.GetCurrentInstant());
 
         return collection.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
     }

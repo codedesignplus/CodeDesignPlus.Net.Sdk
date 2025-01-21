@@ -10,4 +10,3 @@ global using System.Linq;
 global using System.Reflection;
 global using Microsoft.Extensions.DependencyInjection.Extensions;
 global using Microsoft.Extensions.Options;
-

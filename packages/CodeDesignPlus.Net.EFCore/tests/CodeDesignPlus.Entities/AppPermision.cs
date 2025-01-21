@@ -14,8 +14,8 @@ namespace CodeDesignPlus.Entities
         public Application Application { get; set; }
         public Permission Permission { get; set; }
         public Guid CreatedBy { get; set; }
-        public long? UpdatedAt { get; set; }
+        public Instant? UpdatedAt { get; set; }
         public Guid? UpdatedBy { get; set; }
-        public long CreatedAt { get; set; }
+        public Instant CreatedAt { get; set; }
     }
 }

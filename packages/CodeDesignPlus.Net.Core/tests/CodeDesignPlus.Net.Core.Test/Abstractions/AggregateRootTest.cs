@@ -40,8 +40,8 @@ public class AggregateRootTest
         Assert.Equal("Test 2", orderAggregate.Name);
         Assert.Equal("Test Description 2", orderAggregate.Description);
         Assert.Equal(20, orderAggregate.Price);
-        Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.CreatedAt);
-        Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.UpdatedAt);
+        Assert.True(SystemClock.Instance.GetCurrentInstant() > orderAggregate.CreatedAt);
+        Assert.True(SystemClock.Instance.GetCurrentInstant() > orderAggregate.UpdatedAt);
         Assert.True(orderAggregate.IsActive);
         Assert.Equal(tenant, orderAggregate.Tenant);
 
@@ -51,7 +51,7 @@ public class AggregateRootTest
 
         await Task.Delay(100);
 
-        Assert.True(DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() > orderAggregate.UpdatedAt);
+        Assert.True(SystemClock.Instance.GetCurrentInstant() > orderAggregate.UpdatedAt);
 
         var events = orderAggregate.GetAndClearEvents();
 

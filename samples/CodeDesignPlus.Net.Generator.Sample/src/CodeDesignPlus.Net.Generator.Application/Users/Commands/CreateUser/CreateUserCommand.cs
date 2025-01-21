@@ -11,7 +11,7 @@ public class CreateUserCommand
 
     public required string Email { get; set; }
 
-    public DateTime Birthdate { get; set; }
+    public Instant Birthdate { get; set; }
 
     public required string Password { get; set; }
 

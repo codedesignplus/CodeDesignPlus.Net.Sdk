@@ -22,7 +22,7 @@ public class OrdersData
                         Name = "Product 1.1",
                         Description = "Description Product 1",
                         Price = 50,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = SystemClock.Instance.GetCurrentInstant()
                     },
                     new Product
                     {
@@ -30,7 +30,7 @@ public class OrdersData
                         Name = "Product 1.2",
                         Description = "Description Product 2",
                         Price = 40,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = SystemClock.Instance.GetCurrentInstant()
                     }
                 ],
                 Client = new Client
@@ -46,7 +46,7 @@ public class OrdersData
                 Id = 2,
                 Name = "Order 2",
                 Description = "Description Order 2",
-                CreatedAt = DateTime.Now,
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 200,
                 Products =
                 [
@@ -56,7 +56,7 @@ public class OrdersData
                         Name = "Product 2.1",
                         Description = "Description Product 1",
                         Price = 50,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = SystemClock.Instance.GetCurrentInstant()
                     },
                     new Product
                     {
@@ -64,7 +64,7 @@ public class OrdersData
                         Name = "Product 2.2",
                         Description = "Description Product 2",
                         Price = 150,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = SystemClock.Instance.GetCurrentInstant()
                     }
                 ],
                 Client = new Client
@@ -80,7 +80,7 @@ public class OrdersData
                 Id = 3,
                 Name = "Order 3",
                 Description = "Description Order 3",
-                CreatedAt = DateTime.Now,
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 300,
                 Products =
                 [
@@ -90,7 +90,7 @@ public class OrdersData
                         Name = "Product 3.1",
                         Description = "Description Product 1",
                         Price = 100,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = SystemClock.Instance.GetCurrentInstant()
                     },
                     new Product
                     {
@@ -98,7 +98,7 @@ public class OrdersData
                         Name = "Product 3.2",
                         Description = "Description Product 2",
                         Price = 200,
-                        CreatedAt = DateTime.Now
+                        CreatedAt = SystemClock.Instance.GetCurrentInstant()
                     }
                 ],
                 Client = new Client

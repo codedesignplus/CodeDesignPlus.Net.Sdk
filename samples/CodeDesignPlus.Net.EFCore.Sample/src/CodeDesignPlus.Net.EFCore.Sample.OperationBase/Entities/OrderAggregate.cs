@@ -25,7 +25,7 @@ public class OrderAggregate : AggregateRoot, IEntity
     {
         var aggregate = new OrderAggregate(id, name, description, price)
         {
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             CreatedBy = createBy,
             IsActive = true,
             Tenant = tenant
@@ -39,13 +39,13 @@ public class OrderAggregate : AggregateRoot, IEntity
         Name = name;
         Description = description;
         Price = price;
-        UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        UpdatedAt = SystemClock.Instance.GetCurrentInstant();
         UpdatedBy = updatedBy;
     }
 
     public void Delete(Guid updatedBy)
     {
-        UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        UpdatedAt = SystemClock.Instance.GetCurrentInstant();
         UpdatedBy = updatedBy;
     }
 }

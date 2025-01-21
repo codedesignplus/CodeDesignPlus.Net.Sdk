@@ -11,7 +11,7 @@ public class OrderCreatedDomainEvent(
     string name,
     Guid idUser,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {

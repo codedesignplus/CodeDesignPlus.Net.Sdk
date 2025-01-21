@@ -13,7 +13,7 @@ public interface IDomainEvent
     /// <summary>
     /// Gets the date and time when the event occurred.
     /// </summary>
-    DateTime OccurredAt { get; }
+    Instant OccurredAt { get; }
 
     /// <summary>
     /// Gets the unique identifier of the aggregate associated with the event.

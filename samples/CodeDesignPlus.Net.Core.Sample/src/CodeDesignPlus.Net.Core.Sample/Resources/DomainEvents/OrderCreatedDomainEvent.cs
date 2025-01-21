@@ -10,18 +10,18 @@ public class OrderCreatedDomainEvent(
     string name,
     string description,
     decimal price,
-    long createdAt,
+    Instant createdAt,
     Guid createBy,
-    long? updatedAt,
+    Instant? updatedAt,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
     ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
     public string Name { get; private set; } = name;
     public string Description { get; private set; } = description;
     public decimal Price { get; private set; } = price;
-    public long CreatedAt { get; private set; } = createdAt;
+    public Instant CreatedAt { get; private set; } = createdAt;
     public Guid CreateBy { get; private set; } = createBy;
-    public long? UpdatedAt { get; private set; } = updatedAt;
+    public Instant? UpdatedAt { get; private set; } = updatedAt;
 }

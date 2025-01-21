@@ -97,7 +97,7 @@ public class EFCoreExtensionsTest
                 Name = $"{nameof(Application.Name)}-{i}",
                 CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Description = $"{nameof(Application.Description)}-{i}"
             });
         }
