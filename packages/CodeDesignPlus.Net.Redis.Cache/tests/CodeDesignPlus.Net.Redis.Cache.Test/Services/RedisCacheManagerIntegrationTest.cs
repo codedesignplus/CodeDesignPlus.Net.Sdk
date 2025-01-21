@@ -9,16 +9,17 @@ using O = Microsoft.Extensions.Options;
 
 namespace CodeDesignPlus.Net.Redis.Cache.Test.Services;
 
-public class RedisCacheManagerIntegrationTest : IClassFixture<RedisContainer>
+[Collection(RedisCollectionFixture.Collection)]
+public class RedisCacheManagerIntegrationTest
 {
-    private readonly RedisContainer fixture;
+    private readonly RedisContainer container;
     private readonly CoreOptions core ;
 
     private readonly IOptions<CoreOptions> coreOptions;
 
-    public RedisCacheManagerIntegrationTest(RedisContainer fixture)
+    public RedisCacheManagerIntegrationTest(RedisCollectionFixture fixture)
     {
-        this.fixture = fixture;
+        this.container = fixture.Container;
         
         this.core = new ()
         {
@@ -42,7 +43,7 @@ public class RedisCacheManagerIntegrationTest : IClassFixture<RedisContainer>
         // Arrange
         var expected = Guid.NewGuid().ToString();
         var value = Guid.NewGuid();
-        var redisService = fixture.RedisServer;
+        var redisService = container.RedisServer;
 
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
@@ -64,7 +65,7 @@ public class RedisCacheManagerIntegrationTest : IClassFixture<RedisContainer>
         // Arrange
         var expected = Guid.NewGuid().ToString();
         var value = Guid.NewGuid();
-        var redisService = fixture.RedisServer;
+        var redisService = container.RedisServer;
 
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
@@ -86,7 +87,7 @@ public class RedisCacheManagerIntegrationTest : IClassFixture<RedisContainer>
         // Arrange
         var expected = Guid.NewGuid().ToString();
         var value = Guid.NewGuid();
-        var redisService = fixture.RedisServer;
+        var redisService = container.RedisServer;
 
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
@@ -110,7 +111,7 @@ public class RedisCacheManagerIntegrationTest : IClassFixture<RedisContainer>
         // Arrange
         var expected = Guid.NewGuid().ToString();
         var value = Guid.NewGuid();
-        var redisService = fixture.RedisServer;
+        var redisService = container.RedisServer;
 
         var redisFactory = new Mock<IRedisFactory>();
         redisFactory.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisService);
