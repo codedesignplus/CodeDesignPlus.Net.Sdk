@@ -2,14 +2,13 @@
 using CodeDesignPlus.Net.xUnit.Extensions;
 using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Driver;
-using Moq;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
 
 [Collection(MongoCollectionFixture.Collection)]
 
-public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassFixture<MongoContainer>
+public class ServiceCollectionExtensionsTest(MongoCollectionFixture fixture) 
 {
     [Fact]
     public void AddMongo_ServiceCollectionIsNull_ArgumentNullException()
@@ -56,7 +55,7 @@ public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassF
     public void AddMongo_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.GetOptions(container.Port) });
+        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.GetOptions(fixture.Container.Port) });
 
         var serviceCollection = new ServiceCollection();
 

@@ -2,14 +2,11 @@
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 
-public class RedisContainerTest : IClassFixture<RedisContainer>
-{
-    private readonly RedisContainer redisContainer;
 
-    public RedisContainerTest(RedisContainer redisContainer)
-    {
-        this.redisContainer = redisContainer;
-    }
+[Collection(RedisCollectionFixture.Collection)]
+public class RedisContainerTest(RedisCollectionFixture fixture)
+{
+    private readonly RedisContainer redisContainer = fixture.Container;
 
     [Fact]
     public void CheckConnectionServer()
