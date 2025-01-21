@@ -22,9 +22,7 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
     {
         try
         {
-            BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));            
-            BsonSerializer.TryRegisterSerializer(new InstantSerializer());
-            BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
+            BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
         }
         catch (Exception ex)
