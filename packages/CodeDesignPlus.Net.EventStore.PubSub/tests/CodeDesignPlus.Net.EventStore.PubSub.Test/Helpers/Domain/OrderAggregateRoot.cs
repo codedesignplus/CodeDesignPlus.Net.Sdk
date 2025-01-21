@@ -14,13 +14,13 @@ public class OrderAggregateRoot : AggregateRoot
 {
     public override string Category { get; protected set; } = "Order";
 
-    public DateTime CompletionDate { get; private set; }
-    public DateTime CancellationDate { get; private set; }
+    public Instant CompletionDate { get; private set; }
+    public Instant CancellationDate { get; private set; }
     public Client? Client { get; private set; }
     public List<OrderProduct> Products { get; private set; } = [];
     public OrderStatus Status { get; private set; } = OrderStatus.Pending;
     public Guid IdUserCreator { get; private set; }
-    public DateTime DateCreated { get; private set; }
+    public Instant DateCreated { get; private set; }
 
     public OrderAggregateRoot(Guid id) : base(id) { }
 
@@ -28,7 +28,7 @@ public class OrderAggregateRoot : AggregateRoot
     {
         var aggregate = new OrderAggregateRoot(id);
 
-        aggregate.AddEvent(new OrderCreatedEvent(id, idUserCreator, OrderStatus.Pending, client, DateTime.UtcNow));
+        aggregate.AddEvent(new OrderCreatedEvent(id, idUserCreator, OrderStatus.Pending, client, SystemClock.Instance.GetCurrentInstant()));
 
         return aggregate;
     }
@@ -76,7 +76,7 @@ public class OrderAggregateRoot : AggregateRoot
 
         base.AddEvent(new OrderCompletedEvent(
             Id,
-            DateTime.UtcNow
+            SystemClock.Instance.GetCurrentInstant()
         ));
     }
 
@@ -88,7 +88,7 @@ public class OrderAggregateRoot : AggregateRoot
 
         base.AddEvent(new OrderCancelledEvent(
             Id,
-            DateTime.UtcNow,
+            SystemClock.Instance.GetCurrentInstant(),
             reason
         ));
     }

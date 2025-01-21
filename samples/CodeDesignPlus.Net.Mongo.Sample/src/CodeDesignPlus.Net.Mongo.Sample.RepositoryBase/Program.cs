@@ -26,7 +26,7 @@ var product = new ProductEntity
 {
     Id = Guid.NewGuid(),
     Name = "Product 1",
-    CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+    CreatedAt = SystemClock.Instance.GetCurrentInstant(),
     CreatedBy = Guid.NewGuid(),
     IsActive = true
 };

@@ -1,12 +1,13 @@
 ﻿using CodeDesignPlus.Net.Kafka.Serializer;
 using CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 using Confluent.Kafka;
+using Newtonsoft.Json;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Serializer;
 
 public class JsonSystemTextSerializerTest
 {
-    private readonly JsonSystemTextSerializer<UserCreatedEvent> _serializer = new JsonSystemTextSerializer<UserCreatedEvent>();
+    private readonly JsonSystemTextSerializer<UserCreatedEvent> _serializer = new();
 
     [Fact]
     public void Serialize_ShouldReturnNull_WhenDataIsNull()
@@ -54,14 +55,22 @@ public class JsonSystemTextSerializerTest
     {
         // Arrange
         var expected = new UserCreatedEvent(Guid.NewGuid()) { Username = "Alice", Names = "Alice Rodriguez" };
-        var jsonData = System.Text.Json.JsonSerializer.SerializeToUtf8Bytes(expected);
+        var jsonData = JsonConvert.SerializeObject(expected);
+        var @bytes = Encoding.UTF8.GetBytes(jsonData);
         var isNull = false;
 
         // Act
-        var result = _serializer.Deserialize(jsonData, isNull, new SerializationContext());
+        var result = _serializer.Deserialize(@bytes, isNull, new SerializationContext());
 
         // Assert
         Assert.Equal(expected.Username, result.Username);
         Assert.Equal(expected.Names, result.Names);
+        Assert.Equal(expected.EventId, result.EventId);
+        Assert.Equal(expected.AggregateId, result.AggregateId);
+        Assert.Equal(expected.Birthdate.ToString(), result.Birthdate.ToString());
+        Assert.Equal(expected.Lastnames, result.Lastnames);
+        Assert.Equal(expected.OccurredAt.ToString(), result.OccurredAt.ToString());
+        Assert.Equal(expected.Metadata, result.Metadata);
+
     }
 }

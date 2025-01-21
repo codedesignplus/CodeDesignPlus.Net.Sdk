@@ -9,7 +9,7 @@ public class ProductAddedDomainEvent(
     Guid aggregateId,
     string product,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {

@@ -1,5 +1,6 @@
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Microservice.Domain.Entities;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.Microservice.Domain;
 
@@ -15,7 +16,7 @@ public class OrderAggregate(Guid id) : AggregateRoot(id)
             Client = client, 
             OrderStatus = orderStatus,
             CreatedBy = createdBy,
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()
+            CreatedAt = SystemClock.Instance.GetCurrentInstant()
         };
     }
 

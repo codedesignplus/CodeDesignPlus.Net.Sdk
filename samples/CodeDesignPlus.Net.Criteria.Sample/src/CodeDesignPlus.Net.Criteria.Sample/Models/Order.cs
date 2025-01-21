@@ -10,7 +10,7 @@ public class Order
 
     public decimal Total { get; set; }
 
-    public DateTime CreatedAt { get; set; }
+    public Instant CreatedAt { get; set; }
 
     public List<Product> Products { get; set; } = [];
 

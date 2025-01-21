@@ -46,7 +46,7 @@ public interface IFake
 [EventKey<UserEntity>(1, "fake.event")]
 public abstract class FakeEvent : DomainEvent
 {
-    protected FakeEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object>? metadata = null)
+    protected FakeEvent(Guid aggregateId, Guid? eventId = null, Instant? occurredAt = null, Dictionary<string, object>? metadata = null)
         : base(aggregateId, eventId, occurredAt, metadata)
     {
     }
@@ -74,7 +74,7 @@ public class FakeEventHandler : IEventHandler<FakeEvent>
 [EventKey<UserEntity>(1, "event.failed")]
 public class EventFailed : DomainEvent
 {
-    public EventFailed(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object>? metadata = null)
+    public EventFailed(Guid aggregateId, Guid? eventId = null, Instant? occurredAt = null, Dictionary<string, object>? metadata = null)
         : base(aggregateId, eventId, occurredAt, metadata)
     {
     }

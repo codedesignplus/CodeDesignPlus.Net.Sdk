@@ -10,7 +10,7 @@ public class UserCreatedDomainEvent(
     string email,
     string? password = null,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {

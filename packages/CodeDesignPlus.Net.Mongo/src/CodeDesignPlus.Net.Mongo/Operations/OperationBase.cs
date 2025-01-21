@@ -53,7 +53,7 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
         if (entity is IEntity auditTrailEntity)
         {
             auditTrailEntity.CreatedBy = AuthenticateUser.IdUser;
-            auditTrailEntity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            auditTrailEntity.CreatedAt = SystemClock.Instance.GetCurrentInstant();
         }
 
         return base.CreateAsync(entity, cancellationToken);

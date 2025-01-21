@@ -5,3 +5,4 @@ global using CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Options;
 global using Xunit;
+global using NodaTime;

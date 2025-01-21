@@ -52,7 +52,7 @@ public class KafkaPubSubTest
             Names = "Code",
             Lastnames = "Design Plus",
             Username = "coded",
-            Birthdate = new DateTime(2019, 11, 21, 0, 0, 0, DateTimeKind.Utc),
+            Birthdate =  new DateTime(2019, 11, 21, 0, 0, 0, DateTimeKind.Utc),
         };
 
         @event.Metadata.Add("key", "value");

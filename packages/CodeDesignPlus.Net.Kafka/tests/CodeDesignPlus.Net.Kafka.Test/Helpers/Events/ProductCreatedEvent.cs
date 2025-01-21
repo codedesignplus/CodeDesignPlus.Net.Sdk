@@ -6,7 +6,7 @@ namespace CodeDesignPlus.Net.Kafka.Test.Helpers.Events;
 
 
 [EventKey<ProductEntity>(1, "created")]
-public class ProductCreatedEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null!)
+public class ProductCreatedEvent(Guid aggregateId, Guid? eventId = null, Instant? occurredAt = null, Dictionary<string, object> metadata = null!)
     : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
     public required string Name { get; set; }

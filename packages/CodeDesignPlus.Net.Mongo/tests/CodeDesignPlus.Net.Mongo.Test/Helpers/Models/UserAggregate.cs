@@ -17,7 +17,7 @@ public class UserAggregate(Guid id) : AggregateRoot(id)
         Tenant = tenant;
         IsActive = true;
         CreatedBy = createdBy;
-        CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        CreatedAt = SystemClock.Instance.GetCurrentInstant();
     }
 
     public static UserAggregate Create(Guid id, string name, string email, Guid tenant, Guid createdBy)

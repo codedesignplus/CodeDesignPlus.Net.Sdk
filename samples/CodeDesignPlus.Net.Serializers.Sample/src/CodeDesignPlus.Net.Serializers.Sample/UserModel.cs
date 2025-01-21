@@ -12,6 +12,6 @@ public class UserModel
 
     public string? Email { get; set; }
 
-    public DateTime Birthdate { get; set; }
+    public Instant Birthdate { get; set; }
 
 }

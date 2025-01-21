@@ -9,7 +9,7 @@ namespace CodeDesignPlus.Net.PubSub.Test.Helpers.Events
     [EventKey<UserEntity>(1, "created")]
     public class UserRegisteredEvent : DomainEvent
     {
-        public UserRegisteredEvent(Guid aggregateId, Guid? eventId = null, DateTime? occurredAt = null, Dictionary<string, object> metadata = null!)
+        public UserRegisteredEvent(Guid aggregateId, Guid? eventId = null, Instant? occurredAt = null, Dictionary<string, object> metadata = null!)
             : base(aggregateId, eventId, occurredAt, metadata)
         {
         }

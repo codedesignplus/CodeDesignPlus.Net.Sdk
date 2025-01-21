@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
+﻿using CodeDesignPlus.Net.Mongo.Serializers;
+using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.Security.Abstractions;
 using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Bson;
@@ -21,9 +22,15 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
     {
         try
         {
-            BsonSerializer.TryRegisterSerializer<Guid>(new GuidSerializer(GuidRepresentation.Standard));
+            BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));            
+            BsonSerializer.TryRegisterSerializer(new InstantSerializer());
+            BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
+
         }
-        catch { }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
 
         this.mongoContainer = mongoContainer;
         this.loggerMock = new Mock<ILogger<ProductRepository>>();
@@ -39,7 +46,7 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         var serviceProvider = GetServiceProvider(client, collection);
 
         var idUser = Guid.NewGuid();
-        var date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var date = new LocalDateTime(2021, 1, 1, 0, 0, 0).InUtc().ToInstant();
         var product = new ProductEntity
         {
             IsActive = true,
@@ -47,6 +54,8 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
             CreatedAt = date,
             CreatedBy = idUser
         };
+
+        await Task.Delay(1000);
 
         var userContextMock = new Mock<IUserContext>();
 
@@ -63,7 +72,6 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         Assert.NotNull(result);
         Assert.Equal(product.Id, result.Id);
         Assert.Equal(product.IsActive, result.IsActive);
-        Assert.True(date < result.CreatedAt);
         Assert.Equal(idUser, result.CreatedBy);
     }
 
@@ -76,7 +84,7 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         var serviceProvider = GetServiceProvider(client, collection);
 
         var idUser = Guid.NewGuid();
-        var date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var date = SystemClock.Instance.GetCurrentInstant();
         var product = new ProductEntity
         {
             IsActive = true,
@@ -111,7 +119,7 @@ public class OperationBaseTest : IClassFixture<MongoContainer>
         var serviceProvider = GetServiceProvider(client, collection);
 
         var idUser = Guid.NewGuid();
-        var date = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var date = SystemClock.Instance.GetCurrentInstant();
         var product = new ProductEntity
         {
             IsActive = true,

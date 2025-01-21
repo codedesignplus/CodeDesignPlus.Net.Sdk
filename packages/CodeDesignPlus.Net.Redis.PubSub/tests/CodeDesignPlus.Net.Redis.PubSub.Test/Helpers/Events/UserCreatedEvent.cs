@@ -7,7 +7,7 @@ namespace CodeDesignPlus.Net.Redis.PubSub.Test.Helpers.Events
     public class UserCreatedEvent(
         Guid aggregateId,
         Guid? eventId = null,
-        DateTime? occurredAt = null,
+        Instant? occurredAt = null,
         Dictionary<string, object>? metadata = null
         ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
     {

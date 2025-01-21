@@ -26,13 +26,13 @@ public class OrderAggregate : AggregateRoot
     {
         var aggregate = new OrderAggregate(id, name, description, price)
         {
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             CreatedBy = createBy,
             IsActive = true,
             Tenant = tenant
         };
 
-        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(), createBy, null, metadata: new Dictionary<string, object>
+        aggregate.AddEvent(new OrderCreatedDomainEvent(id, name, description, price, SystemClock.Instance.GetCurrentInstant(), createBy, null, metadata: new Dictionary<string, object>
         {
             { "MetaKey1", "Value1" }
         }));
@@ -45,7 +45,7 @@ public class OrderAggregate : AggregateRoot
         Name = name;
         Description = description;
         Price = price;
-        UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        UpdatedAt = SystemClock.Instance.GetCurrentInstant();
         UpdatedBy = updatedBy;
 
         AddEvent(new OrderUpdatedDomainEvent(Id, name, description, price, UpdatedAt, updatedBy));
@@ -53,7 +53,7 @@ public class OrderAggregate : AggregateRoot
 
     public void Delete()
     {
-        UpdatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        UpdatedAt = SystemClock.Instance.GetCurrentInstant();
 
         AddEvent(new OrderDeletedDomainEvent(Id, UpdatedAt));
     }

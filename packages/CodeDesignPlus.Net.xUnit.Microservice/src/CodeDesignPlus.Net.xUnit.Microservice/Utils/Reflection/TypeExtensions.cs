@@ -1,3 +1,5 @@
+using NodaTime;
+
 namespace CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
 
 /// <summary>
@@ -11,8 +13,9 @@ public static class TypeExtensions
         { typeof(int), () => 1 },
         { typeof(long), () => 1L },
         { typeof(Guid), () => Guid.NewGuid() },
-        { typeof(DateTime), () => DateTime.UtcNow },
+        { typeof(DateTime), () => DateTime.Now },
         { typeof(DateTimeOffset), () => DateTimeOffset.UtcNow },
+        { typeof(Instant), () => SystemClock.Instance.GetCurrentInstant() },
         { typeof(bool), () => true },
         { typeof(decimal), () => 1.0M },
         { typeof(float), () => 1.0F },

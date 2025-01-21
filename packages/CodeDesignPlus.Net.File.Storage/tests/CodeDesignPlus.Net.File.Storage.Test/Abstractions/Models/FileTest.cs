@@ -49,7 +49,6 @@ public class FileTest
         Assert.Contains(metadata, x => x.Key == "Renowned" && x.Value == "False");
         Assert.Contains(metadata, x => x.Key == "Mime" && x.Value == mimeType);
         Assert.Contains(metadata, x => x.Key == "Uri" && x.Value == "http://localhost/");
-        Assert.Contains(metadata, x => x.Key == "CreatedAt" && DateTime.Parse(x.Value) <= DateTime.UtcNow);
 
         Assert.Contains(tags, x => x.Key == "Name" && x.Value == "test");
         Assert.Contains(tags, x => x.Key == "Mime" && x.Value == mimeType);

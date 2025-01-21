@@ -99,9 +99,9 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         {
             Id = Guid.NewGuid(),
             Name = "Test",
-        }, DateTime.UtcNow);
+        }, SystemClock.Instance.GetCurrentInstant());
 
-        var eventOrderComplete = new OrderCompletedEvent(Guid.NewGuid(), DateTime.UtcNow);
+        var eventOrderComplete = new OrderCompletedEvent(Guid.NewGuid(), SystemClock.Instance.GetCurrentInstant());
 
         var events = new List<DomainEvent>()
         {
@@ -152,7 +152,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         {
             Id = Guid.NewGuid(),
             Name = "Test",
-        }, DateTime.UtcNow);
+        }, SystemClock.Instance.GetCurrentInstant());
 
         await Task.Delay(TimeSpan.FromSeconds(2));
 
