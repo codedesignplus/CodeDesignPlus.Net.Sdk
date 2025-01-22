@@ -34,7 +34,7 @@ public class Server<TProgram> : WebApplicationFactory<TProgram> where TProgram :
     /// <param name="builder">The web host builder.</param>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        var configuration = new Dictionary<string, string>()
+        var configurationValues = new Dictionary<string, string>()
         {
             {"Redis:Instances:Core:ConnectionString", $"{Compose.Redis.Item1}:{Compose.Redis.Item2}"},
             {"RabbitMQ:Host", Compose.RabbitMQ.Item1},
@@ -44,12 +44,18 @@ public class Server<TProgram> : WebApplicationFactory<TProgram> where TProgram :
             {"Logger:OTelEndpoint", $"http://{Compose.Otel.Item1}:{Compose.Otel.Item2}" },
         };
 
-        InMemoryCollection?.Invoke(configuration);
+        InMemoryCollection?.Invoke(configurationValues);
 
-        builder.ConfigureAppConfiguration(x =>
-        {
-            x.AddInMemoryCollection(configuration);
-        });
+        var contentRoot = Path.GetDirectoryName(Assembly.GetAssembly(typeof(TProgram))!.Location);
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(contentRoot!)
+            .AddEnvironmentVariables()
+            .AddJsonFile("appsettings.json")
+            .AddInMemoryCollection(configurationValues)
+            .Build();
+
+        builder.UseConfiguration(configuration);
 
         builder.ConfigureServices(ConfigureServices);
 
