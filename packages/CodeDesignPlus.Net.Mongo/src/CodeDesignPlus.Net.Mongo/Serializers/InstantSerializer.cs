@@ -20,7 +20,7 @@ public class InstantSerializer : IBsonSerializer<Instant>
     {
         var dateTime = value.ToDateTimeUtc();
 
-        long millisecondsSinceEpoch = (dateTime - new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc)).Ticks / TimeSpan.TicksPerMillisecond;
+        long millisecondsSinceEpoch = (dateTime - DateTime.UnixEpoch).Ticks / TimeSpan.TicksPerMillisecond;
 
         context.Writer.WriteDateTime(millisecondsSinceEpoch);
     }
@@ -38,7 +38,7 @@ public class InstantSerializer : IBsonSerializer<Instant>
         {
             long millisecondsSinceEpoch = context.Reader.ReadDateTime();
 
-            var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddMilliseconds(millisecondsSinceEpoch);
+            var dateTime = DateTime.UnixEpoch.AddMilliseconds(millisecondsSinceEpoch);
 
             return Instant.FromDateTimeUtc(dateTime);
         }
