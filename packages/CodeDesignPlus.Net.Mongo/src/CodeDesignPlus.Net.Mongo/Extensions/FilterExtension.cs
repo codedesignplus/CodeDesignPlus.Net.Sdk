@@ -31,7 +31,7 @@ public static class FilterExtension
     /// </summary>
     /// <typeparam name="TEntity">The type of entity to filter.</typeparam>
     /// <param name="expression">The expression to convert.</param>
-    /// <param name="alias">The alias to use in the BSON document.</param>
+    /// <param name="isAggregation">Indicates if the filter is for an aggregation.</param>
     /// <returns>The filter to apply.</returns>
     internal static FilterDefinition<TEntity> ToFilterDefinition<TEntity>(this Expression<Func<TEntity, bool>> expression, bool isAggregation = false)
         where TEntity : class, IEntityBase

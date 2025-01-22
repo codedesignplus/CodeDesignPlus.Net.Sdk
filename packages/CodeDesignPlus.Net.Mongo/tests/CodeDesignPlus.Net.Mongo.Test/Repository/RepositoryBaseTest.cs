@@ -158,6 +158,55 @@ public class RepositoryBaseTest
     }
 
     [Fact]
+    public async Task ExistsAsync_WhenEntityIsValid_ReturnTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.ExistsAsync<Client>(entity.Id, cancellationToken);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task ExistAsync_WhenEntityHaveTenant_ReturnTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true,
+            Tenant = Guid.NewGuid()
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.ExistsAsync<Client>(entity.Id, entity.Tenant, cancellationToken);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
     public async Task DeleteAsync_WhenEntityIsValid_ReturnTrue()
     {
         // Arrange
