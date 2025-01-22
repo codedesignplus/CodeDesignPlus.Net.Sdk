@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Serializers.Converters;
+﻿using NodaTime;
+using NodaTime.Serialization.JsonNet;
 
 namespace CodeDesignPlus.Net.Serializers;
 
@@ -7,17 +8,15 @@ namespace CodeDesignPlus.Net.Serializers;
 /// </summary>
 public static class JsonSerializer
 {
-    private static readonly InstantJsonConverter InstantJsonConverter = new();
+    private static readonly JsonSerializerSettings settings = new();
 
     /// <summary>
-    /// The settings to use during serialization and deserialization.
+    /// Initializes the <see cref="JsonSerializer"/> class.
     /// </summary>
-    private static readonly JsonSerializerSettings settings = new()
+    static JsonSerializer()
     {
-        Converters = {
-            InstantJsonConverter
-        }
-    };
+        settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+    }
 
     /// <summary>
     /// Serializes an object to a JSON string.
@@ -37,7 +36,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, JsonSerializerSettings settings)
     {
-        settings.Converters.Add(InstantJsonConverter);
+        settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 
         return JsonConvert.SerializeObject(value, settings);
     }
@@ -62,7 +61,7 @@ public static class JsonSerializer
     /// <returns>A JSON string representing the serialized object.</returns>
     public static string Serialize(object value, Formatting formatting, JsonSerializerSettings settings)
     {
-        settings.Converters.Add(InstantJsonConverter);
+        settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 
         return JsonConvert.SerializeObject(value, formatting, settings);
     }
@@ -87,7 +86,7 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static T Deserialize<T>(string json, JsonSerializerSettings settings)
     {
-        settings.Converters.Add(InstantJsonConverter);
+        settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 
         return JsonConvert.DeserializeObject<T>(json, settings);
     }
@@ -112,7 +111,7 @@ public static class JsonSerializer
     /// <returns>An object of the specified type deserialized from the JSON string.</returns>
     public static object Deserialize(string json, Type type, JsonSerializerSettings settings)
     {
-        settings.Converters.Add(InstantJsonConverter);
+        settings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
 
         return JsonConvert.DeserializeObject(json, type, settings);
     }
