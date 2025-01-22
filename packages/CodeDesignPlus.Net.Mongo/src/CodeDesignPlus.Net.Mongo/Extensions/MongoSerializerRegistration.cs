@@ -27,7 +27,10 @@ public static class MongoSerializerRegistration
         {
             BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
         }
-        catch { }
+        catch
+        {
+            // the unit test will fail if the serializer is already registered
+        }
     }
 
     /// <summary>
@@ -39,7 +42,10 @@ public static class MongoSerializerRegistration
         {
             BsonSerializer.TryRegisterSerializer(new InstantSerializer());
         }
-        catch { }
+        catch
+        {
+            // the unit test will fail if the serializer is already registered
+        }
     }
 
     /// <summary>
@@ -51,7 +57,10 @@ public static class MongoSerializerRegistration
         {
             BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
         }
-        catch { }
+        catch
+        {
+            // the unit test will fail if the serializer is already registered
+        }
     }
 }
 
