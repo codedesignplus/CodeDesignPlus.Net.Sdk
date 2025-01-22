@@ -11,8 +11,6 @@ public class NullableInstantValueConverter : ValueConverter<Instant?, DateTime?>
     /// <summary>
     /// Initializes a new instance of <see cref="NullableInstantValueConverter"/>.
     /// </summary>
-    /// <param name="instant">The instant value.</param>
-    /// <param name="dateTime">The date time value.</param>
     public NullableInstantValueConverter() : 
         base(
             instant => instant.HasValue ? instant.Value.ToDateTimeUtc() : null,
