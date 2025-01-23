@@ -67,6 +67,17 @@ public interface IRepositoryBase
         where TEntity : class, IEntityBase;
 
     /// <summary>
+    /// Deletes an entity by its filter asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    Task DeleteAsync<TEntity>(Guid id, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase;
+
+    /// <summary>
     /// Deletes an entity asynchronously.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
