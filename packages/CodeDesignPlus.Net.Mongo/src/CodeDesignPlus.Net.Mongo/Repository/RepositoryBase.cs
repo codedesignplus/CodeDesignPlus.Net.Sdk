@@ -132,6 +132,22 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         return collection.Find(filter).AnyAsync(cancellationToken);
     }
+    
+    /// <summary>
+    /// Deletes an entity by its filter asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    public Task DeleteAsync<TEntity>(Guid id, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id).BuildFilter(tenant);
+
+        return this.DeleteAsync(filter, tenant, cancellationToken);
+    }
 
     /// <summary>
     /// Deletes an entity by its filter asynchronously.

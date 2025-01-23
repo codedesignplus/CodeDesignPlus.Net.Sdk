@@ -207,6 +207,33 @@ public class RepositoryBaseTest
     }
 
     [Fact]
+    public async Task DeleteAsync_WhenIdIsValid_ReturnTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true,
+            Tenant = Guid.NewGuid()
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        await repository.DeleteAsync<Client>(entity.Id, entity.Tenant, cancellationToken);
+
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task DeleteAsync_WhenEntityIsValid_ReturnTrue()
     {
         // Arrange
