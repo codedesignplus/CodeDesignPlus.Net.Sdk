@@ -23,7 +23,7 @@ public class DeclareExchangeBackgroundService<TAssembly>(IChannelProvider channe
         {
             var types = typeof(TAssembly).Assembly.GetTypes();
 
-            var domainEvents = types.Where(x => x.IsSubclassOf(typeof(DomainEvent)));
+            var domainEvents = types.Where(x => !x.IsAbstract && x.IsSubclassOf(typeof(DomainEvent)));
 
             foreach (var domainEvent in domainEvents)
             {
