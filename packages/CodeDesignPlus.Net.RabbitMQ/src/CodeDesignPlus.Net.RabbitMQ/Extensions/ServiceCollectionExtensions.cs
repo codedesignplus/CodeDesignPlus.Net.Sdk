@@ -53,7 +53,7 @@ public static class ServiceCollectionExtensions
                 return connection;
             });
             services.TryAddSingleton<IChannelProvider, ChannelProvider>();
-            services.AddHostedService<InitializeBackgroundService<TAssembly>>();
+            services.AddHostedService<DeclareExchangeBackgroundService<TAssembly>>();
         }
 
         return services;

@@ -19,7 +19,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
     /// <returns>The name of the declared exchange.</returns>
-    public async Task<string> ExchangeDeclareAsync(Type domainEventType)
+    public async Task<string> ExchangeDeclareAsync(Type domainEventType, CancellationToken cancellationToken)
     {
         var key = domainEventType.Name;
 
@@ -28,13 +28,13 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
 
         var exchangeName = domainEventResolver.GetKeyDomainEvent(domainEventType);
 
-        var channel = await GetChannelPublishAsync(domainEventType);
+        var channel = await GetChannelPublishAsync(domainEventType, cancellationToken);
 
         await channel.ExchangeDeclareAsync(exchange: exchangeName, durable: true, type: ExchangeType.Fanout, arguments: new Dictionary<string, object>
         {
             { "x-cdp-bussiness", options.Value.Business },
             { "x-cdp-microservice", options.Value.AppName }
-        });
+        }, cancellationToken: cancellationToken);
 
         exchanges.TryAdd(key, exchangeName);
 
@@ -47,9 +47,9 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
     /// <returns>The name of the declared exchange.</returns>
-    public Task<string> ExchangeDeclareAsync<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent
+    public Task<string> ExchangeDeclareAsync<TEvent>(TEvent domainEvent, CancellationToken cancellationToken) where TEvent : IDomainEvent
     {
-        return ExchangeDeclareAsync(domainEvent.GetType());
+        return ExchangeDeclareAsync(domainEvent.GetType(), cancellationToken);
     }
 
     /// <summary>
@@ -57,7 +57,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
     /// <returns>The channel for publishing.</returns>
-    public Task<IChannel> GetChannelPublishAsync(Type domainEventType)
+    public Task<IChannel> GetChannelPublishAsync(Type domainEventType, CancellationToken cancellationToken)
     {
         var key = domainEventType.Name;
 
@@ -70,9 +70,9 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
     /// <returns>The channel for publishing.</returns>
-    public Task<IChannel> GetChannelPublishAsync<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent
+    public Task<IChannel> GetChannelPublishAsync<TEvent>(TEvent domainEvent, CancellationToken cancellationToken) where TEvent : IDomainEvent
     {
-        return GetChannelPublishAsync(domainEvent.GetType());
+        return GetChannelPublishAsync(domainEvent.GetType(), cancellationToken);
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
     /// <returns>The channel for consuming.</returns>
-    public Task<IChannel> GetChannelConsumerAsync<TEvent, TEventHandler>()
+    public Task<IChannel> GetChannelConsumerAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
