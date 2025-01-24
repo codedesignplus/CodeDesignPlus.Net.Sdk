@@ -53,7 +53,7 @@ public class RabbitPubSubService : IRabbitPubSub
 
         this.logger.LogInformation("Publishing event: {TEvent}.", @event.GetType().Name);
 
-        return this.PrivatePublishAsync(@event);
+        return this.PrivatePublishAsync(@event, cancellationToken);
     }
 
     /// <summary>
@@ -73,12 +73,13 @@ public class RabbitPubSubService : IRabbitPubSub
     /// Publishes a domain event to RabbitMQ.
     /// </summary>
     /// <param name="event">The domain event to publish.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous publish operation.</returns>
-    private async Task PrivatePublishAsync(IDomainEvent @event)
+    private async Task PrivatePublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
-        var channel = await this.channelProvider.GetChannelPublishAsync(@event.GetType());
+        var channel = await this.channelProvider.GetChannelPublishAsync(@event.GetType(), cancellationToken);
 
-        var exchangeName = await this.channelProvider.ExchangeDeclareAsync(@event.GetType());
+        var exchangeName = await this.channelProvider.ExchangeDeclareAsync(@event.GetType(), cancellationToken);
 
         var message = JsonSerializer.Serialize(@event);
 
@@ -118,7 +119,7 @@ public class RabbitPubSubService : IRabbitPubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = await this.channelProvider.GetChannelConsumerAsync<TEvent, TEventHandler>();
+        var channel = await this.channelProvider.GetChannelConsumerAsync<TEvent, TEventHandler>(cancellationToken);
 
         var queueNameAttribute = typeof(TEventHandler).GetCustomAttribute<QueueNameAttribute>();
         var queueName = queueNameAttribute.GetQueueName(coreOptions.AppName, coreOptions.Business, coreOptions.Version);
@@ -235,7 +236,7 @@ public class RabbitPubSubService : IRabbitPubSub
 
         if (!string.IsNullOrEmpty(consumerTag))
         {
-            var channel = await this.channelProvider.GetChannelConsumerAsync<TEvent, TEventHandler>();
+            var channel = await this.channelProvider.GetChannelConsumerAsync<TEvent, TEventHandler>(cancellationToken);
             await channel.BasicCancelAsync(consumerTag, cancellationToken: cancellationToken);
             logger.LogInformation("Unsubscribed from event: {TEvent}.", typeof(TEvent).Name);
         }

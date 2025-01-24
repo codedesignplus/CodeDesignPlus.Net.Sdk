@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;
@@ -34,7 +32,7 @@ public class ChannelProviderTest
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
 
         // Act
-        var exchangeName = await channelProvider.ExchangeDeclareAsync(typeof(UserCreatedDomainEvent));
+        var exchangeName = await channelProvider.ExchangeDeclareAsync(typeof(UserCreatedDomainEvent), CancellationToken.None);
 
         // Assert
         Assert.Equal("order-created", exchangeName);
@@ -69,7 +67,7 @@ public class ChannelProviderTest
 
 
         // Act
-        var exchangeName = await channelProvider.ExchangeDeclareAsync(new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe"));
+        var exchangeName = await channelProvider.ExchangeDeclareAsync(new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe"), CancellationToken.None);
 
         // Assert
         Assert.Equal("order-created", exchangeName);
@@ -103,10 +101,10 @@ public class ChannelProviderTest
 
 
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
-        await channelProvider.ExchangeDeclareAsync(typeof(UserCreatedDomainEvent));
+        await channelProvider.ExchangeDeclareAsync(typeof(UserCreatedDomainEvent), CancellationToken.None);
 
         // Act
-        var exchangeName = await channelProvider.ExchangeDeclareAsync(typeof(UserCreatedDomainEvent));
+        var exchangeName = await channelProvider.ExchangeDeclareAsync(typeof(UserCreatedDomainEvent), CancellationToken.None);
 
         // Assert
         Assert.Equal("order-created", exchangeName);
@@ -135,7 +133,7 @@ public class ChannelProviderTest
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
 
         // Act
-        var channel = await channelProvider.GetChannelPublishAsync(typeof(UserCreatedDomainEvent));
+        var channel = await channelProvider.GetChannelPublishAsync(typeof(UserCreatedDomainEvent), CancellationToken.None);
 
         // Assert
         Assert.NotNull(channel);
@@ -154,7 +152,7 @@ public class ChannelProviderTest
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
 
         // Act
-        var channel = await channelProvider.GetChannelPublishAsync(new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe"));
+        var channel = await channelProvider.GetChannelPublishAsync(new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe"), CancellationToken.None);
 
         // Assert
         Assert.NotNull(channel);
@@ -171,10 +169,10 @@ public class ChannelProviderTest
         mockConnection.SetupGet(x => x.Connection).Returns(mockRabbitConnection.Object);
 
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
-        await channelProvider.GetChannelPublishAsync(typeof(UserCreatedDomainEvent));
+        await channelProvider.GetChannelPublishAsync(typeof(UserCreatedDomainEvent), CancellationToken.None);
 
         // Act
-        var channel = await channelProvider.GetChannelPublishAsync(typeof(UserCreatedDomainEvent));
+        var channel = await channelProvider.GetChannelPublishAsync(typeof(UserCreatedDomainEvent), CancellationToken.None);
 
         // Assert
         Assert.NotNull(channel);
@@ -194,7 +192,7 @@ public class ChannelProviderTest
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
 
         // Act
-        var channel = await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>();
+        var channel = await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
 
         // Assert
         Assert.NotNull(channel);
@@ -211,10 +209,10 @@ public class ChannelProviderTest
         mockConnection.SetupGet(x => x.Connection).Returns(mockRabbitConnection.Object);
 
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
-        await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>();
+        await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
 
         // Act
-        var channel = await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>();
+        var channel = await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
 
         // Assert
         Assert.NotNull(channel);
@@ -233,7 +231,7 @@ public class ChannelProviderTest
         mockConnection.SetupGet(x => x.Connection).Returns(mockRabbitConnection.Object);
 
         var channelProvider = new ChannelProvider(mockConnection.Object, mockDomainEventResolver.Object, coreOptions);
-        await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>();
+        await channelProvider.GetChannelConsumerAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
 
         var consumerTag = "test-consumer";
         channelProvider.SetConsumerTag<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(consumerTag);

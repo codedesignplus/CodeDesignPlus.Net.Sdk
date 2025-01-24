@@ -7,7 +7,8 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services;
 /// </summary>
 /// <typeparam name="TAssembly">The assembly where the domain events are located.</typeparam>
 /// <param name="channelProvider">The provider of the RabbitMQ channels.</param>
-public class InitializeBackgroundService<TAssembly>(IChannelProvider channelProvider) : BackgroundService
+/// <param name="logger">The logger instance.</param>
+public class DeclareExchangeBackgroundService<TAssembly>(IChannelProvider channelProvider, ILogger<DeclareExchangeBackgroundService<TAssembly>> logger) : BackgroundService
 {
     private readonly IChannelProvider channelProvider = channelProvider;
 
@@ -18,13 +19,22 @@ public class InitializeBackgroundService<TAssembly>(IChannelProvider channelProv
     /// <returns>A <see cref="Task"/> that represents the asynchronous operation.</returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        var types = typeof(TAssembly).Assembly.GetTypes();
-
-        var domainEvents = types.Where(x => x.IsSubclassOf(typeof(DomainEvent)));
-
-        foreach (var domainEvent in domainEvents)
+        try
         {
-            await channelProvider.ExchangeDeclareAsync(domainEvent);
+            var types = typeof(TAssembly).Assembly.GetTypes();
+
+            var domainEvents = types.Where(x => x.IsSubclassOf(typeof(DomainEvent)));
+
+            foreach (var domainEvent in domainEvents)
+            {
+                await channelProvider.ExchangeDeclareAsync(domainEvent, stoppingToken);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while declaring the exchanges.");
+
+            throw;
         }
     }
 }
