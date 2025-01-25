@@ -22,7 +22,7 @@ public static class MediatRExtensions
 
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assembly));
 
-        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationPipeline<,>));
+        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipeline<,>));
 
         return services;
     }
