@@ -9,7 +9,7 @@
     <ProjectReference Include="..\..\..\..\packages\CodeDesignPlus.Net.EFCore\src\CodeDesignPlus.Net.EFCore\CodeDesignPlus.Net.EFCore.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
   </ItemGroup>
   <ItemGroup>
     <None Update="appsettings.json">
