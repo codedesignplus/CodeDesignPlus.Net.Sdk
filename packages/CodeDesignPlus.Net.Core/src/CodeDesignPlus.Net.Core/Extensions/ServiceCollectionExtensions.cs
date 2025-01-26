@@ -30,6 +30,7 @@ public static class ServiceCollectionExtensions
             .ValidateOnStart();
 
         services.TryAddSingleton<IDomainEventResolver, DomainEventResolverService>();
+        services.TryAddScoped<IEventContext, EventContext>();
         
         services.AddStartups(configuration);
 

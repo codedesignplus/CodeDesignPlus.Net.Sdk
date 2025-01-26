@@ -115,7 +115,13 @@ public class RedisPubSubService : IRedisPubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        using var scope = serviceProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
+
         var @event = JsonSerializer.Deserialize<TEvent>(value);
+
+        context.SetCurrentDomainEvent(@event);
 
         var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 

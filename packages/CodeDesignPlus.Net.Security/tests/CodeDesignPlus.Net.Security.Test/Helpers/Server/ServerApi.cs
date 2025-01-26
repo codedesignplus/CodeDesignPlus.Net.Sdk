@@ -1,4 +1,6 @@
-﻿using CodeDesignPlus.Net.Security.Extensions;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Services;
+using CodeDesignPlus.Net.Security.Extensions;
 using CodeDesignPlus.Net.xUnit.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -19,6 +21,7 @@ public class ServerApi
             .UseConfiguration(configuration)
             .ConfigureServices(x =>
             {
+                x.AddScoped<IEventContext, EventContext>();
                 x.AddSecurity(configuration, options);
                 x.AddRouting();
             })

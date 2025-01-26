@@ -1,5 +1,4 @@
 using CodeDesignPlus.Net.Core.Abstractions;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace CodeDesignPlus.Net.Microservice.Commons.MediatR;
@@ -20,9 +19,11 @@ public static class MediatRExtensions
     {
         var assembly = typeof(TApplication).Assembly;
 
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblies(assembly));
+        services.AddMediatR(config => {
+            config.RegisterServicesFromAssemblies(assembly);
 
-        services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipeline<,>));
+            config.AddOpenBehavior(typeof(ValidationPipeline<,>));
+        });
 
         return services;
     }
