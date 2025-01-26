@@ -153,7 +153,13 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
             {
                 logger.LogInformation("{EventType} | Listener the event {Topic}", typeof(TEvent).Name, topic);
 
+                using var scope = serviceProvider.CreateScope();
+
+                var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
+
                 var value = consumer.Consume(cancellationToken);
+
+                context.SetCurrentDomainEvent(value.Message.Value);
 
                 var eventHandler = serviceProvider.GetRequiredService<TEventHandler>();
 

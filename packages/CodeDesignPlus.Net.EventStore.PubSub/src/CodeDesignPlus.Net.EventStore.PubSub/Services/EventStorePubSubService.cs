@@ -141,7 +141,13 @@ public class EventStorePubSubService : IEventStorePubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        using var scope = serviceProvider.CreateScope();
+
+        var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
+
         var domainEvent = JsonSerializer.Deserialize<TEvent>(Encoding.UTF8.GetString(@event.Event.Data));
+
+        context.SetCurrentDomainEvent(domainEvent);
 
         var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 

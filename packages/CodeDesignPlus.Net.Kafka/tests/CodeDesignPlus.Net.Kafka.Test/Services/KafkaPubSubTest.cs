@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Moq;
 using Xunit.Abstractions;
 using CodeDesignPlus.Net.Kafka.Test.Helpers;
+using CodeDesignPlus.Net.Core.Services;
 
 namespace CodeDesignPlus.Net.Kafka.Test.Services;
 
@@ -113,7 +114,10 @@ public class KafkaPubSubTest
         _mockDomainEventResolverService.Setup(x => x.GetKeyDomainEvent<ProductCreatedEvent>()).Returns(topic);
 
         var mockConsumer = new Mock<IConsumer<string, ProductCreatedEvent>>();
-        var serviceCollection = new ServiceCollection().AddSingleton(x => mockConsumer.Object);
+        var serviceCollection = new ServiceCollection()
+            .AddSingleton(x => mockConsumer.Object)
+            .AddScoped<IEventContext, EventContext>();
+            
         var provider = serviceCollection.BuildServiceProvider();
         var maxAttempts = 3;
         var options = Microsoft.Extensions.Options.Options.Create(new KafkaOptions

@@ -69,7 +69,7 @@ public class ServiceCollectionExtensionsTest
         var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IUserContext));
 
         Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, libraryService.Lifetime);
         Assert.Equal(typeof(UserContext), libraryService.ImplementationType);
     }
 

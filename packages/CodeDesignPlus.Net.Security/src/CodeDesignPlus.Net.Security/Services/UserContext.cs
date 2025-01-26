@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Security.Services;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.Security.Services;
 
 /// <summary>
 /// Provides user context information based on the current HTTP context.
@@ -8,7 +10,8 @@
 /// </remarks>
 /// <param name="httpContextAccessor">The HTTP context accessor.</param>
 /// <param name="options">The security options.</param>
-public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options) : IUserContext
+/// <param name="eventContext">The event context.</param>
+public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options, IEventContext eventContext) : IUserContext
 {
 
     /// <summary>
@@ -39,7 +42,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <summary>
     /// Gets the tenant ID from the request headers.
     /// </summary>
-    public Guid Tenant => this.GetHeader<Guid>("X-Tenant");
+    public Guid Tenant => this.GetTenant();
 
     /// <summary>
     /// Gets the current user's claims principal.
@@ -130,5 +133,19 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
         }
 
         return default;
+    }
+
+    /// <summary>
+    /// Gets the tenant identifier.
+    /// </summary>
+    /// <returns>The tenant identifier.</returns>
+    public Guid GetTenant()
+    {
+        var tenant = this.GetHeader<Guid>("X-Tenant");
+
+        if (tenant == Guid.Empty)
+            tenant = eventContext.Tenant;
+
+        return tenant;
     }
 }

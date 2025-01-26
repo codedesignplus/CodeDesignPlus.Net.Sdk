@@ -1,4 +1,6 @@
-﻿using IdentityModel.Client;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Services;
+using IdentityModel.Client;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Microsoft.AspNetCore.Builder;
@@ -23,6 +25,7 @@ public class ServerAuth
         var builder = new WebHostBuilder()
             .ConfigureServices((context, services) =>
             {
+                services.AddScoped<IEventContext, EventContext>();
                 services.AddControllers();
                 services.AddIdentityServer()
                     .AddInMemoryClients(

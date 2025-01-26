@@ -156,12 +156,18 @@ public class RabbitPubSubService : IRabbitPubSub
         try
         {
             this.logger.LogDebug("Processing event: {TEvent}.", typeof(TEvent).Name);
+            
+            using var scope = this.serviceProvider.CreateScope();
+
+            var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
 
             var body = eventArguments.Body.ToArray();
 
             var message = Encoding.UTF8.GetString(body);
 
             var @event = JsonSerializer.Deserialize<TEvent>(message);
+            
+            context.SetCurrentDomainEvent(@event);
 
             var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
 
