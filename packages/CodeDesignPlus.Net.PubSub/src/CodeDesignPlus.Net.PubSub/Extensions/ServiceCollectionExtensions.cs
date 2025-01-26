@@ -108,7 +108,7 @@ public static class ServiceCollectionExtensions
             var eventHandlerBackgroundType = typeof(RegisterEventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), eventHandlerBackgroundType));
 
-            services.TryAddSingleton(eventHandler);
+            services.TryAddScoped(eventHandler);
         }
 
         return services;

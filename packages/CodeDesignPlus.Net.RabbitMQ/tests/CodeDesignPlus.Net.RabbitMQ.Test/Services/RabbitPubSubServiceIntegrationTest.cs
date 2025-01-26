@@ -102,7 +102,7 @@ public class RabbitPubSubServiceIntegrationTest
 
         // Assert
         Assert.Contains(idAggregate, memoryHandler.Memory.Keys);
-        loggerMock.VerifyLogging($"Error processing event: {typeof(UserCreatedDomainEvent).Name}.", LogLevel.Error, Times.Once());
+        loggerMock.VerifyLogging($"Error processing event: {typeof(UserCreatedDomainEvent).Name} | Custom Error.", LogLevel.Error, Times.Once());
     }
 
     [Fact]

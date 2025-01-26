@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Exceptions;
 
 namespace CodeDesignPlus.Net.Kafka.Services;
 
@@ -161,15 +162,19 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
 
                 context.SetCurrentDomainEvent(value.Message.Value);
 
-                var eventHandler = serviceProvider.GetRequiredService<TEventHandler>();
+                var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
                 await eventHandler.HandleAsync(value.Message.Value, cancellationToken).ConfigureAwait(false);
 
                 logger.LogInformation("{EventType} | End Listener the event {Topic}", typeof(TEvent).Name, topic);
             }
-            catch (Exception e)
+            catch (CodeDesignPlusException ex)
             {
-                logger.LogError(e, "{EventType} | An error occurred while consuming a Kafka message for event topic: {Topic}", typeof(TEvent).Name, topic);
+                logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "{EventType} | An error occurred while consuming a Kafka message for event topic: {Topic} | {Message}", typeof(TEvent).Name, topic, ex.Message);
             }
         }
     }

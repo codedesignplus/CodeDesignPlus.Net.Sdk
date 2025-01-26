@@ -120,6 +120,9 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <returns>The header value.</returns>
     public TValue GetHeader<TValue>(string header)
     {
+        if (httpContextAccessor.HttpContext == null)
+            return default;
+
         if (httpContextAccessor.HttpContext.Request.Headers.TryGetValue(header, out var values))
         {
             var headerValue = values.FirstOrDefault();
