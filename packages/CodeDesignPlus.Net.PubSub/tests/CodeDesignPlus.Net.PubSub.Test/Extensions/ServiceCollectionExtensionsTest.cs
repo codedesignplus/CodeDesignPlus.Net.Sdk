@@ -215,7 +215,7 @@ public class ServiceCollectionExtensionsTest
 
         Assert.True(handler.ImplementationType.IsAssignableGenericFrom(typeof(IEventHandler<>)));
         Assert.Equal(typeof(UserRegisteredEventHandler), handler.ImplementationType);
-        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, handler.Lifetime);
 
         Assert.Equal(typeof(RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), eventHandlerBackgroundService.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, eventHandlerBackgroundService.Lifetime);

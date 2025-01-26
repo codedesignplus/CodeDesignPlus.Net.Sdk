@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Redis.PubSub.Services;
+﻿using CodeDesignPlus.Net.Exceptions;
+
+namespace CodeDesignPlus.Net.Redis.PubSub.Services;
 
 /// <summary>
 /// Provides Redis Pub/Sub services for publishing and subscribing to domain events.
@@ -115,17 +117,28 @@ public class RedisPubSubService : IRedisPubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        using var scope = serviceProvider.CreateScope();
+        try
+        {
+            using var scope = serviceProvider.CreateScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
+            var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
 
-        var @event = JsonSerializer.Deserialize<TEvent>(value);
+            var @event = JsonSerializer.Deserialize<TEvent>(value);
 
-        context.SetCurrentDomainEvent(@event);
+            context.SetCurrentDomainEvent(@event);
 
-        var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+            var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
-        eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
+            eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
+        }
+        catch (CodeDesignPlusException ex)
+        {
+            logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
     }
 
     /// <summary>

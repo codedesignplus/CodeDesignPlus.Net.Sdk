@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Exceptions;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Services;
 
@@ -141,17 +142,30 @@ public class EventStorePubSubService : IEventStorePubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        using var scope = serviceProvider.CreateScope();
+        try
+        {
+            using var scope = serviceProvider.CreateScope();
 
-        var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
+            var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
 
-        var domainEvent = JsonSerializer.Deserialize<TEvent>(Encoding.UTF8.GetString(@event.Event.Data));
+            var domainEvent = JsonSerializer.Deserialize<TEvent>(Encoding.UTF8.GetString(@event.Event.Data));
 
-        context.SetCurrentDomainEvent(domainEvent);
+            context.SetCurrentDomainEvent(domainEvent);
 
-        var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+            var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
-        return eventHandler.HandleAsync(@domainEvent, cancellationToken);
+            return eventHandler.HandleAsync(@domainEvent, cancellationToken);
+        }
+        catch (CodeDesignPlusException ex)
+        {
+            logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
+
+        return Task.CompletedTask;
     }
 
     /// <summary>

@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.RabbitMQ.Services;
+﻿using CodeDesignPlus.Net.Exceptions;
+
+namespace CodeDesignPlus.Net.RabbitMQ.Services;
 
 /// <summary>
 /// Service to publish and subscribe to domain events using RabbitMQ.
@@ -156,7 +158,7 @@ public class RabbitPubSubService : IRabbitPubSub
         try
         {
             this.logger.LogDebug("Processing event: {TEvent}.", typeof(TEvent).Name);
-            
+
             using var scope = this.serviceProvider.CreateScope();
 
             var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
@@ -166,19 +168,25 @@ public class RabbitPubSubService : IRabbitPubSub
             var message = Encoding.UTF8.GetString(body);
 
             var @event = JsonSerializer.Deserialize<TEvent>(message);
-            
+
             context.SetCurrentDomainEvent(@event);
 
-            var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+            var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
             await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
 
             await channel.BasicAckAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, cancellationToken: cancellationToken);
         }
+        catch (CodeDesignPlusException ex)
+        {
+            this.logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
         catch (Exception ex)
         {
-            this.logger.LogError(ex, "Error processing event: {TEvent}.", typeof(TEvent).Name);
-
+            this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
+        finally
+        {
             await channel.BasicNackAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: false, cancellationToken: cancellationToken);
         }
     }
