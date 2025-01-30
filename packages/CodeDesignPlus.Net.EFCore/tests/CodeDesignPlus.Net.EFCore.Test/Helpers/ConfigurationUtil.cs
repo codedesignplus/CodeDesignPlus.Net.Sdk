@@ -4,13 +4,8 @@ public static class ConfigurationUtil
 {
     public static readonly EFCoreOptions EFCoreOptions = new()
     {
-        ClaimsIdentity = new ClaimsOption()
-        {
-            Email = nameof(ClaimsOption.Email),
-            IdUser = nameof(ClaimsOption.IdUser),
-            Role = nameof(ClaimsOption.Role),
-            User = nameof(ClaimsOption.User),
-        }
+        Enable = true,
+        RegisterRepositories = true
     };
 
     public static IConfiguration GetConfiguration()

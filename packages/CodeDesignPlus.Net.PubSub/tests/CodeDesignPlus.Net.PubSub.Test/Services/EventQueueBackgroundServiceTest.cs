@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers;
+﻿using CodeDesignPlus.Net.xUnit.Extensions;
 using Moq;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Services;
@@ -16,7 +16,7 @@ public class EventQueueBackgroundServiceTest
     public void Constructor_ThrowsArgumentNullException_WhenLoggerIsNull()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => new EventQueueBackgroundService(Mock.Of<IEventQueueService>(), null));
+        Assert.Throws<ArgumentNullException>(() => new EventQueueBackgroundService(Mock.Of<IEventQueue>(), null));
     }
 
     [Fact]
@@ -24,7 +24,7 @@ public class EventQueueBackgroundServiceTest
     {
         // Arrange
         var loggerMock = new Mock<ILogger<EventQueueBackgroundService>>();
-        var eventQueueServiceMock = new Mock<IEventQueueService>();
+        var eventQueueServiceMock = new Mock<IEventQueue>();
 
         // Act
         var eventQueueBackgroundService = new EventQueueBackgroundService(eventQueueServiceMock.Object, loggerMock.Object);
@@ -39,7 +39,7 @@ public class EventQueueBackgroundServiceTest
     {
         // Arrange
         var loggerMock = new Mock<ILogger<EventQueueBackgroundService>>();
-        var eventQueueServiceMock = new Mock<IEventQueueService>();
+        var eventQueueServiceMock = new Mock<IEventQueue>();
         var cancellationTokenSource = new CancellationTokenSource();
 
         var eventQueueBackgroundService = new EventQueueBackgroundService(eventQueueServiceMock.Object, loggerMock.Object);

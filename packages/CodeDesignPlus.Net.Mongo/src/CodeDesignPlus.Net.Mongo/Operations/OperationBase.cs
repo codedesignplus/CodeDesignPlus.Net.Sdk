@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Mongo.Operations;
+﻿using CodeDesignPlus.Net.Mongo.Extensions;
+
+namespace CodeDesignPlus.Net.Mongo.Operations;
 
 /// <summary>
 /// Base class for MongoDB operations.
@@ -44,15 +46,14 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous create operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
-    public virtual Task CreateAsync(TEntity entity, CancellationToken cancellationToken = default)
+    public virtual Task CreateAsync(TEntity entity, CancellationToken cancellationToken)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        ArgumentNullException.ThrowIfNull(entity);
 
         if (entity is IEntity auditTrailEntity)
         {
             auditTrailEntity.CreatedBy = AuthenticateUser.IdUser;
-            auditTrailEntity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            auditTrailEntity.CreatedAt = SystemClock.Instance.GetCurrentInstant();
         }
 
         return base.CreateAsync(entity, cancellationToken);
@@ -64,11 +65,23 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     /// <param name="id">The identifier of the entity to delete.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous delete operation.</returns>
-    public virtual Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    public virtual Task DeleteAsync(Guid id, CancellationToken cancellationToken)
+    {
+        return DeleteAsync(id, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Deletes an entity by its identifier asynchronously.
+    /// </summary>
+    /// <param name="id">The identifier of the entity to delete.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    public virtual Task DeleteAsync(Guid id, Guid tenant, CancellationToken cancellationToken)
     {
         var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
 
-        return DeleteAsync(filter, cancellationToken);
+        return DeleteAsync(filter, tenant, cancellationToken);
     }
 
     /// <summary>
@@ -79,12 +92,25 @@ public abstract class OperationBase<TEntity> : RepositoryBase, IOperationBase<TE
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous update operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
-    public virtual async Task UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken = default)
+    public virtual Task UpdateAsync(Guid id, TEntity entity, CancellationToken cancellationToken)
     {
-        if (entity == null)
-            throw new ArgumentNullException(nameof(entity));
+        return UpdateAsync(id, entity, Guid.Empty, cancellationToken);
+    }
 
-        var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id);
+    /// <summary>
+    /// Updates an entity by its identifier asynchronously.
+    /// </summary>
+    /// <param name="id">The identifier of the entity to update.</param>
+    /// <param name="entity">The entity with updated values.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous update operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
+    public virtual async Task UpdateAsync(Guid id, TEntity entity, Guid tenant, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(entity);
+
+        var filter = Builders<TEntity>.Filter.Eq(x => x.Id, id).BuildFilter(tenant);
 
         var updates = new List<UpdateDefinition<TEntity>>();
 

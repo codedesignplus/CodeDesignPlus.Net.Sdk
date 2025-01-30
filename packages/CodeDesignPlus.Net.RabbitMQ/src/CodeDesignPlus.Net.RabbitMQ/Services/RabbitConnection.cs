@@ -3,56 +3,55 @@
     /// <summary>
     /// Manages the RabbitMQ connection.
     /// </summary>
-    public class RabbitConnection : IRabbitConnection
+    /// <param name="logger">The logger for logging messages.</param>
+    public class RabbitConnection(ILogger<RabbitConnection> logger) : IRabbitConnection
     {
         /// <summary>
         /// Gets the RabbitMQ connection.
         /// </summary>
-        public IConnection Connection { get; }
+        public IConnection Connection { get; private set; }
 
         private bool disposed = false;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RabbitConnection"/> class.
+        /// Connects to the RabbitMQ server.
         /// </summary>
-        /// <param name="options">The RabbitMQ options.</param>
-        /// <param name="coreOptions">The core options.</param>
-        /// <param name="logger">The logger instance.</param>
-        /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
-        /// <exception cref="Exceptions.RabbitMQException">Thrown when the connection to RabbitMQ server fails.</exception>
-        public RabbitConnection(IOptions<RabbitMQOptions> options, IOptions<CoreOptions> coreOptions, ILogger<RabbitConnection> logger)
+        /// <param name="appName">The name of the application.</param>
+        /// <param name="settings">The options for configuring the RabbitMQ connection.</param>
+        /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="settings"/> or <paramref name="appName"/> is null.</exception>
+        public async Task ConnectAsync(RabbitMQOptions settings, string appName)
         {
-            ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(coreOptions);
-            ArgumentNullException.ThrowIfNull(logger);
+            ArgumentNullException.ThrowIfNull(appName);
+            ArgumentNullException.ThrowIfNull(settings);
 
             var factory = new ConnectionFactory
             {
-                HostName = options.Value.Host,
-                Port = options.Value.Port,
-                UserName = options.Value.UserName,
-                Password = options.Value.Password
+                HostName = settings.Host,
+                Port = settings.Port,
+                UserName = settings.UserName,
+                Password = settings.Password
             };
 
             var isConnected = false;
             var retryCount = 0;
             var errors = new List<string>();
 
-            while (!isConnected && retryCount < options.Value.MaxRetry)
+            while (!isConnected && retryCount < settings.MaxRetry)
             {
                 try
                 {
-                    this.Connection = factory.CreateConnection(coreOptions.Value.AppName);
+                    this.Connection = await factory.CreateConnectionAsync(appName);
                     isConnected = this.Connection.IsOpen;
                 }
                 catch (Exception ex)
                 {
                     retryCount++;
-                    logger.LogError(ex, "Error connecting. Attempt {RetryCount} of {MaxRetries}.", retryCount, options.Value.MaxRetry);
+                    logger.LogError(ex, "Error connecting. Attempt {RetryCount} of {MaxRetries}.", retryCount, settings.MaxRetry);
                     errors.Add(ex.Message);
 
-                    if (retryCount < options.Value.MaxRetry)
-                        Thread.Sleep(options.Value.RetryInterval);
+                    if (retryCount < settings.MaxRetry)
+                        Thread.Sleep(settings.RetryInterval);
                 }
             }
 

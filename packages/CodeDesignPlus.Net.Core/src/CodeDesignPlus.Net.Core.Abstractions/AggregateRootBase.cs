@@ -20,7 +20,7 @@ public abstract class AggregateRootBase : IAggregateRoot
     /// <summary>
     /// Gets or sets the timestamp when the aggregate root was created.
     /// </summary>
-    public long CreatedAt { get; set; }
+    public Instant CreatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier of the user who created the aggregate root.
@@ -30,7 +30,7 @@ public abstract class AggregateRootBase : IAggregateRoot
     /// <summary>
     /// Gets or sets the timestamp when the aggregate root was last updated.
     /// </summary>
-    public long? UpdatedAt { get; set; }
+    public Instant? UpdatedAt { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier of the user who last updated the aggregate root.

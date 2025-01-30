@@ -86,6 +86,31 @@ public class MongoExceptionTest
         Assert.Equal(errors, exception.Errors);
         Assert.Equal(message, exception.Message);
         Assert.Equal(innerException, exception.InnerException);
+    }
 
+    [Fact]
+    public void ThrowIfNull_ArgumentNotNull_ThrowsMongoException()
+    {
+        // Arrange
+        object argument = new();
+
+        var message = Guid.NewGuid().ToString();
+
+        // Act & Assert
+        MongoException.ThrowIfNull(argument, message);
+    }
+
+    [Fact]
+    public void ThrowIfNull_ArgumentNull_ThrowsMongoException()
+    {
+        // Arrange
+        object argument = null!;
+
+        var message = Guid.NewGuid().ToString();
+
+        // Act & Assert
+        var exception = Assert.Throws<MongoException>(() => MongoException.ThrowIfNull(argument, message));
+
+        Assert.Equal(message, exception.Message);
     }
 }

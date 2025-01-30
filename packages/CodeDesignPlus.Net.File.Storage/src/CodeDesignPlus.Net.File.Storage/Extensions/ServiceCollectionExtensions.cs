@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IFileStorageService, FileStorageService>();
+        services.AddSingleton<IFileStorage, FileStorageService>();
         services.AddSingleton<IAzureBlobFactory, AzureBlobFactory>();
         services.AddSingleton<IAzureFileFactory, AzureFileFactory>();
         services.AddSingleton<IAzureBlobProvider, AzureBlobProvider>();

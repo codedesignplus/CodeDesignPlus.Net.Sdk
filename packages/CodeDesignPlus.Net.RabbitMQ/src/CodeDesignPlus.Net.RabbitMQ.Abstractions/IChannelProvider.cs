@@ -9,32 +9,36 @@ public interface IChannelProvider
     /// Gets the channel for publishing the specified domain event type.
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for publishing.</returns>
-    IModel GetChannelPublish(Type domainEventType);
+    Task<IChannel> GetChannelPublishAsync(Type domainEventType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets the channel for publishing the specified domain event.
     /// </summary>
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for publishing.</returns>
-    IModel GetChannelPublish<TDomainEvent>(TDomainEvent domainEvent) 
+    Task<IChannel> GetChannelPublishAsync<TDomainEvent>(TDomainEvent domainEvent, CancellationToken cancellationToken) 
         where TDomainEvent : IDomainEvent;
 
     /// <summary>
     /// Declares an exchange for the specified domain event type.
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The name of the declared exchange.</returns>
-    string ExchangeDeclare(Type domainEventType);
+    Task<string> ExchangeDeclareAsync(Type domainEventType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Declares an exchange for the specified domain event.
     /// </summary>
     /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The name of the declared exchange.</returns>
-    string ExchangeDeclare<TDomainEvent>(TDomainEvent domainEvent) 
+    Task<string> ExchangeDeclareAsync<TDomainEvent>(TDomainEvent domainEvent, CancellationToken cancellationToken) 
         where TDomainEvent : IDomainEvent;
 
     /// <summary>
@@ -42,8 +46,9 @@ public interface IChannelProvider
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for consuming.</returns>
-    IModel GetChannelConsumer<TEvent, TEventHandler>()
+    Task<IChannel> GetChannelConsumerAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>;
 

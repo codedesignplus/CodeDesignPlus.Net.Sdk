@@ -1,28 +1,21 @@
 ﻿
+using CodeDesignPlus.Net.Mongo.Extensions;
+
 namespace CodeDesignPlus.Net.Mongo.Repository;
 
 /// <summary>
 /// Base class for MongoDB repository operations.
 /// </summary>
-public abstract class RepositoryBase : IRepositoryBase
+/// <remarks>
+/// Initializes a new instance of the <see cref="RepositoryBase"/> class.
+/// </remarks>
+/// <param name="serviceProvider">The service provider.</param>
+/// <param name="mongoOptions">The MongoDB options.</param>
+/// <param name="logger">The logger instance.</param>
+/// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
+public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger logger) : IRepositoryBase
 {
-    private readonly IServiceProvider serviceProvider;
-    private readonly ILogger logger;
-    private readonly MongoOptions mongoOptions;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="RepositoryBase"/> class.
-    /// </summary>
-    /// <param name="serviceProvider">The service provider.</param>
-    /// <param name="mongoOptions">The MongoDB options.</param>
-    /// <param name="logger">The logger instance.</param>
-    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
-    protected RepositoryBase(IServiceProvider serviceProvider, IOptions<MongoOptions> mongoOptions, ILogger logger)
-    {
-        this.serviceProvider = serviceProvider;
-        this.logger = logger;
-        this.mongoOptions = mongoOptions.Value;
-    }
+    private readonly MongoOptions mongoOptions = mongoOptions.Value;
 
     /// <summary>
     /// Gets the MongoDB collection for the specified entity type.
@@ -32,7 +25,7 @@ public abstract class RepositoryBase : IRepositoryBase
     public IMongoCollection<TEntity> GetCollection<TEntity>()
         where TEntity : class, IEntityBase
     {
-        var client = this.serviceProvider.GetRequiredService<IMongoClient>();
+        var client = serviceProvider.GetRequiredService<IMongoClient>();
 
         var database = client.GetDatabase(this.mongoOptions.Database);
 
@@ -51,12 +44,28 @@ public abstract class RepositoryBase : IRepositoryBase
     public Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken)
         where TEntity : class, IEntity
     {
+        return this.ChangeStateAsync<TEntity>(id, state, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Changes the state of an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="state">The new state of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous change state operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
+    public Task ChangeStateAsync<TEntity>(Guid id, bool state, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntity
+    {
         var collection = this.GetCollection<TEntity>();
 
-        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id);
+        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id).BuildFilter(tenant);
         var update = Builders<TEntity>.Update
             .Set(e => e.IsActive, state)
-            .Set(e => e.UpdatedAt, DateTimeOffset.UtcNow.ToUnixTimeMilliseconds());
+            .Set(e => e.UpdatedAt, SystemClock.Instance.GetCurrentInstant());
 
         return collection.UpdateOneAsync(filter, update, cancellationToken: cancellationToken);
     }
@@ -94,6 +103,53 @@ public abstract class RepositoryBase : IRepositoryBase
     }
 
     /// <summary>
+    /// Determines whether an entity exists by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous existence operation.</returns>
+    public Task<bool> ExistsAsync<TEntity>(Guid id, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        return this.ExistsAsync<TEntity>(id, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Determines whether an entity exists by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous existence operation.</returns>
+    public Task<bool> ExistsAsync<TEntity>(Guid id, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+
+        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id).BuildFilter(tenant);
+
+        return collection.Find(filter).AnyAsync(cancellationToken);
+    }
+    
+    /// <summary>
+    /// Deletes an entity by its filter asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    public Task DeleteAsync<TEntity>(Guid id, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id).BuildFilter(tenant);
+
+        return this.DeleteAsync(filter, tenant, cancellationToken);
+    }
+
+    /// <summary>
     /// Deletes an entity by its filter asynchronously.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -103,9 +159,23 @@ public abstract class RepositoryBase : IRepositoryBase
     public Task DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
+        return this.DeleteAsync(filter, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Deletes an entity by its filter asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="filter">The filter definition.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    public Task DeleteAsync<TEntity>(FilterDefinition<TEntity> filter, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
         var collection = this.GetCollection<TEntity>();
 
-        return collection.DeleteOneAsync(filter, cancellationToken);
+        return collection.DeleteOneAsync(filter.BuildFilter(tenant), cancellationToken);
     }
 
     /// <summary>
@@ -115,14 +185,28 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <param name="entities">The entities to delete.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous delete range operation.</returns>
-    public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
+    public Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        return this.DeleteRangeAsync(entities, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Deletes a range of entities asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entities">The entities to delete.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete range operation.</returns>
+    public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, Guid tenant, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
         foreach (var entity in entities)
         {
-            var filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
+            var filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id).BuildFilter(tenant);
 
-            await this.DeleteAsync(filter, cancellationToken);
+            await this.DeleteAsync(filter, tenant, cancellationToken);
         }
     }
 
@@ -170,7 +254,7 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <exception cref="ArgumentNullException">Thrown when the process is null.</exception>
     public async Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken)
     {
-        var client = this.serviceProvider.GetRequiredService<IMongoClient>();
+        var client = serviceProvider.GetRequiredService<IMongoClient>();
 
         var database = client.GetDatabase(this.mongoOptions.Database);
 
@@ -188,8 +272,39 @@ public abstract class RepositoryBase : IRepositoryBase
         {
             await session.AbortTransactionAsync(cancellationToken);
 
-            this.logger.LogError(ex, "Failed to execute transaction");
+            logger.LogError(ex, "Failed to execute transaction");
         }
+    }
+
+    /// <summary>
+    /// Finds an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous find operation.</returns>
+    public Task<TEntity> FindAsync<TEntity>(Guid id, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        return this.FindAsync<TEntity>(id, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Finds an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous find operation.</returns>
+    public Task<TEntity> FindAsync<TEntity>(Guid id, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+
+        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, id).BuildFilter(tenant);
+
+        return collection.Find(filter).FirstOrDefaultAsync(cancellationToken);
     }
 
     /// <summary>
@@ -202,7 +317,21 @@ public abstract class RepositoryBase : IRepositoryBase
     public Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
-        var query = Query<TEntity>(criteria);
+        return this.MatchingAsync<TEntity>(criteria, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Finds entities matching the specified criteria asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    public Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var query = Query<TEntity>(criteria, tenant);
 
         return query.ToListAsync(cancellationToken);
     }
@@ -219,10 +348,27 @@ public abstract class RepositoryBase : IRepositoryBase
     public Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
-        var query = Query<TEntity>(criteria);
+        return this.MatchingAsync(criteria, projection, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Finds entities matching the specified criteria and projects them to the specified result type asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="projection">The projection expression.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    public Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var query = Query<TEntity>(criteria, tenant);
 
         return query.Project(projection).ToListAsync(cancellationToken);
     }
+
 
     /// <summary>
     /// Finds entities matching the specified criteria and projects them to the specified projection type asynchronously.
@@ -234,7 +380,25 @@ public abstract class RepositoryBase : IRepositoryBase
     /// <param name="projection">The projection expression.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous matching operation.</returns>
-    public async Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
+    public Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+        where TProjection : class, IEntityBase
+    {
+        return this.MatchingAsync(id, criteria, projection, Guid.Empty, cancellationToken);
+    }
+
+    /// <summary>
+    /// Finds entities matching the specified criteria and projects them to the specified projection type asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <typeparam name="TProjection">The type of the projection.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="projection">The projection expression.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    public async Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, Guid tenant, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
         where TProjection : class, IEntityBase
     {
@@ -244,7 +408,9 @@ public abstract class RepositoryBase : IRepositoryBase
 
         var filterCriteria = criteria.GetFilterExpression<TProjection>();
 
-        var bsonFilter = GetBsonDocument(filterCriteria, "entity");
+        var filterDefinition = filterCriteria.ToFilterDefinition(true).BuildFilter(tenant);
+
+        var bsonFilter = ((BsonDocumentFilterDefinition<TProjection>)filterDefinition).Document;
 
         var pipeline = new[]
         {
@@ -279,13 +445,16 @@ public abstract class RepositoryBase : IRepositoryBase
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="criteria">The criteria containing the sort expression and order type.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
     /// <returns>The sorted query.</returns>
-    private IFindFluent<TEntity, TEntity> Query<TEntity>(C.Criteria criteria)
+    private IFindFluent<TEntity, TEntity> Query<TEntity>(C.Criteria criteria, Guid tenant)
         where TEntity : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
-        var filter = criteria.GetFilterExpression<TEntity>();
+        var filterExpression = criteria.GetFilterExpression<TEntity>();
         var sortBy = criteria.GetSortByExpression<TEntity>();
+
+        var filter = filterExpression.ToFilterDefinition().BuildFilter(tenant);
 
         var query = collection.Find(filter);
 
@@ -314,22 +483,4 @@ public abstract class RepositoryBase : IRepositoryBase
         else
             throw new Exceptions.MongoException("The expression must be a MemberExpression.");
     }
-
-    /// <summary>
-    /// Converts the specified expression to a BSON document.
-    /// </summary>
-    /// <typeparam name="TEntity">The type of the entity.</typeparam>
-    /// <param name="expression">The expression to convert.</param>
-    /// <param name="alias">The alias to use in the BSON document.</param>
-    /// <returns>The BSON document representing the expression.</returns>
-    public static BsonDocument GetBsonDocument<TEntity>(Expression<Func<TEntity, bool>> expression, string alias)
-        where TEntity : class, IEntityBase
-    {
-        var parameter = expression.Parameters[0];
-
-        var converter = new ExpressionConverter(parameter, alias);
-
-        return converter.Convert(expression.Body);
-    }
-
 }

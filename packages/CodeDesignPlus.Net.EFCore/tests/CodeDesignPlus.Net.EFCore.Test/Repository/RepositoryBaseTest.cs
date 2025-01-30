@@ -2,7 +2,7 @@
 using CodeDesignPlus.Entities;
 using CodeDesignPlus.InMemory;
 using CodeDesignPlus.InMemory.Repositories;
-using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
+using CodeDesignPlus.Net.xUnit.Containers.SqlServer;
 using Microsoft.EntityFrameworkCore;
 
 namespace CodeDesignPlus.Net.EFCore.Test.Repository;
@@ -110,7 +110,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Name = nameof(Application.Name),
             CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             Description = nameof(Application.Description)
         };
 
@@ -173,7 +173,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Name = nameof(Application.Name),
             CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             Description = nameof(Application.Description)
         };
 
@@ -186,7 +186,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
 
         applicationUpdate.Description = "New Description";
         applicationUpdate.Name = "New Name";
-        applicationUpdate.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        applicationUpdate.CreatedAt = SystemClock.Instance.GetCurrentInstant();
         applicationUpdate.IsActive = false;
         applicationUpdate.CreatedBy = Guid.NewGuid();
 
@@ -261,7 +261,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Name = nameof(Application.Name),
             CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             Description = nameof(Application.Description)
         };
 
@@ -311,7 +311,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
                 Name = nameof(Application.Name),
                 CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Description = nameof(Application.Description)
             },
             new ()
@@ -320,7 +320,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
                 Name = nameof(Application.Name),
                 CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Description = nameof(Application.Description)
             }
         };
@@ -380,7 +380,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
                 Name = nameof(Application.Name),
                 CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Description = nameof(Application.Description)
             },
 
@@ -390,7 +390,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
                 Name = nameof(Application.Name),
                 CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Description = nameof(Application.Description)
             }
         };
@@ -414,7 +414,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         {
             x.Description = "New Description";
             x.Name = "New Name";
-            x.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            x.CreatedAt = SystemClock.Instance.GetCurrentInstant();
             x.IsActive = false;
             x.CreatedBy = Guid.NewGuid();
         });
@@ -467,7 +467,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
                 Name = nameof(Application.Name),
                 CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Description = nameof(Application.Description)
             },
             new ()
@@ -476,7 +476,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
                 Name = nameof(Application.Name),
                 CreatedBy = Guid.NewGuid(),
                 IsActive = true,
-                CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Description = nameof(Application.Description)
             }
         };
@@ -536,7 +536,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Name = nameof(Application.Name),
             CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             Description = nameof(Application.Description)
         };
 
@@ -579,7 +579,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Name = nameof(Application.Name),
             CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             Description = nameof(Application.Description)
         };
 
@@ -627,7 +627,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Name = nameof(Application.Name),
             CreatedBy = Guid.NewGuid(),
             IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+            CreatedAt = SystemClock.Instance.GetCurrentInstant(),
             Description = nameof(Application.Description)
         };
 

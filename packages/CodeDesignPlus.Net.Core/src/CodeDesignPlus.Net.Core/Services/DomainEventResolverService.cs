@@ -3,7 +3,7 @@
 /// <summary>
 /// Service responsible for resolving domain event types based on event names and attributes.
 /// </summary>
-public class DomainEventResolverService : IDomainEventResolverService
+public class DomainEventResolverService : IDomainEventResolver
 {
     /// <summary>
     /// Dictionary that maps event names to their corresponding types.
@@ -64,7 +64,7 @@ public class DomainEventResolverService : IDomainEventResolverService
     /// <returns>The type of the domain event.</returns>
     public Type GetDomainEventType<TDomainEvent>() where TDomainEvent : IDomainEvent
     {
-        return GetDomainEventType(GetKeyEvent<TDomainEvent>());
+        return GetDomainEventType(GetKeyDomainEvent<TDomainEvent>());
     }
 
     /// <summary>
@@ -74,40 +74,23 @@ public class DomainEventResolverService : IDomainEventResolverService
     /// <returns>The key of the domain event.</returns>
     public string GetKeyDomainEvent<TDomainEvent>() where TDomainEvent : IDomainEvent
     {
-        return GetKeyEvent<TDomainEvent>();
+        return this.GetKeyDomainEvent(typeof(TDomainEvent));
     }
 
     /// <summary>
     /// Gets the key of the domain event based on the type.
     /// </summary>
     /// <param name="type">The type of the domain event.</param>
+    /// <exception cref="CoreException">The event does not have the KeyAttribute.</exception>
     /// <returns>The key of the domain event.</returns>
     public string GetKeyDomainEvent(Type type)
-    {
-        return GetKeyEvent(type);
-    }
-
-    /// <summary>
-    /// Gets the key of the domain event based on the generic type parameter.
-    /// </summary>
-    /// <typeparam name="TDomainEvent">The type of the domain event.</typeparam>
-    /// <returns>The key of the domain event.</returns>
-    public string GetKeyEvent<TDomainEvent>() where TDomainEvent : IDomainEvent => this.GetKeyEvent(typeof(TDomainEvent));
-
-    /// <summary>
-    /// Gets the key of the domain event based on the type.
-    /// </summary>
-    /// <param name="type">The type of the domain event.</param>
-    /// <returns>The key of the domain event.</returns>
-    public string GetKeyEvent(Type type)
     {
         ArgumentNullException.ThrowIfNull(type);
 
         var attribute = type.GetCustomAttribute<EventKeyAttribute>();
 
-        if (attribute is null)
-            throw new CoreException($"The event {type.Name} does not have the KeyAttribute");
+        CoreException.ThrowIfNull(attribute, type.Name);
 
-        return $"{coreOptions.Business}.{coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
+        return $"{coreOptions.Business}.{attribute.AppName ?? coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
     }
 }

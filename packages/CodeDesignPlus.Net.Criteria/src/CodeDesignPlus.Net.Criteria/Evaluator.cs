@@ -1,10 +1,14 @@
-﻿namespace CodeDesignPlus.Net.Criteria;
+﻿using NodaTime;
+using NodaTime.Text;
+
+namespace CodeDesignPlus.Net.Criteria;
 
 /// <summary>
 /// Evaluates an abstract syntax tree (AST) and builds an expression to represent the evaluation.
 /// </summary>
 internal static class Evaluator
 {
+    private static readonly InstantPattern pattern = InstantPattern.CreateWithInvariantCulture("yyyy-MM-ddTHH:mm:ss'Z'");
     private static readonly string[] Operators = ["~=", "^=", "$=", "<=", ">=", "=", "<", ">"];
 
     /// <summary>
@@ -119,6 +123,13 @@ internal static class Evaluator
     {
         try
         {
+            if (targetType == typeof(Instant))
+            {
+                var parseResult = pattern.Parse(value);
+
+                return Expression.Constant(parseResult.Value, targetType);
+            }
+
             var convertedValue = Convert.ChangeType(value, targetType);
             return Expression.Constant(convertedValue, targetType);
         }

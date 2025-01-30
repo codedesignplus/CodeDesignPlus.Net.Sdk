@@ -6,8 +6,8 @@
 /// <remarks>
 /// An aggregate root is an entity that serves as the root of an aggregate, which is a cluster of associated objects that are treated as a single unit.
 /// </remarks>
-/// <seealso cref="IEntityBase"/>
-public interface IAggregateRoot : IEntityBase
+/// <seealso cref="IEntity"/>
+public interface IAggregateRoot : IEntity
 {
     /// <summary>
     /// Gets and clears the domain events associated with the aggregate root.

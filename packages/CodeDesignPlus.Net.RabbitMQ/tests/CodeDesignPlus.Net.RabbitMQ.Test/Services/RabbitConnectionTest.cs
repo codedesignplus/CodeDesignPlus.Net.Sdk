@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.xUnit.Containers.RabbitMQContainer;
 using Moq;
 using O = Microsoft.Extensions.Options;
 
@@ -25,30 +25,14 @@ public class RabbitConnectionTest(RabbitMQCollectionFixture fixture)
     private readonly Mock<ILogger<RabbitConnection>> logger = new();
 
     [Fact]
-    public void RabbitConnection_Constructor_ThrowArgumentNullException()
-    {
-        Assert.Throws<ArgumentNullException>(() => new RabbitConnection(null!, this.coreOptions, logger.Object));
-    }
-
-    [Fact]
-    public void RabbitConnection_Constructor_ThrowArgumentNullException2()
-    {
-        Assert.Throws<ArgumentNullException>(() => new RabbitConnection(this.options, null!, logger.Object));
-    }
-
-    [Fact]
-    public void RabbitConnection_Constructor_ThrowArgumentNullException3()
-    {
-        Assert.Throws<ArgumentNullException>(() => new RabbitConnection(this.options, this.coreOptions, null!));
-    }
-
-    [Fact]
-    public void RabitConnection_Constructor_CreatesConnection()
+    public async Task RabitConnection_ConnectAsync_CreateConnection()
     {
         // Arrange
-        var connection = new RabbitConnection(options, this.coreOptions, logger.Object);
+        var connection = new RabbitConnection(logger.Object);
 
         // Act
+        await connection.ConnectAsync(options.Value, coreOptions.Value.AppName);
+
         var result = connection.Connection;
 
         // Assert
@@ -58,7 +42,7 @@ public class RabbitConnectionTest(RabbitMQCollectionFixture fixture)
     }
 
     [Fact]
-    public void RabitConnection_Constructor_ThrowException()
+    public void RabitConnection_ConnectAsync_ThrowException()
     {
         // Arrange
         var options = O.Options.Create(new RabbitMQOptions()
@@ -75,8 +59,10 @@ public class RabbitConnectionTest(RabbitMQCollectionFixture fixture)
 
         var coreOptions = O.Options.Create(Helpers.ConfigurationUtil.CoreOptions);
 
+        var connection = new RabbitConnection(logger.Object);
+
         // Act
-        var exception = Assert.Throws<RabbitMQ.Exceptions.RabbitMQException>(() => new RabbitConnection(options, coreOptions, logger.Object));
+        var exception = Assert.Throws<RabbitMQ.Exceptions.RabbitMQException>(() => connection.ConnectAsync(options.Value, coreOptions.Value.AppName).GetAwaiter().GetResult());
 
         // Assert
         Assert.Equal("Failed to connect to the RabbitMQ server", exception.Message);
@@ -89,10 +75,11 @@ public class RabbitConnectionTest(RabbitMQCollectionFixture fixture)
     }
 
     [Fact]
-    public void RabitConnection_Dispose_DisposesConnection()
+    public async Task RabitConnection_Dispose_DisposesConnection()
     {
         // Arrange
-        var connection = new RabbitConnection(options, this.coreOptions, logger.Object);
+        var connection = new RabbitConnection(logger.Object);
+        await connection.ConnectAsync(options.Value, coreOptions.Value.AppName);
 
         // Act
         connection.Dispose();
@@ -107,7 +94,10 @@ public class RabbitConnectionTest(RabbitMQCollectionFixture fixture)
         // Arrange
         void action()
         {
-            var connection = new RabbitConnection(options, this.coreOptions, logger.Object);
+            var connection = new RabbitConnection(logger.Object);
+
+            connection.ConnectAsync(options.Value, coreOptions.Value.AppName).GetAwaiter().GetResult();
+            
         }
 
         // Act

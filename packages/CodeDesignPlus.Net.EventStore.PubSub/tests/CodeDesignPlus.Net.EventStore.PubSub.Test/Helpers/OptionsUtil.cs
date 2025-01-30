@@ -21,8 +21,7 @@ public static class OptionsUtil
     
     public static readonly EventStorePubSubOptions Options = new()
     {
-        Enabled = true,
-        Group = "Test",
+        Enabled = true
     };
 
     public static readonly EventStoreOptions EventStoreOptions = new()

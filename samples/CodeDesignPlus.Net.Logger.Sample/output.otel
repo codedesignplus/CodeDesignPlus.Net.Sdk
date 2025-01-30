@@ -1,0 +1,114 @@
+2024-12-09 17:47:40 2024-12-09T22:47:40.052Zinfoservice@v0.114.0/service.go:166Setting up own telemetry...
+2024-12-09 17:47:40 2024-12-09T22:47:40.056Zinfotelemetry/metrics.go:70Serving metrics{"address": "localhost:8888", "metrics level": "Normal"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.056Zinfobuilders/builders.go:26Development component. May change in the future.{"kind": "exporter", "data_type": "logs", "name": "debug"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.057Zinfobuilders/builders.go:26Development component. May change in the future.{"kind": "exporter", "data_type": "traces", "name": "debug"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.058Zinfobuilders/builders.go:26Development component. May change in the future.{"kind": "exporter", "data_type": "metrics", "name": "debug"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.059Zinfoservice@v0.114.0/service.go:238Starting otelcol...{"Version": "0.114.0", "NumCPU": 32}
+2024-12-09 17:47:40 2024-12-09T22:47:40.059Zinfoextensions/extensions.go:39Starting extensions...
+2024-12-09 17:47:40 2024-12-09T22:47:40.060Zwarninternal@v0.114.0/warning.go:40Using the 0.0.0.0 address exposes this server to every network interface, which may facilitate Denial of Service attacks.{"kind": "receiver", "name": "otlp", "data_type": "logs", "documentation": "https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/security-best-practices.md#safeguards-against-denial-of-service-attacks"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.061Zinfootlpreceiver@v0.114.0/otlp.go:112Starting GRPC server{"kind": "receiver", "name": "otlp", "data_type": "logs", "endpoint": "0.0.0.0:4317"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.062Zwarninternal@v0.114.0/warning.go:40Using the 0.0.0.0 address exposes this server to every network interface, which may facilitate Denial of Service attacks.{"kind": "receiver", "name": "otlp", "data_type": "logs", "documentation": "https://github.com/open-telemetry/opentelemetry-collector/blob/main/docs/security-best-practices.md#safeguards-against-denial-of-service-attacks"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.063Zinfootlpreceiver@v0.114.0/otlp.go:169Starting HTTP server{"kind": "receiver", "name": "otlp", "data_type": "logs", "endpoint": "0.0.0.0:4318"}
+2024-12-09 17:47:40 2024-12-09T22:47:40.063Zinfoservice@v0.114.0/service.go:261Everything is ready. Begin running and processing data.
+2024-12-09 17:48:08 2024-12-09T22:48:08.698ZinfoLogs{"kind": "exporter", "data_type": "logs", "name": "debug", "resource logs": 1, "log records": 1}
+2024-12-09 17:48:08 2024-12-09T22:48:08.698ZinfoResourceLog #0
+2024-12-09 17:48:08 Resource SchemaURL: https://opentelemetry.io/schemas/v1.13.0
+2024-12-09 17:48:08 Resource attributes:
+2024-12-09 17:48:08      -> service.name: Str(MyMicroservice)
+2024-12-09 17:48:08      -> service.version: Str(v1)
+2024-12-09 17:48:08      -> service.description: Str(Sample of CodeDesignPlus.Net.Core)
+2024-12-09 17:48:08      -> service.business: Str(CodeDesignPlus)
+2024-12-09 17:48:08      -> service.contact.name: Str(CodeDesignPlus)
+2024-12-09 17:48:08      -> service.contact.email: Str(custom@outlook.com)
+2024-12-09 17:48:08 ScopeLogs #0
+2024-12-09 17:48:08 ScopeLogs SchemaURL: 
+2024-12-09 17:48:08 InstrumentationScope CodeDesignPlus.Net.Logger.Sample.FakeBackgroundService 
+2024-12-09 17:48:08 LogRecord #0
+2024-12-09 17:48:08 ObservedTimestamp: 2024-12-09 22:48:08.577921 +0000 UTC
+2024-12-09 17:48:08 Timestamp: 2024-12-09 22:48:08.577921 +0000 UTC
+2024-12-09 17:48:08 SeverityText: Information
+2024-12-09 17:48:08 SeverityNumber: Info(9)
+2024-12-09 17:48:08 Body: Str(The FakeBackgroundService is running.)
+2024-12-09 17:48:08 Attributes:
+2024-12-09 17:48:08      -> MachineName: Str(AORUSX570)
+2024-12-09 17:48:08      -> ThreadId: Int(1)
+2024-12-09 17:48:08      -> ProcessId: Int(131648)
+2024-12-09 17:48:08      -> ProcessName: Str(CodeDesignPlus.Net.Logger.Sample)
+2024-12-09 17:48:08      -> EnvironmentUserName: Str(AORUSX570\coded)
+2024-12-09 17:48:08      -> AppName: Str(MyMicroservice)
+2024-12-09 17:48:08      -> message_template.text: Str(The FakeBackgroundService is running.)
+2024-12-09 17:48:08      -> message_template.hash.md5: Str(592ad19be63a7296241d676c000a02bb)
+2024-12-09 17:48:08 Trace ID: 
+2024-12-09 17:48:08 Span ID: 
+2024-12-09 17:48:08 Flags: 0
+2024-12-09 17:48:08 {"kind": "exporter", "data_type": "logs", "name": "debug"}
+2024-12-09 17:48:10 2024-12-09T22:48:10.728ZinfoLogs{"kind": "exporter", "data_type": "logs", "name": "debug", "resource logs": 1, "log records": 3}
+2024-12-09 17:48:10 2024-12-09T22:48:10.728ZinfoResourceLog #0
+2024-12-09 17:48:10 Resource SchemaURL: https://opentelemetry.io/schemas/v1.13.0
+2024-12-09 17:48:10 Resource attributes:
+2024-12-09 17:48:10      -> service.name: Str(MyMicroservice)
+2024-12-09 17:48:10      -> service.version: Str(v1)
+2024-12-09 17:48:10      -> service.description: Str(Sample of CodeDesignPlus.Net.Core)
+2024-12-09 17:48:10      -> service.business: Str(CodeDesignPlus)
+2024-12-09 17:48:10      -> service.contact.name: Str(CodeDesignPlus)
+2024-12-09 17:48:10      -> service.contact.email: Str(custom@outlook.com)
+2024-12-09 17:48:10 ScopeLogs #0
+2024-12-09 17:48:10 ScopeLogs SchemaURL: 
+2024-12-09 17:48:10 InstrumentationScope Microsoft.Hosting.Lifetime 
+2024-12-09 17:48:10 LogRecord #0
+2024-12-09 17:48:10 ObservedTimestamp: 2024-12-09 22:48:08.5921085 +0000 UTC
+2024-12-09 17:48:10 Timestamp: 2024-12-09 22:48:08.5921085 +0000 UTC
+2024-12-09 17:48:10 SeverityText: Information
+2024-12-09 17:48:10 SeverityNumber: Info(9)
+2024-12-09 17:48:10 Body: Str(Application started. Press Ctrl+C to shut down.)
+2024-12-09 17:48:10 Attributes:
+2024-12-09 17:48:10      -> MachineName: Str(AORUSX570)
+2024-12-09 17:48:10      -> ThreadId: Int(1)
+2024-12-09 17:48:10      -> ProcessId: Int(131648)
+2024-12-09 17:48:10      -> ProcessName: Str(CodeDesignPlus.Net.Logger.Sample)
+2024-12-09 17:48:10      -> EnvironmentUserName: Str(AORUSX570\coded)
+2024-12-09 17:48:10      -> AppName: Str(MyMicroservice)
+2024-12-09 17:48:10      -> message_template.text: Str(Application started. Press Ctrl+C to shut down.)
+2024-12-09 17:48:10      -> message_template.hash.md5: Str(33343b9e9ae6b19943b4680fc45dba3e)
+2024-12-09 17:48:10 Trace ID: 
+2024-12-09 17:48:10 Span ID: 
+2024-12-09 17:48:10 Flags: 0
+2024-12-09 17:48:10 LogRecord #1
+2024-12-09 17:48:10 ObservedTimestamp: 2024-12-09 22:48:08.5955355 +0000 UTC
+2024-12-09 17:48:10 Timestamp: 2024-12-09 22:48:08.5955355 +0000 UTC
+2024-12-09 17:48:10 SeverityText: Information
+2024-12-09 17:48:10 SeverityNumber: Info(9)
+2024-12-09 17:48:10 Body: Str(Hosting environment: Production)
+2024-12-09 17:48:10 Attributes:
+2024-12-09 17:48:10      -> EnvName: Str(Production)
+2024-12-09 17:48:10      -> MachineName: Str(AORUSX570)
+2024-12-09 17:48:10      -> ThreadId: Int(1)
+2024-12-09 17:48:10      -> ProcessId: Int(131648)
+2024-12-09 17:48:10      -> ProcessName: Str(CodeDesignPlus.Net.Logger.Sample)
+2024-12-09 17:48:10      -> EnvironmentUserName: Str(AORUSX570\coded)
+2024-12-09 17:48:10      -> AppName: Str(MyMicroservice)
+2024-12-09 17:48:10      -> message_template.text: Str(Hosting environment: {EnvName})
+2024-12-09 17:48:10      -> message_template.hash.md5: Str(4d9ec9b8e5e077b29c981b666ca9117e)
+2024-12-09 17:48:10 Trace ID: 
+2024-12-09 17:48:10 Span ID: 
+2024-12-09 17:48:10 Flags: 0
+2024-12-09 17:48:10 LogRecord #2
+2024-12-09 17:48:10 ObservedTimestamp: 2024-12-09 22:48:08.5956514 +0000 UTC
+2024-12-09 17:48:10 Timestamp: 2024-12-09 22:48:08.5956514 +0000 UTC
+2024-12-09 17:48:10 SeverityText: Information
+2024-12-09 17:48:10 SeverityNumber: Info(9)
+2024-12-09 17:48:10 Body: Str(Content root path: G:\Repos\CodeDesignPlus.Net.Sdk\examples\CodeDesignPlus.Net.Logger.Sample\src\CodeDesignPlus.Net.Logger.Sample)
+2024-12-09 17:48:10 Attributes:
+2024-12-09 17:48:10      -> ContentRoot: Str(G:\Repos\CodeDesignPlus.Net.Sdk\examples\CodeDesignPlus.Net.Logger.Sample\src\CodeDesignPlus.Net.Logger.Sample)
+2024-12-09 17:48:10      -> MachineName: Str(AORUSX570)
+2024-12-09 17:48:10      -> ThreadId: Int(1)
+2024-12-09 17:48:10      -> ProcessId: Int(131648)
+2024-12-09 17:48:10      -> ProcessName: Str(CodeDesignPlus.Net.Logger.Sample)
+2024-12-09 17:48:10      -> EnvironmentUserName: Str(AORUSX570\coded)
+2024-12-09 17:48:10      -> AppName: Str(MyMicroservice)
+2024-12-09 17:48:10      -> message_template.text: Str(Content root path: {ContentRoot})
+2024-12-09 17:48:10      -> message_template.hash.md5: Str(8468f8e3d95716a49ff2b521b7133155)
+2024-12-09 17:48:10 Trace ID: 
+2024-12-09 17:48:10 Span ID: 
+2024-12-09 17:48:10 Flags: 0
+2024-12-09 17:48:10 {"kind": "exporter", "data_type": "logs", "name": "debug"}

@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides a service to manage the event queue.
 /// </summary>
-public class EventQueueService : IEventQueueService
+public class EventQueueService : IEventQueue
 {
     private readonly ConcurrentQueue<IDomainEvent> queue = new();
     private readonly ILogger<EventQueueService> logger;

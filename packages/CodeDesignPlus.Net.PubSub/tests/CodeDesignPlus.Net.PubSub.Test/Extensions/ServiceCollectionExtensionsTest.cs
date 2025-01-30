@@ -131,7 +131,7 @@ public class ServiceCollectionExtensionsTest
         var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
         var activity = services.FirstOrDefault(x => typeof(IActivityService).IsAssignableFrom(x.ImplementationType));
 
-        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueueService).IsAssignableFrom(x.ImplementationType));
+        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueue).IsAssignableFrom(x.ImplementationType));
         var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
@@ -169,7 +169,7 @@ public class ServiceCollectionExtensionsTest
         var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
         var activity = services.FirstOrDefault(x => typeof(IActivityService).IsAssignableFrom(x.ImplementationType));
 
-        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueueService).IsAssignableFrom(x.ImplementationType));
+        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueue).IsAssignableFrom(x.ImplementationType));
         var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
@@ -215,7 +215,7 @@ public class ServiceCollectionExtensionsTest
 
         Assert.True(handler.ImplementationType.IsAssignableGenericFrom(typeof(IEventHandler<>)));
         Assert.Equal(typeof(UserRegisteredEventHandler), handler.ImplementationType);
-        Assert.Equal(ServiceLifetime.Singleton, handler.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, handler.Lifetime);
 
         Assert.Equal(typeof(RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>), eventHandlerBackgroundService.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, eventHandlerBackgroundService.Lifetime);
@@ -247,7 +247,7 @@ public class ServiceCollectionExtensionsTest
         var eventHandler = new UserRegisteredEventHandler();
 
         // Act
-        var success = eventHandler.GetType().IsAssignableGenericFrom(typeof(IQueueService<>));
+        var success = eventHandler.GetType().IsAssignableGenericFrom(typeof(IQueue<>));
 
         // Assert
         Assert.False(success);

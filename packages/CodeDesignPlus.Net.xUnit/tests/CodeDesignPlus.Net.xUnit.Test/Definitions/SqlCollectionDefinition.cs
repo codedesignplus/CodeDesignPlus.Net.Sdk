@@ -1,5 +1,5 @@
 using System;
-using CodeDesignPlus.Net.xUnit.Helpers.SqlServer;
+using CodeDesignPlus.Net.xUnit.Containers.SqlServer;
 
 namespace CodeDesignPlus.Net.xUnit.Test.Definitions;
 

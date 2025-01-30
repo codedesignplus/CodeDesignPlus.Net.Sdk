@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Security.Extensions;
 using CodeDesignPlus.Net.Security.Test.Helpers.Server;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Http;
@@ -69,7 +69,7 @@ public class ServiceCollectionExtensionsTest
         var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IUserContext));
 
         Assert.NotNull(libraryService);
-        Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, libraryService.Lifetime);
         Assert.Equal(typeof(UserContext), libraryService.ImplementationType);
     }
 

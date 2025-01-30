@@ -1,5 +1,7 @@
-﻿using CodeDesignPlus.Net.Security.Test.Helpers.Server;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 using Microsoft.AspNetCore.Http;
+using Moq;
 using System.Security.Claims;
 using O = Microsoft.Extensions.Options;
 
@@ -41,7 +43,7 @@ public class UserContextTest
             HttpContext = httpContext
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
 
         // Act
         var idUser = userContext.GetClaim<Guid>(Abstractions.ClaimTypes.ObjectIdentifier);
@@ -70,7 +72,7 @@ public class UserContextTest
             HttpContext = httpContext
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
 
         // Act
         var tenant = userContext.GetHeader<Guid>("X-Tenant");
@@ -93,7 +95,7 @@ public class UserContextTest
             HttpContext = httpContext
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
 
         // Act
         var plan = userContext.GetHeader<int>("X-Plan");
@@ -111,7 +113,7 @@ public class UserContextTest
             HttpContext = new DefaultHttpContext()
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
 
         // Act
         var plan = userContext.GetHeader<string>("X-Plan");
@@ -129,7 +131,7 @@ public class UserContextTest
             HttpContext = new DefaultHttpContext()
         };
         var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options));
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
 
         // Act
         var idUser = userContext.GetClaim<string>(System.Security.Claims.ClaimTypes.NameIdentifier);
@@ -148,4 +150,53 @@ public class UserContextTest
 
         Assert.Contains(claims, c => c.Type == "given_name" && c.Value == "Jaramillo Jaramillo");
     }
+
+    [Fact]
+    public void GetTenant_HeaderTenantExists_ReturnsHeaderTenant()
+    {
+        // Arrange
+        var tenantExpected = Guid.NewGuid();
+
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("X-Tenant", tenantExpected.ToString());
+
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = httpContext
+        };
+        var options = OptionsUtil.SecurityOptions;
+        var eventContextMock = new Mock<IEventContext>();
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), eventContextMock.Object);
+
+        // Act
+        var tenant = userContext.Tenant;
+
+        // Assert
+        Assert.Equal(tenantExpected, tenant);
+    }
+
+    [Fact]
+    public void GetTenant_HeaderTenantNotExists_ReturnsEventContextTenant()
+    {
+        // Arrange
+        var tenantExpected = Guid.NewGuid();
+
+        var httpContext = new DefaultHttpContext();
+
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = httpContext
+        };
+        var options = OptionsUtil.SecurityOptions;
+        var eventContextMock = new Mock<IEventContext>();
+        eventContextMock.Setup(e => e.Tenant).Returns(tenantExpected);
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), eventContextMock.Object);
+
+        // Act
+        var tenant = userContext.Tenant;
+
+        // Assert
+        Assert.Equal(tenantExpected, tenant);
+    }
+
 }

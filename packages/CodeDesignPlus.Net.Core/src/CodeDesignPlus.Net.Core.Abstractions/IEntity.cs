@@ -26,7 +26,7 @@ public interface IEntity : IEntityBase
     /// <summary>
     /// Get or sets the creatae at
     /// </summary>
-    long CreatedAt { get; set; }
+    Instant CreatedAt { get; set; }
     /// <summary>
     /// Get or sets the create by
     /// </summary>
@@ -34,7 +34,7 @@ public interface IEntity : IEntityBase
     /// <summary>
     /// Get or sets the update at
     /// </summary>
-    long? UpdatedAt { get; set; }
+    Instant? UpdatedAt { get; set; }
     /// <summary>
     /// Get or sets the update by
     /// </summary>

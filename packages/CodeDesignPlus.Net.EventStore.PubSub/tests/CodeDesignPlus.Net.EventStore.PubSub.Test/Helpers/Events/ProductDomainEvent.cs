@@ -10,7 +10,7 @@ public class ProductAddedToOrderEvent(
     int quantity,
     Product product,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
@@ -23,7 +23,7 @@ public class ProductRemovedFromOrderEvent(
     Guid aggregateId,
     Guid productId,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
@@ -36,7 +36,7 @@ public class ProductQuantityUpdatedEvent(
     Guid productId,
     int newQuantity,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {

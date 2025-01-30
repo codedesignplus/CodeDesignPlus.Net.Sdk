@@ -16,4 +16,5 @@ global using CodeDesignPlus.Net.EFCore.Abstractions.Options;
 global using CodeDesignPlus.Net.EFCore.Exceptions;
 global using CodeDesignPlus.Net.EFCore.Repository;
 global using CodeDesignPlus.Net.Security.Abstractions;
+global using NodaTime;
 

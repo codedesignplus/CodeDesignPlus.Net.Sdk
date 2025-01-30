@@ -3,7 +3,7 @@
 /// <summary>
 /// Provides Redis services.
 /// </summary>
-public class RedisService : IRedisService
+public class RedisService : Abstractions.IRedis
 {
     private readonly ILogger<RedisService> logger;
 
@@ -89,9 +89,9 @@ public class RedisService : IRedisService
     private static X509Certificate2 CertificateSelection(string passwordCertificate, string certificate)
     {
         if (!string.IsNullOrEmpty(passwordCertificate))
-            return new X509Certificate2(certificate, passwordCertificate);
+            return X509CertificateLoader.LoadPkcs12FromFile(certificate, passwordCertificate);
         else
-            return new X509Certificate2(certificate);
+            return X509CertificateLoader.LoadPkcs12FromFile(certificate, null);
     }
 
     /// <summary>
@@ -109,8 +109,7 @@ public class RedisService : IRedisService
 
         var serverCACertThumbprint = chain.ChainElements[^1].Certificate.Thumbprint;
 
-        var clientCertCollection = new X509Certificate2Collection();
-        clientCertCollection.Import(certificate, passwordCertificate, X509KeyStorageFlags.DefaultKeySet);
+        var clientCertCollection = X509CertificateLoader.LoadPkcs12CollectionFromFile(certificate, passwordCertificate, X509KeyStorageFlags.DefaultKeySet);
 
         var clientCert = clientCertCollection.OfType<X509Certificate2>().FirstOrDefault(cert => cert.HasPrivateKey);
 

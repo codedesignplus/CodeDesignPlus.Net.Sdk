@@ -1,13 +1,15 @@
-﻿namespace CodeDesignPlus.Net.Redis.PubSub.Services;
+﻿using CodeDesignPlus.Net.Exceptions;
+
+namespace CodeDesignPlus.Net.Redis.PubSub.Services;
 
 /// <summary>
 /// Provides Redis Pub/Sub services for publishing and subscribing to domain events.
 /// </summary>
-public class RedisPubSubService : IRedisPubSubService
+public class RedisPubSubService : IRedisPubSub
 {
     private readonly ILogger<RedisPubSubService> logger;
-    private readonly IRedisService redisService;
-    private readonly IDomainEventResolverService domainEventResolverService;
+    private readonly Redis.Abstractions.IRedis redisService;
+    private readonly IDomainEventResolver domainEventResolverService;
     private readonly IServiceProvider serviceProvider;
 
     /// <summary>
@@ -19,10 +21,10 @@ public class RedisPubSubService : IRedisPubSubService
     /// <param name="domainEventResolverService">The domain event resolver service.</param>
     /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     public RedisPubSubService(
-        IRedisServiceFactory redisServiceFactory,
+        IRedisFactory redisServiceFactory,
         IServiceProvider serviceProvider,
         ILogger<RedisPubSubService> logger,
-        IDomainEventResolverService domainEventResolverService)
+        IDomainEventResolver domainEventResolverService)
     {
         ArgumentNullException.ThrowIfNull(redisServiceFactory);
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -97,7 +99,7 @@ public class RedisPubSubService : IRedisPubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
+        var channel = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
@@ -115,11 +117,28 @@ public class RedisPubSubService : IRedisPubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var @event = JsonSerializer.Deserialize<TEvent>(value);
+        try
+        {
+            using var scope = serviceProvider.CreateScope();
 
-        var eventHandler = this.serviceProvider.GetRequiredService<TEventHandler>();
+            var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
 
-        eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
+            var @event = JsonSerializer.Deserialize<TEvent>(value);
+
+            context.SetCurrentDomainEvent(@event);
+
+            var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
+
+            eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
+        }
+        catch (CodeDesignPlusException ex)
+        {
+            logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
+        catch (Exception ex)
+        {
+            this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
     }
 
     /// <summary>
@@ -133,7 +152,7 @@ public class RedisPubSubService : IRedisPubSubService
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
-        var channel = this.domainEventResolverService.GetKeyDomainEvent(typeof(TEvent));
+        var channel = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
         this.redisService.Subscriber.Unsubscribe(RedisChannel.Literal(channel));
 

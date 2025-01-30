@@ -120,4 +120,20 @@ public class DomainEventResolverServiceTest
         Assert.NotNull(key);
         Assert.Equal(keyExpected, key);
     }
+
+    [Fact]
+    public void GetKeyEvent_WhenAppNameIsCustom_ReturnAppNameDifferent()
+    {
+        // Arrange
+        var keyExpected = $"{ConfigurationUtil.CoreOptions.Business}.ms-category.v1.productaggregate.register-category".ToLower();
+        
+        var service = new DomainEventResolverService(this.options);
+
+        // Act
+        var key = service.GetKeyDomainEvent(typeof(CategoryCreatedDomainEvent));
+
+        // Assert
+        Assert.NotNull(key);
+        Assert.Equal(keyExpected, key);
+    }
 }

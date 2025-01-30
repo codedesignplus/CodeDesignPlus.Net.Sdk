@@ -34,22 +34,28 @@ public class Server<TProgram> : WebApplicationFactory<TProgram> where TProgram :
     /// <param name="builder">The web host builder.</param>
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        builder.ConfigureAppConfiguration(x =>
+        var configurationValues = new Dictionary<string, string>()
         {
-            var configuration = new Dictionary<string, string>()
-            {
-                {"Redis:Instances:Core:ConnectionString", $"{Compose.Redis.Item1}:{Compose.Redis.Item2}"},
-                {"RabbitMQ:Host", Compose.RabbitMQ.Item1},
-                {"RabbitMQ:Port", Compose.RabbitMQ.Item2.ToString()},
-                {"MongoDB:ConnectionString", $"mongodb://{Compose.Mongo.Item1}:{Compose.Mongo.Item2}"},
-                {"Observability:ServerOtel", $"http://{Compose.Otel.Item1}:{Compose.Otel.Item2}"},
-                {"Logger:OTelEndpoint", $"http://{Compose.Otel.Item1}:{Compose.Otel.Item2}" },
-            };
+            {"Redis:Instances:Core:ConnectionString", $"{Compose.Redis.Item1}:{Compose.Redis.Item2}"},
+            {"RabbitMQ:Host", Compose.RabbitMQ.Item1},
+            {"RabbitMQ:Port", Compose.RabbitMQ.Item2.ToString()},
+            {"Mongo:ConnectionString", $"mongodb://{Compose.Mongo.Item1}:{Compose.Mongo.Item2}"},
+            {"Observability:ServerOtel", $"http://{Compose.Otel.Item1}:{Compose.Otel.Item2}"},
+            {"Logger:OTelEndpoint", $"http://{Compose.Otel.Item1}:{Compose.Otel.Item2}" },
+        };
 
-            InMemoryCollection?.Invoke(configuration);
+        InMemoryCollection?.Invoke(configurationValues);
 
-            x.AddInMemoryCollection(configuration);
-        });
+        var contentRoot = Path.GetDirectoryName(Assembly.GetAssembly(typeof(TProgram))!.Location);
+
+        var configuration = new ConfigurationBuilder()
+            .SetBasePath(contentRoot!)
+            .AddEnvironmentVariables()
+            .AddJsonFile("appsettings.json")
+            .AddInMemoryCollection(configurationValues)
+            .Build();
+
+        builder.UseConfiguration(configuration);
 
         builder.ConfigureServices(ConfigureServices);
 

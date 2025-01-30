@@ -3,8 +3,8 @@ using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.RabbitMQ.Extensions;
 using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.RabbitMQContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.xUnit.Containers.RabbitMQContainer;
 using Moq;
 using O = Microsoft.Extensions.Options;
 
@@ -40,13 +40,13 @@ public class RabbitPubSubServiceIntegrationTest
         serviceCollection.AddLogging();
         serviceCollection.AddSingleton(configuration);
         serviceCollection.AddCore(configuration);
-        serviceCollection.AddRabbitMQ(configuration);
+        serviceCollection.AddRabbitMQ<RabbitPubSubServiceIntegrationTest>(configuration);
         serviceCollection.AddSingleton<UserCreatedDomainEventHandler>();
         serviceCollection.AddSingleton<ProductCreatedDomainEventHandler>();
         serviceCollection.AddSingleton<IMemoryHandler, MemoryHandler>();
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
-        var domainEventResolverService = serviceProvider.GetRequiredService<IDomainEventResolverService>();
+        var domainEventResolverService = serviceProvider.GetRequiredService<IDomainEventResolver>();
         var channelProvider = serviceProvider.GetRequiredService<IChannelProvider>();
         var coreOptions = serviceProvider.GetRequiredService<O.IOptions<CoreOptions>>();
         var rabbitMQOptions = serviceProvider.GetRequiredService<O.IOptions<RabbitMQOptions>>();
@@ -102,7 +102,7 @@ public class RabbitPubSubServiceIntegrationTest
 
         // Assert
         Assert.Contains(idAggregate, memoryHandler.Memory.Keys);
-        loggerMock.VerifyLogging($"Error processing event: {typeof(UserCreatedDomainEvent).Name}.", LogLevel.Error, Times.Once());
+        loggerMock.VerifyLogging($"Error processing event: {typeof(UserCreatedDomainEvent).Name} | Custom Error.", LogLevel.Error, Times.Once());
     }
 
     [Fact]

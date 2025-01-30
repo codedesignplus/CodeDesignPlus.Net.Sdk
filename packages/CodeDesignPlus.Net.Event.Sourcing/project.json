@@ -3,6 +3,9 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/CodeDesignPlus.Net.Event.Sourcing",
+  "implicitDependencies": [
+    "CodeDesignPlus.Net.Core"
+  ],
   "targets": {
     "restore": {
       "executor": "nx:run-commands",
@@ -60,7 +63,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Event.Sourcing.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.Event.Sourcing"
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Event.Sourcing.sln --configuration Release /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:Version={args.version} --output dist/CodeDesignPlus.Net.Event.Sourcing"
       }
     },
     "push": {

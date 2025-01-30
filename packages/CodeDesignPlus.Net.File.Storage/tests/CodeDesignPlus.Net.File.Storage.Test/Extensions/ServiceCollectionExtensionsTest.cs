@@ -3,7 +3,7 @@ using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using CodeDesignPlus.Net.File.Storage.Extensions;
 using CodeDesignPlus.Net.File.Storage.Factories;
 using CodeDesignPlus.Net.File.Storage.Providers;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Extensions;
 
@@ -62,7 +62,7 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddFileStorage(configuration);
 
         // Assert
-        var fileService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorageService));
+        var fileService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IFileStorage));
         var azureBlobProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureBlobProvider));
         var azureFileProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IAzureFileProvider));
         var localProvider = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(ILocalProvider));

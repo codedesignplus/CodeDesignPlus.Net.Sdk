@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Event.Sourcing.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Extensions;
 

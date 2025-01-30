@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Options.Providers;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Options;
 

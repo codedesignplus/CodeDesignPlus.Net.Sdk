@@ -14,7 +14,7 @@ public class EventContractResolverTest
         // Arrange
         var idAggregate = Guid.NewGuid();
         var eventId = Guid.NewGuid();
-        var occurredAt = DateTime.Now;
+        var occurredAt = SystemClock.Instance.GetCurrentInstant();
         var metadata = new Dictionary<string, object>()
         {
             { "key1", "value1" },
@@ -56,7 +56,7 @@ public class EventContractResolverTest
         // Arrange
         var idAggregate = Guid.NewGuid();
         var eventId = Guid.NewGuid();
-        var occurredAt = DateTime.Now;
+        var occurredAt = SystemClock.Instance.GetCurrentInstant();
         var metadata = new Dictionary<string, object>()
         {
             { "key1", "value1" },
