@@ -1,5 +1,8 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+﻿using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using CodeDesignPlus.Net.xUnit.Test.Helpers;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
@@ -12,6 +15,7 @@ public class MongoContainerTest(MongoCollectionFixture mongoCollectionFixture)
     [Fact]
     public async Task CheckConnectionServer()
     {
+        BsonSerializer.TryRegisterSerializer<Guid>(new GuidSerializer(GuidRepresentation.Standard));
         var host = "localhost";
         var port = this.mongoContainer.Port;
         var databaseName = "dbtestmongo";

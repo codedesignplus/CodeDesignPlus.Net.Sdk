@@ -29,12 +29,12 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services.AddCore(configuration);
-        services.TryAddSingleton<IRedisService, RedisService>();
-        services.TryAddSingleton<IRedisServiceFactory, RedisServiceFactory>();
+        services.TryAddSingleton<Abstractions.IRedis, RedisService>();
+        services.TryAddSingleton<IRedisFactory, RedisServiceFactory>();
 
         services.TryAddSingleton((serviceProvider) =>
         {
-            var connection = serviceProvider.GetService<IRedisServiceFactory>().Create(FactoryConst.RedisCore).Connection;
+            var connection = serviceProvider.GetService<IRedisFactory>().Create(FactoryConst.RedisCore).Connection;
 
             return connection;
         });

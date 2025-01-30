@@ -3,7 +3,7 @@ using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Net.Event.Sourcing.Test.Helpers;
 
-public class EventSourcingServiceFake : IEventSourcingService
+public class EventSourcingServiceFake : IEventSourcing
 {
     public Task AppendEventAsync<TDomainEvent>(string category, TDomainEvent @event, long? version = null, CancellationToken cancellationToken = default) where TDomainEvent : IDomainEvent
     {

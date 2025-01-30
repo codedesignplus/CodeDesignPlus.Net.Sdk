@@ -10,3 +10,4 @@ global using System.Reflection;
 global using Xunit;
 global using CodeDesignPlus.Net.Microservice.Domain;
 global using CodeDesignPlus.Net.xUnit.Microservice.Test.Helpers;
+global using NodaTime;

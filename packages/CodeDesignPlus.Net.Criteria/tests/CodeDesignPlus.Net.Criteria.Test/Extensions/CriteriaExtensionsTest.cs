@@ -215,7 +215,7 @@ public class CriteriaExtensionsTest
     public void GetFilterExpression_OperatorEqualWithDateTime_ReturnsNotNull()
     {
         // Arrange
-        var date = new DateTime(2021, 1, 1);
+        var date = new LocalDate(2021, 1, 1).AtMidnight().InUtc().ToInstant();
         var orderExpected = this.orders.FirstOrDefault(x => x.CreatedAt == date);
         var criteria = new MC.Criteria { Filters = $"CreatedAt={date}" };
 

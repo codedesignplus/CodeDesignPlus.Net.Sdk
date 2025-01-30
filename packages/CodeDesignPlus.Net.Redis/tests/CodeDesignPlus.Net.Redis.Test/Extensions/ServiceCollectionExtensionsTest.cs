@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Redis.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using Moq;
 
 namespace CodeDesignPlus.Net.Redis.Test.Extensions;
@@ -59,8 +59,8 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddRedis(configuration);
 
         // Assert
-        var redisService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisService));
-        var redisFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisServiceFactory));
+        var redisService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedis));
+        var redisFactory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisFactory));
 
         Assert.NotNull(redisService);
         Assert.Equal(ServiceLifetime.Singleton, redisService.Lifetime);
@@ -96,8 +96,8 @@ public class ServiceCollectionExtensionsTest
     public void AddRedis_CheckFactory_ReturnRedisInstance()
     {
         // Arrange
-        var redisFactoryMock = new Mock<IRedisServiceFactory>();
-        var redisServiceMock = new Mock<IRedisService>();
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<IRedis>();
         var connectionMock = new Mock<StackExchange.Redis.IConnectionMultiplexer>();
 
         redisFactoryMock
@@ -114,8 +114,8 @@ public class ServiceCollectionExtensionsTest
         // Act
         serviceCollection.AddRedis(configuration);
 
-        serviceCollection.Remove(serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisServiceFactory))!);
-        serviceCollection.Remove(serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisService))!);
+        serviceCollection.Remove(serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedisFactory))!);
+        serviceCollection.Remove(serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRedis))!);
         serviceCollection.AddSingleton(x => redisFactoryMock.Object);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();

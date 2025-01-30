@@ -1,28 +1,23 @@
-﻿namespace CodeDesignPlus.Net.Security.Services;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+
+namespace CodeDesignPlus.Net.Security.Services;
 
 /// <summary>
 /// Provides user context information based on the current HTTP context.
 /// </summary>
-public class UserContext : IUserContext
+/// <remarks>
+/// Initializes a new instance of the <see cref="UserContext"/> class.
+/// </remarks>
+/// <param name="httpContextAccessor">The HTTP context accessor.</param>
+/// <param name="options">The security options.</param>
+/// <param name="eventContext">The event context.</param>
+public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options, IEventContext eventContext) : IUserContext
 {
-    private readonly IHttpContextAccessor httpContextAccessor;
-    private readonly SecurityOptions options;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="UserContext"/> class.
-    /// </summary>
-    /// <param name="httpContextAccessor">The HTTP context accessor.</param>
-    /// <param name="options">The security options.</param>
-    public UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options)
-    {
-        this.httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-        this.options = options?.Value ?? throw new ArgumentNullException(nameof(options));
-    }
 
     /// <summary>
     /// Gets a value indicating whether the current user is an application.
     /// </summary>
-    public bool IsApplication => this.options.Applications.Contains(this.GetClaim<string>(ClaimTypes.Audience));
+    public bool IsApplication => options.Value.Applications.Contains(this.GetClaim<string>(ClaimTypes.Audience));
 
     /// <summary>
     /// Gets the user ID.
@@ -47,12 +42,12 @@ public class UserContext : IUserContext
     /// <summary>
     /// Gets the tenant ID from the request headers.
     /// </summary>
-    public Guid Tenant => this.GetHeader<Guid>("X-Tenant");
+    public Guid Tenant => this.GetTenant();
 
     /// <summary>
     /// Gets the current user's claims principal.
     /// </summary>
-    public System.Security.Claims.ClaimsPrincipal User => this.httpContextAccessor.HttpContext.User;
+    public System.Security.Claims.ClaimsPrincipal User => httpContextAccessor.HttpContext.User;
 
     /// <summary>
     /// Gets the user's first name.
@@ -125,7 +120,10 @@ public class UserContext : IUserContext
     /// <returns>The header value.</returns>
     public TValue GetHeader<TValue>(string header)
     {
-        if (this.httpContextAccessor.HttpContext.Request.Headers.TryGetValue(header, out var values))
+        if (httpContextAccessor.HttpContext == null)
+            return default;
+
+        if (httpContextAccessor.HttpContext.Request.Headers.TryGetValue(header, out var values))
         {
             var headerValue = values.FirstOrDefault();
 
@@ -138,5 +136,19 @@ public class UserContext : IUserContext
         }
 
         return default;
+    }
+
+    /// <summary>
+    /// Gets the tenant identifier.
+    /// </summary>
+    /// <returns>The tenant identifier.</returns>
+    public Guid GetTenant()
+    {
+        var tenant = this.GetHeader<Guid>("X-Tenant");
+
+        if (tenant == Guid.Empty)
+            tenant = eventContext.Tenant;
+
+        return tenant;
     }
 }

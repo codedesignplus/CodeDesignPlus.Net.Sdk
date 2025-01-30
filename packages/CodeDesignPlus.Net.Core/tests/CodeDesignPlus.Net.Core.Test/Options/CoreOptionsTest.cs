@@ -9,7 +9,7 @@ public class CoreOptionsTest
         var options = new CoreOptions()
         {
             Business = Guid.NewGuid().ToString(),
-            AppName = Guid.NewGuid().ToString(),
+            AppName = "ms-test",
             Version = "v1",
             Description = Guid.NewGuid().ToString(),
             Contact = new Contact()
@@ -82,7 +82,7 @@ public class CoreOptionsTest
         var options = new CoreOptions()
         {
             Business = Guid.NewGuid().ToString(),
-            AppName = Guid.NewGuid().ToString(),
+            AppName = "ms-test",
             Version = "v1",
             Description = Guid.NewGuid().ToString(),
             Contact = new Contact()
@@ -97,5 +97,30 @@ public class CoreOptionsTest
 
         // Assert
         Assert.Contains(results, x => x.ErrorMessage == "The Email field is not a valid e-mail address.");
+    }
+
+    [Fact]
+    public void CoreOptions_AppNameInvalid_FailedValidation()
+    {
+        // Arrange
+        var options = new CoreOptions()
+        {
+            Business = Guid.NewGuid().ToString(),
+            AppName = Guid.NewGuid().ToString(),
+            Version = "v1",
+            Description = Guid.NewGuid().ToString(),
+            Contact = new Contact()
+            {
+                Name = Guid.NewGuid().ToString(),
+                Email = "codedesignplus@outlook.com"
+            }
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Contains(results, x => x.ErrorMessage == "The field AppName must match the regular expression '^[a-z-]+$'.");
+
     }
 }

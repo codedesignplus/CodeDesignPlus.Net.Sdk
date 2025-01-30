@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.PubSub.Test.Helpers.Events;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using Moq;
 using System.Collections.Concurrent;
 

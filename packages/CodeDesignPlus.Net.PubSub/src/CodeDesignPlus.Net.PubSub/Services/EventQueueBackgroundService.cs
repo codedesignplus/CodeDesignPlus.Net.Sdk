@@ -5,7 +5,7 @@
 /// </summary>
 public class EventQueueBackgroundService : BackgroundService
 {
-    private readonly IEventQueueService queueService;
+    private readonly IEventQueue queueService;
     private readonly ILogger<EventQueueBackgroundService> logger;
 
     /// <summary>
@@ -13,7 +13,7 @@ public class EventQueueBackgroundService : BackgroundService
     /// </summary>
     /// <param name="queueService">The queue service to manage the event handling.</param>
     /// <param name="logger">The logger to manage the logs.</param>
-    public EventQueueBackgroundService(IEventQueueService queueService, ILogger<EventQueueBackgroundService> logger)
+    public EventQueueBackgroundService(IEventQueue queueService, ILogger<EventQueueBackgroundService> logger)
     {
         ArgumentNullException.ThrowIfNull(queueService);
         ArgumentNullException.ThrowIfNull(logger);

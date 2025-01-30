@@ -1,4 +1,7 @@
-﻿namespace CodeDesignPlus.Net.Core.Exceptions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
+namespace CodeDesignPlus.Net.Core.Exceptions;
 
 /// <summary>
 /// Represents an exception specific to the core functionality of the application.
@@ -66,5 +69,19 @@ public class CoreException : Exception
     public CoreException(string message, IEnumerable<string> errors, Exception innerException) : base(message, innerException)
     {
         this.Errors = errors;
+    }
+
+    /// <summary>
+    /// Throws an <see cref="CoreException"/> if <paramref name="argument"/> is null.
+    /// </summary>
+    /// <param name="argument">The reference type argument to validate as non-null.</param>
+    /// <param name="domainEvent">The name of the domain event.</param> 
+    /// <exception cref="CoreException">The event does not have the KeyAttribute.</exception>
+    /// <exception cref="ArgumentNullException">The argument is null.</exception>
+    [DoesNotReturn]
+    public static void ThrowIfNull([NotNull] object argument, string domainEvent = null)
+    {
+        if (argument is null)
+            throw new CoreException($"The event {domainEvent} does not have the KeyAttribute");
     }
 }

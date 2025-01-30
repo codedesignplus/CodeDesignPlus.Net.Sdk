@@ -8,7 +8,7 @@ public static class OptionsUtil
 {
     public static readonly CoreOptions CoreOptions = new()
     {
-        AppName = "CodeDesignPlus.Net.Redis.PubSub.Test",
+        AppName = "ms-redis-test",
         Business = "CodeDesignPlus",
         Description = "Test project for CodeDesignPlus.Net.Redis.PubSub",
         Version = "v1",

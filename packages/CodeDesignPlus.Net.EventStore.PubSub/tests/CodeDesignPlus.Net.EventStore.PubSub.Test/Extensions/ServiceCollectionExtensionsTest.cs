@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.EventStore.PubSub.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Extensions;
 
@@ -58,7 +58,7 @@ public class ServiceCollectionExtensionsTest
         serviceCollection.AddEventStorePubSub(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventStorePubSubService));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IEventStorePubSub));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);

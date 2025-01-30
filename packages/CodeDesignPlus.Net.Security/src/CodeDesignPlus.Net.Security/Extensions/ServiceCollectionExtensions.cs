@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Security.Extensions;
+﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+
+namespace CodeDesignPlus.Net.Security.Extensions;
 
 /// <summary>
 /// Provides extension methods for setting up security services in an <see cref="IServiceCollection"/> and configuring authentication in an <see cref="IApplicationBuilder"/>.
@@ -30,8 +32,9 @@ public static class ServiceCollectionExtensions
             .ValidateDataAnnotations();
 
         services
-            .AddSingleton<IUserContext, UserContext>()
-            .AddHttpContextAccessor()
+            .TryAddScoped<IUserContext, UserContext>();
+            
+        services.AddHttpContextAccessor()
             .AddAuthorization()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(configuration, options);

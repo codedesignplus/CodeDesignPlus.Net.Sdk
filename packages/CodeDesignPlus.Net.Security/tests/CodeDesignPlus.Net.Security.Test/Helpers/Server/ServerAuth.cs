@@ -1,4 +1,6 @@
-﻿using IdentityModel.Client;
+﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Services;
+using IdentityModel.Client;
 using IdentityServer4.Models;
 using IdentityServer4.Test;
 using Microsoft.AspNetCore.Builder;
@@ -18,11 +20,12 @@ public class ServerAuth
     {
 
         var path = Path.Combine(AppContext.BaseDirectory, "Helpers", "Certificates", "identity.pfx");
-        var cert = new X509Certificate2(path, "Temporal1");
+        var cert = X509CertificateLoader.LoadPkcs12FromFile(path, "Temporal1");
 
         var builder = new WebHostBuilder()
             .ConfigureServices((context, services) =>
             {
+                services.AddScoped<IEventContext, EventContext>();
                 services.AddControllers();
                 services.AddIdentityServer()
                     .AddInMemoryClients(

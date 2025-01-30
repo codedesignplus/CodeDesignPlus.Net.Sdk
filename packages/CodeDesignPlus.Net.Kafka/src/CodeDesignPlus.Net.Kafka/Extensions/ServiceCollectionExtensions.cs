@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Kafka.Extensions;
+﻿using CodeDesignPlus.Net.Core.Extensions;
+
+namespace CodeDesignPlus.Net.Kafka.Extensions;
 
 /// <summary>
 /// Provides extension methods for adding Kafka services to the dependency injection container.

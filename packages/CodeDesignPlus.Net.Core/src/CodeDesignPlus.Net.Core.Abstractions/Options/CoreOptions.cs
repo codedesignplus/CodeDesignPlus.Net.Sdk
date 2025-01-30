@@ -18,6 +18,7 @@ public class CoreOptions : IValidatableObject
     /// Gets or sets the name
     /// </summary>
     [Required]
+    [RegularExpression(@"^[a-z-]+$")]
     public required string AppName { get; set; }
     /// <summary>
     /// Gets or sets the version

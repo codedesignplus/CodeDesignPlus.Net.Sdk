@@ -3,6 +3,10 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/CodeDesignPlus.Net.Kafka",
+  "implicitDependencies": [
+    "CodeDesignPlus.Net.Core",
+    "CodeDesignPlus.Net.PubSub"
+  ],
   "targets": {
     "restore": {
       "executor": "nx:run-commands",
@@ -60,7 +64,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Kafka.sln --configuration Release /p:Version={args.version} --output dist/CodeDesignPlus.Net.Kafka"
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.Kafka.sln --configuration Release /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:Version={args.version} --output dist/CodeDesignPlus.Net.Kafka"
       }
     },
     "push": {

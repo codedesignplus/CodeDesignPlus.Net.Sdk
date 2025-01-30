@@ -3,6 +3,9 @@
   "$schema": "../../node_modules/nx/schemas/project-schema.json",
   "projectType": "library",
   "sourceRoot": "packages/CodeDesignPlus.Net.xUnit",
+  "implicitDependencies": [
+    "CodeDesignPlus.Net.Redis"
+  ],
   "targets": {
     "restore": {
       "executor": "nx:run-commands",

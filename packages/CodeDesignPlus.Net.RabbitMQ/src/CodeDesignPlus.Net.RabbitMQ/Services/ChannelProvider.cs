@@ -9,11 +9,8 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services;
 /// <param name="connection">The RabbitMQ connection.</param>
 /// <param name="domainEventResolver">The domain event resolver service.</param>
 /// <param name="options">The core options.</param>
-public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverService domainEventResolver, IOptions<CoreOptions> options) : IChannelProvider
+public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver domainEventResolver, IOptions<CoreOptions> options) : IChannelProvider
 {
-    private readonly IRabbitConnection connection = connection;
-    private readonly IDomainEventResolverService domainEventResolver = domainEventResolver;
-    private readonly IOptions<CoreOptions> options = options;
     private readonly ConcurrentDictionary<string, ChannelModel> channels = new();
     private readonly ConcurrentDictionary<string, string> exchanges = new();
 
@@ -21,8 +18,9 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverS
     /// Declares an exchange for the specified domain event type.
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The name of the declared exchange.</returns>
-    public string ExchangeDeclare(Type domainEventType)
+    public async Task<string> ExchangeDeclareAsync(Type domainEventType, CancellationToken cancellationToken)
     {
         var key = domainEventType.Name;
 
@@ -31,13 +29,13 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverS
 
         var exchangeName = domainEventResolver.GetKeyDomainEvent(domainEventType);
 
-        var channel = GetChannelPublish(domainEventType);
+        var channel = await GetChannelPublishAsync(domainEventType, cancellationToken);
 
-        channel.ExchangeDeclare(exchange: exchangeName, durable: true, type: ExchangeType.Fanout, arguments: new Dictionary<string, object>
+        await channel.ExchangeDeclareAsync(exchange: exchangeName, durable: true, type: ExchangeType.Fanout, arguments: new Dictionary<string, object>
         {
             { "x-cdp-bussiness", options.Value.Business },
             { "x-cdp-microservice", options.Value.AppName }
-        });
+        }, cancellationToken: cancellationToken);
 
         exchanges.TryAdd(key, exchangeName);
 
@@ -49,22 +47,24 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverS
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The name of the declared exchange.</returns>
-    public string ExchangeDeclare<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent
+    public Task<string> ExchangeDeclareAsync<TEvent>(TEvent domainEvent, CancellationToken cancellationToken) where TEvent : IDomainEvent
     {
-        return ExchangeDeclare(domainEvent.GetType());
+        return ExchangeDeclareAsync(domainEvent.GetType(), cancellationToken);
     }
 
     /// <summary>
     /// Gets the channel for publishing the specified domain event type.
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for publishing.</returns>
-    public IModel GetChannelPublish(Type domainEventType)
+    public Task<IChannel> GetChannelPublishAsync(Type domainEventType, CancellationToken cancellationToken)
     {
         var key = domainEventType.Name;
 
-        return GetChannel(key);
+        return GetChannelAsync(key);
     }
 
     /// <summary>
@@ -72,10 +72,11 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverS
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for publishing.</returns>
-    public IModel GetChannelPublish<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent
+    public Task<IChannel> GetChannelPublishAsync<TEvent>(TEvent domainEvent, CancellationToken cancellationToken) where TEvent : IDomainEvent
     {
-        return GetChannelPublish(domainEvent.GetType());
+        return GetChannelPublishAsync(domainEvent.GetType(), cancellationToken);
     }
 
     /// <summary>
@@ -83,14 +84,15 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverS
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for consuming.</returns>
-    public IModel GetChannelConsumer<TEvent, TEventHandler>()
+    public Task<IChannel> GetChannelConsumerAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
         var key = typeof(TEventHandler).Name;
 
-        return GetChannel(key);
+        return GetChannelAsync(key);
     }
 
     /// <summary>
@@ -132,12 +134,12 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolverS
     /// </summary>
     /// <param name="key">The key for the channel.</param>
     /// <returns>The channel.</returns>
-    private IModel GetChannel(string key)
+    private async Task<IChannel> GetChannelAsync(string key)
     {
         if (channels.TryGetValue(key, out var channel))
             return channel.Channel;
 
-        channel = ChannelModel.Create(key, connection.Connection.CreateModel());
+        channel = ChannelModel.Create(key, await connection.Connection.CreateChannelAsync());
 
         channels.TryAdd(key, channel);
 

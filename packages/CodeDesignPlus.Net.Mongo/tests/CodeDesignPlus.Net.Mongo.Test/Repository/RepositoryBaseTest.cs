@@ -1,34 +1,50 @@
 ﻿using CodeDesignPlus.Net.Mongo.Repository;
 using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Driver;
 using Moq;
 using System.Linq.Expressions;
 using System.Reflection;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
+using MongoDB.Bson;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Repository;
 
-public class RepositoryBaseTest : IClassFixture<MongoContainer>
+[Collection(MongoCollectionFixture.Collection)]
+public class RepositoryBaseTest 
 {
     private readonly Mock<ILogger<ClientRepository>> loggerMock;
     private readonly MongoContainer mongoContainer;
 
     private readonly IOptions<MongoOptions> options;
+    private readonly IMongoCollection<Client> collection;
+    private readonly IServiceProvider serviceProvider;
 
-    public RepositoryBaseTest(MongoContainer mongoContainer)
+    public RepositoryBaseTest(MongoCollectionFixture fixture)
     {
-        this.mongoContainer = mongoContainer;
+        try
+        {
+            BsonSerializer.TryRegisterSerializer<Guid>(new GuidSerializer(GuidRepresentation.Standard));
+        }
+        catch { }
+
+        this.mongoContainer = fixture.Container;
         this.loggerMock = new Mock<ILogger<ClientRepository>>();
         this.options = Microsoft.Extensions.Options.Options.Create(OptionsUtil.GetOptions(this.mongoContainer.Port));
+
+        var (client, collection) = this.GetCollection();
+
+        this.collection = collection;
+
+        this.serviceProvider = GetServiceProvider(client, collection);
     }
     [Fact]
     public async Task ChangeStateAsync_WhenEntityIsInvalid_ReturnFalse()
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
         var guid = Guid.NewGuid();
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
@@ -47,8 +63,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -80,8 +94,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -110,8 +122,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -148,12 +158,86 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     }
 
     [Fact]
+    public async Task ExistsAsync_WhenEntityIsValid_ReturnTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.ExistsAsync<Client>(entity.Id, cancellationToken);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task ExistAsync_WhenEntityHaveTenant_ReturnTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true,
+            Tenant = Guid.NewGuid()
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.ExistsAsync<Client>(entity.Id, entity.Tenant, cancellationToken);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public async Task DeleteAsync_WhenIdIsValid_ReturnTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true,
+            Tenant = Guid.NewGuid()
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        await repository.DeleteAsync<Client>(entity.Id, entity.Tenant, cancellationToken);
+
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
     public async Task DeleteAsync_WhenEntityIsValid_ReturnTrue()
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -181,8 +265,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -221,8 +303,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -254,8 +334,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -303,8 +381,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -340,8 +416,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
 
@@ -371,13 +445,39 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
     }
 
     [Fact]
+    public async Task FindAsync_WhenEntityIsValid_ReturnEntityFound()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.FindAsync<Client>(entity.Id, cancellationToken);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(entity.Id, result.Id);
+        Assert.Equal(entity.Name, result.Name);
+        Assert.Equal(entity.IsActive, result.IsActive);
+        Assert.Equal(entity.CreatedAt, result.CreatedAt);
+    }
+
+    [Fact]
     public async Task MatchingAsync_CheckFiltersWithSubDocuments_Success()
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -408,8 +508,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -444,8 +542,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -483,8 +579,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -523,8 +617,6 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         // Arrange
         var cancellationToken = CancellationToken.None;
         var loggerOrderMock = new Mock<ILogger<OrderRepository>>();
-        var (client, collection) = GetCollection();
-        var serviceProvider = GetServiceProvider(client, collection);
 
         var criteria = new Core.Abstractions.Models.Criteria.Criteria
         {
@@ -540,7 +632,7 @@ public class RepositoryBaseTest : IClassFixture<MongoContainer>
         await repository.CreateRangeAsync(orders, cancellationToken);
 
         // Act
-        var result = await repository.MatchingAsync<Order, Product>(order.Id, criteria, x => x.Products, cancellationToken);
+        var result = await repository.MatchingAsync<Order, ProductEntity>(order.Id, criteria, x => x.Products, cancellationToken);
 
         // Assert
         Assert.NotNull(order);

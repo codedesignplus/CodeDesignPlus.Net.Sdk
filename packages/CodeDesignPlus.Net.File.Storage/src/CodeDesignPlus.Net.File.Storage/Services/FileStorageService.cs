@@ -7,7 +7,7 @@
 /// Initializes a new instance of the <see cref="FileStorageService"/> class.
 /// </remarks>
 /// <param name="providers">The collection of file storage providers.</param>
-public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorageService
+public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
 {
     private readonly IEnumerable<IProvider> providers = providers;
 

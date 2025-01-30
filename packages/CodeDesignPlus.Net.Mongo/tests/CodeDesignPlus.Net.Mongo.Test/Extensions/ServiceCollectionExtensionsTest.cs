@@ -1,11 +1,14 @@
 ﻿using CodeDesignPlus.Net.Mongo.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.MongoContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Driver;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
-public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassFixture<MongoContainer>
+
+[Collection(MongoCollectionFixture.Collection)]
+
+public class ServiceCollectionExtensionsTest(MongoCollectionFixture fixture) 
 {
     [Fact]
     public void AddMongo_ServiceCollectionIsNull_ArgumentNullException()
@@ -52,11 +55,12 @@ public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassF
     public void AddMongo_CheckServices_Success()
     {
         // Arrange
-        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.GetOptions(container.Port) });
+        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.GetOptions(fixture.Container.Port) });
 
         var serviceCollection = new ServiceCollection();
 
         // Act
+        serviceCollection.AddLogging();
         serviceCollection.AddMongo<StartupFake>(configuration);
 
         var serviceProvider = serviceCollection.BuildServiceProvider();
@@ -118,4 +122,5 @@ public class ServiceCollectionExtensionsTest(MongoContainer container) : IClassF
         Assert.Equal(ServiceLifetime.Singleton, clientRepository.Lifetime);
         Assert.Equal(ServiceLifetime.Singleton, productRepository.Lifetime);
     }
+
 }

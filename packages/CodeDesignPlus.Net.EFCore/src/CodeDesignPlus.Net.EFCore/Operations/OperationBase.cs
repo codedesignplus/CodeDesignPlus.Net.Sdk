@@ -36,7 +36,7 @@ public abstract class OperationBase<TEntity>(IUserContext authenticatetUser, DbC
         if (entity is IEntity auditTrailEntity)
         {
             auditTrailEntity.CreatedBy = this.AuthenticateUser.IdUser;
-            auditTrailEntity.CreatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+            auditTrailEntity.CreatedAt = SystemClock.Instance.GetCurrentInstant();
         }
 
         await base.CreateAsync(entity, cancellationToken);

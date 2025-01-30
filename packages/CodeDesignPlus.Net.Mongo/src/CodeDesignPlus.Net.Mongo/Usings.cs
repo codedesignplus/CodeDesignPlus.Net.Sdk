@@ -21,4 +21,4 @@ global using MongoDB.Bson.Serialization;
 global using MongoDB.Driver;
 global using MBS = MongoDB.Bson.Serialization;
 global using C = CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
-
+global using NodaTime;

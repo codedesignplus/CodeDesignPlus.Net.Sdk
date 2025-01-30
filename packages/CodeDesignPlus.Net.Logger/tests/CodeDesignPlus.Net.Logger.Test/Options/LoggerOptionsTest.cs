@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.Logger.Options;
-using CodeDesignPlus.Net.xUnit.Helpers;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.Logger.Test.Options;
 

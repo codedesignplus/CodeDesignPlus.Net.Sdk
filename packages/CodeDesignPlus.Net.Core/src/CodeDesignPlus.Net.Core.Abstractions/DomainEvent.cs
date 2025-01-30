@@ -17,7 +17,7 @@
 public abstract class DomainEvent(
     Guid aggregateId,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : IDomainEvent
 {
@@ -50,7 +50,7 @@ public abstract class DomainEvent(
     /// This property is internal and can only be set within the assembly.
     /// If not provided during initialization, the current UTC date and time will be used.
     /// </remarks>
-    public DateTime OccurredAt { get; internal set; } = occurredAt ?? DateTime.UtcNow;
+    public Instant OccurredAt { get; internal set; } = occurredAt ?? SystemClock.Instance.GetCurrentInstant();
 
     /// <summary>
     /// Gets or sets the additional metadata associated with the event.

@@ -4,7 +4,7 @@ using CodeDesignPlus.Net.EventStore.Extensions;
 using CodeDesignPlus.Net.EventStore.PubSub.Extensions;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Memory;
 using CodeDesignPlus.Net.PubSub.Extensions;
-using CodeDesignPlus.Net.xUnit.Helpers.Loggers;
+using CodeDesignPlus.Net.xUnit.Output.Loggers;
 using Microsoft.AspNetCore.Builder;
 
 namespace CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers;

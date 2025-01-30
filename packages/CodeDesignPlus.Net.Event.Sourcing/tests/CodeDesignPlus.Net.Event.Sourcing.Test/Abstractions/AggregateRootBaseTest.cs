@@ -30,7 +30,7 @@ public class AggregateRootBaseTest
         Assert.NotNull(domainEvent);
         Assert.Equal(aggregateId, domainEvent.AggregateId);
         Assert.True(Guid.Empty != domainEvent.EventId);
-        Assert.True(DateTimeOffset.MinValue != domainEvent.OccurredAt);
+        Assert.True(SystemClock.Instance.GetCurrentInstant() != domainEvent.OccurredAt);
         Assert.Equal(0, (long)domainEvent.Metadata["Version"]);
         Assert.Equal("Order", domainEvent.Metadata["Category"]);
     }
@@ -64,7 +64,7 @@ public class AggregateRootBaseTest
         Assert.NotNull(orderCreated);
         Assert.Equal(aggregateId, orderCreated.AggregateId);
         Assert.True(Guid.Empty != orderCreated.EventId);
-        Assert.True(DateTimeOffset.MinValue != orderCreated.OccurredAt);
+        Assert.True(SystemClock.Instance.GetCurrentInstant() != orderCreated.OccurredAt);
         Assert.Equal(0, (long)orderCreated.Metadata["Version"]);
         Assert.Equal("Order", orderCreated.Metadata["Category"]);
         Assert.Equal(name, ((OrderCreatedDomainEvent)orderCreated).Name);
@@ -72,7 +72,7 @@ public class AggregateRootBaseTest
         Assert.NotNull(nameUpdated);
         Assert.Equal(aggregateId, nameUpdated.AggregateId);
         Assert.True(Guid.Empty != nameUpdated.EventId);
-        Assert.True(DateTimeOffset.MinValue != nameUpdated.OccurredAt);
+        Assert.True(SystemClock.Instance.GetCurrentInstant() != nameUpdated.OccurredAt);
         Assert.Equal(1, (long)nameUpdated.Metadata["Version"]);
         Assert.Equal("Order", nameUpdated.Metadata["Category"]);
         Assert.Equal("Cristofher Reyes", ((NameUpdatedDomainEvent)nameUpdated).Name);
@@ -89,15 +89,15 @@ public class AggregateRootBaseTest
         // Crear eventos de ejemplo
         var events = new List<IDomainEvent>
         {
-            new OrderCreatedDomainEvent(aggregateId, name, idUser, Guid.NewGuid(), DateTime.UtcNow, new Dictionary<string, object>() {
+            new OrderCreatedDomainEvent(aggregateId, name, idUser, Guid.NewGuid(), SystemClock.Instance.GetCurrentInstant(), new Dictionary<string, object>() {
                 { "Version", 0 },
                 { "Category", "Order" }
             }),
-            new NameUpdatedDomainEvent(aggregateId, "Cristofher Reyes", Guid.NewGuid(), DateTime.UtcNow, new Dictionary<string, object>() {
+            new NameUpdatedDomainEvent(aggregateId, "Cristofher Reyes", Guid.NewGuid(), SystemClock.Instance.GetCurrentInstant(), new Dictionary<string, object>() {
                 { "Version", 1 },
                 { "Category", "Order" }
             }),
-            new ProductAddedDomainEvent(aggregateId, "TV", Guid.NewGuid(), DateTime.UtcNow, new Dictionary<string, object>() {
+            new ProductAddedDomainEvent(aggregateId, "TV", Guid.NewGuid(), SystemClock.Instance.GetCurrentInstant(), new Dictionary<string, object>() {
                 { "Version", 2 },
                 { "Category", "Order" }
             })

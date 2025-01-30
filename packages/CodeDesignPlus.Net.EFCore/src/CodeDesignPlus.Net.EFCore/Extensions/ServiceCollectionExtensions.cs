@@ -8,12 +8,13 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds CodeDesignPlus.EFCore configuration options.
     /// </summary>
+    /// <typeparam name="TDbContext">Represents a session with the database and can be used to query and save instances of your entities.</typeparam>
     /// <param name="services">The Microsoft.Extensions.DependencyInjection.IServiceCollection to add the service to.</param>
     /// <param name="configuration">The configuration being bound.</param>
     /// <returns>The Microsoft.Extensions.DependencyInjection.IServiceCollection so that additional calls can be chained.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the services or configuration is null.</exception>
     /// <exception cref="EFCoreException">Thrown when the required configuration section does not exist.</exception>
-    public static IServiceCollection AddEFCore(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddEFCore<TDbContext>(this IServiceCollection services, IConfiguration configuration) where TDbContext : DbContextBase
     {
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configuration);
@@ -28,6 +29,11 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
+        var options = section.Get<EFCoreOptions>();
+
+        if (options.Enable && options.RegisterRepositories)
+            services.AddRepositories<TDbContext>();
+
         return services;
     }
 
@@ -36,8 +42,8 @@ public static class ServiceCollectionExtensions
     /// </summary>
     /// <typeparam name="TContext">Represents a session with the database and can be used to query and save instances of your entities.</typeparam>
     /// <param name="services">The IServiceCollection to add services to.</param>
-    public static void AddRepositories<TContext>(this IServiceCollection services)
-        where TContext : DbContext
+    private static void AddRepositories<TContext>(this IServiceCollection services)
+        where TContext : DbContextBase
     {
         var assembly = typeof(TContext).GetTypeInfo().Assembly;
 

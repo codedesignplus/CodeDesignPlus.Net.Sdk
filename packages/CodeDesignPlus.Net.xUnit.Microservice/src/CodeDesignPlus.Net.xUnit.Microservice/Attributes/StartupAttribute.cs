@@ -20,8 +20,8 @@ public class StartupAttribute<TAssemblyScan> : DataAttribute
         var startups = typeof(TAssemblyScan).Assembly
             .GetTypes()
             .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
-            .Where(x => typeof(IStartupServices).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-            .Select(x => (IStartupServices)Activator.CreateInstance(x))
+            .Where(x => typeof(IStartup).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
+            .Select(x => (IStartup)Activator.CreateInstance(x))
             .ToList();
 
         foreach (var startup in startups)

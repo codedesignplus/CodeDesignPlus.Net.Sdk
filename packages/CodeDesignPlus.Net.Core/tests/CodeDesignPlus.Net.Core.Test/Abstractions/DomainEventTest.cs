@@ -12,9 +12,9 @@ public class DomainEventTest
         var name = "Name";
         var description = "Description";
         var price = 100;
-        var createdAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var createdAt = SystemClock.Instance.GetCurrentInstant();
         var createBy = Guid.NewGuid();
-        var updatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var updatedAt = SystemClock.Instance.GetCurrentInstant();
         var metadata = new Dictionary<string, object>
         {
             { "key", "value" }
@@ -33,7 +33,7 @@ public class DomainEventTest
         Assert.Equal(createdAt, domainEvent.CreatedAt);
         Assert.Equal(createBy, domainEvent.CreateBy);
         Assert.Equal(updatedAt, domainEvent.UpdatedAt);
-        Assert.True(DateTime.UtcNow > domainEvent.OccurredAt);
+        Assert.True(SystemClock.Instance.GetCurrentInstant() > domainEvent.OccurredAt);
         Assert.Equal(metadata, domainEvent.Metadata);
     }
 
@@ -45,11 +45,11 @@ public class DomainEventTest
         var name = "Name";
         var description = "Description";
         var price = 100;
-        var createdAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var createdAt = SystemClock.Instance.GetCurrentInstant();
         var createBy = Guid.NewGuid();
-        var updatedAt = DateTimeOffset.UtcNow.ToUnixTimeMilliseconds();
+        var updatedAt = SystemClock.Instance.GetCurrentInstant();
         var eventId = Guid.NewGuid();
-        var occurredAt = DateTime.UtcNow;
+        var occurredAt = SystemClock.Instance.GetCurrentInstant();
         var metadata = new Dictionary<string, object>
         {
             { "key", "value" }

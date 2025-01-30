@@ -40,7 +40,7 @@ public class DomainEventAttribute<TAssemblyScan>(bool useCreateMethod) : DataAtt
             {
                 var constructor = domainEvent.GetConstructors().FirstOrDefault()!;
                 values = constructor.GetParameters().GetParameterValues();
-                instance = constructor.Invoke(values.Values.ToArray());
+                instance = constructor.Invoke([.. values.Values]);
             }
 
             yield return new object[] { domainEvent, instance, values };

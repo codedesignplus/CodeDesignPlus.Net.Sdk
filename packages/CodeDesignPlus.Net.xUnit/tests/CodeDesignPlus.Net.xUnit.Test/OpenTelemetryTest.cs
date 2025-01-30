@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.xUnit.Helpers.OpenTelemetry;
+﻿using CodeDesignPlus.Net.xUnit.Containers.OpenTelemetry;
 using OpenTelemetry;
 using OpenTelemetry.Logs;
 using OpenTelemetry.Resources;
@@ -8,10 +8,10 @@ using OpenTelemetry.Metrics;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.Hosting;
-using CodeDesignPlus.Net.xUnit.Helpers;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
+using CodeDesignPlus.Net.xUnit.Extensions;
 
 namespace CodeDesignPlus.Net.xUnit.Test;
 

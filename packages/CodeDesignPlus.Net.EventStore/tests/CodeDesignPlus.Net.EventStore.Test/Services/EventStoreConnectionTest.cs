@@ -1,6 +1,6 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
-using CodeDesignPlus.Net.xUnit.Helpers;
-using CodeDesignPlus.Net.xUnit.Helpers.EventStoreContainer;
+using CodeDesignPlus.Net.xUnit.Containers.EventStoreContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using Moq;
 using System.Reflection;
 using ES = EventStore.ClientAPI;

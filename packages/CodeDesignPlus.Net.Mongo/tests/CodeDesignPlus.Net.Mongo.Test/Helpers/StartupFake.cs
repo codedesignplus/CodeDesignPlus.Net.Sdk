@@ -2,7 +2,7 @@
 
 namespace CodeDesignPlus.Net.Mongo.Test.Helpers
 {
-    public class StartupFake : IStartupServices
+    public class StartupFake : IStartup
     {
         public void Initialize(IServiceCollection services, IConfiguration configuration)
         {

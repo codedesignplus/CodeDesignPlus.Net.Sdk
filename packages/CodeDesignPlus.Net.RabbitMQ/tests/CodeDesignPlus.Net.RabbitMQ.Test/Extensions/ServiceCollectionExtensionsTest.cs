@@ -11,7 +11,7 @@ public class ServiceCollectionExtensionsTest
         ServiceCollection? serviceCollection = null;
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddRabbitMQ(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddRabbitMQ<ServiceCollectionExtensionsTest>(null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'services')", exception.Message);
@@ -24,7 +24,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddRabbitMQ(null));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddRabbitMQ<ServiceCollectionExtensionsTest>(null));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
@@ -39,7 +39,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        var exception = Assert.Throws<RabbitMQException>(() => serviceCollection.AddRabbitMQ(configuration));
+        var exception = Assert.Throws<RabbitMQException>(() => serviceCollection.AddRabbitMQ<ServiceCollectionExtensionsTest>(configuration));
 
         // Assert
         Assert.Equal($"The section {RabbitMQOptions.Section} is required.", exception.Message);
@@ -54,10 +54,10 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddRabbitMQ(configuration);
+        serviceCollection.AddRabbitMQ<ServiceCollectionExtensionsTest>(configuration);
 
         // Assert
-        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRabbitPubSubService));
+        var libraryService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRabbitPubSub));
 
         Assert.NotNull(libraryService);
         Assert.Equal(ServiceLifetime.Singleton, libraryService.Lifetime);
@@ -73,7 +73,7 @@ public class ServiceCollectionExtensionsTest
         var serviceCollection = new ServiceCollection();
 
         // Act
-        serviceCollection.AddRabbitMQ(configuration);
+        serviceCollection.AddRabbitMQ<ServiceCollectionExtensionsTest>(configuration);
 
         // Assert
         var serviceProvider = serviceCollection.BuildServiceProvider();

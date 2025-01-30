@@ -41,12 +41,6 @@ public class KafkaOptions : PubSubOptions
     public CompressionType CompressionType { get; set; } = CompressionType.Snappy;
 
     /// <summary>
-    /// Gets or sets the name of the microservice.
-    /// </summary>
-    [Required]
-    public string NameMicroservice { get; set; }
-
-    /// <summary>
     /// Gets or sets the security protocol.
     /// </summary>
     public SecurityProtocol SecurityProtocol { get; set; } = SecurityProtocol.Plaintext;
@@ -70,7 +64,6 @@ public class KafkaOptions : PubSubOptions
     public ConsumerConfig ConsumerConfig => new()
     {
         BootstrapServers = this.BootstrapServers,
-        GroupId = this.NameMicroservice,
         AutoOffsetReset = AutoOffsetReset.Earliest
     };
 

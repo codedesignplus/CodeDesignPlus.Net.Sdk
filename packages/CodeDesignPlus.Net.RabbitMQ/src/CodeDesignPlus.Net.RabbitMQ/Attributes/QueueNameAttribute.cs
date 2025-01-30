@@ -30,7 +30,7 @@ public class QueueNameAttribute(string entity, string action) : Attribute
     /// <returns>The full queue name.</returns>
     public string GetQueueName(string appName, string business, string version)
     {
-        return $"{appName}.{business}.{version}.{this.Entity}.{this.Action}".ToLower();
+        return $"{business}.{appName}.{version}.{this.Entity}.{this.Action}".ToLower();
     }
 }
 

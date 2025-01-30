@@ -52,3 +52,6 @@ Thumbs.db
 .sonarqube
 
 pnpm-lock.yaml
+
+**/CodeDesignPlus.Net.Mongo.Sample/data
+*.user

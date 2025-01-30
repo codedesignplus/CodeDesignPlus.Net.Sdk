@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.Vault.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.Vault.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the Vault

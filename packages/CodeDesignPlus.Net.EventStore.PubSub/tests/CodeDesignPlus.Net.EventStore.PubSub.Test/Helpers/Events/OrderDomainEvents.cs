@@ -10,40 +10,40 @@ public class OrderCreatedEvent(
     Guid idUserCreator,
     OrderStatus orderStatus,
     Client client,
-    DateTime dateCreated,
+    Instant dateCreated,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
     public Client Client { get; } = client;
     public OrderStatus OrderStatus { get; } = orderStatus;
     public Guid IdUserCreator { get; } = idUserCreator;
-    public DateTime DateCreated { get; } = dateCreated;
+    public Instant DateCreated { get; } = dateCreated;
 }
 
 [EventKey<OrderAggregateRoot>(1, "updated")]
 public class OrderCompletedEvent(
     Guid aggregateId,
-    DateTime completionDate,
+    Instant completionDate,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
     ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
-    public DateTime CompletionDate { get; } = completionDate;
+    public Instant CompletionDate { get; } = completionDate;
 }
 
 [EventKey<OrderAggregateRoot>(1, "cancelled")]
 public class OrderCancelledEvent(
     Guid aggregateId,
-    DateTime cancellationDate,
+    Instant cancellationDate,
     string reason,
     Guid? eventId = null,
-    DateTime? occurredAt = null,
+    Instant? occurredAt = null,
     Dictionary<string, object>? metadata = null
 ) : DomainEvent(aggregateId, eventId, occurredAt, metadata)
 {
-    public DateTime CancellationDate { get; } = cancellationDate;
+    public Instant CancellationDate { get; } = cancellationDate;
     public string Reason { get; } = reason;
 }
