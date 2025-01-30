@@ -42,7 +42,7 @@ public class DeclareExchangeBackgroundServiceTest
 
         // Assert
         // Verify that ExchangeDeclareAsync was called for each DomainEvent found in TestAssembly
-        loggerMock.VerifyLogging("An error occurred while declaring the exchanges.", LogLevel.Error, Times.Once());
+        loggerMock.VerifyLogging($"An error occurred while declaring the exchanges | Internal exception", LogLevel.Error, Times.Once());
 
         Assert.Equal("Internal exception", exception.Message);
     }
