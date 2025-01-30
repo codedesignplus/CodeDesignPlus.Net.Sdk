@@ -11,7 +11,7 @@
     <PackageId>CodeDesignPlus.Net.Redis.PubSub.Abstractions</PackageId>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Redis.PubSub</PackageProjectUrl>
+    <PackageProjectUrl>http://www.codedesignplus.com/</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <Version>$(Version)</Version>
     <PackageIcon>icon/logo.png</PackageIcon>
