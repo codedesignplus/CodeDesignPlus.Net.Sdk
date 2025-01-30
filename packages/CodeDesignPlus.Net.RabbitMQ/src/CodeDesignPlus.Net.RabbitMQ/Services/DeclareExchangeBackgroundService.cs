@@ -32,7 +32,7 @@ public class DeclareExchangeBackgroundService<TAssembly>(IChannelProvider channe
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "An error occurred while declaring the exchanges.");
+            logger.LogError(ex, "An error occurred while declaring the exchanges | {Message}", ex.Message);
 
             throw;
         }

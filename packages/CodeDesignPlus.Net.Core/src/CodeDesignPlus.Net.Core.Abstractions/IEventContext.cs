@@ -16,10 +16,10 @@ public interface IEventContext
     Guid Tenant { get; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EventContext"/> class.
+    /// Gets or sets the user identifier.
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
-    /// <param name="domainEvent">The current domain event.</param>
+    /// <param name="domainEvent">The domain event to set as the current domain event.</param>
     void SetCurrentDomainEvent<TEvent>(TEvent domainEvent) where TEvent : IDomainEvent;
     
     /// <summary>
