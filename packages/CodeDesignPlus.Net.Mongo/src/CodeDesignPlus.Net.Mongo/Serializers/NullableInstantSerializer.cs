@@ -8,6 +8,9 @@ namespace CodeDesignPlus.Net.Mongo.Serializers;
 public class NullableInstantSerializer : IBsonSerializer<Instant?>
 {
     private static readonly InstantPattern Pattern = InstantPattern.CreateWithInvariantCulture("yyyy-MM-ddTHH:mm:ss.fffffffff'Z'");
+    /// <summary>
+    /// Gets the serializer value type.
+    /// </summary>
     public Type ValueType => typeof(Instant?);
 
     /// <summary>

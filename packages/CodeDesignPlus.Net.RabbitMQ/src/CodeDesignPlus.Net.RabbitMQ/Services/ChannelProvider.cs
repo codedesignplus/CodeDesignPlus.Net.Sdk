@@ -18,6 +18,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// Declares an exchange for the specified domain event type.
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The name of the declared exchange.</returns>
     public async Task<string> ExchangeDeclareAsync(Type domainEventType, CancellationToken cancellationToken)
     {
@@ -46,6 +47,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The name of the declared exchange.</returns>
     public Task<string> ExchangeDeclareAsync<TEvent>(TEvent domainEvent, CancellationToken cancellationToken) where TEvent : IDomainEvent
     {
@@ -56,6 +58,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// Gets the channel for publishing the specified domain event type.
     /// </summary>
     /// <param name="domainEventType">The type of the domain event.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for publishing.</returns>
     public Task<IChannel> GetChannelPublishAsync(Type domainEventType, CancellationToken cancellationToken)
     {
@@ -69,6 +72,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <param name="domainEvent">The domain event instance.</param>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for publishing.</returns>
     public Task<IChannel> GetChannelPublishAsync<TEvent>(TEvent domainEvent, CancellationToken cancellationToken) where TEvent : IDomainEvent
     {
@@ -80,6 +84,7 @@ public class ChannelProvider(IRabbitConnection connection, IDomainEventResolver 
     /// </summary>
     /// <typeparam name="TEvent">The type of the domain event.</typeparam>
     /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
+    /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>The channel for consuming.</returns>
     public Task<IChannel> GetChannelConsumerAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
