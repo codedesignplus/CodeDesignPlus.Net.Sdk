@@ -11,7 +11,7 @@
     <PackageId>CodeDesignPlus.Net.Cache.Abstractions</PackageId>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-    <PackageProjectUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Cache</PackageProjectUrl>
+    <PackageProjectUrl>https://www.codedesignplus.com</PackageProjectUrl>
     <PackageTags>.NET; .NET Core; Cache; In-Memory; Distributed; CodeDesignPlus; Microservices</PackageTags>
     <Version>$(Version)</Version>
     <PackageIcon>icon/logo.png</PackageIcon>
