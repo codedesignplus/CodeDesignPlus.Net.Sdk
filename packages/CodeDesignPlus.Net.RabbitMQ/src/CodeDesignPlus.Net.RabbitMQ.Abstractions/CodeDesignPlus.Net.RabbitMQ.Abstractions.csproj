@@ -10,7 +10,7 @@
     <PackageId>CodeDesignPlus.Net.RabbitMQ.Abstractions</PackageId>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
-    <PackageProjectUrl>http://www.codedesignplus.com/</PackageProjectUrl>
+    <PackageProjectUrl>https://www.codedesignplus.com</PackageProjectUrl>
     <PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
     <Version>$(Version)</Version>
     <PackageIcon>icon/logo.png</PackageIcon>
