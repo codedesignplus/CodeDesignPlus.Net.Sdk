@@ -95,44 +95,44 @@ jobs:
           echo New Version Prefix "${{steps.git-semver.outputs.new-version-prefix}}"
 
       - name: Restore Packages
-        run: pnpm run affected:restore
+        run: pnpm run all:restore
 
       - name: Build Packages
-        run: pnpm run affected:build
+        run: pnpm run all:build
 
       # Main
       - name: Run SonarQube Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx affected --skip-nx-cache --parallel 1 --target sonarqube --head=HEAD --base=remotes/origin/main~1
+        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube --head=HEAD --base=remotes/origin/main~1
 
       - name: .Net Pack Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx affected --skip-nx-cache --target pack --head=HEAD --base=remotes/origin/main~1 --args="--version=${{ steps.git-semver.outputs.new-version }}"
+        run: npx nx run-many --skip-nx-cache --target pack --head=HEAD --base=remotes/origin/main~1 --args="--version=${{ steps.git-semver.outputs.new-version }}"
 
       - name: .Net Push GitHub Package Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx affected --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main~1 --args="--token=${{secrets.GITHUB_TOKEN}} --source=https://nuget.pkg.github.com/codedesignplus/index.json"
+        run: npx nx run-many --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main~1 --args="--token=${{secrets.GITHUB_TOKEN}} --source=https://nuget.pkg.github.com/codedesignplus/index.json"
         
       - name: .Net Push NuGet Package Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx affected --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main~1 --args="--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}"
+        run: npx nx run-many --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main~1 --args="--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}"
       
       # Other Branches
       - name: Run SonarQube
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
-        run: npx nx affected --skip-nx-cache --parallel 1 --target sonarqube --head=HEAD --base=remotes/origin/main
+        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube --head=HEAD --base=remotes/origin/main
         
       - name: .Net Pack
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
-        run: npx nx affected --skip-nx-cache --target pack --head=HEAD --base=remotes/origin/main --args="--version=${{ steps.git-semver.outputs.new-version }}"
+        run: npx nx run-many --skip-nx-cache --target pack --head=HEAD --base=remotes/origin/main --args="--version=${{ steps.git-semver.outputs.new-version }}"
 
       - name: .Net Push GitHub Package
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
-        run: npx nx affected --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main --args="--token=${{secrets.GITHUB_TOKEN}} --source=https://nuget.pkg.github.com/codedesignplus/index.json"
+        run: npx nx run-many --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main --args="--token=${{secrets.GITHUB_TOKEN}} --source=https://nuget.pkg.github.com/codedesignplus/index.json"
         
       - name: .Net Push NuGet Package
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
-        run: npx nx affected --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main --args="--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}"
+        run: npx nx run-many --skip-nx-cache --target push --head=HEAD --base=remotes/origin/main --args="--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}"
 
       - name: Push tag
         id: push_tag
