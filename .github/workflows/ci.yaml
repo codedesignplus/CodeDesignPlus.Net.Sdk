@@ -95,10 +95,10 @@ jobs:
           echo New Version Prefix "${{steps.git-semver.outputs.new-version-prefix}}"
 
       - name: Restore Packages
-        run: pnpm run run-many:restore
+        run: pnpm run all:restore
 
       - name: Build Packages
-        run: pnpm run run-many:build
+        run: pnpm run all:build
 
       # Main
       - name: Run SonarQube Main
