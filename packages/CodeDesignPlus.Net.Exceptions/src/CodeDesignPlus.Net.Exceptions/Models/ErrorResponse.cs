@@ -10,7 +10,7 @@ public record ErrorResponse(string TraceId, Layer Layer)
     /// <summary>
     /// Gets the list of error details associated with the error response.
     /// </summary>
-    public List<ErrorDetail> Errors { get; } = new();
+    public List<ErrorDetail> Errors { get; } = [];
 
     /// <summary>
     /// Adds an error detail to the error response.
