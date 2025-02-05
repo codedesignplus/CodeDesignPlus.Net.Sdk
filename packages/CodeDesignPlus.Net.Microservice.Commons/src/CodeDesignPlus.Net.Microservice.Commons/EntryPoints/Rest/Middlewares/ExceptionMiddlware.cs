@@ -49,7 +49,7 @@ public class ExceptionMiddleware(RequestDelegate next)
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
         
-        var traceId = Activity.Current.TraceId.ToString() ?? context.TraceIdentifier;
+        var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
 
         var response = new ErrorResponse(traceId, exception.Layer);
 
@@ -71,7 +71,7 @@ public class ExceptionMiddleware(RequestDelegate next)
 
         var errors = exception.Errors.Select(e => new ErrorDetail(e.ErrorCode, e.PropertyName, e.ErrorMessage));
 
-        var traceId = Activity.Current.TraceId.ToString() ?? context.TraceIdentifier;
+        var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
 
         var response = new ErrorResponse(traceId, Layer.Application);
 
