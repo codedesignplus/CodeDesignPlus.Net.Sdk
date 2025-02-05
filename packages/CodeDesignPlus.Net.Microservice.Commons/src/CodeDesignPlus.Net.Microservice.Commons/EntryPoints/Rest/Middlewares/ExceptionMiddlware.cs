@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Net;
 using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.Exceptions.Models;
@@ -47,8 +48,10 @@ public class ExceptionMiddleware(RequestDelegate next)
     {
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+        
+        var traceId = Activity.Current.TraceId.ToString() ?? context.TraceIdentifier;
 
-        var response = new ErrorResponse(context.TraceIdentifier, exception.Layer);
+        var response = new ErrorResponse(traceId, exception.Layer);
 
         response.AddError(exception.Code, exception.Message, null);
 
@@ -68,7 +71,9 @@ public class ExceptionMiddleware(RequestDelegate next)
 
         var errors = exception.Errors.Select(e => new ErrorDetail(e.ErrorCode, e.PropertyName, e.ErrorMessage));
 
-        var response = new ErrorResponse(context.TraceIdentifier, Layer.Application);
+        var traceId = Activity.Current.TraceId.ToString() ?? context.TraceIdentifier;
+
+        var response = new ErrorResponse(traceId, Layer.Application);
 
         response.Errors.AddRange(errors);
 
