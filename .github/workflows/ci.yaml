@@ -64,11 +64,11 @@ jobs:
 
       - name: Run Affected Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx show projects --affected --skip-nx-cache
+        run: npx nx show projects --affected --skip-nx-cache --head=HEAD --base=remotes/origin/main~1
 
       - name: Run Affected
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
-        run: npx nx show projects --affected --skip-nx-cache
+        run: npx nx show projects --affected --skip-nx-cache --head=HEAD --base=remotes/origin/main
 
       - name: SemVer 
         id: git-semver
