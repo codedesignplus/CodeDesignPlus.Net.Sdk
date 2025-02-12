@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using CodeDesignPlus.Net.Security.Middlewares;
+using CodeDesignPlus.Net.Security.MIddlewares;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.Security.Extensions;
 
@@ -29,15 +31,30 @@ public static class ServiceCollectionExtensions
         services
             .AddOptions<SecurityOptions>()
             .Bind(section)
-            .ValidateDataAnnotations();
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        var securityOptions = section.Get<SecurityOptions>();
 
         services
             .TryAddScoped<IUserContext, UserContext>();
-            
-        services.AddHttpContextAccessor()
+
+        services
+            .AddHttpContextAccessor()
             .AddAuthorization()
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(configuration, options);
+
+        if (securityOptions.ValidateRbac)
+        {
+            services.TryAddScoped<IRbac, Rbac>();
+            services.AddHostedService<RefreshRbacBackgroundService>();
+        }
+
+        if (securityOptions.EnableTenantContext)
+        {
+            services.TryAddScoped<ITenant, Tenant>();
+        }
 
         return services;
     }
@@ -51,6 +68,14 @@ public static class ServiceCollectionExtensions
     {
         app.UseAuthentication();
         app.UseAuthorization();
+
+        var options = app.ApplicationServices.GetRequiredService<IOptions<SecurityOptions>>().Value;
+
+        if (options.EnableTenantContext && options.ValidateLicense)
+            app.UseMiddleware<LicenseMiddleware>();
+
+        if (options.ValidateRbac)
+            app.UseMiddleware<RbacMiddleware>();
 
         return app;
     }

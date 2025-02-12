@@ -90,6 +90,11 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     public string JobTitle => this.GetClaim<string>(ClaimTypes.JobTitle);
 
     /// <summary>
+    /// Gets the user's roles.
+    /// </summary>
+    public string[] Roles => this.GetClaim<string[]>(ClaimTypes.Groups);
+
+    /// <summary>
     /// Gets the value of a specified claim type.
     /// </summary>
     /// <typeparam name="TValue">The type of the claim value.</typeparam>
