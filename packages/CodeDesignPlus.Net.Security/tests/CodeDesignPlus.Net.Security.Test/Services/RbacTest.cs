@@ -1,87 +1,95 @@
-// using CodeDesignPlus.Net.Core.Abstractions.Options;
-// using CodeDesignPlus.Net.Security.gRpc;
-// using Grpc.Core;
-// using Grpc.Net.Client;
-// using Moq;
-// using S = CodeDesignPlus.Net.Security.Services;
 
-// namespace CodeDesignPlus.Net.Security.Test.Services;
+using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Security.gRpc;
+using Moq;
+using S = CodeDesignPlus.Net.Security.Services;
+using CodeDesignPlus.Net.xUnit.Extensions;
+using System.Reflection;
+using System.Collections.Concurrent;
 
-// public class RbacTest
-// {
-//     private readonly Mock<ILogger<S.Rbac>> loggerMock;
-//     private readonly Mock<IOptions<SecurityOptions>> securityOptionsMock;
-//     private readonly Mock<IOptions<CoreOptions>> coreOptionsMock;
-//     private readonly Mock<IHttpClientFactory> httpClientFactoryMock;
-//     private readonly Mock<gRpc.Rbac.RbacClient> rbacClientMock;
-//     private readonly S.Rbac rbacService;
+namespace CodeDesignPlus.Net.Security.Test.Services;
 
-//     public RbacTest()
-//     {
-//         loggerMock = new Mock<ILogger<S.Rbac>>();
-//         securityOptionsMock = new Mock<IOptions<SecurityOptions>>();
-//         coreOptionsMock = new Mock<IOptions<CoreOptions>>();
-//         httpClientFactoryMock = new Mock<IHttpClientFactory>();
-//         rbacClientMock = new Mock<gRpc.Rbac.RbacClient>();
+public class RbacTest
+{
+    private readonly Mock<ILogger<S.Rbac>> loggerMock;
+    private readonly IOptions<CoreOptions> coreOptions;
+    private readonly Mock<gRpc.Rbac.RbacClient> clientMock;
+    private readonly S.Rbac rbacService;
 
-//         securityOptionsMock.Setup(x => x.Value).Returns(new SecurityOptions
-//         {
-//             ServerRbac = new Uri("http://localhost")
-//         });
-//         coreOptionsMock.Setup(x => x.Value).Returns(OptionsUtil.CoreOptions);
+    public RbacTest()
+    {
+        loggerMock = new Mock<ILogger<S.Rbac>>();
+        clientMock = new Mock<gRpc.Rbac.RbacClient>();
 
-//         var httpClient = new HttpClient();
-//         httpClientFactoryMock.Setup(x => x.CreateClient(It.IsAny<string>())).Returns(httpClient);
+        coreOptions = Microsoft.Extensions.Options.Options.Create(OptionsUtil.CoreOptions);
 
-//         var channel = GrpcChannel.ForAddress("http://localhost");
-//         rbacService = new S.Rbac(loggerMock.Object, securityOptionsMock.Object, coreOptionsMock.Object, httpClientFactoryMock.Object);
-//     }
+        rbacService = new S.Rbac(loggerMock.Object, coreOptions, clientMock.Object);
+    }
 
-//     [Fact]
-//     public async Task LoadRbacAsync_ShouldLoadResources()
-//     {
-//         // Arrange
-//         var response = new GetRbacResponse
-//         {
-//             Resources = { new RbacResource { Controller = "TestController", Action = "TestAction", Method = gRpc.HttpMethod.GET, Role = "Admin" } }
-//         };
+    [Fact]
+    public async Task LoadRbacAsync_ShouldLoadResources()
+    {
+        // Arrange
+        ConfigResponseMock();
 
-//         rbacClientMock
-//             .Setup(x => x.GetRbacAsync(It.IsAny<GetRbacRequest>(), It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
-//             .Returns(response);
+        // Act
+        await rbacService.LoadRbacAsync(CancellationToken.None);
 
-//         // Act
-//         await rbacService.LoadRbacAsync(CancellationToken.None);
+        // Assert
+        var resources = rbacService.GetType().GetField("resources", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(rbacService) as ConcurrentBag<RbacResource>;
 
-//         // Assert
-//         Assert.Single(rbacService.Resources);
-//     }
+        Assert.NotNull(resources);
+        Assert.NotEmpty(resources);
+        Assert.Contains(resources, x => x.Controller == "TestController" && x.Action == "TestAction" && x.Method == gRpc.HttpMethod.Get && x.Role == "Admin");
 
-//     [Fact]
-//     public async Task IsAuthorizedAsync_ShouldReturnTrue_WhenUserIsAuthorized()
-//     {
-//         // Arrange
-//         var roles = new[] { "Admin" };
-//         await rbacService.LoadRbacAsync(CancellationToken.None);
+        loggerMock.VerifyLogging("RbacService loaded, number of resources: 1", LogLevel.Information, Times.Once());
+    }
 
-//         // Act
-//         var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "GET", roles);
+    [Fact]
+    public async Task IsAuthorizedAsync_ShouldReturnTrue_WhenUserIsAuthorized()
+    {
+        // Arrange
+        var roles = new[] { "Admin" };
+        
+        ConfigResponseMock();
+           
+        await rbacService.LoadRbacAsync(CancellationToken.None);
 
-//         // Assert
-//         Assert.True(result);
-//     }
+        // Act
+        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "Get", roles);
 
-//     [Fact]
-//     public async Task IsAuthorizedAsync_ShouldReturnFalse_WhenUserIsNotAuthorized()
-//     {
-//         // Arrange
-//         var roles = new[] { "User" };
-//         await rbacService.LoadRbacAsync(CancellationToken.None);
+        // Assert
+        Assert.True(result);
+        loggerMock.VerifyLogging("Role 'Admin' is authorized to access the resource 'TestController/TestAction' with the method 'Get'", LogLevel.Debug, Times.Once());
+    }
 
-//         // Act
-//         var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "GET", roles);
+    [Fact]
+    public async Task IsAuthorizedAsync_ShouldReturnFalse_WhenUserIsNotAuthorized()
+    {
+        // Arrange
+        var roles = new[] { "User" };
 
-//         // Assert
-//         Assert.False(result);
-//     }
-// }
+        ConfigResponseMock();
+
+        // Act
+        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "Get", roles);
+
+        // Assert
+        Assert.False(result);
+        loggerMock.VerifyLogging("Role 'User' is not authorized to access the resource 'TestController/TestAction' with the method 'Get'", LogLevel.Debug, Times.Once());
+    }
+
+    private void ConfigResponseMock()
+    {
+        var response = new GetRbacResponse
+        {
+            Resources = { new RbacResource { Controller = "TestController", Action = "TestAction", Method = gRpc.HttpMethod.Get, Role = "Admin" } }
+        };
+
+        var mockCall = GrpcUtil.CreateAsyncUnaryCall(response);
+
+        clientMock
+           .Setup(m => m.GetRbacAsync(It.IsAny<GetRbacRequest>(), null, null, CancellationToken.None))
+           .Returns(mockCall);
+    }
+}

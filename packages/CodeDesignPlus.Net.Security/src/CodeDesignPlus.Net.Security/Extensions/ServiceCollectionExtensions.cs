@@ -47,6 +47,11 @@ public static class ServiceCollectionExtensions
 
         if (securityOptions.ValidateRbac)
         {
+            services.AddGrpcClient<gRpc.Rbac.RbacClient>(o =>
+            {
+                o.Address = securityOptions.ServerRbac;
+            });
+
             services.TryAddScoped<IRbac, Rbac>();
             services.AddHostedService<RefreshRbacBackgroundService>();
         }

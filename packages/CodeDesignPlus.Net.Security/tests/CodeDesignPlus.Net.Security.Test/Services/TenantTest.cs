@@ -77,6 +77,7 @@ public class TenantTest
 
         // Assert
         Assert.True(result);
+        loggerMock.VerifyLogging($"The license with id {tenant.License.Id} is valid: True, StartDate: {tenant.License.StartDate}, ExpirationDate: {tenant.License.ExpirationDate}", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
@@ -98,6 +99,7 @@ public class TenantTest
 
         // Assert
         Assert.False(result);
+        loggerMock.VerifyLogging($"The license with id {tenant.License.Id} is valid: False, StartDate: {tenant.License.StartDate}, ExpirationDate: {tenant.License.ExpirationDate}", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
@@ -126,7 +128,7 @@ public class TenantTest
         var key = "invalidKey";
         var tenant = new M.Tenant
         {
-            Metadata = new Dictionary<string, string>()
+            Metadata = []
         };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(tenantService, tenant);
 
@@ -167,6 +169,6 @@ public class TenantTest
         // Act & Assert
         var exception = Assert.Throws<KeyNotFoundException>(() => tenantService.GetMetadata<int>(key));
 
-        Assert.Equal($"The key {key} does not exist in the metadata.", exception.Message);
+        Assert.Equal($"The given key '{key}' was not present in the dictionary.", exception.Message);
     }
 }

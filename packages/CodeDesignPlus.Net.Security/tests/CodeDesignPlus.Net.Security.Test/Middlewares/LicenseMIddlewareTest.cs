@@ -38,6 +38,8 @@ public class LicenseMiddlewareTest
 
         // Assert
         Assert.True(nextCalled);
+        tenantMock.Verify(t => t.SetTenantAsync(It.IsAny<Guid>()), Times.Once);
+        tenantMock.Verify(t => t.LicenseIsValid(), Times.Once);
     }
 
     [Fact]
@@ -66,5 +68,7 @@ public class LicenseMiddlewareTest
 
         // Assert
         Assert.Equal((int)HttpStatusCode.Forbidden, context.Response.StatusCode);
+        tenantMock.Verify(t => t.SetTenantAsync(It.IsAny<Guid>()), Times.Once);
+        tenantMock.Verify(t => t.LicenseIsValid(), Times.Once);
     }
 }
