@@ -1,3 +1,5 @@
+using System.Security.Authentication;
+
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
 /// <summary>
@@ -53,6 +55,11 @@ public static class ServiceCollectionExtensions
                 {
                     builder.SubscribeDiagnosticsActivityEventSubscriber(serviceProvider);
                 };
+
+            clientSettings.SslSettings = new SslSettings
+            {
+                EnabledSslProtocols = mongoOptions.SslProtocols
+            };
 
             var mongoClient = new MongoClient(clientSettings);
 
