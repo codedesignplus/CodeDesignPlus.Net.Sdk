@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Mongo.Abstractions.Options;
+﻿using System.Security.Authentication;
+
+namespace CodeDesignPlus.Net.Mongo.Abstractions.Options;
 
 /// <summary>
 /// Represents the options for configuring MongoDB.
@@ -26,6 +28,10 @@ public class MongoOptions : IValidatableObject
     /// </summary>
     [Required]
     public string Database { get; set; }
+    /// <summary>
+    /// Gets or sets the SSL protocols to use when connecting to MongoDB.
+    /// </summary>
+    public SslProtocols SslProtocols { get; set; } = SslProtocols.Tls12 | SslProtocols.Tls13;
 
     /// <summary>
     /// Gets or sets the diagnostics options for MongoDB.
