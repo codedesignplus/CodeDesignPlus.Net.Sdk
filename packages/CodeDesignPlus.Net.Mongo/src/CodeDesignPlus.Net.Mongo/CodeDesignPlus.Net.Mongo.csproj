@@ -37,7 +37,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
-    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.1" />    
+    <PackageReference Include="AspNetCore.HealthChecks.MongoDb" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Mongo.Abstractions\CodeDesignPlus.Net.Mongo.Abstractions.csproj" />

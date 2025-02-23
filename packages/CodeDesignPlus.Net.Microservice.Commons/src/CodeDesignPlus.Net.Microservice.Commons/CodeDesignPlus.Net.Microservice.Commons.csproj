@@ -42,6 +42,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="7.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
