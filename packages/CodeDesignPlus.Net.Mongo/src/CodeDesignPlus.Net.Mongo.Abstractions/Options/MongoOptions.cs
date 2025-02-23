@@ -16,6 +16,10 @@ public class MongoOptions : IValidatableObject
     /// Gets or sets a value indicating whether MongoDB is enabled.
     /// </summary>
     public bool Enable { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether to register the health check.
+    /// </summary>
+    public bool RegisterHealthCheck { get; set; } = true;
 
     /// <summary>
     /// Gets or sets the connection string for MongoDB.

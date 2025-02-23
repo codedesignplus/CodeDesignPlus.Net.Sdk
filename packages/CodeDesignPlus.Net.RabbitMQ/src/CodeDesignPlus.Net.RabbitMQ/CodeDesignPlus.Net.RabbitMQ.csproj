@@ -37,6 +37,7 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.1" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.1" />
+    <PackageReference Include="AspNetCore.HealthChecks.Rabbitmq" Version="9.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.RabbitMQ.Abstractions\CodeDesignPlus.Net.RabbitMQ.Abstractions.csproj" />
