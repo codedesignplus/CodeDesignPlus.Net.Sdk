@@ -8,6 +8,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Id = Guid.NewGuid(),
             Business = Guid.NewGuid().ToString(),
             AppName = "ms-test",
             Version = "v1",
@@ -32,6 +33,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Id = Guid.Empty,
             Business = null!,
             AppName = null!,
             Version = null!,
@@ -57,6 +59,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Id = Guid.NewGuid(),
             Business = Guid.NewGuid().ToString(),
             AppName = Guid.NewGuid().ToString(),
             Version = "v1.0",
@@ -81,6 +84,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Id = Guid.NewGuid(),
             Business = Guid.NewGuid().ToString(),
             AppName = "ms-test",
             Version = "v1",
@@ -105,6 +109,7 @@ public class CoreOptionsTest
         // Arrange
         var options = new CoreOptions()
         {
+            Id = Guid.NewGuid(),
             Business = Guid.NewGuid().ToString(),
             AppName = Guid.NewGuid().ToString(),
             Version = "v1",

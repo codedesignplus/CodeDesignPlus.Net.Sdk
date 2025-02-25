@@ -31,6 +31,13 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Microservice.Commons.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.29.3" />
+    <PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
+    <PackageReference Include="Grpc.Net.ClientFactory" Version="2.67.0" />
+    <PackageReference Include="Grpc.Tools" Version="2.69.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
     <PackageReference Include="Grpc.Net.Common" Version="2.67.0" />
@@ -43,6 +50,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.2.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="7.2.0" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.2" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
@@ -53,5 +61,11 @@
     <SonarQubeSetting Include="sonar.coverage.exclusions">
       <Value>**/SwaggerExtensions.cs</Value>
     </SonarQubeSetting>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="EntryPoints\Rest\Resources\Protos\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Protobuf Include="EntryPoints\Rest\Resources\Protos\service.proto" GrpcServices="Client" />
   </ItemGroup>
 </Project>
