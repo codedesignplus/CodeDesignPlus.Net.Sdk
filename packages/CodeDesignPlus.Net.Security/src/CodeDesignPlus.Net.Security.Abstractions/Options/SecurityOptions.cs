@@ -82,7 +82,7 @@ public class SecurityOptions
     /// <summary>
     /// Gets or sets a value indicating whether to validate the RBAC
     /// </summary>
-    public bool ValidateRbac { get; set; }
+    public bool EnableRbac { get; set; }
     /// <summary>
     /// Gets or sets the server to use in the RBAC
     /// </summary>

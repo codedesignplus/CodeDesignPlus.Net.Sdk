@@ -45,7 +45,7 @@ public static class ServiceCollectionExtensions
             .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(configuration, options);
 
-        if (securityOptions.ValidateRbac)
+        if (securityOptions.EnableRbac)
         {
             services.AddGrpcClient<gRpc.Rbac.RbacClient>(o =>
             {
@@ -79,7 +79,7 @@ public static class ServiceCollectionExtensions
         if (options.EnableTenantContext && options.ValidateLicense)
             app.UseMiddleware<LicenseMiddleware>();
 
-        if (options.ValidateRbac)
+        if (options.EnableRbac)
             app.UseMiddleware<RbacMiddleware>();
 
         return app;
