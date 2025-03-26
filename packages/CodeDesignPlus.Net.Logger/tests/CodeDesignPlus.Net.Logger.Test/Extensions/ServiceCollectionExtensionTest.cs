@@ -162,7 +162,7 @@ public class ServiceCollectionExtensionTest
 
         logger.LogInformation("This is a test log for integration testing.");
 
-        await Task.Delay(5000);
+        await Task.Delay(10000);
 
         var url = "http://localhost:3100/loki/api/v1/query_range?query={job=\"ms-test\"}";
 
