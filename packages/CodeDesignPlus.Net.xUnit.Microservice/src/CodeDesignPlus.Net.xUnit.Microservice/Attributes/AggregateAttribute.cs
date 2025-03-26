@@ -21,7 +21,7 @@ public class AggregateAttribute<TAssemblyScan>(bool useCreateMethod) : DataAttri
         var aggregates = typeof(TAssemblyScan).Assembly
             .GetTypes()
             .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
-            .Where(x => x.IsClass && !x.IsAbstract && x.IsSubclassOf(typeof(AggregateRoot)))
+            .Where(x => x.IsClass && !x.IsAbstract && (x.IsSubclassOf(typeof(AggregateRoot)) || x.IsSubclassOf(typeof(AggregateRootBase))))
             .ToList();
 
         foreach (var aggregate in aggregates)

@@ -23,6 +23,8 @@ public static class ServiceCollectionExtensions
         if (!redisSection.Exists())
             throw new Exceptions.RedisException($"The section {RedisOptions.Section} is required.");
 
+        var redisOptions = redisSection.Get<RedisOptions>();
+
         services
             .AddOptions<RedisOptions>()
             .Bind(redisSection)
@@ -38,6 +40,21 @@ public static class ServiceCollectionExtensions
 
             return connection;
         });
+
+        if (redisOptions.RegisterHealthCheck)
+        {
+            var healtCheckBuilder = services.AddHealthChecks();
+
+            foreach (var instance in redisOptions.Instances)
+            {
+                healtCheckBuilder.AddRedis(x =>
+                {
+                    var factory = x.GetRequiredService<IRedisFactory>();
+
+                    return factory.Create(instance.Key).Connection;
+                }, name: "Redis", tags: ["ready"]);
+            }
+        }
 
         return services;
     }

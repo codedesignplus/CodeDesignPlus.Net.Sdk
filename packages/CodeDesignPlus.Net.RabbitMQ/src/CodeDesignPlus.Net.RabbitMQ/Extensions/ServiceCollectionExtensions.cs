@@ -31,29 +31,41 @@ public static class ServiceCollectionExtensions
 
         var options = section.Get<RabbitMQOptions>();
 
-        if (options.Enable)
+        if (!options.Enable)
+            return services;
+
+        services.AddPubSub(configuration, x =>
         {
-            services.AddPubSub(configuration, x =>
-            {
-                x.EnableDiagnostic = options.EnableDiagnostic;
-                x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
-                x.SecondsWaitQueue = options.SecondsWaitQueue;
-                x.UseQueue = options.UseQueue;
-            });
-            services.TryAddSingleton<IMessage, RabbitPubSubService>();
-            services.TryAddSingleton<IRabbitPubSub, RabbitPubSubService>();
-            services.TryAddSingleton<IRabbitConnection>(x => {
-                var rabbitOptions = x.GetRequiredService<IOptions<RabbitMQOptions>>();
-                var coreOptions = x.GetRequiredService<IOptions<CoreOptions>>();
+            x.EnableDiagnostic = options.EnableDiagnostic;
+            x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
+            x.SecondsWaitQueue = options.SecondsWaitQueue;
+            x.UseQueue = options.UseQueue;
+        });
+        services.TryAddSingleton<IMessage, RabbitPubSubService>();
+        services.TryAddSingleton<IRabbitPubSub, RabbitPubSubService>();
+        services.TryAddSingleton<IRabbitConnection>(x =>
+        {
+            var rabbitOptions = x.GetRequiredService<IOptions<RabbitMQOptions>>();
+            var coreOptions = x.GetRequiredService<IOptions<CoreOptions>>();
 
-                var connection = new RabbitConnection(x.GetRequiredService<ILogger<RabbitConnection>>());
+            var connection = new RabbitConnection(x.GetRequiredService<ILogger<RabbitConnection>>());
 
-                connection.ConnectAsync(rabbitOptions.Value, coreOptions.Value.AppName).GetAwaiter().GetResult();
+            connection.ConnectAsync(rabbitOptions.Value, coreOptions.Value.AppName).GetAwaiter().GetResult();
 
-                return connection;
-            });
-            services.TryAddSingleton<IChannelProvider, ChannelProvider>();
-            services.AddHostedService<DeclareExchangeBackgroundService<TAssembly>>();
+            return connection;
+        });
+        services.TryAddSingleton<IChannelProvider, ChannelProvider>();
+        services.AddHostedService<DeclareExchangeBackgroundService<TAssembly>>();
+
+        if (options.RegisterHealthCheck)
+        {
+            services.AddHealthChecks()
+                .AddRabbitMQ(x =>
+                {
+                    var raabbitConnection = x.GetRequiredService<IRabbitConnection>();
+
+                    return raabbitConnection.Connection;
+                }, name: "RabbitMQ", tags: ["ready"]);
         }
 
         return services;

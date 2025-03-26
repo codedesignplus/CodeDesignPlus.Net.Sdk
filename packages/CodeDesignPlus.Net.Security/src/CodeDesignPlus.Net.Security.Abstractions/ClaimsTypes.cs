@@ -89,5 +89,9 @@ public static class ClaimTypes
     /// This claim is the time at which the token becomes valid, represented in epoch time. This is usually the same as the time the token was issued. Your app should use this claim to verify the validity of the token lifetime.
     /// </summary>
     public const string Nbf = "nbf";
+    /// <summary>
+    /// The user's roles.
+    /// </summary>
+    public const string Groups = "groups";
 
 }
