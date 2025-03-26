@@ -71,6 +71,27 @@ public class SecurityOptions
     /// Gets or sets the password of the certificate to use in the authentication
     /// </summary>
     public string CertificatePassword { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether to enable the tenant context
+    /// </summary>
+    public bool EnableTenantContext { get; set; } = true;
+    /// <summary>
+    /// Gets or sets a value indicating whether to validate the license
+    /// </summary>
+    public bool ValidateLicense { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether to validate the RBAC
+    /// </summary>
+    public bool ValidateRbac { get; set; }
+    /// <summary>
+    /// Gets or sets the server to use in the RBAC
+    /// </summary>
+    public Uri ServerRbac { get; set; }
+    /// <summary>
+    /// Gets or sets the interval to refresh the RBAC
+    /// </summary>
+    [Range(5, 20)]
+    public ushort RefreshRbacInterval { get; set; } = 10;
 
     /// <summary>
     /// Get the certificate to use in the authentication

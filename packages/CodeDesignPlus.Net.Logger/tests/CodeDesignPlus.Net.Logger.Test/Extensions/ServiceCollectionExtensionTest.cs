@@ -164,10 +164,11 @@ public class ServiceCollectionExtensionTest
 
         await Task.Delay(5000);
 
-        var url = "http://localhost:3100/loki/api/v1/query?query={job=\"ms-test\"}";
+        var url = "http://localhost:3100/loki/api/v1/query_range?query={job=\"ms-test\"}";
 
         var httpClient = new HttpClient();
         var response = await httpClient.GetAsync(url);
+
         response.EnsureSuccessStatusCode();
 
         var content = await response.Content.ReadAsStringAsync();

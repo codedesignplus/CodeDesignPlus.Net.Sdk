@@ -228,6 +228,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         {
             Core = new CoreOptions
             {
+                Id = Guid.NewGuid(),
                 Business = "CodeDesignPlus",
                 AppName = "ms-test",
                 Version = "v1",

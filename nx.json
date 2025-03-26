@@ -9,7 +9,12 @@
           "build",
           "lint",
           "test",
-          "e2e"
+          "e2e",
+          "restore",
+          "format",
+          "sonarqube",
+          "pack",
+          "push"
         ],
         "accessToken": "NTAzMmE4OGMtY2FjMC00ZmFiLTgwMzktOGE5NDQxNTcxODVlfHJlYWQtd3JpdGU="
       }

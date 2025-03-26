@@ -32,6 +32,8 @@ public class UserContext : IUserContext
 
     public ClaimsPrincipal? User { get; set; }
 
+    public string[] Roles { get; set; } = [];
+
     public TValue GetClaim<TValue>(string claimType)
     {
         throw new NotImplementedException();

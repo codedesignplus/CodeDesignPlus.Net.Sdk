@@ -142,7 +142,7 @@ public static class TypeExtensions
             }
             else if (property.PropertyType.IsClass && !property.PropertyType.IsAbstract)
             {
-                property.SetValue(instance, Activator.CreateInstance(property.PropertyType)!);
+                property.SetValue(instance,  CreateInstance(property.PropertyType)!);
             }
             else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {

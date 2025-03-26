@@ -175,6 +175,7 @@ public class KafkaPubSubTest
         {
             Core = new CoreOptions
             {
+                Id = Guid.NewGuid(),
                 AppName = "ms-kafka-test",
                 Version = "v1",
                 Business = "CodeDesignPlus",
