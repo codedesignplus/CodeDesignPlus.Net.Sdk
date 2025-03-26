@@ -45,6 +45,7 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
         {
             var controller = new Services.gRpc.Controller()
             {
+                Id = Guid.NewGuid().ToString(),
                 Name = item.Name,
                 Description = item.GetCustomAttribute<DescriptionAttribute>()?.Description ?? string.Empty,
             };
@@ -55,6 +56,7 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
             {
                 var action = new Action()
                 {
+                    Id = Guid.NewGuid().ToString(),
                     Name = method.Name,
                     Description = method.GetCustomAttribute<DescriptionAttribute>()?.Description ?? string.Empty,
                     HttpMethod = method.GetCustomAttributes().FirstOrDefault(attr => attr is HttpMethodAttribute) is HttpMethodAttribute httpMethod ? ConvertToEnum(httpMethod.HttpMethods.First()) : Services.gRpc.HttpMethod.None
@@ -70,6 +72,8 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
         {
             Service = microservice
         }, cancellationToken: stoppingToken);
+
+        logger.LogInformation("Resources registered in the service registry.");
 
         healthCheck.RegisterResourcesCompleted = true;
     }
