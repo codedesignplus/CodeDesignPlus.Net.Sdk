@@ -42,6 +42,6 @@
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.2" />
-    <PackageReference Include="OpenTelemetry" Version="1.11.1" />
+    <PackageReference Include="OpenTelemetry" Version="1.11.2" />
   </ItemGroup>
 </Project>
