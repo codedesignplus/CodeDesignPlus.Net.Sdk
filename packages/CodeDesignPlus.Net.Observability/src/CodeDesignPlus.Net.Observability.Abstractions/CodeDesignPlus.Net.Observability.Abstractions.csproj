@@ -34,11 +34,11 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
     <PackageReference Include="MongoDB.Driver.Core.Extensions.DiagnosticSources" Version="2.0.0" />
-    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.11.1" />
-    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.1" />
-    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.1" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.0" />
-    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.Console" Version="1.11.2" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.11.2" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.11.2" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.11.1" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.11.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
