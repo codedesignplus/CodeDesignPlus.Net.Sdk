@@ -1,7 +1,21 @@
-﻿namespace CodeDesignPlus.Net.Security.Test.Helpers;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Options;
+
+namespace CodeDesignPlus.Net.Security.Test.Helpers;
 
 public static class OptionsUtil
 {
+    public static readonly CoreOptions CoreOptions = new()
+    {
+        AppName = "ms-test",
+        Version = "1.0.0",
+        Business = "CodeDesignPlus",
+        Contact = new () {
+            Name = "CodeDesignPlus",
+            Email = "codedesignplus@codedesignplus"
+        },
+        Description = "CodeDesignPlus.Net.Security.Test",
+    };
+
     public static readonly SecurityOptions SecurityOptions = new()
     {
         Authority = "https://localhost:5001",

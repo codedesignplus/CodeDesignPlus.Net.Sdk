@@ -9,11 +9,14 @@ public class RedisOptions : IValidatableObject
     /// The configuration section name for Redis options.
     /// </summary>
     public const string Section = "Redis";
-
+    /// <summary>
+    /// Gets or sets the connection timeout in milliseconds.
+    /// </summary>
+    public bool RegisterHealthCheck { get; set; } = true;
     /// <summary>
     /// Gets or sets the dictionary of Redis instances.
     /// </summary>
-    public Dictionary<string, Instance> Instances { get; set; } = new();
+    public Dictionary<string, Instance> Instances { get; set; } = [];
 
     /// <summary>
     /// Validates the properties of the <see cref="RedisOptions"/> instance.

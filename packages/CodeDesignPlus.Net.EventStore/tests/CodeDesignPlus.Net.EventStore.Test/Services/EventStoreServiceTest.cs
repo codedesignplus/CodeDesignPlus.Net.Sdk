@@ -702,6 +702,7 @@ public class EventStoreServiceTest(EventStoreCollectionFixture fixture)
         {
             Core = new CoreOptions
             {
+                Id = Guid.NewGuid(),
                 AppName = "ms-test",
                 Version = "v1",
                 Business = "CodeDesignPlus",

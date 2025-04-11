@@ -1,3 +1,5 @@
+using System.Security.Authentication;
+
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
 /// <summary>
@@ -31,6 +33,9 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
+        if(!options.Enable)
+            return services;
+
         if (options.Diagnostic.Enable)
             services.AddMongoDiagnostics(x =>
             {
@@ -54,6 +59,11 @@ public static class ServiceCollectionExtensions
                     builder.SubscribeDiagnosticsActivityEventSubscriber(serviceProvider);
                 };
 
+            clientSettings.SslSettings = new SslSettings
+            {
+                EnabledSslProtocols = mongoOptions.SslProtocols
+            };
+
             var mongoClient = new MongoClient(clientSettings);
 
             return mongoClient;
@@ -61,6 +71,16 @@ public static class ServiceCollectionExtensions
 
         if (options.RegisterAutomaticRepositories)
             services.AddRepositories<TStartup>();
+
+        if (options.RegisterHealthCheck)
+            services
+                .AddHealthChecks()
+                .AddMongoDb(x =>
+                {
+                    var mongoClient = x.GetRequiredService<IMongoClient>();
+
+                    return mongoClient;
+                }, name: "MongoDB", tags: ["ready"]);
 
         return services;
     }

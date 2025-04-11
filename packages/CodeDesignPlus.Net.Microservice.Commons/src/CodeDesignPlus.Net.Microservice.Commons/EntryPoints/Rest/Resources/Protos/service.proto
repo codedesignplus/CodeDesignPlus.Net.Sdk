@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.Services.gRpc";
+
+package Service;
+
+
+service Service {
+  rpc CreateService (CreateServiceRequest) returns (google.protobuf.Empty);
+  rpc GetService (GetServiceRequest) returns (GetServiceResponse);
+}
+
+message CreateServiceRequest {
+  Microservice Service = 1;
+}
+
+message GetServiceRequest {
+  string name = 1;
+}
+
+message GetServiceResponse {
+  Microservice Service = 1;
+}
+
+message Microservice {
+  string Id = 1;
+  string Name = 2;
+  string Description = 3;
+  repeated Controller Controllers = 4;
+}
+
+message Controller {
+  string Id = 1;
+  string Name = 2;
+  string Description = 3;
+  repeated Action Actions = 4;
+}
+
+message Action {
+  string Id = 1;
+  string Name = 2;
+  string Description = 3;
+  HttpMethod HttpMethod = 4;
+}
+
+enum HttpMethod {
+  NONE = 0;
+  POST = 1;
+  PUT = 2;
+  DELETE = 3;
+  PATCH = 4;
+  GET = 5;
+}

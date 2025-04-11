@@ -71,6 +71,11 @@ public interface IUserContext
     string[] Emails { get; }
 
     /// <summary>
+    /// Gets the roles of the current user.
+    /// </summary>
+    string[] Roles { get; }
+
+    /// <summary>
     /// Gets the tenant ID of the current user.
     /// </summary>
     Guid Tenant { get; }
