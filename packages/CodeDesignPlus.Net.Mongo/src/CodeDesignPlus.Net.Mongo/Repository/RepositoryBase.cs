@@ -439,7 +439,9 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
                 }
             }),
             new BsonDocument("$unwind", new BsonDocument("path", $"${propertyName}")),
-            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}"))
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}")),
+            new BsonDocument("$skip", criteria.Skip ?? 0), 
+            new BsonDocument("$limit", criteria.Limit ?? 10) 
         };
 
         var cursor = await collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken).ConfigureAwait(false);
@@ -477,6 +479,16 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
             else
                 query = query.SortByDescending(sortBy);
 
+        if (criteria.Skip.HasValue)
+        {
+            query = query.Skip(criteria.Skip.Value);
+        }
+
+        if (criteria.Limit.HasValue)
+        {
+            query = query.Limit(criteria.Limit.Value);
+        }
+        
         return query;
     }
 
