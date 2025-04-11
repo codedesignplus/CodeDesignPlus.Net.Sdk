@@ -34,7 +34,7 @@ public class ValidationPipelineTest
         _ = await _pipeline.Handle(request, _nextMock.Object, CancellationToken.None);
 
         // Assert
-        _nextMock.Verify(n => n(), Times.Once);
+        _nextMock.Verify(n => n(CancellationToken.None), Times.Once);
     }
 
     [Fact]
@@ -51,7 +51,7 @@ public class ValidationPipelineTest
 
         // Act & Assert
         await Assert.ThrowsAsync<ValidationException>(() => _pipeline.Handle(request, _nextMock.Object, CancellationToken.None));
-        _nextMock.Verify(n => n(), Times.Never);
+        _nextMock.Verify(n => n(CancellationToken.None), Times.Never);
     }
 }
 

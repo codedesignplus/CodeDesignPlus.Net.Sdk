@@ -17,7 +17,7 @@ public class EntityAttribute<TAssemblyScan> : DataAttribute
         var entities = typeof(TAssemblyScan).Assembly
             .GetTypes()
             .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
-            .Where(x => typeof(IEntityBase).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract && !x.IsSubclassOf(typeof(AggregateRoot)))
+            .Where(x => typeof(IEntityBase).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract && !x.IsSubclassOf(typeof(AggregateRoot)) && !x.IsSubclassOf(typeof(AggregateRootBase)))
             .ToList();
 
         foreach (var entity in entities)

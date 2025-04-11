@@ -205,6 +205,32 @@ public class RepositoryBaseTest
         // Assert
         Assert.True(result);
     }
+    
+    [Fact]
+    public async Task DeleteAsync_WhenIdIsValidWithoutTenant_ReturnTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "Test",
+            IsActive = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        await repository.DeleteAsync<Client>(entity.Id, cancellationToken);
+
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
+        // Assert
+        Assert.Null(result);
+    }
 
     [Fact]
     public async Task DeleteAsync_WhenIdIsValid_ReturnTrue()
@@ -498,8 +524,8 @@ public class RepositoryBaseTest
 
         Assert.NotNull(order);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
-        Assert.Contains(result, x => x.Id == order.Id);
+        Assert.NotEmpty(result.Data);
+        Assert.Contains(result.Data, x => x.Id == order.Id);
     }
 
     [Fact]
@@ -532,8 +558,8 @@ public class RepositoryBaseTest
         var order = orders.First(x => x.Name == "Order 1");
         Assert.NotNull(order);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
-        Assert.Contains(result, x => x.Id == order.Id);
+        Assert.NotEmpty(result.Data);
+        Assert.Contains(result.Data, x => x.Id == order.Id);
     }
 
     [Fact]
@@ -566,7 +592,7 @@ public class RepositoryBaseTest
         }, cancellationToken);
 
         // Assert
-        var result = data.First();
+        var result = data.Data.First();
         var order = orders.First();
         Assert.NotNull(order);
         Assert.NotNull(result);
@@ -603,7 +629,7 @@ public class RepositoryBaseTest
         }, cancellationToken);
 
         // Assert
-        var result = data.First();
+        var result = data.Data.First();
         var order = orders.Last();
         Assert.NotNull(order);
         Assert.NotNull(result);
@@ -638,8 +664,8 @@ public class RepositoryBaseTest
         Assert.NotNull(order);
         Assert.NotNull(product);
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
-        Assert.Contains(result, x => x.Id == product.Id);
+        Assert.NotEmpty(result.Data);
+        Assert.Contains(result.Data, x => x.Id == product.Id);
     }
 
     [Fact]

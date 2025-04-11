@@ -10,6 +10,11 @@ public class CoreOptions : IValidatableObject
     /// </summary>
     public static readonly string Section = "Core";
     /// <summary>
+    /// Gets or sets the Id of the microservice
+    /// </summary>
+    [Required]
+    public Guid Id { get; set; }
+    /// <summary>
     /// Gets or sets the business
     /// </summary>
     [Required]

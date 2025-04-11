@@ -1,4 +1,4 @@
-﻿
+﻿using CodeDesignPlus.Net.Core.Abstractions.Models.Pager;
 using CodeDesignPlus.Net.Mongo.Extensions;
 
 namespace CodeDesignPlus.Net.Mongo.Repository;
@@ -132,7 +132,20 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         return collection.Find(filter).AnyAsync(cancellationToken);
     }
-    
+
+    /// <summary>
+    /// Deletes an entity by its identifier asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="id">The identifier of the entity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous delete operation.</returns>
+    public Task DeleteAsync<TEntity>(Guid id, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        return this.DeleteAsync<TEntity>(id, Guid.Empty, cancellationToken);
+    }
+
     /// <summary>
     /// Deletes an entity by its filter asynchronously.
     /// </summary>
@@ -314,7 +327,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="criteria">The criteria to match.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous matching operation.</returns>
-    public Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken)
+    public Task<Pagination<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
         return this.MatchingAsync<TEntity>(criteria, Guid.Empty, cancellationToken);
@@ -328,12 +341,17 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous matching operation.</returns>
-    public Task<List<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, Guid tenant, CancellationToken cancellationToken)
+    public async Task<Pagination<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, Guid tenant, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
-        var query = Query<TEntity>(criteria, tenant);
+        var filterExpression = criteria.GetFilterExpression<TEntity>();
+        var filter = filterExpression.ToFilterDefinition().BuildFilter(tenant);
+        var totalCount = await this.GetCollection<TEntity>().CountDocumentsAsync(filter, cancellationToken: cancellationToken);
 
-        return query.ToListAsync(cancellationToken);
+        var query = Query<TEntity>(criteria, tenant);
+        var data = await query.ToListAsync(cancellationToken);
+
+        return Pagination<TEntity>.Create(data, totalCount, criteria.Skip, criteria.Limit);
     }
 
     /// <summary>
@@ -345,7 +363,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="projection">The projection expression.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous matching operation.</returns>
-    public Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken)
+    public Task<Pagination<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
         return this.MatchingAsync(criteria, projection, Guid.Empty, cancellationToken);
@@ -361,12 +379,17 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous matching operation.</returns>
-    public Task<List<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, Guid tenant, CancellationToken cancellationToken)
+    public async Task<Pagination<TResult>> MatchingAsync<TEntity, TResult>(C.Criteria criteria, Expression<Func<TEntity, TResult>> projection, Guid tenant, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
-        var query = Query<TEntity>(criteria, tenant);
+        var filterExpression = criteria.GetFilterExpression<TEntity>();
+        var filter = filterExpression.ToFilterDefinition().BuildFilter(tenant);
+        var totalCount = await this.GetCollection<TEntity>().CountDocumentsAsync(filter, cancellationToken: cancellationToken);
 
-        return query.Project(projection).ToListAsync(cancellationToken);
+        var query = Query<TEntity>(criteria, tenant);
+        var data = await query.Project(projection).ToListAsync(cancellationToken);
+
+        return Pagination<TResult>.Create(data, totalCount, criteria.Skip, criteria.Limit);
     }
 
 
@@ -380,7 +403,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="projection">The projection expression.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous matching operation.</returns>
-    public Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
+    public Task<Pagination<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
         where TProjection : class, IEntityBase
     {
@@ -398,7 +421,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous matching operation.</returns>
-    public async Task<List<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, Guid tenant, CancellationToken cancellationToken)
+    public async Task<Pagination<TProjection>> MatchingAsync<TEntity, TProjection>(Guid id, C.Criteria criteria, Expression<Func<TEntity, List<TProjection>>> projection, Guid tenant, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
         where TProjection : class, IEntityBase
     {
@@ -412,7 +435,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         var bsonFilter = ((BsonDocumentFilterDefinition<TProjection>)filterDefinition).Document;
 
-        var pipeline = new[]
+        var pipelineBase = new[]
         {
             new BsonDocument("$match", new BsonDocument("_id", new BsonBinaryData(id, GuidRepresentation.Standard))),
             new BsonDocument("$project", new BsonDocument
@@ -426,8 +449,26 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
                 }
             }),
             new BsonDocument("$unwind", new BsonDocument("path", $"${propertyName}")),
-            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}"))
+            new BsonDocument("$replaceRoot", new BsonDocument("newRoot", $"${propertyName}")),
         };
+
+        var pipeline = pipelineBase
+            .Concat(
+            [
+                new BsonDocument("$skip", criteria.Skip ?? 0),
+                new BsonDocument("$limit", criteria.Limit ?? 10)
+            ])
+            .ToList();
+        
+        var pipelineCount = pipelineBase
+            .Concat(
+            [
+                new BsonDocument("$count", "TotalCount")
+            ])
+            .ToList();
+
+        var countCursor = await collection.AggregateAsync<BsonDocument>(pipelineCount, cancellationToken: cancellationToken).ConfigureAwait(false);
+        var totalCount = countCursor.FirstOrDefault(cancellationToken: cancellationToken)?["TotalCount"]?.AsInt32 ?? 0;
 
         var cursor = await collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken).ConfigureAwait(false);
         var resultList = new List<BsonDocument>();
@@ -437,7 +478,9 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
             resultList.AddRange(cursor.Current);
         }
 
-        return resultList.Select(doc => BsonSerializer.Deserialize<TProjection>(doc)).ToList();
+        var data = resultList.Select(doc => BsonSerializer.Deserialize<TProjection>(doc)).ToList();
+
+        return Pagination<TProjection>.Create(data, totalCount, criteria.Skip, criteria.Limit);
     }
 
     /// <summary>
@@ -463,6 +506,16 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
                 query = query.SortBy(sortBy);
             else
                 query = query.SortByDescending(sortBy);
+
+        if (criteria.Skip.HasValue)
+        {
+            query = query.Skip(criteria.Skip.Value);
+        }
+
+        if (criteria.Limit.HasValue)
+        {
+            query = query.Limit(criteria.Limit.Value);
+        }
 
         return query;
     }

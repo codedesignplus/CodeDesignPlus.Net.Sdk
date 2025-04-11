@@ -34,9 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Cache\src\CodeDesignPlus.Net.Cache.Abstractions\CodeDesignPlus.Net.Cache.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.4" />
   </ItemGroup>
 </Project>

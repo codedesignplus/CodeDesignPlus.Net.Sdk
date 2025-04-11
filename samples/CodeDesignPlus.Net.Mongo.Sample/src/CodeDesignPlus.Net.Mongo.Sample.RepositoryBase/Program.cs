@@ -8,6 +8,7 @@ using CodeDesignPlus.Net.Mongo.Sample.RepositoryBase.Respositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
+using NodaTime;
 
 var configuration = new ConfigurationBuilder()
     .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
@@ -59,7 +60,9 @@ var userFound = await repository.FindAsync<UserAggregate>(user.Id, tenant, Cance
 // Criteris to find users
 var criteria = new Criteria
 {
-    Filters = "IsActive=true"
+    Filters = "IsActive=true",
+    Skip = 0,
+    Limit = 10
 };
 
 var usersFound = await repository.MatchingAsync<UserAggregate>(criteria, tenant, CancellationToken.None);
@@ -85,9 +88,12 @@ await repository.UpdateAsync(userUpdate, CancellationToken.None);
 // Update some users
 var usersUpdate = await repository.MatchingAsync<UserAggregate>(criteria, tenant, CancellationToken.None);
 
-usersUpdate.ForEach(x => x.UpdateName($"{x.Name} Updated"));
+foreach (var userToUpdate in usersUpdate.Data)
+{
+    userToUpdate.UpdateName($"{userToUpdate.Name} Updated");
+}
 
-await repository.UpdateRangeAsync(usersUpdate, CancellationToken.None);
+await repository.UpdateRangeAsync(usersUpdate.Data.ToList(), CancellationToken.None);
 
 // Transaction
 await repository.TransactionAsync(async (database, session) =>

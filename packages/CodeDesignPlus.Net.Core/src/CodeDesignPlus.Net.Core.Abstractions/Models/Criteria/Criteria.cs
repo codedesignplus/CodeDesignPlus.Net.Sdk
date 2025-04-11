@@ -18,5 +18,15 @@ public class Criteria
     /// <summary>
     /// Gets or sets the type of ordering to apply to the data.
     /// </summary>
-    public OrderTypes OrderType { get; set; }
+    public OrderTypes OrderType { get; set; }    
+    
+    /// <summary>
+    /// Gets or sets the number of records to skip.
+    /// </summary>
+    public int? Skip { get; set; }
+
+    /// <summary>
+    /// Gets or sets the maximum number of records to return.
+    /// </summary>
+    public int? Limit { get; set; }
 }

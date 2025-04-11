@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+option csharp_namespace = "CodeDesignPlus.Net.Security.gRpc";
+
+package Rbac;
+
+service Rbac {
+  rpc GetRbac (GetRbacRequest) returns (GetRbacResponse);
+}
+
+message GetRbacRequest {
+  string Microservice = 1;
+}
+
+message GetRbacResponse {
+  repeated RbacResource Resources = 1;
+}
+
+message RbacResource {
+  string Role = 1;
+  string Module = 2;
+  string Controller = 3;
+  string Action = 4;
+  HttpMethod Method = 5;
+}
+
+enum HttpMethod {
+  None = 0;
+  Post = 1;
+  Put = 2;
+  Delete = 3;
+  Get = 4;
+}
