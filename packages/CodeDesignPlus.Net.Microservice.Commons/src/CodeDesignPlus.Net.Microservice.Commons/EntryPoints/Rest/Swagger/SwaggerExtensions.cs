@@ -99,7 +99,7 @@ public static class SwaggerExtensions
 
         app.UseSwaggerUI(c =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{options.AppName} {options.Version}");
+            c.SwaggerEndpoint("./swagger/v1/swagger.json", $"{options.AppName} {options.Version}");
         });
 
         return app;
