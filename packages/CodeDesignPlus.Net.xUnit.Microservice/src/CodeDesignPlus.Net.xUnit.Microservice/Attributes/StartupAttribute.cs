@@ -8,29 +8,6 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 public class StartupAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
-    /// A callback to configure the services and configuration.
-    /// </summary>
-    private readonly Action<IServiceCollection, IConfigurationBuilder> Configure;
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="StartupAttribute{TAssemblyScan}"/> class with no configuration callback.
-    /// </summary>
-    public StartupAttribute()
-    {
-        this.Configure = null!;
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="StartupAttribute{TAssemblyScan}"/> class with a callback to configure services and configuration.
-    /// </summary>
-    /// <param name="configure">The callback to configure services and configuration.</param>
-    public StartupAttribute(Action<IServiceCollection, IConfigurationBuilder> configure)
-    {
-        this.Configure = configure;
-    }
-
-
-    /// <summary>
     /// Gets the data for the test method.
     /// </summary>
     /// <param name="testMethod">The test method for which data is being provided.</param>
@@ -39,8 +16,6 @@ public class StartupAttribute<TAssemblyScan> : DataAttribute
     {
         var services = new ServiceCollection();
         var configurationBuilder = new ConfigurationBuilder();
-
-        this.Configure?.Invoke(services, configurationBuilder);
 
         var configuration = configurationBuilder.Build();
 
