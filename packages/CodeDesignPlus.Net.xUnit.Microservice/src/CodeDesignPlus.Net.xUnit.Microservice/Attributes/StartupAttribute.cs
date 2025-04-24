@@ -8,6 +8,12 @@ namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 public class StartupAttribute<TAssemblyScan> : DataAttribute
 {
     /// <summary>
+    /// A callback to configure the services and configuration.
+    /// </summary>
+    public Action<IServiceCollection, IConfigurationBuilder> Configure { get; set; } = null!;
+
+
+    /// <summary>
     /// Gets the data for the test method.
     /// </summary>
     /// <param name="testMethod">The test method for which data is being provided.</param>
@@ -15,7 +21,11 @@ public class StartupAttribute<TAssemblyScan> : DataAttribute
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
         var services = new ServiceCollection();
-        var configuration = new ConfigurationBuilder().Build();
+        var configurationBuilder = new ConfigurationBuilder();
+
+        this.Configure?.Invoke(services, configurationBuilder);
+
+        var configuration = configurationBuilder.Build();
 
         var startups = typeof(TAssemblyScan).Assembly
             .GetTypes()
