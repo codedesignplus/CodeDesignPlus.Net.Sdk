@@ -10,7 +10,24 @@ public class StartupAttribute<TAssemblyScan> : DataAttribute
     /// <summary>
     /// A callback to configure the services and configuration.
     /// </summary>
-    public Action<IServiceCollection, IConfigurationBuilder> Configure { get; set; } = null!;
+    private readonly Action<IServiceCollection, IConfigurationBuilder> Configure;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StartupAttribute{TAssemblyScan}"/> class with no configuration callback.
+    /// </summary>
+    public StartupAttribute()
+    {
+        this.Configure = null!;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="StartupAttribute{TAssemblyScan}"/> class with a callback to configure services and configuration.
+    /// </summary>
+    /// <param name="configure">The callback to configure services and configuration.</param>
+    public StartupAttribute(Action<IServiceCollection, IConfigurationBuilder> configure)
+    {
+        this.Configure = configure;
+    }
 
 
     /// <summary>
