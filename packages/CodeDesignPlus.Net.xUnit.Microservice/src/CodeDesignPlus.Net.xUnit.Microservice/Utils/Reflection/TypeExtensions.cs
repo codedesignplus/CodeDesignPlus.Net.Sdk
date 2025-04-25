@@ -30,7 +30,8 @@ public static class TypeExtensions
         { typeof(ushort), () => (ushort)1 },
         { typeof(sbyte), () => (sbyte)1 },
         { typeof(TimeSpan), () => TimeSpan.Zero },
-        { typeof(Uri), () => new Uri("https://codedesignplus.com") }
+        { typeof(Uri), () => new Uri("https://codedesignplus.com") },
+        { typeof(Stream), () => new MemoryStream() }
     };
 
     /// <summary>
