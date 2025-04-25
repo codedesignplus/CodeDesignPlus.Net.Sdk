@@ -32,15 +32,15 @@ public static class ServiceCollectionExtensions
             .Bind(section)
             .ValidateDataAnnotations();
 
-        services.AddSingleton<IFileStorage, FileStorageService>();
-        services.AddSingleton<IAzureBlobFactory, AzureBlobFactory>();
-        services.AddSingleton<IAzureFileFactory, AzureFileFactory>();
-        services.AddSingleton<IAzureBlobProvider, AzureBlobProvider>();
-        services.AddSingleton<IAzureFileProvider, AzureFileProvider>();
-        services.AddSingleton<ILocalProvider, LocalProvider>();
-        services.AddSingleton<IProvider, AzureBlobProvider>();
-        services.AddSingleton<IProvider, AzureFileProvider>();
-        services.AddSingleton<IProvider, LocalProvider>();
+        services.AddScoped<IFileStorage, FileStorageService>();
+        services.AddScoped<IAzureBlobFactory, AzureBlobFactory>();
+        services.AddScoped<IAzureFileFactory, AzureFileFactory>();
+        services.AddScoped<IAzureBlobProvider, AzureBlobProvider>();
+        services.AddScoped<IAzureFileProvider, AzureFileProvider>();
+        services.AddScoped<ILocalProvider, LocalProvider>();
+        services.AddScoped<IProvider, AzureBlobProvider>();
+        services.AddScoped<IProvider, AzureFileProvider>();
+        services.AddScoped<IProvider, LocalProvider>();
 
         return services;
     }
