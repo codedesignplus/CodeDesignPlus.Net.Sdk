@@ -12,6 +12,7 @@ public static class TypeExtensions
         { typeof(string), () => "Test" },
         { typeof(int), () => 1 },
         { typeof(long), () => 1L },
+        { typeof(Guid?), () => Guid.NewGuid() },
         { typeof(Guid), () => Guid.NewGuid() },
         { typeof(DateTime), () => DateTime.Now },
         { typeof(DateTimeOffset), () => DateTimeOffset.UtcNow },
