@@ -49,7 +49,7 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
         }
 
         [Fact]
-        public void Create_WhenAzureBlobIsNotEnabled_ThrowsFileStorageException()
+        public void Create_WhenAzureBlobIsNotEnabled_ReturnSame()
         {
             // Arrange
             var userContextMock = new Mock<IUserContext>();
@@ -58,9 +58,7 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
             var factory = new AzureBlobFactory(options, userContextMock.Object);
 
             // Act & Assert
-            var exception = Assert.Throws<FileStorageException>(() => factory.Create());
-
-            Assert.Equal("The AzureBlob is not enable", exception.Message);
+            Assert.Equal(factory, factory.Create());
         }
 
         [Fact]
