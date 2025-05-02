@@ -85,7 +85,7 @@ public static class SwaggerExtensions
     }
 
     /// <summary>
-    /// Configures the application to use Swagger.
+    /// Configures the application to use Swagger. 
     /// </summary>
     /// <param name="app">The application builder.</param>
     /// <returns>The application builder with Swagger configured.</returns>
