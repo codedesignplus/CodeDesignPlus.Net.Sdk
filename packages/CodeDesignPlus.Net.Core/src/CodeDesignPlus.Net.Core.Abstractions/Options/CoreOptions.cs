@@ -41,6 +41,10 @@ public class CoreOptions : IValidatableObject
     /// </summary>
     [Required]
     public required Contact Contact { get; set; }
+    /// <summary>
+    /// Gets or sets the path base for the microservice
+    /// </summary>
+    public string? PathBase { get; set; }
 
     /// <summary>
     /// Validate the properties of the class
