@@ -79,6 +79,8 @@ public static class SwaggerExtensions
                     Array.Empty<string>()
                 }
             });
+
+            x.OperationFilter<FileUploadOperationFilter>();
         });
 
         return services;
