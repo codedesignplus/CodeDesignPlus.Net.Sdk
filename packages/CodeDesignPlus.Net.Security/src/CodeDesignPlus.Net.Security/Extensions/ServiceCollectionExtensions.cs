@@ -108,9 +108,13 @@ public static class ServiceCollectionExtensions
                     if (!string.IsNullOrEmpty(securityOptions.Authority))
                         x.Authority = securityOptions.Authority;
 
+                    if (!string.IsNullOrEmpty(securityOptions.ValidIssuer))
+                        x.TokenValidationParameters.ValidIssuer = securityOptions.ValidIssuer;
+                    else
+                        x.TokenValidationParameters.ValidIssuers = securityOptions.ValidIssuers;
+
                     x.TokenValidationParameters = new TokenValidationParameters
                     {
-                        ValidateIssuer = securityOptions.ValidateIssuer,
                         ValidateLifetime = securityOptions.ValidateLifetime,
                         ValidIssuer = securityOptions.ValidIssuer,
                         ValidateAudience = securityOptions.ValidateAudience,

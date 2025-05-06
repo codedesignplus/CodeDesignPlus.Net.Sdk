@@ -92,6 +92,10 @@ public class SecurityOptions
     /// </summary>
     [Range(5, 20)]
     public ushort RefreshRbacInterval { get; set; } = 10;
+    /// <summary>
+    /// Gets or sets the valid issuers that will be used to check against the token's issuer
+    /// </summary>
+    public List<string> ValidIssuers { get; set; } = [];
 
     /// <summary>
     /// Get the certificate to use in the authentication
