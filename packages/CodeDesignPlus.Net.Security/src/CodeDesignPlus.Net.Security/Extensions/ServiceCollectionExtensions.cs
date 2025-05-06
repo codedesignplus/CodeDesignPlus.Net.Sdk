@@ -108,7 +108,7 @@ public static class ServiceCollectionExtensions
                     if (!string.IsNullOrEmpty(securityOptions.Authority))
                         x.Authority = securityOptions.Authority;
 
-                    if (!string.IsNullOrEmpty(securityOptions.ValidIssuer))
+                    if (securityOptions.ValidIssuers.Count == 0)
                         x.TokenValidationParameters.ValidIssuer = securityOptions.ValidIssuer;
                     else
                         x.TokenValidationParameters.ValidIssuers = securityOptions.ValidIssuers;
