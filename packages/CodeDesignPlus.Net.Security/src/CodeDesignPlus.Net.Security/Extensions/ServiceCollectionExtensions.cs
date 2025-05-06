@@ -108,19 +108,19 @@ public static class ServiceCollectionExtensions
                     if (!string.IsNullOrEmpty(securityOptions.Authority))
                         x.Authority = securityOptions.Authority;
 
+                    x.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateLifetime = securityOptions.ValidateLifetime,
+                        ValidateAudience = securityOptions.ValidateAudience,
+                        ValidAudiences = securityOptions.ValidAudiences,
+                        SignatureValidator = (token, _) => new JsonWebToken(token)
+                    };
+
                     if (securityOptions.ValidIssuers.Count == 0)
                         x.TokenValidationParameters.ValidIssuer = securityOptions.ValidIssuer;
                     else
                         x.TokenValidationParameters.ValidIssuers = securityOptions.ValidIssuers;
 
-                    x.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateLifetime = securityOptions.ValidateLifetime,
-                        ValidIssuer = securityOptions.ValidIssuer,
-                        ValidateAudience = securityOptions.ValidateAudience,
-                        ValidAudiences = securityOptions.ValidAudiences,
-                        SignatureValidator = (token, _) => new JsonWebToken(token)
-                    };
 
                     if (certificate != null)
                     {
