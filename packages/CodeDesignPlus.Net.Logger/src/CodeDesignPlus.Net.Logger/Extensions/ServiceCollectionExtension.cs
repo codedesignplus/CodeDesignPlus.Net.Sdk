@@ -62,7 +62,8 @@ public static class ServiceCollectionExtension
                     .WithDefaultDestructurers()
                     .WithDestructurers([new DbUpdateExceptionDestructurer()])
                 )
-                .Enrich.With(new ExceptionEnricher());
+                .Enrich.With(new ExceptionEnricher())
+                .MinimumLevel.Is(loggerOptions.Value.LogLevel);
 
             if (loggerOptions.Value.Enable)
             {

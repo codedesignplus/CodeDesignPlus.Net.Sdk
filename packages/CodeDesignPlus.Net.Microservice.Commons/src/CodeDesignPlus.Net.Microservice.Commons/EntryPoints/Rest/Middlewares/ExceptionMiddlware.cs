@@ -5,6 +5,7 @@ using CodeDesignPlus.Net.Exceptions.Models;
 using CodeDesignPlus.Net.Serializers;
 using FluentValidation;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Middlewares;
 
@@ -48,6 +49,10 @@ public class ExceptionMiddleware(RequestDelegate next)
     {
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+
+        var logger = context.RequestServices.GetRequiredService<ILogger<ExceptionMiddleware>>();
+
+        logger.LogError(exception, "TraceId: {TraceIdentifier} - {Message}", context.TraceIdentifier, exception.Message);
         
         var traceId = Activity.Current?.TraceId.ToString() ?? context.TraceIdentifier;
 

@@ -1,6 +1,7 @@
 ﻿using CodeDesignPlus.Net.xUnit.Microservice.Server.Authentication;
 using CodeDesignPlus.Net.xUnit.Microservice.Server.Logger;
 using CodeDesignPlus.Net.xUnit.Microservice.Server.Services;
+using Ductus.FluentDocker.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -27,6 +28,10 @@ public class Server<TProgram> : WebApplicationFactory<TProgram> where TProgram :
     /// Gets or sets the action to configure the in-memory collection.
     /// </summary>
     public Action<Dictionary<string, string>> InMemoryCollection { get; set; }
+    /// <summary>
+    /// Gets or sets the action to configure the services for the application.
+    /// </summary>
+    public Action<IServiceCollection> ConfigureServices { get; set; }
 
     /// <summary>
     /// Configures the web host for the application.
@@ -57,7 +62,7 @@ public class Server<TProgram> : WebApplicationFactory<TProgram> where TProgram :
 
         builder.UseConfiguration(configuration);
 
-        builder.ConfigureServices(ConfigureServices);
+        builder.ConfigureServices(ConfigureServicesInternal);
 
         builder.UseEnvironment("Development");
     }
@@ -79,12 +84,14 @@ public class Server<TProgram> : WebApplicationFactory<TProgram> where TProgram :
     /// Configures the services for the application.
     /// </summary>
     /// <param name="services">The service collection.</param>
-    public virtual void ConfigureServices(IServiceCollection services)
+    public virtual void ConfigureServicesInternal(IServiceCollection services)
     {
         services.AddAuthentication("TestAuth")
                 .AddScheme<AuthenticationSchemeOptions, AuthHandler>("TestAuth", options => { });
 
         services.AddSingleton(this.LoggerProvider);
         services.AddSingleton<ILoggerFactory, InMemoryLoggerFactory>();
+
+        this.ConfigureServices?.Invoke(services);
     }
 }
