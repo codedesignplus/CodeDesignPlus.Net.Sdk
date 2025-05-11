@@ -16,7 +16,7 @@ public static class ClaimTypes
     /// <summary>
     /// This is the principal about which the token asserts information, such as the user of an app. This value is immutable and cannot be reassigned or reused. It can be used to perform authorization checks safely, such as when the token is used to access a resource. By default, the subject claim is populated with the object ID of the user in the directory. To learn more, see Azure Active Directory B2C: Token, session, and single sign-on configuration.
     /// </summary>
-    public const string Subject = "sub";
+    public const string Subject = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
     /// <summary>
     /// An audience claim identifies the intended recipient of the token. For Azure AD B2C, the audience is your app's Application ID, as assigned to your app in the app registration portal. Your app should validate this value and reject the token if it does not match.
     /// </summary>
@@ -41,14 +41,6 @@ public static class ClaimTypes
     /// The immutable identifier for the user account in the tenant. It can be used to perform authorization checks safely and as a key in database tables. This ID uniquely identifies the user across applications - two different applications signing in the same user will receive the same value in the oid claim. This means that it can be used when making queries to Microsoft online services, such as the Microsoft Graph. The Microsoft Graph will return this ID as the id property for a given user account.
     /// </summary>
     public const string ObjectIdentifier = "http://schemas.microsoft.com/identity/claims/objectidentifier";
-    /// <summary>
-    /// This is the principal about which the token asserts information, such as the user of an app. This value is immutable and cannot be reassigned or reused. It can be used to perform authorization checks safely, such as when the token is used to access a resource. By default, the subject claim is populated with the object ID of the user in the directory.
-    /// </summary>
-    public const string Sub = "sub";
-    /// <summary>
-    /// The immutable identifier for the user account in the tenant. 
-    /// </summary>
-    public const string Oid = "oid";
     /// <summary>
     /// The city in which the user is located.
     /// </summary>

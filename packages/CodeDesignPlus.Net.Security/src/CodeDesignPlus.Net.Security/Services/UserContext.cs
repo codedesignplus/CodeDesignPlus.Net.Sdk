@@ -27,13 +27,10 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     {
         get
         {
-            var claimValue = this.User.FindFirst(ClaimTypes.Sub)?.Value;
-
-            if (string.IsNullOrEmpty(claimValue))
-                claimValue = this.User.FindFirst(ClaimTypes.Oid)?.Value;
+            var claimValue = this.User.FindFirst(ClaimTypes.ObjectIdentifier)?.Value;
 
             if(string.IsNullOrEmpty(claimValue))
-                claimValue = this.User.FindFirst(ClaimTypes.ObjectIdentifier)?.Value;
+                claimValue = this.User.FindFirst(ClaimTypes.Subject)?.Value;
 
             if (string.IsNullOrEmpty(claimValue))
                 throw new SecurityException("The claim 'oid' or 'sub' is required.");
