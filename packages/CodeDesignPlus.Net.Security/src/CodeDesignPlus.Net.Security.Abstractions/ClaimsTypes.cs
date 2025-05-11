@@ -42,6 +42,14 @@ public static class ClaimTypes
     /// </summary>
     public const string ObjectIdentifier = "http://schemas.microsoft.com/identity/claims/objectidentifier";
     /// <summary>
+    /// This is the principal about which the token asserts information, such as the user of an app. This value is immutable and cannot be reassigned or reused. It can be used to perform authorization checks safely, such as when the token is used to access a resource. By default, the subject claim is populated with the object ID of the user in the directory.
+    /// </summary>
+    public const string Sub = "sub";
+    /// <summary>
+    /// The immutable identifier for the user account in the tenant. 
+    /// </summary>
+    public const string Oid = "oid";
+    /// <summary>
     /// The city in which the user is located.
     /// </summary>
     public const string City = "city";
