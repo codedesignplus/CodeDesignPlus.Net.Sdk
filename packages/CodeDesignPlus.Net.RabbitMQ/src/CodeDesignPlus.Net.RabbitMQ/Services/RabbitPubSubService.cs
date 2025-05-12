@@ -128,8 +128,8 @@ public class RabbitPubSubService : IRabbitPubSub
 
         var exchangeName = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
-        await ConfigQueueAsync(channel, queueName, exchangeName);
         await ConfigQueueDlxAsync(channel, queueName, exchangeName);
+        await ConfigQueueAsync(channel, queueName, exchangeName);
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
@@ -199,9 +199,12 @@ public class RabbitPubSubService : IRabbitPubSub
     /// <param name="exchangeName">The exchange name.</param>
     private async Task ConfigQueueAsync(IChannel channel, string queue, string exchangeName)
     {
-        argumentsQueue["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName);
+        var arguments = new Dictionary<string, object>(this.argumentsQueue)
+        {
+            ["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName)
+        };
         await channel.ExchangeDeclareAsync(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
-        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: argumentsQueue);
+        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: arguments);
         await channel.QueueBindAsync(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 

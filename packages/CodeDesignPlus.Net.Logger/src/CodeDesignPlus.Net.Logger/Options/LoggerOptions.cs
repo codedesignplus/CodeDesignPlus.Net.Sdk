@@ -24,7 +24,7 @@ public class LoggerOptions : IValidatableObject
     /// <summary>
     /// Gets or sets the log level for the logger.
     /// </summary>
-    public Serilog.Events.LogEventLevel LogLevel { get; set; } = Serilog.Events.LogEventLevel.Error;
+    public string Level { get; set; } = null!;
 
     /// <summary>
     /// Validates the properties of the LoggerOptions.
