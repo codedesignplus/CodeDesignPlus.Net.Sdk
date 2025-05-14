@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
+﻿using System.Reflection.Metadata.Ecma335;
+using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Net.Security.Services;
 
@@ -22,7 +23,21 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <summary>
     /// Gets the user ID.
     /// </summary>
-    public Guid IdUser => this.GetClaim<Guid>(ClaimTypes.ObjectIdentifier);
+    public Guid IdUser
+    {
+        get
+        {
+            var claimValue = this.User.FindFirst(ClaimTypes.ObjectIdentifier)?.Value;
+
+            if(string.IsNullOrEmpty(claimValue))
+                claimValue = this.User.FindFirst(ClaimTypes.Subject)?.Value;
+
+            if (string.IsNullOrEmpty(claimValue))
+                throw new SecurityException("The claim 'oid' or 'sub' is required.");
+
+            return ConvertTo<Guid>(claimValue);
+        }
+    }
 
     /// <summary>
     /// Gets a value indicating whether the current user is authenticated.
@@ -104,6 +119,17 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     {
         var claimValue = this.User.FindFirst(claimType)?.Value;
 
+        return ConvertTo<TValue>(claimValue);
+    }
+
+    /// <summary>
+    /// Converts a claim value to the specified type.
+    /// </summary>
+    /// <typeparam name="TValue">The type to convert to.</typeparam>
+    /// <param name="claimValue">The claim value to convert.</param>
+    /// <returns>The converted claim value.</returns>
+    private static TValue ConvertTo<TValue>(string claimValue)
+    {
         if (typeof(TValue) == typeof(Guid) && Guid.TryParse(claimValue, out var guidValue))
         {
             return (TValue)(object)guidValue;

@@ -130,7 +130,15 @@ internal static class Evaluator
                 return Expression.Constant(parseResult.Value, targetType);
             }
 
+            if (targetType == typeof(Guid))
+            {
+                var guidValue = Guid.Parse(value);
+
+                return Expression.Constant(guidValue, targetType);
+            }
+
             var convertedValue = Convert.ChangeType(value, targetType);
+            
             return Expression.Constant(convertedValue, targetType);
         }
         catch (Exception ex) when (ex is InvalidCastException || ex is FormatException)

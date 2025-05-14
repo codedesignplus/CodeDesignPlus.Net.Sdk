@@ -110,7 +110,7 @@ public class ServiceCollectionExtensionTest
 
         var logger = host.Services.GetService<ILogger<ServiceCollectionExtensionTest>>();
 
-        logger!.LogDebug("Hola");
+        logger!.LogInformation("Hola");
 
         // Assert
         Assert.NotNull(logger);
