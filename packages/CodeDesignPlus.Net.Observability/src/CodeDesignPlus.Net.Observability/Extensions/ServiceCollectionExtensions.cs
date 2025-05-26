@@ -54,6 +54,8 @@ public static class ServiceCollectionExtensions
             .ConfigureResource(resource =>
             {
                 resource.AddService(serviceName: coreOptions.AppName, serviceVersion: coreOptions.Version);
+                resource.AddTelemetrySdk();
+                resource.AddEnvironmentVariableDetector();
             });
 
         otel.ConfigureMetrics(environment, observabilityOptions, metricsBuilder);
