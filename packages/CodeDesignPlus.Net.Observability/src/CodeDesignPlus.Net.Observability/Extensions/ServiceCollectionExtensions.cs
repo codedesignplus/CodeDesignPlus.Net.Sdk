@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -116,6 +117,12 @@ public static class ServiceCollectionExtensions
         if (!observabilityOptions.Trace.Enable)
             return;
 
+        var compositeTextMapPropagator = new CompositeTextMapPropagator(
+        [
+            new TraceContextPropagator(),
+            new BaggagePropagator()
+        ]);
+
         otel.WithTracing(tracing =>
         {
             tracing.AddTraceAspNetCoreInstrumentation(observabilityOptions.Trace.AspNetCore);
@@ -217,7 +224,7 @@ public static class ServiceCollectionExtensions
         if (enable)
             tracing.AddConfluentKafkaInstrumentation();
     }
-    
+
     /// <summary>
     /// Adds RabbitMQ instrumentation for tracing.
     /// </summary>
