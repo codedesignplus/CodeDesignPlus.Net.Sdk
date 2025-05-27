@@ -124,6 +124,7 @@ public static class ServiceCollectionExtensions
             tracing.AddTraceCodeDesignPlusSdkInstrumentation(observabilityOptions.Trace.CodeDesignPlusSdk);
             tracing.AddTraceRedisInstrumentation(observabilityOptions.Trace.Redis);
             tracing.AddTraceKafkaInstrumentation(observabilityOptions.Trace.Kafka);
+            tracing.AddTraceRabbitMQInstrumentation(observabilityOptions.Trace.RabbitMQ);
 
             tracing.AddOtlpExporter(x =>
             {
@@ -151,7 +152,7 @@ public static class ServiceCollectionExtensions
             {
                 options.Filter = httpContext => httpContext.Request.Path.StartsWithSegments("/api");
             });
-            
+
             tracing.AddHttpClientInstrumentation();
         }
     }
@@ -215,5 +216,16 @@ public static class ServiceCollectionExtensions
     {
         if (enable)
             tracing.AddConfluentKafkaInstrumentation();
+    }
+    
+    /// <summary>
+    /// Adds RabbitMQ instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
+    private static void AddTraceRabbitMQInstrumentation(this TracerProviderBuilder tracing, bool enable)
+    {
+        if (enable)
+            tracing.AddRabbitMQInstrumentation();
     }
 }
