@@ -107,7 +107,16 @@ public class ExpressionConverter(ParameterExpression parameter, bool isAggregati
     private static BsonValue GetConstantValue(Expression expression)
     {
         if (expression is ConstantExpression constantExpression)
-            return BsonValue.Create(constantExpression.Value);
+        {
+            var value = constantExpression.Value;
+
+            if (value is Guid guidValue)
+            {
+                return new BsonBinaryData(guidValue, GuidRepresentation.Standard);
+            }
+
+            return BsonValue.Create(value);
+        }
 
         throw new Exceptions.MongoException("Only constant expressions for values are supported.");
     }

@@ -74,6 +74,7 @@ public class LocalProvider(
             await stream.CopyToAsync(fileStream, cancellationToken: cancellationToken).ConfigureAwait(false);
 
             file.Detail = new M.FileDetail(Options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
+            file.Size = stream.Length;
 
             response.Success = System.IO.File.Exists(path);
 

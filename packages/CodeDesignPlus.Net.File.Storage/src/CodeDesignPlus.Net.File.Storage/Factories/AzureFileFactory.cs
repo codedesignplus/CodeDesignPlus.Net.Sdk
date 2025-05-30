@@ -47,7 +47,7 @@
         public IAzureFileFactory Create()
         {
             if (!this.Options.AzureFile.Enable)
-                throw new FileStorageException("The AzureBlob is not enable");
+                return this;
 
             if (this.Client != null)
                 return this;
