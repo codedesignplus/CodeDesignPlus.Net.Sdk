@@ -3,7 +3,7 @@
     	<TargetFramework>net9.0</TargetFramework>    
 		<ProjectGuid>{7CA1A65B-3319-4814-99E6-5877BAA7A637}</ProjectGuid>
     	<ImplicitUsings>enable</ImplicitUsings>
-    	<Nullable>disable</Nullable>
+    	<Nullable>enable</Nullable>
 		<Authors>CodeDesignPlus</Authors>
 		<Description>CodeDesignPlus.Net.gRpc.Clients is a library that simplifies the integration of gRPC clients in .NET applications, providing a robust framework for building efficient and scalable gRPC-based services.</Description>
 		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>

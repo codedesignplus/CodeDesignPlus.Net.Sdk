@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Tenant";
+
+package Tenant;
+
+
+service Tenant {
+  rpc CreateTenant (CreateTenantRequest) returns (google.protobuf.Empty);
+  rpc GetTenant (GetTenantRequest) returns (GetTenantResponse);
+}
+
+message CreateTenantRequest {
+  string id = 1;
+  string name = 2;
+  string domain = 3;
+  License license = 4;
+  Location location = 5;
+}
+
+message License {
+  string id = 1;
+  string name = 2;
+  string startDate = 3; // ISO 8601 string
+  string endDate = 4;   // ISO 8601 string
+  map<string, string> metadata = 5;
+}
+
+message Location {
+  string id = 1;
+  Country country = 2;
+  State state = 3;
+  City city = 4;
+  Locality locality = 5;
+  Neighborhood neighborhood = 6;
+}
+
+message Country {
+  string id = 1;
+  string name = 2;
+  uint32 code = 3; // ISO 3166-1 numeric code
+  string timezone = 4; // IANA Time Zone Database format
+  Currency currency = 5;
+}
+
+message State {
+  string id = 1;
+  string name = 2;
+  string code = 3; // ISO 3166-2 code
+}
+
+message City {
+  string id = 1;
+  string name = 2;
+  string timezone = 3; // IANA Time Zone Database format
+}
+
+message Locality {
+  string id = 1;
+  string name = 2;
+}
+
+message Neighborhood {
+  string id = 1;
+  string name = 2;
+}
+
+message Currency {
+  string id = 1; 
+  string code = 2; // ISO 4217 currency code
+  string name = 3;
+  string symbol = 4;
+}
+
+message GetTenantRequest {
+  string Id = 1;
+}
+
+message GetTenantResponse {
+  string id = 1;
+  string name = 2;
+  string domain = 3;
+  License license = 4;
+  Location location = 5;
+}

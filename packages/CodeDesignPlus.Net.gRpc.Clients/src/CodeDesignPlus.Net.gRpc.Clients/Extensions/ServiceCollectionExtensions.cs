@@ -1,10 +1,9 @@
-﻿using CodeDesignPlus.Net.gRpc.Clients.Abstractions;
-using CodeDesignPlus.Net.gRpc.Clients.Exceptions;
-using CodeDesignPlus.Net.gRpc.Clients.Abstractions.Options;
-using CodeDesignPlus.Net.gRpc.Clients.Services;
+﻿using CodeDesignPlus.Net.gRpc.Clients.Abstractions.Options;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Users;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Tenants;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -25,10 +24,7 @@ public static class ServiceCollectionExtensions
 
         ArgumentNullException.ThrowIfNull(configuration);
 
-        var section = configuration.GetSection(GrpcClientsOptions.Section);
-
-        if (!section.Exists())
-            throw new GrpcClientsException($"The section {GrpcClientsOptions.Section} is required.");
+        var section = configuration.GetRequiredSection(GrpcClientsOptions.Section);
 
         services
             .AddOptions<GrpcClientsOptions>()
@@ -38,14 +34,34 @@ public static class ServiceCollectionExtensions
 
         var options = section.Get<GrpcClientsOptions>();
 
-        if (!string.IsNullOrEmpty(options.PaymentUrl))
+        if (!string.IsNullOrEmpty(options!.Payment))
         {
             services.AddGrpcClient<CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient>(o =>
             {
-                o.Address = new Uri(options.PaymentUrl);
+                o.Address = new Uri(options.Payment);
             });
 
-            services.AddScoped<IPayment, PaymentService>();
+            services.AddScoped<IPaymentGrpc, PaymentService>();
+        }
+
+        if (!string.IsNullOrEmpty(options!.User))
+        {
+            services.AddGrpcClient<CodeDesignPlus.Net.gRpc.Clients.Services.User.Users.UsersClient>(o =>
+            {
+                o.Address = new Uri(options.User);
+            });
+
+            services.AddScoped<IUserGrpc, UserService>();
+        }
+
+        if (!string.IsNullOrEmpty(options!.Tenant))
+        {
+            services.AddGrpcClient<CodeDesignPlus.Net.gRpc.Clients.Services.Tenant.Tenant.TenantClient>(o =>
+            {
+                o.Address = new Uri(options.Tenant);
+            });
+
+            services.AddScoped<ITenantGrpc, TenantService>();
         }
 
         return services;

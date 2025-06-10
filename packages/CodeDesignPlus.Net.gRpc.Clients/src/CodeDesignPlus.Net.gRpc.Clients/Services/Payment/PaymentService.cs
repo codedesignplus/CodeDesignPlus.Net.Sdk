@@ -1,10 +1,8 @@
-using System;
-using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.AspNetCore.Http;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 
-public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor) : IPayment
+public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor) : IPaymentGrpc
 {
     public async Task PayAsync(PayRequest request, CancellationToken cancellationToken)
     {
@@ -15,6 +13,9 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
 
         var authorizationHeader = httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
         var tenant = httpContextAccessor.HttpContext?.Request.Headers["X-Tenant"].ToString() ?? null!;
+
+        if (string.IsNullOrEmpty(authorizationHeader))
+            throw new InvalidOperationException("Authorization header is required.");
 
         await client.PayAsync(request, new Grpc.Core.Metadata
         {
@@ -27,6 +28,9 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
     {
         var authorizationHeader = httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
         var tenant = httpContextAccessor.HttpContext?.Request.Headers["X-Tenant"].ToString() ?? null!;
+
+        if (string.IsNullOrEmpty(authorizationHeader))
+            throw new InvalidOperationException("Authorization header is required.");
 
         var response = await client.GetPaymentAsync(request, new Grpc.Core.Metadata
         {

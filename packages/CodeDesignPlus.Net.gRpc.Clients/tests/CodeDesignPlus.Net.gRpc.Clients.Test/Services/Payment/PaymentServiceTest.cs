@@ -29,7 +29,7 @@ public class PaymentServiceTest
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var paymentService = serviceProvider.GetRequiredService<IPayment>();
+        var paymentService = serviceProvider.GetRequiredService<IPaymentGrpc>();
 
         var request = new PayRequest()
         {

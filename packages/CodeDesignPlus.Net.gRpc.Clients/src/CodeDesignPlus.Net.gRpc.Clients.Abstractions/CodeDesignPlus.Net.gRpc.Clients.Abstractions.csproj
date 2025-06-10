@@ -46,5 +46,11 @@
     <Protobuf Include="Protos\payment.proto" GrpcServices="Client">
       <Link>Protos\payment.proto</Link>
     </Protobuf>
+    <Protobuf Include="Protos\users.proto" GrpcServices="Client">
+      <Link>Protos\users.proto</Link>
+    </Protobuf>
+    <Protobuf Include="Protos\tenant.proto" GrpcServices="Client">
+      <Link>Protos\tenant.proto</Link>
+    </Protobuf>
   </ItemGroup>
 </Project>
