@@ -31,12 +31,11 @@ message License {
 }
 
 message Location {
-  string id = 1;
-  Country country = 2;
-  State state = 3;
-  City city = 4;
-  Locality locality = 5;
-  Neighborhood neighborhood = 6;
+  Country country = 1;
+  State state = 2;
+  City city = 3;
+  Locality locality = 4;
+  Neighborhood neighborhood = 5;
 }
 
 message Country {

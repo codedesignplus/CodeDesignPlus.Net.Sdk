@@ -40,6 +40,5 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\CodeDesignPlus.Net.gRpc.Clients.Abstractions\CodeDesignPlus.Net.gRpc.Clients.Abstractions.csproj" />
-		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
 	</ItemGroup>
 </Project>

@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace CodeDesignPlus.Net.gRpc.Clients.Abstractions.Options;
+﻿namespace CodeDesignPlus.Net.gRpc.Clients.Abstractions.Options;
 
 /// <summary>
 /// Options to setting of the gRpc.Clients
