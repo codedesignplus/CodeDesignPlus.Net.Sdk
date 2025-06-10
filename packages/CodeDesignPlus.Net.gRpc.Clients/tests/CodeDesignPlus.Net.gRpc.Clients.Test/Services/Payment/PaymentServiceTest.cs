@@ -10,15 +10,10 @@ public class PaymentServiceTest
     [Fact]
     public async Task PayAsync_Temp()
     {
-        var options = new GrpcClientsOptions
-        {
-            PaymentUrl = "http://localhost:5001"
-        };
-
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?>
             {
-                { $"{GrpcClientsOptions.Section}:PaymentUrl", options.PaymentUrl }
+                { $"{GrpcClientsOptions.Section}:PaymenPaymenttUrl", "http://localhost:5001" }
             })
             .Build();
 
