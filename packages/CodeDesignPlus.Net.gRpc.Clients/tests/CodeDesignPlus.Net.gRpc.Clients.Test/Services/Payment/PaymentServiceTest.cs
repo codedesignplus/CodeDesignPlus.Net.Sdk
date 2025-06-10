@@ -55,7 +55,7 @@ public class PaymentServiceTest
                             Phone = "3107545341"
                         },
                     },
-                    Ammount = new Amount
+                    Amount = new Amount
                     {
                         Value = 150000,
                         Currency = "COP"
