@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Payment";
+
+package Payment;
+
+
+service Payment {
+  rpc Pay (PayRequest) returns (google.protobuf.Empty);
+  rpc GetPayment (GetPaymentRequest) returns (PaymentResponse);
+}
+
+message GetPaymentRequest {
+  string id = 1;
+}
+message PaymentResponse {
+  string id = 1;
+  string provider = 2;
+  Transaction transaction = 3;
+  string request = 4;
+  string response = 5;
+}
+
+message PayRequest {
+  string id = 1;
+  Transaction transaction = 2;
+}
+
+message Transaction {
+  Order order = 1;
+  Payer payer = 2;
+  string paymentMethod = 3;
+  CreditCard creditCard = 4;
+  Pse pse = 5;
+  string deviceSessionId = 6;
+  string ipAddress = 7;
+  string cookie = 8;
+  string userAgent = 9;
+}
+
+message Order {
+  string description = 1;
+  Buyer buyer = 2;
+  Amount ammount = 3;
+  Amount tax = 4;
+  Amount taxReturnBase = 5;
+}
+
+message Buyer {
+  string fullName = 1;
+  string emailAddress = 2;
+  string contactPhone = 3;
+  Address shippingAddress = 4;
+  string dniNumber = 5;
+}
+
+message Payer {
+  string emailAddress = 1;
+  string fullName = 2;
+  Address billingAddress = 3;
+  string dniNumber = 4;
+  string contactPhone = 5;
+  string dniType = 6;
+}
+
+message Address {
+  string street = 1;
+  string country = 2;
+  string state = 3;
+  string city = 4;
+  string postalCode = 5;
+  string phone = 6;
+}
+
+message CreditCard {
+  string number = 1;
+  string securityCode = 2;
+  string expirationDate = 3;
+  string name = 4;
+}
+
+message Pse {
+  string pseCode = 1;
+  string typePerson = 2;
+  string pseResponseUrl = 3;
+}
+
+message Amount {
+  int64 value = 1;
+  string currency = 2;
+}
