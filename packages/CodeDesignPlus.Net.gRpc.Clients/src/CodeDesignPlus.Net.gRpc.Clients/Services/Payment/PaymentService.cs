@@ -1,25 +1,37 @@
 using System;
 using CodeDesignPlus.Net.Security.Abstractions;
+using Microsoft.AspNetCore.Http;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 
-public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient client, IHttpClientFactory httpClientFactory) : IPayment
+public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor) : IPayment
 {
     public async Task PayAsync(PayRequest request, CancellationToken cancellationToken)
     {
+        request.Transaction.DeviceSessionId = httpContextAccessor.HttpContext?.Session.Id ?? Guid.NewGuid().ToString();
+        request.Transaction.IpAddress = httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? "::1";
+        request.Transaction.UserAgent = httpContextAccessor.HttpContext?.Request.Headers.UserAgent.ToString() ?? "CodeDesignPlus/Client-gRpc";
+        request.Transaction.Cookie = httpContextAccessor.HttpContext?.Request.Cookies["PaymentCookie"] ?? Guid.NewGuid().ToString();
+
+        var authorizationHeader = httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+        var tenant = httpContextAccessor.HttpContext?.Request.Headers["X-Tenant"].ToString() ?? null!;
+
         await client.PayAsync(request, new Grpc.Core.Metadata
         {
-            { "Authorization", "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZ1YXlxbkNRb0F2OWRCMHMxTjJPSTlZUkFMeElVQlg1bGtReHZxall1VVUiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJhZTViZDQ5Mi1hOWE4LTQ0NjItOTE1My1hNzFmOTYwZWQyNjkiLCJpc3MiOiJodHRwczovL2NvZGVkZXNpZ25wbHVzZGV2ZWxvcG1lbnQuYjJjbG9naW4uY29tL2ZiMjNkM2U4LTdkZTctNDU1NC05ZDczLTc4ZTk5MDRhMjQzZi92Mi4wLyIsImV4cCI6MTc0OTUyMTQ2NCwibmJmIjoxNzQ5NTE3ODY0LCJzdWIiOiI0N2JiZDcyMi1lMGI3LTQzMGUtYWViMi02MGM1ZjE4Yjg5ZWIiLCJvaWQiOiI0N2JiZDcyMi1lMGI3LTQzMGUtYWViMi02MGM1ZjE4Yjg5ZWIiLCJuYW1lIjoiV2lsem9uIExpc2Nhbm8iLCJnaXZlbl9uYW1lIjoiV2lsem9uIiwiZmFtaWx5X25hbWUiOiJMaXNjYW5vIiwidGlkIjoiZmIyM2QzZTgtN2RlNy00NTU0LTlkNzMtNzhlOTkwNGEyNDNmIiwibm9uY2UiOiI2N2FjYTc5ODJjNzkzMzYxMjY0Y2E1MWFmZDVkNzk0MjE1MU1meEpneiIsInNjcCI6InJlYWQiLCJhenAiOiJhZTViZDQ5Mi1hOWE4LTQ0NjItOTE1My1hNzFmOTYwZWQyNjkiLCJ2ZXIiOiIxLjAiLCJpYXQiOjE3NDk1MTc4NjR9.rhahUCX6Fg8PnOTkV0w1kdAtz_OKSJMzOFZlq5leAIT1SvDu_EDlPrOlUTobrYTzD6xo9pgjACAEFrK0TY9oHyuuMRfApdHGqU0xBgwINZYZLDUxuTZfJzhVsZqAFNVfT8-Y1oZZ2jDM9RSGoFlaDGj8JN2YwKV7PmatZkpKjKlGTC5e2vMq7zwt6HP3Bn8JslNvbB-HXXftV-qckiUs0q07_NCo4gKShYmTFz299w7JaPWDAuEeZ8TdklnhNUwm31n3oqi6jz_k95ICCg-vRXGl9CGhX4LD9lyhrgd3yr1_GyXv8huGRTdGc-Q9MYBOKrnJj5ub6KqbCDI1H7PgCQ" },
-            { "X-Tenant", "37b314bb-4783-45f6-8f99-2dedf5256492" }
+            { "Authorization", authorizationHeader },
+            { "X-Tenant", tenant }
         }, cancellationToken: cancellationToken);
     }
 
     public async Task<PaymentResponse> GetPayByIdAsync(GetPaymentRequest request, CancellationToken cancellationToken)
     {
+        var authorizationHeader = httpContextAccessor.HttpContext?.Request.Headers.Authorization.ToString();
+        var tenant = httpContextAccessor.HttpContext?.Request.Headers["X-Tenant"].ToString() ?? null!;
+
         var response = await client.GetPaymentAsync(request, new Grpc.Core.Metadata
         {
-            { "Authorization", "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImZ1YXlxbkNRb0F2OWRCMHMxTjJPSTlZUkFMeElVQlg1bGtReHZxall1VVUiLCJ0eXAiOiJKV1QifQ.eyJhdWQiOiJhZTViZDQ5Mi1hOWE4LTQ0NjItOTE1My1hNzFmOTYwZWQyNjkiLCJpc3MiOiJodHRwczovL2NvZGVkZXNpZ25wbHVzZGV2ZWxvcG1lbnQuYjJjbG9naW4uY29tL2ZiMjNkM2U4LTdkZTctNDU1NC05ZDczLTc4ZTk5MDRhMjQzZi92Mi4wLyIsImV4cCI6MTc0OTUyMTQ2NCwibmJmIjoxNzQ5NTE3ODY0LCJzdWIiOiI0N2JiZDcyMi1lMGI3LTQzMGUtYWViMi02MGM1ZjE4Yjg5ZWIiLCJvaWQiOiI0N2JiZDcyMi1lMGI3LTQzMGUtYWViMi02MGM1ZjE4Yjg5ZWIiLCJuYW1lIjoiV2lsem9uIExpc2Nhbm8iLCJnaXZlbl9uYW1lIjoiV2lsem9uIiwiZmFtaWx5X25hbWUiOiJMaXNjYW5vIiwidGlkIjoiZmIyM2QzZTgtN2RlNy00NTU0LTlkNzMtNzhlOTkwNGEyNDNmIiwibm9uY2UiOiI2N2FjYTc5ODJjNzkzMzYxMjY0Y2E1MWFmZDVkNzk0MjE1MU1meEpneiIsInNjcCI6InJlYWQiLCJhenAiOiJhZTViZDQ5Mi1hOWE4LTQ0NjItOTE1My1hNzFmOTYwZWQyNjkiLCJ2ZXIiOiIxLjAiLCJpYXQiOjE3NDk1MTc4NjR9.rhahUCX6Fg8PnOTkV0w1kdAtz_OKSJMzOFZlq5leAIT1SvDu_EDlPrOlUTobrYTzD6xo9pgjACAEFrK0TY9oHyuuMRfApdHGqU0xBgwINZYZLDUxuTZfJzhVsZqAFNVfT8-Y1oZZ2jDM9RSGoFlaDGj8JN2YwKV7PmatZkpKjKlGTC5e2vMq7zwt6HP3Bn8JslNvbB-HXXftV-qckiUs0q07_NCo4gKShYmTFz299w7JaPWDAuEeZ8TdklnhNUwm31n3oqi6jz_k95ICCg-vRXGl9CGhX4LD9lyhrgd3yr1_GyXv8huGRTdGc-Q9MYBOKrnJj5ub6KqbCDI1H7PgCQ" },
-            { "X-Tenant", "37b314bb-4783-45f6-8f99-2dedf5256492" }
+            { "Authorization", authorizationHeader },
+            { "X-Tenant", tenant }
         }, cancellationToken: cancellationToken);
     
         return response;
