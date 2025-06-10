@@ -17,6 +17,7 @@ public class GrpcClientsException : Exception
     /// </summary>
     public GrpcClientsException()
     {
+        this.Errors = [];
     }
 
     /// <summary>
@@ -34,6 +35,7 @@ public class GrpcClientsException : Exception
     /// <param name="message">The message that describes the error.</param>
     public GrpcClientsException(string message) : base(message)
     {
+        this.Errors = [];
     }
 
     /// <summary>
@@ -56,6 +58,7 @@ public class GrpcClientsException : Exception
     /// </param>
     public GrpcClientsException(string message, Exception innerException) : base(message, innerException)
     {
+        this.Errors = [];
     }
 
     /// <summary>

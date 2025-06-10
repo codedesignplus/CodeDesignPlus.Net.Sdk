@@ -83,7 +83,6 @@ public class PaymentServiceTest
                         Phone = "3107545341"
                     }
                 },
-                PaymentMethod = "VISA",
                 CreditCard = new CreditCard
                 {
                     Number = "4037997623271984",

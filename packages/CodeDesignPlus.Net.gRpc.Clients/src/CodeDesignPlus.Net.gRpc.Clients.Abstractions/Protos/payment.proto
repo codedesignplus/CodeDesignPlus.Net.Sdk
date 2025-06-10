@@ -33,13 +33,12 @@ message PayRequest {
 message Transaction {
   Order order = 1;
   Payer payer = 2;
-  string paymentMethod = 3;
-  CreditCard creditCard = 4;
-  Pse pse = 5;
-  string deviceSessionId = 6;
-  string ipAddress = 7;
-  string cookie = 8;
-  string userAgent = 9;
+  CreditCard creditCard = 3;
+  Pse pse = 4;
+  string deviceSessionId = 5;
+  string ipAddress = 6;
+  string cookie = 7;
+  string userAgent = 8;
 }
 
 message Order {
