@@ -13,7 +13,7 @@ public class ErrorInterceptorTest
 
     public ErrorInterceptorTest()
     {
-        _interceptor = new ErrorInterceptor();
+        _interceptor = new ErrorInterceptor(Mock.Of<ILogger<ErrorInterceptor>>());
     }
 
     [Fact]
