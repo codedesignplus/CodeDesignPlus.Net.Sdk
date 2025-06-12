@@ -39,6 +39,7 @@ message Transaction {
   string ipAddress = 6;
   string cookie = 7;
   string userAgent = 8;
+  string paymentMethod = 9;
 }
 
 message Order {

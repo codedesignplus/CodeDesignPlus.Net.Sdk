@@ -28,6 +28,8 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
         
         logger.LogInformation("Processing payment for user {UserId} with Tenant {TenantId} from IP {IpAddress}", userContext.IdUser, userContext.Tenant, userContext.IpAddress);
 
+        logger.LogDebug("Payment request details: {@Request}", request);
+
         await client.PayAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
@@ -45,6 +47,8 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
     public async Task<PaymentResponse> GetPayByIdAsync(GetPaymentRequest request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Processing payment retrieval for user {UserId} with Tenant {TenantId}", userContext.IdUser, userContext.Tenant);
+
+        logger.LogDebug("Payment retrieval request details: {@Request}", request);
 
         var response = await client.GetPaymentAsync(request, new Grpc.Core.Metadata
         {
