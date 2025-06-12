@@ -9,7 +9,8 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 /// <param name="client">The gRPC client for payment operations.</param>
 /// <param name="httpContextAccessor">The HTTP context accessor to retrieve request information.</param>
 /// <param name="userContext">The user context to access user-related information.</param>
-public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor, IUserContext userContext) : IPaymentGrpc
+/// <param name="logger">The logger for logging operations.</param>
+public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor, IUserContext userContext, ILogger<PaymentService> logger) : IPaymentGrpc
 {
     /// <summary>
     /// Initiates a payment process.
@@ -24,6 +25,8 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
         request.Transaction.IpAddress = userContext.IpAddress;
         request.Transaction.UserAgent = userContext.UserAgent;
         request.Transaction.Cookie = httpContextAccessor.HttpContext?.Request.Cookies["PaymentCookie"] ?? Guid.NewGuid().ToString();
+        
+        logger.LogInformation("Processing payment for user {UserId} with Tenant {TenantId} from IP {IpAddress}", userContext.IdUser, userContext.Tenant, userContext.IpAddress);
 
         await client.PayAsync(request, new Grpc.Core.Metadata
         {
@@ -41,6 +44,8 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
     public async Task<PaymentResponse> GetPayByIdAsync(GetPaymentRequest request, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Processing payment retrieval for user {UserId} with Tenant {TenantId}", userContext.IdUser, userContext.Tenant);
+
         var response = await client.GetPaymentAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
