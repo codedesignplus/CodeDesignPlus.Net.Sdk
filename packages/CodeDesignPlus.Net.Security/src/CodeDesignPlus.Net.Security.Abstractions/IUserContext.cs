@@ -6,6 +6,24 @@ namespace CodeDesignPlus.Net.Security.Abstractions;
 public interface IUserContext
 {
     /// <summary>
+    /// Gets the access token from the request headers.
+    /// If the access token is not present, it returns null.
+    /// </summary>
+    string AccessToken { get; }
+
+    /// <summary>
+    /// Gets the user agent from the request headers.
+    /// If the user agent is not present, it defaults to "CodeDesignPlus/Client".
+    /// </summary>
+    string UserAgent { get; }
+    
+      /// <summary>
+    /// Gets the IP address of the user from the request headers or connection information.
+    /// If the IP address is not present, it returns an empty string.
+    /// </summary>
+    string IpAddress { get; }
+
+    /// <summary>
     /// Gets a value indicating whether the current user is an application.
     /// </summary>
     bool IsApplication { get; }

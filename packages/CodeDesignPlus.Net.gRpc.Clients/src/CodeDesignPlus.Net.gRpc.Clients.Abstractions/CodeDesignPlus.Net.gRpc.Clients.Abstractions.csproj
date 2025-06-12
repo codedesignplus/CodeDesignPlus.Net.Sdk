@@ -53,4 +53,8 @@
       <Link>Protos\tenant.proto</Link>
     </Protobuf>
   </ItemGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
+  </ItemGroup>
 </Project>

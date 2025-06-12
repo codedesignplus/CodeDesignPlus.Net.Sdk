@@ -16,6 +16,35 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
 {
 
     /// <summary>
+    /// Gets the access token from the request headers.
+    /// If the access token is not present, it returns null.
+    /// </summary>
+    public string AccessToken
+    {
+        get
+        {
+            var rawHeader = this.GetHeader<string>("Authorization");
+            
+            return rawHeader?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true
+                ? rawHeader["Bearer ".Length..]
+                : rawHeader;
+
+        }
+    }
+
+    /// <summary>
+    /// Gets the user agent from the request headers.
+    /// If the user agent is not present, it defaults to "CodeDesignPlus/Client".
+    /// </summary>
+    public string UserAgent => this.GetHeader<string>("User-Agent") ?? "CodeDesignPlus/Client";
+
+    /// <summary>
+    /// Gets the IP address of the user from the request headers or connection information.
+    /// If the IP address is not present, it returns an empty string.
+    /// </summary>
+    public string IpAddress => this.GetHeader<string>("X-Forwarded-For") ?? httpContextAccessor.HttpContext?.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+
+    /// <summary>
     /// Gets a value indicating whether the current user is an application.
     /// </summary>
     public bool IsApplication => options.Value.Applications.Contains(this.GetClaim<string>(ClaimTypes.Audience));
@@ -29,7 +58,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
         {
             var claimValue = this.User.FindFirst(ClaimTypes.ObjectIdentifier)?.Value;
 
-            if(string.IsNullOrEmpty(claimValue))
+            if (string.IsNullOrEmpty(claimValue))
                 claimValue = this.User.FindFirst(ClaimTypes.Subject)?.Value;
 
             if (string.IsNullOrEmpty(claimValue))
