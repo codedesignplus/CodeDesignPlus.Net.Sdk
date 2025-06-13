@@ -1,0 +1,116 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Payment";
+
+package Payment;
+
+
+service Payment {
+  rpc Pay (PayRequest) returns (google.protobuf.Empty);
+  rpc GetPayment (GetPaymentRequest) returns (PaymentResponse);
+}
+
+message GetPaymentRequest {
+  string id = 1;
+}
+message PaymentResponse {
+  string id = 1;
+  string provider = 2;
+  Transaction transaction = 3;
+  string request = 4;
+  TransactionResponseData response = 5;
+}
+
+message TransactionResponseData {
+  string code = 1;
+  google.protobuf.StringValue Error = 2;
+  TransactionResponseDetails TransactionResponse = 3;
+}
+
+message TransactionResponseDetails {
+  string orderId = 1;
+  string transactionId = 2;
+  google.protobuf.StringValue state = 3;
+  google.protobuf.StringValue paymentResponseCodeMethodType = 4;
+  google.protobuf.StringValue paymentNetworkResponseCode = 5;
+  google.protobuf.StringValue paymentNetworkResponseErrorMessage = 6;
+  google.protobuf.StringValue trazabilityCode = 7;
+  google.protobuf.StringValue authorizationCode = 8;
+  google.protobuf.StringValue responseMessage = 9;
+  map<string, google.protobuf.StringValue> extraParameters = 10;
+  map<string, google.protobuf.StringValue> additionalData = 11;
+}
+
+message PayRequest {
+  string id = 1;
+  string module = 2;
+  Transaction transaction = 3;
+}
+
+message Transaction {
+  Order order = 1;
+  Payer payer = 2;
+  CreditCard creditCard = 3;
+  Pse pse = 4;
+  string deviceSessionId = 5;
+  string ipAddress = 6;
+  string cookie = 7;
+  string userAgent = 8;
+  string paymentMethod = 9;
+}
+
+message Order {
+  string description = 1;
+  Buyer buyer = 2;
+  Amount amount = 3;
+  Amount tax = 4;
+  Amount taxReturnBase = 5;
+}
+
+message Buyer {
+  string fullName = 1;
+  string emailAddress = 2;
+  string contactPhone = 3;
+  Address shippingAddress = 4;
+  string dniNumber = 5;
+}
+
+message Payer {
+  string emailAddress = 1;
+  string fullName = 2;
+  Address billingAddress = 3;
+  string dniNumber = 4;
+  string contactPhone = 5;
+  string dniType = 6;
+}
+
+message Address {
+  string street = 1;
+  string country = 2;
+  string state = 3;
+  string city = 4;
+  string postalCode = 5;
+  string phone = 6;
+}
+
+message CreditCard {
+  string number = 1;
+  string securityCode = 2;
+  string expirationDate = 3;
+  string name = 4;
+}
+
+message Pse {
+  string pseCode = 1;
+  string typePerson = 2;
+  string pseResponseUrl = 3;
+}
+
+message Amount {
+  int64 value = 1;
+  string currency = 2;
+}

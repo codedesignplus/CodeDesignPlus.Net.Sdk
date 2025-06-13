@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Criteria.Sample.Models;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.Criteria.Sample;
 
@@ -9,10 +10,10 @@ public class OrdersData
         return
         [
             new() {
-                Id = 1,
+                Id = Guid.NewGuid(),
                 Name = "Order 1",
                 Description = "Description Order 1",
-                CreatedAt = new DateTime(2021, 1, 1),
+                CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 90,
                 Products =
                 [
@@ -43,7 +44,7 @@ public class OrdersData
                 }
             },
             new() {
-                Id = 2,
+                Id = Guid.NewGuid(),
                 Name = "Order 2",
                 Description = "Description Order 2",
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
@@ -77,7 +78,7 @@ public class OrdersData
                 }
             },
             new() {
-                Id = 3,
+                Id = Guid.NewGuid(),
                 Name = "Order 3",
                 Description = "Description Order 3",
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),

@@ -73,27 +73,27 @@ public class ServiceCollectionExtensionsTest
         var providers = serviceCollection.Where(x => x.ServiceType == typeof(IProvider));
 
         Assert.NotNull(fileService);
-        Assert.Equal(ServiceLifetime.Singleton, fileService.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, fileService.Lifetime);
         Assert.Equal(typeof(FileStorageService), fileService.ImplementationType);
 
         Assert.NotNull(azureBlobProvider);
-        Assert.Equal(ServiceLifetime.Singleton, azureBlobProvider.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, azureBlobProvider.Lifetime);
         Assert.Equal(typeof(AzureBlobProvider), azureBlobProvider.ImplementationType);
 
         Assert.NotNull(azureFileProvider);
-        Assert.Equal(ServiceLifetime.Singleton, azureFileProvider.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, azureFileProvider.Lifetime);
         Assert.Equal(typeof(AzureFileProvider), azureFileProvider.ImplementationType);
 
         Assert.NotNull(localProvider);
-        Assert.Equal(ServiceLifetime.Singleton, localProvider.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, localProvider.Lifetime);
         Assert.Equal(typeof(LocalProvider), localProvider.ImplementationType);
 
         Assert.NotNull(azureBlobFactory);
-        Assert.Equal(ServiceLifetime.Singleton, azureBlobFactory.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, azureBlobFactory.Lifetime);
         Assert.Equal(typeof(AzureBlobFactory), azureBlobFactory.ImplementationType);
 
         Assert.NotNull(azureFileFactory);
-        Assert.Equal(ServiceLifetime.Singleton, azureFileFactory.Lifetime);
+        Assert.Equal(ServiceLifetime.Scoped, azureFileFactory.Lifetime);
         Assert.Equal(typeof(AzureFileFactory), azureFileFactory.ImplementationType);
 
         Assert.NotNull(providers);

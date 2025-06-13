@@ -1,79 +1,151 @@
-using Moq;
-using System.Net;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Hosting;
+using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Middlewares;
-using FluentValidation;
+using Microsoft.AspNetCore.Http;
+using Moq;
 using CodeDesignPlus.Net.Exceptions;
+using FluentValidation;
+using FluentValidation.Results;
 
 namespace CodeDesignPlus.Net.Microservice.Commons.Test.EntryPoints.Rest;
 
-public class ExceptionMiddlwareTest
+public class ExceptionMiddlewareTests
 {
-
-    [Fact]
-    public async Task InvokeAsync_NoException_ReturnsOk()
+    private static ExceptionMiddleware CreateMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware>? logger = null, IHostEnvironment? env = null, CoreOptions? coreOptions = null)
     {
-        // Arrange
-        var context = new DefaultHttpContext();
-        var mockRequestDelegate = new Mock<RequestDelegate>();
-        var middleware = new ExceptionMiddleware(mockRequestDelegate.Object);
+        logger ??= Mock.Of<ILogger<ExceptionMiddleware>>();
+        env ??= Mock.Of<IHostEnvironment>(e => e.IsProduction() == false);
+        coreOptions ??= new CoreOptions
+        {
+            Business = "CodeDesignPlus",
+            Contact = new Contact
+            {
+                Name = "CodeDesignPlus Team",
+                Email = "supoort@codedesignplus.com",
+            },
+            Description = "CodeDesignPlus.Net.Microservice.Commons",
+            Version = "1.0.0",
+            Id = Guid.NewGuid(),
+            ApiDocumentationBaseUrl = "https://docs/",
+            AppName = "TestApp"
+        };
+        var options = Options.Create(coreOptions);
 
-        // Act
-        await middleware.InvokeAsync(context);
-
-        // Assert
-        Assert.Equal((int)HttpStatusCode.OK, context.Response.StatusCode);
+        return new ExceptionMiddleware(next, logger, env, options);
     }
 
     [Fact]
-    public async Task InvokeAsync_ValidationException_ReturnsBadRequest()
+    public async Task InvokeAsync_WhenNoException_CallsNextAndDoesNotChangeStatusCode()
     {
         // Arrange
         var context = new DefaultHttpContext();
-        var mockRequestDelegate = new Mock<RequestDelegate>();
-        mockRequestDelegate.Setup(rd => rd(It.IsAny<HttpContext>())).ThrowsAsync(new ValidationException("Validation error", []));
-        var middleware = new ExceptionMiddleware(mockRequestDelegate.Object);
+        var called = false;
+        Task next(HttpContext ctx)
+        {
+            called = true;
+            return Task.CompletedTask;
+        }
+        var middleware = CreateMiddleware(next);
 
         // Act
         await middleware.InvokeAsync(context);
 
         // Assert
-        Assert.Equal((int)HttpStatusCode.BadRequest, context.Response.StatusCode);
-        Assert.Equal("application/json", context.Response.ContentType);
+        Assert.True(called);
+        // Default status code is 200
+        Assert.Equal(200, context.Response.StatusCode);
     }
 
     [Fact]
-    public async Task InvokeAsync_CodeDesignPlusException_ReturnsBadRequest()
+    public async Task InvokeAsync_WhenValidationException_ReturnsProblemJson()
     {
         // Arrange
         var context = new DefaultHttpContext();
-        var mockRequestDelegate = new Mock<RequestDelegate>();
-        mockRequestDelegate.Setup(rd => rd(It.IsAny<HttpContext>())).ThrowsAsync(new CodeDesignPlusException(Layer.Application, "CodeDesignPlus error", "1-001"));
-        var middleware = new ExceptionMiddleware(mockRequestDelegate.Object);
+
+        static Task next(HttpContext ctx) => throw new ValidationException("Validation failed",
+        [
+            new ValidationFailure("name", "Name is required"),
+            new ValidationFailure("age", "Age must be a positive number")
+        ]);
+        var middleware = CreateMiddleware(next);
 
         // Act
         await middleware.InvokeAsync(context);
 
         // Assert
-        Assert.Equal((int)HttpStatusCode.BadRequest, context.Response.StatusCode);
-        Assert.Equal("application/json", context.Response.ContentType);
+        Assert.Equal(400, context.Response.StatusCode);
+        Assert.Equal("application/problem+json", context.Response.ContentType);
+
+        context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        Assert.Contains("validation-error", body);
+        Assert.Contains("invalid_params", body);
+        Assert.Contains("name", body);
+        Assert.Contains("age", body);
     }
 
     [Fact]
-    public async Task InvokeAsync_Exception_ReturnsInternalServerError()
+    public async Task InvokeAsync_WhenCodeDesignPlusException_ReturnsProblemJson()
     {
         // Arrange
         var context = new DefaultHttpContext();
-        var mockRequestDelegate = new Mock<RequestDelegate>();
-        mockRequestDelegate.Setup(rd => rd(It.IsAny<HttpContext>())).ThrowsAsync(new Exception("General error"));
-        var middleware = new ExceptionMiddleware(mockRequestDelegate.Object);
+        var ex = new CodeDesignPlusException(Layer.Application, "App error", "A-001");
+        Task next(HttpContext ctx) => throw ex;
+        var middleware = CreateMiddleware(next);
 
         // Act
         await middleware.InvokeAsync(context);
 
         // Assert
-        Assert.Equal((int)HttpStatusCode.InternalServerError, context.Response.StatusCode);
-        Assert.Equal("application/json", context.Response.ContentType);
+        Assert.Equal(400, context.Response.StatusCode);
+        Assert.Equal("application/problem+json", context.Response.ContentType);
+
+        context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        Assert.Contains("application-error", body.ToLowerInvariant());
+        Assert.Contains("A-001", body);
+        Assert.Contains("App error", body);
+        Assert.Contains("TestApp", body);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_WhenException_ReturnsInternalServerErrorProblemJson()
+    {
+        // Arrange
+        var context = new DefaultHttpContext();
+        static Task next(HttpContext ctx) => throw new Exception("Something went wrong");
+        var middleware = CreateMiddleware(next);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        Assert.Equal(500, context.Response.StatusCode);
+        Assert.Equal("application/problem+json", context.Response.ContentType);
+
+        context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        Assert.Contains("internal-error", body);
+        Assert.Contains("Internal Server Error", body);
+        Assert.Contains("Something went wrong", body);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_WhenProduction_DoesNotIncludeExceptionMessage()
+    {
+        // Arrange
+        var context = new DefaultHttpContext();
+        var env = Mock.Of<IHostEnvironment>(e => e.IsProduction() == true);
+        static Task next(HttpContext ctx) => throw new Exception("Sensitive error");
+        var middleware = CreateMiddleware(next, env: env);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        Assert.DoesNotContain("Sensitive error", body);
+        Assert.DoesNotContain("exception_message", body);
     }
 }
-
