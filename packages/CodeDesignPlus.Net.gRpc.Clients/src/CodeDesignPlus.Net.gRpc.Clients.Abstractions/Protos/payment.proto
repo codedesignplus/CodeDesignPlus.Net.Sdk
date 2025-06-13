@@ -47,7 +47,8 @@ message TransactionResponseDetails {
 
 message PayRequest {
   string id = 1;
-  Transaction transaction = 2;
+  string module = 2;
+  Transaction transaction = 3;
 }
 
 message Transaction {

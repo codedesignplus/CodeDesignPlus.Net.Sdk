@@ -9,8 +9,7 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 /// <param name="client">The gRPC client for payment operations.</param>
 /// <param name="httpContextAccessor">The HTTP context accessor to retrieve request information.</param>
 /// <param name="userContext">The user context to access user-related information.</param>
-/// <param name="logger">The logger for logging operations.</param>
-public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor, IUserContext userContext, ILogger<PaymentService> logger) : IPaymentGrpc
+public class PaymentService(Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor, IUserContext userContext) : IPaymentGrpc
 {
     /// <summary>
     /// Initiates a payment process.
@@ -26,10 +25,6 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
         request.Transaction.UserAgent = userContext.UserAgent;
         request.Transaction.Cookie = httpContextAccessor.HttpContext?.Request.Cookies["PaymentCookie"] ?? Guid.NewGuid().ToString();
         
-        logger.LogInformation("Processing payment for user {UserId} with Tenant {TenantId} from IP {IpAddress}", userContext.IdUser, userContext.Tenant, userContext.IpAddress);
-
-        logger.LogDebug("Payment request details: {@Request}", request);
-
         await client.PayAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
@@ -46,10 +41,6 @@ public class PaymentService(CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Pay
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
     public async Task<PaymentResponse> GetPayByIdAsync(GetPaymentRequest request, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Processing payment retrieval for user {UserId} with Tenant {TenantId}", userContext.IdUser, userContext.Tenant);
-
-        logger.LogDebug("Payment retrieval request details: {@Request}", request);
-
         var response = await client.GetPaymentAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
