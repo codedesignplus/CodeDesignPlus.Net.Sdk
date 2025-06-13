@@ -55,3 +55,7 @@ pnpm-lock.yaml
 
 **/CodeDesignPlus.Net.Mongo.Sample/data
 *.user
+
+.cursor\rules\nx-rules.mdc
+.github\instructions\nx.instructions.md
+.github/instructions/nx.instructions.md

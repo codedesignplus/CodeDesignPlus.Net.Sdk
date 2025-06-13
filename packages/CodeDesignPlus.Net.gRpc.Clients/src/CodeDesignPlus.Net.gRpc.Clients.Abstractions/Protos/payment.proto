@@ -22,7 +22,27 @@ message PaymentResponse {
   string provider = 2;
   Transaction transaction = 3;
   string request = 4;
-  string response = 5;
+  TransactionResponseData response = 5;
+}
+
+message TransactionResponseData {
+  string code = 1;
+  google.protobuf.StringValue Error = 2;
+  TransactionResponseDetails TransactionResponse = 3;
+}
+
+message TransactionResponseDetails {
+  string orderId = 1;
+  string transactionId = 2;
+  string state = 3;
+  string paymentResponseCodeMethodType = 4;
+  string paymentNetworkResponseCode = 5;
+  string paymentNetworkResponseErrorMessage = 6;
+  string trazabilityCode = 7;
+  string authorizationCode = 8;
+  string responseMessage = 9;
+  map<string, google.protobuf.StringValue> extraParameters = 10;
+  map<string, google.protobuf.StringValue> additionalData = 11;
 }
 
 message PayRequest {
