@@ -17,7 +17,7 @@ service Tenant {
 message CreateTenantRequest {
   string id = 1;
   string name = 2;
-  string domain = 3;
+  google.protobuf.StringValue domain = 3;
   License license = 4;
   Location location = 5;
 }
@@ -55,7 +55,7 @@ message State {
 message City {
   string id = 1;
   string name = 2;
-  string timezone = 3; // IANA Time Zone Database format
+  google.protobuf.StringValue timezone = 3; // IANA Time Zone Database format
 }
 
 message Locality {
