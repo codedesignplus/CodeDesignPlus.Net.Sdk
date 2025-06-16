@@ -34,15 +34,16 @@ message TransactionResponseData {
 message TransactionResponseDetails {
   string orderId = 1;
   string transactionId = 2;
-  google.protobuf.StringValue state = 3;
-  google.protobuf.StringValue paymentResponseCodeMethodType = 4;
-  google.protobuf.StringValue paymentNetworkResponseCode = 5;
-  google.protobuf.StringValue paymentNetworkResponseErrorMessage = 6;
-  google.protobuf.StringValue trazabilityCode = 7;
-  google.protobuf.StringValue authorizationCode = 8;
-  google.protobuf.StringValue responseMessage = 9;
-  map<string, google.protobuf.StringValue> extraParameters = 10;
-  map<string, google.protobuf.StringValue> additionalData = 11;
+  google.protobuf.StringValue state = 3;  
+  google.protobuf.StringValue ResponseCode = 4;
+  google.protobuf.StringValue paymentResponseCodeMethodType = 5;
+  google.protobuf.StringValue paymentNetworkResponseCode = 6;
+  google.protobuf.StringValue paymentNetworkResponseErrorMessage = 7;
+  google.protobuf.StringValue trazabilityCode = 8;
+  google.protobuf.StringValue authorizationCode = 9;
+  google.protobuf.StringValue responseMessage = 10;
+  map<string, google.protobuf.StringValue> extraParameters = 11;
+  map<string, google.protobuf.StringValue> additionalData = 12;
 }
 
 message PayRequest {
