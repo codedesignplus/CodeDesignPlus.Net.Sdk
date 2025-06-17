@@ -10,7 +10,7 @@ package Payment;
 
 
 service Payment {
-  rpc Pay (PayRequest) returns (google.protobuf.Empty);
+  rpc Pay (PayRequest) returns (PaymentResponse);
   rpc GetPayment (GetPaymentRequest) returns (PaymentResponse);
 }
 
@@ -67,7 +67,7 @@ message Transaction {
 message Order {
   string description = 1;
   Buyer buyer = 2;
-  Amount amount = 3;
+  Amount ammount = 3;
   Amount tax = 4;
   Amount taxReturnBase = 5;
 }
@@ -78,6 +78,7 @@ message Buyer {
   string contactPhone = 3;
   optional Address shippingAddress = 4;
   string dniNumber = 5;
+  string dniType = 6;
 }
 
 message Payer {
