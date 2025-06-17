@@ -55,8 +55,8 @@ message PayRequest {
 message Transaction {
   Order order = 1;
   Payer payer = 2;
-  CreditCard creditCard = 3;
-  Pse pse = 4;
+  optional CreditCard creditCard = 3;
+  optional Pse pse = 4;
   string deviceSessionId = 5;
   string ipAddress = 6;
   string cookie = 7;
