@@ -67,7 +67,7 @@ message Transaction {
 message Order {
   string description = 1;
   Buyer buyer = 2;
-  Amount ammount = 3;
+  Amount amount = 3;
   Amount tax = 4;
   Amount taxReturnBase = 5;
 }
