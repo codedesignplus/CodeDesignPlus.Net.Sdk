@@ -76,14 +76,14 @@ message Buyer {
   string fullName = 1;
   string emailAddress = 2;
   string contactPhone = 3;
-  Address shippingAddress = 4;
+  optional Address shippingAddress = 4;
   string dniNumber = 5;
 }
 
 message Payer {
   string emailAddress = 1;
   string fullName = 2;
-  Address billingAddress = 3;
+  optional Address billingAddress = 3;
   string dniNumber = 4;
   string contactPhone = 5;
   string dniType = 6;
