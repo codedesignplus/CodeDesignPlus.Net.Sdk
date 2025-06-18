@@ -8,7 +8,6 @@ option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Tenant";
 
 package Tenant;
 
-
 service Tenant {
   rpc CreateTenant (CreateTenantRequest) returns (google.protobuf.Empty);
   rpc GetTenant (GetTenantRequest) returns (GetTenantResponse);
@@ -18,9 +17,9 @@ message CreateTenantRequest {
   string id = 1;
   string name = 2;
   TypeDocument typeDocument = 3;
-  string NumbreDocument = 4;
+  string numbreDocument = 4;
   google.protobuf.StringValue domain = 5;
-  string Phone = 6;
+  string phone = 6;
   string email = 7;
   Location location = 8;
   License license = 9;
@@ -46,8 +45,8 @@ message Location {
   City city = 3;
   Locality locality = 4;
   Neighborhood neighborhood = 5;
-  string Address = 6;
-  string PostalCode = 7;
+  string address = 6;
+  string postalCode = 7;
 }
 
 message Country {
