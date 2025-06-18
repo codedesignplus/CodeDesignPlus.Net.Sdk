@@ -32,8 +32,8 @@ message TransactionResponseData {
 }
 
 message TransactionResponseDetails {
-  string orderId = 1;
-  string transactionId = 2;
+  google.protobuf.StringValue orderId = 1;
+  google.protobuf.StringValue transactionId = 2;
   google.protobuf.StringValue state = 3;  
   google.protobuf.StringValue ResponseCode = 4;
   google.protobuf.StringValue paymentResponseCodeMethodType = 5;
