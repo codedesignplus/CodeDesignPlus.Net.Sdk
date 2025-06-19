@@ -1,0 +1,104 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Tenant";
+
+package Tenant;
+
+service Tenant {
+  rpc CreateTenant (CreateTenantRequest) returns (google.protobuf.Empty);
+  rpc GetTenant (GetTenantRequest) returns (GetTenantResponse);
+}
+
+message CreateTenantRequest {
+  string id = 1;
+  string name = 2;
+  TypeDocument typeDocument = 3;
+  string numbreDocument = 4;
+  google.protobuf.StringValue domain = 5;
+  string phone = 6;
+  string email = 7;
+  Location location = 8;
+  License license = 9;
+  bool isActive = 10;
+}
+
+message TypeDocument {
+  string name = 2;
+  string code = 3;
+}
+
+message License {
+  string id = 1;
+  string name = 2;
+  string startDate = 3; // ISO 8601 string
+  string endDate = 4;   // ISO 8601 string
+  map<string, string> metadata = 5;
+}
+
+message Location {
+  Country country = 1;
+  State state = 2;
+  City city = 3;
+  Locality locality = 4;
+  Neighborhood neighborhood = 5;
+  string address = 6;
+  string postalCode = 7;
+}
+
+message Country {
+  string id = 1;
+  string name = 2;
+  uint32 code = 3; // ISO 3166-1 numeric code
+  string timezone = 4; // IANA Time Zone Database format
+  Currency currency = 5;
+}
+
+message State {
+  string id = 1;
+  string name = 2;
+  string code = 3; // ISO 3166-2 code
+}
+
+message City {
+  string id = 1;
+  string name = 2;
+  google.protobuf.StringValue timezone = 3; // IANA Time Zone Database format
+}
+
+message Locality {
+  string id = 1;
+  string name = 2;
+}
+
+message Neighborhood {
+  string id = 1;
+  string name = 2;
+}
+
+message Currency {
+  string id = 1; 
+  string code = 2; // ISO 4217 currency code
+  string name = 3;
+  string symbol = 4;
+}
+
+message GetTenantRequest {
+  string Id = 1;
+}
+
+message GetTenantResponse {
+  string id = 1;
+  string name = 2;
+  TypeDocument typeDocument = 3;
+  string numberDocument = 4;
+  string domain = 5;
+  string phone = 6;
+  string email = 7;
+  License license = 8;
+  Location location = 9;
+  bool isActive = 10;
+}

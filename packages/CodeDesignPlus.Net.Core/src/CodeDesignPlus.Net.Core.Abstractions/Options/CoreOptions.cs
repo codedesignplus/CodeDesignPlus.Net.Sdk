@@ -41,6 +41,14 @@ public class CoreOptions : IValidatableObject
     /// </summary>
     [Required]
     public required Contact Contact { get; set; }
+    /// <summary>
+    /// Gets or sets the path base for the microservice
+    /// </summary>
+    public string? PathBase { get; set; }
+    /// <summary>
+    /// Gets or sets the base URL for the API documentation
+    /// </summary>
+    public string ApiDocumentationBaseUrl { get; set; } = "https://api.codedesignplus.com/docs/";
 
     /// <summary>
     /// Validate the properties of the class

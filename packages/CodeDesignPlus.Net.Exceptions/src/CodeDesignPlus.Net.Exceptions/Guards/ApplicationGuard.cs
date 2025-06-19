@@ -10,7 +10,7 @@ public static class ApplicationGuard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="error">The error message to include in the exception if the value is null.</param>
-    public static void IsNull(object value, string error) => Guard.IsNull(value, Layer.Application, error);
+    public static void IsNull([NotNull] object value, string error) => Guard.IsNull(value, Layer.Application, error);
 
     /// <summary>
     /// Throws an exception if the specified value is not null.

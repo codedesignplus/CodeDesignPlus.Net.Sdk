@@ -34,15 +34,16 @@ var product = new ProductEntity
 
 var tenant = Guid.NewGuid();
 var createdBy = Guid.NewGuid();
+var idCountry = Guid.NewGuid();
 
-var user = UserAggregate.Create(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com", tenant, createdBy);
+var user = UserAggregate.Create(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com", idCountry, tenant, createdBy);
 
 user.AddProduct(product);
 
 var users = new List<UserAggregate>
 {
-    UserAggregate.Create(Guid.NewGuid(), "Jane Doe", "jane.doe@codedesignplus.com", tenant, createdBy),
-    UserAggregate.Create(Guid.NewGuid(), "John Smith", "john.smith@codedesignplus.com", tenant, createdBy)
+    UserAggregate.Create(Guid.NewGuid(), "Jane Doe", "jane.doe@codedesignplus.com", Guid.NewGuid(), tenant, createdBy),
+    UserAggregate.Create(Guid.NewGuid(), "John Smith", "john.smith@codedesignplus.com", Guid.NewGuid(),tenant, createdBy)
 };
 
 // Create a new user
@@ -60,7 +61,7 @@ var userFound = await repository.FindAsync<UserAggregate>(user.Id, tenant, Cance
 // Criteris to find users
 var criteria = new Criteria
 {
-    Filters = "IsActive=true",
+    Filters = $"IdCountry={idCountry}",
     Skip = 0,
     Limit = 10
 };
@@ -76,7 +77,14 @@ var projection = await repository.MatchingAsync<UserAggregate, UserDto>(criteria
 }, tenant, CancellationToken.None);
 
 // Criteria at subdocument level and projection
-var projectionSubdocument = await repository.MatchingAsync<UserAggregate, ProductEntity>(user.Id, criteria, x => x.Products, tenant, CancellationToken.None);
+var criteriaSubDocument = new Criteria
+{
+    Filters = "IsActive=true",
+    Skip = 0,
+    Limit = 10
+};
+
+var projectionSubdocument = await repository.MatchingAsync<UserAggregate, ProductEntity>(user.Id, criteriaSubDocument, x => x.Products, tenant, CancellationToken.None);
 
 // Update user
 var userUpdate = await repository.FindAsync<UserAggregate>(user.Id, tenant, CancellationToken.None);
@@ -98,7 +106,7 @@ await repository.UpdateRangeAsync(usersUpdate.Data.ToList(), CancellationToken.N
 // Transaction
 await repository.TransactionAsync(async (database, session) =>
 {
-    var userTransaction = UserAggregate.Create(Guid.NewGuid(), "John Doe Transaction", "john.doe@codedesignplus.com", tenant, createdBy);
+    var userTransaction = UserAggregate.Create(Guid.NewGuid(), "John Doe Transaction", "john.doe@codedesignplus.com", Guid.NewGuid(), tenant, createdBy);
 
     var collection = database.GetCollection<UserAggregate>(typeof(UserAggregate).Name);
 

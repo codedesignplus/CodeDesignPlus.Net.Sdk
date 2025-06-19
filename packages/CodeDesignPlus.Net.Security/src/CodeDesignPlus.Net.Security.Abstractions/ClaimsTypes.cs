@@ -16,7 +16,7 @@ public static class ClaimTypes
     /// <summary>
     /// This is the principal about which the token asserts information, such as the user of an app. This value is immutable and cannot be reassigned or reused. It can be used to perform authorization checks safely, such as when the token is used to access a resource. By default, the subject claim is populated with the object ID of the user in the directory. To learn more, see Azure Active Directory B2C: Token, session, and single sign-on configuration.
     /// </summary>
-    public const string Subject = "sub";
+    public const string Subject = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
     /// <summary>
     /// An audience claim identifies the intended recipient of the token. For Azure AD B2C, the audience is your app's Application ID, as assigned to your app in the app registration portal. Your app should validate this value and reject the token if it does not match.
     /// </summary>
