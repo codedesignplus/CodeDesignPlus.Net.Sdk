@@ -18,18 +18,20 @@ public class PaymentService(Payment.PaymentClient client, IHttpContextAccessor h
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    public async Task PayAsync(PayRequest request, CancellationToken cancellationToken)
+    public async Task<PaymentResponse> PayAsync(PayRequest request, CancellationToken cancellationToken)
     {
         request.Transaction.DeviceSessionId = userContext.IdUser.ToString();
         request.Transaction.IpAddress = userContext.IpAddress;
         request.Transaction.UserAgent = userContext.UserAgent;
         request.Transaction.Cookie = httpContextAccessor.HttpContext?.Request.Cookies["PaymentCookie"] ?? Guid.NewGuid().ToString();
-        
-        await client.PayAsync(request, new Grpc.Core.Metadata
+
+        var response = await client.PayAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
             { "X-Tenant", userContext.Tenant.ToString() }
         }, cancellationToken: cancellationToken);
+        
+        return response;
     }
 
     /// <summary>
