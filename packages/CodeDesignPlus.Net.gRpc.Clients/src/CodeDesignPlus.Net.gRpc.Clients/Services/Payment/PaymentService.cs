@@ -17,9 +17,9 @@ public class PaymentService(Payment.PaymentClient client, IUserContext userConte
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    public async Task InitiatePaymentAsync(InitiatePaymentRequest request, CancellationToken cancellationToken)
+    public async Task<InitiatePaymentResponse> InitiatePaymentAsync(InitiatePaymentRequest request, CancellationToken cancellationToken)
     {
-        await client.InitiatePaymentAsync(request, new Grpc.Core.Metadata
+        return await client.InitiatePaymentAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
             { "X-Tenant", userContext.Tenant.ToString() }
