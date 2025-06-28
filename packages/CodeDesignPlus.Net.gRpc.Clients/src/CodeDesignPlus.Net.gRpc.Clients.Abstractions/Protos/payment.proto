@@ -9,9 +9,9 @@ option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Payment";
 package Payment;
 
 
-
 service Payment {
   rpc InitiatePayment (InitiatePaymentRequest) returns (google.protobuf.Empty);
+  rpc UpdateStatus (UpdateStatusRequest) returns (UpdateStatusResponse);
 }
 
 message InitiatePaymentRequest {
@@ -73,4 +73,33 @@ message Pse {
 message Amount {
   int64 value = 1;
   google.protobuf.StringValue currency = 2;
+}
+
+message UpdateStatusRequest {
+  string id = 1;
+}
+
+message UpdateStatusResponse {
+  bool success = 1;
+  PaymentStatus status = 2;
+  string TransactionId = 3;
+  string message = 4;
+  google.protobuf.StringValue redirectUrl = 5;
+  FinancialNetwork financialNetwork = 6;
+}
+
+enum PaymentStatus {
+  Unknown = 0;
+  Initiated = 1;
+  Succeeded = 2;
+  Failed = 3;
+  Pending = 4;
+}
+
+message FinancialNetwork {
+  string paymentNetworkResponseCode = 1;
+  string PaymentNetworkResponseErrorMessage = 2;
+  string trazabilityCode = 3;
+  string authorizationCode = 4;
+  string responseCode = 5;
 }
