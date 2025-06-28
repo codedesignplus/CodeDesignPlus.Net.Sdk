@@ -83,7 +83,7 @@ message UpdateStatusResponse {
   bool success = 1;
   PaymentStatus status = 2;
   string TransactionId = 3;
-  string message = 4;
+  google.protobuf.StringValue message = 4;
   google.protobuf.StringValue redirectUrl = 5;
   FinancialNetwork financialNetwork = 6;
 }
@@ -97,9 +97,9 @@ enum PaymentStatus {
 }
 
 message FinancialNetwork {
-  string paymentNetworkResponseCode = 1;
-  string PaymentNetworkResponseErrorMessage = 2;
-  string trazabilityCode = 3;
-  string authorizationCode = 4;
-  string responseCode = 5;
+  google.protobuf.StringValue paymentNetworkResponseCode = 1;
+  google.protobuf.StringValue PaymentNetworkResponseErrorMessage = 2;
+  google.protobuf.StringValue trazabilityCode = 3;
+  google.protobuf.StringValue authorizationCode = 4;
+  google.protobuf.StringValue responseCode = 5;
 }
