@@ -116,7 +116,7 @@ namespace CodeDesignPlus.Net.Generator
             var properties = command.GetMembers()
                 .OfType<IPropertySymbol>()
                 .Where(prop => prop.DeclaredAccessibility == Accessibility.Public && !prop.IsStatic && !prop.IsReadOnly && prop.Name != "EqualityContract")
-                .Select(prop => $"\t\t public {prop.Type.ToDisplayString()} {prop.Name} {{ get; set; }}");
+                .Select(prop => $"\t\t public {prop.Type.ToDisplayString()}? {prop.Name} {{ get; set; }}");
 
             foreach (var property in properties)
             {
