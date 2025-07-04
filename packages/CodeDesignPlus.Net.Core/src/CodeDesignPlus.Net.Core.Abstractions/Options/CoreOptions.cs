@@ -26,6 +26,10 @@ public class CoreOptions : IValidatableObject
     [RegularExpression(@"^[a-z-]+$")]
     public required string AppName { get; set; }
     /// <summary>
+    /// Gets or sets the type entry point (worker, rest, grpc)
+    /// </summary>
+    public string TypeEntryPoint { get; set; } = null!;
+    /// <summary>
     /// Gets or sets the version
     /// </summary>
     [Required]

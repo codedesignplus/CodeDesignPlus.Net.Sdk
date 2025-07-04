@@ -7,9 +7,8 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 /// Service to manage payment-related operations.
 /// </summary>
 /// <param name="client">The gRPC client for payment operations.</param>
-/// <param name="httpContextAccessor">The HTTP context accessor to retrieve request information.</param>
 /// <param name="userContext">The user context to access user-related information.</param>
-public class PaymentService(Payment.PaymentClient client, IHttpContextAccessor httpContextAccessor, IUserContext userContext) : IPaymentGrpc
+public class PaymentService(Payment.PaymentClient client, IUserContext userContext) : IPaymentGrpc
 {
     /// <summary>
     /// Initiates a payment process.
@@ -18,38 +17,31 @@ public class PaymentService(Payment.PaymentClient client, IHttpContextAccessor h
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    public async Task<PaymentResponse> PayAsync(PayRequest request, CancellationToken cancellationToken)
+    public async Task<InitiatePaymentResponse> InitiatePaymentAsync(InitiatePaymentRequest request, CancellationToken cancellationToken)
     {
-        request.Transaction.DeviceSessionId = userContext.IdUser.ToString();
-        request.Transaction.IpAddress = userContext.IpAddress;
-        request.Transaction.UserAgent = userContext.UserAgent;
-        request.Transaction.Cookie = httpContextAccessor.HttpContext?.Request.Cookies["PaymentCookie"] ?? Guid.NewGuid().ToString();
-
-        var response = await client.PayAsync(request, new Grpc.Core.Metadata
+        return await client.InitiatePaymentAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
             { "X-Tenant", userContext.Tenant.ToString() }
         }, cancellationToken: cancellationToken);
-        
-        return response;
     }
 
     /// <summary>
-    /// Retrieves payment information by ID.
+    /// Updates the status of a payment.
+    /// This method is used to update the status of a payment after it has been processed.
+    /// It is typically called by the payment gateway or service to notify the system of the payment status change.
     /// </summary>
-    /// <param name="request">The request containing the payment ID.</param>
-    /// <param name="cancellationToken"> Cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>Returns a task representing the asynchronous operation with the payment information.</returns>
-    /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    public async Task<PaymentResponse> GetPayByIdAsync(GetPaymentRequest request, CancellationToken cancellationToken)
+    /// <param name="id">The unique identifier of the payment to update.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation.</returns>
+    public async Task<UpdateStatusResponse> UpdateStatusAsync(Guid id, CancellationToken cancellationToken)
     {
-        var response = await client.GetPaymentAsync(request, new Grpc.Core.Metadata
+        var request = new UpdateStatusRequest { Id = id.ToString() };
+
+        return await client.UpdateStatusAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
             { "X-Tenant", userContext.Tenant.ToString() }
         }, cancellationToken: cancellationToken);
-
-        return response;
     }
-
 }

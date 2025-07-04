@@ -62,7 +62,7 @@ public static class ServiceCollectionExtension
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()
                 .Enrich.WithEnvironmentUserName()
-                .Enrich.WithProperty("AppName", coreOptions.Value.AppName)
+                .Enrich.WithProperty("AppName", $"{coreOptions.Value.AppName}-{coreOptions.Value.TypeEntryPoint}")
                 .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
                     .WithDefaultDestructurers()
                     .WithDestructurers([new DbUpdateExceptionDestructurer()])

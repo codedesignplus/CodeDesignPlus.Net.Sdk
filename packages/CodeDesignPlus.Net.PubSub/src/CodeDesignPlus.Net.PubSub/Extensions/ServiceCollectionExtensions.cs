@@ -32,7 +32,7 @@ public static class ServiceCollectionExtensions
 
         services
             .AddCore(configuration)
-            .AddEventsHandlers()
+            .AddEventsHandlers(options.RegisterAutomaticHandlers)
             .TryAddSingleton<IPubSub, PubSubService>();
 
         if (options.UseQueue)
@@ -72,7 +72,7 @@ public static class ServiceCollectionExtensions
 
         services
            .AddCore(configuration)
-           .AddEventsHandlers()
+           .AddEventsHandlers(pubSubOptions.RegisterAutomaticHandlers)
            .TryAddSingleton<IPubSub, PubSubService>();
 
         if (pubSubOptions.UseQueue)
@@ -91,9 +91,13 @@ public static class ServiceCollectionExtensions
     /// Adds event handlers to the specified IServiceCollection.
     /// </summary>
     /// <param name="services">The IServiceCollection to add the event handlers to.</param>
+    /// <param name="registerAutomaticHandlers">Indicates whether to register automatic event handlers.</param>
     /// <returns>The IServiceCollection with event handlers added.</returns>
-    private static IServiceCollection AddEventsHandlers(this IServiceCollection services)
+    private static IServiceCollection AddEventsHandlers(this IServiceCollection services, bool registerAutomaticHandlers)
     {
+        if (!registerAutomaticHandlers)
+            return services;
+
         var eventsHandlers = PubSubExtensions.GetEventHandlers();
 
         foreach (var eventHandler in eventsHandlers)

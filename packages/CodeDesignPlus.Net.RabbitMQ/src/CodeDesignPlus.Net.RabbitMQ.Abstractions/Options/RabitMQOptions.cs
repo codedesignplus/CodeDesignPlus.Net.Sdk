@@ -60,6 +60,10 @@ public class RabbitMQOptions : PubSubOptions, IValidatableObject
     /// Gets or sets the queue arguments.
     /// </summary>
     public QueueArguments QueueArguments { get; set; } = new();
+    /// <summary>
+    /// Gets or sets a value indicating whether to declare exchanges initially.
+    /// </summary>
+    public bool DeclareExchangesInitially { get; set; } = true;
 
     /// <summary>
     /// Validates the properties of the <see cref="RabbitMQOptions"/> instance.

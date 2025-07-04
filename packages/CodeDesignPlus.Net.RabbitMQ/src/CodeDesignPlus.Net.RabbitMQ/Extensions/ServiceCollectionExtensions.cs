@@ -55,7 +55,9 @@ public static class ServiceCollectionExtensions
             return connection;
         });
         services.TryAddSingleton<IChannelProvider, ChannelProvider>();
-        services.AddHostedService<DeclareExchangeBackgroundService<TAssembly>>();
+
+        if (options.DeclareExchangesInitially)
+            services.AddHostedService<DeclareExchangeBackgroundService<TAssembly>>();
 
         if (options.RegisterHealthCheck)
         {
