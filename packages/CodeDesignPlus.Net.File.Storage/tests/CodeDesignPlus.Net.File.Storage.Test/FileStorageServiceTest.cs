@@ -35,7 +35,7 @@ public class FileStorageServiceTest
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
                 Assert.Equal(renowned, r);
-                Assert.Equal(stream, s);
+                Assert.Equal(stream.Length, s.Length);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseBlob)
@@ -48,7 +48,7 @@ public class FileStorageServiceTest
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
                 Assert.Equal(renowned, r);
-                Assert.Equal(stream, s);
+                Assert.Equal(stream.Length, s.Length);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseFile)
@@ -61,7 +61,7 @@ public class FileStorageServiceTest
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
                 Assert.Equal(renowned, r);
-                Assert.Equal(stream, s);
+                Assert.Equal(stream.Length, s.Length);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseLocal)

@@ -59,7 +59,7 @@ namespace CodeDesignPlus.Net.File.Storage.Test.Factories
             var factory = new AzureFileFactory(optionsMock.Object, userContextMock.Object);
 
             // Act & Assert
-            Assert.Throws<FileStorageException>(() => factory.Create());
+            Assert.Equal(factory, factory.Create());
         }
 
         [Fact]

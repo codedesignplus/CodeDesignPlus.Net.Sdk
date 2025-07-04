@@ -12,6 +12,7 @@ public static class TypeExtensions
         { typeof(string), () => "Test" },
         { typeof(int), () => 1 },
         { typeof(long), () => 1L },
+        { typeof(Guid?), () => Guid.NewGuid() },
         { typeof(Guid), () => Guid.NewGuid() },
         { typeof(DateTime), () => DateTime.Now },
         { typeof(DateTimeOffset), () => DateTimeOffset.UtcNow },
@@ -30,7 +31,8 @@ public static class TypeExtensions
         { typeof(ushort), () => (ushort)1 },
         { typeof(sbyte), () => (sbyte)1 },
         { typeof(TimeSpan), () => TimeSpan.Zero },
-        { typeof(Uri), () => new Uri("https://codedesignplus.com") }
+        { typeof(Uri), () => new Uri("https://codedesignplus.com") },
+        { typeof(Stream), () => new MemoryStream() }
     };
 
     /// <summary>

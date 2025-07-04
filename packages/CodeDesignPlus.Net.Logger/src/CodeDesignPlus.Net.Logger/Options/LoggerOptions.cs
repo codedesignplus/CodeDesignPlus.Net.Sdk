@@ -22,6 +22,11 @@ public class LoggerOptions : IValidatableObject
     public string OTelEndpoint { get; set; }
 
     /// <summary>
+    /// Gets or sets the log level for the logger.
+    /// </summary>
+    public string Level { get; set; } = null!;
+
+    /// <summary>
     /// Validates the properties of the LoggerOptions.
     /// </summary>
     /// <param name="validationContext">The context information about the validation operation.</param>

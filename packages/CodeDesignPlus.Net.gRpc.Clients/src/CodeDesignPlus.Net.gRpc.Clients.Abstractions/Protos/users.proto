@@ -1,0 +1,31 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.User";
+
+package Users;
+
+
+service Users {
+  rpc AddTenantToUser (AddTenantRequest) returns (google.protobuf.Empty);
+  rpc AddGroupToUser (AddGroupRequest) returns (google.protobuf.Empty);
+}
+
+message AddGroupRequest {
+  string Id = 1;
+  string Role = 2;
+}
+
+message AddTenantRequest {
+  string Id = 1;
+  Tenant Tenant = 2;
+}
+
+message Tenant {
+  string Id = 1;
+  string Name = 2;
+}
+

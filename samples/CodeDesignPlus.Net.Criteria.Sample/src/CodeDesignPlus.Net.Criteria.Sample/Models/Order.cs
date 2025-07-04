@@ -1,8 +1,10 @@
-﻿namespace CodeDesignPlus.Net.Criteria.Sample.Models;
+﻿using NodaTime;
+
+namespace CodeDesignPlus.Net.Criteria.Sample.Models;
 
 public class Order
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     public string? Name { get; set; }
 

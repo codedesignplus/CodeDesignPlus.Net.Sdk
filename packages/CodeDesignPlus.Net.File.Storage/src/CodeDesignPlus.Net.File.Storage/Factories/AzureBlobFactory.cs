@@ -47,7 +47,7 @@ public class AzureBlobFactory : IAzureBlobFactory
     public IAzureBlobFactory Create()
     {
         if (!this.Options.AzureBlob.Enable)
-            throw new FileStorageException("The AzureBlob is not enable");
+            return this;
 
         if (this.Client != null)
             return this;

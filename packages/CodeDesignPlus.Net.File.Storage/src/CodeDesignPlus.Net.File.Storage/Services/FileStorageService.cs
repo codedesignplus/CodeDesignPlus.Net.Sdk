@@ -44,7 +44,7 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
         {
             var response = await provider.DownloadAsync(file, target, cancellationToken).ConfigureAwait(false);
 
-            if (response.Success)
+            if (response != null && response.Success)
                 return response;
         }
 
@@ -66,7 +66,13 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
 
         foreach (var provider in providers)
         {
-            var task = provider.UploadAsync(stream, file, target, renowned, cancellationToken);
+            var memory = new MemoryStream();
+            stream.CopyTo(memory);
+            memory.Position = 0;
+            stream.Position = 0;
+
+            var task =  provider.UploadAsync(memory, file, target, renowned, cancellationToken);
+
             tasks.Add(task);
         }
 

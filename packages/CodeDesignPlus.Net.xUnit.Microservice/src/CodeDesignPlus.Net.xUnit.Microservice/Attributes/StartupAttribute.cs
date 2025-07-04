@@ -15,7 +15,9 @@ public class StartupAttribute<TAssemblyScan> : DataAttribute
     public override IEnumerable<object[]> GetData(MethodInfo testMethod)
     {
         var services = new ServiceCollection();
-        var configuration = new ConfigurationBuilder().Build();
+        var configurationBuilder = new ConfigurationBuilder();
+
+        var configuration = configurationBuilder.Build();
 
         var startups = typeof(TAssemblyScan).Assembly
             .GetTypes()

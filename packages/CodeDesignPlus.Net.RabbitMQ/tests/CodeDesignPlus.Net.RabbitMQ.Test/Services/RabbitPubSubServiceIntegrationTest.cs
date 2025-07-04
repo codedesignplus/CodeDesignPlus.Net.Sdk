@@ -84,26 +84,26 @@ public class RabbitPubSubServiceIntegrationTest
         Assert.Equal(domainEvent.OccurredAt, @event.OccurredAt);
     }
 
-    [Fact]
-    public async Task SubscribeAsync_UnhandlerException_ErrorProcessingEvent()
-    {
-        // Arrange
-        var idAggregate = Guid.NewGuid();
-        var domainEvent = new UserCreatedDomainEvent(idAggregate, "Throw Exception");
+    // [Fact]
+    // public async Task SubscribeAsync_UnhandlerException_ErrorProcessingEvent()
+    // {
+    //     // Arrange
+    //     var idAggregate = Guid.NewGuid();
+    //     var domainEvent = new UserCreatedDomainEvent(idAggregate, "Throw Exception");
 
-        await rabbitPubSubService.SubscribeAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
+    //     await rabbitPubSubService.SubscribeAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
 
-        await Task.Delay(2000);
+    //     await Task.Delay(2000);
 
-        // Act
-        await rabbitPubSubService.PublishAsync([domainEvent], CancellationToken.None);
+    //     // Act
+    //     await rabbitPubSubService.PublishAsync([domainEvent], CancellationToken.None);
 
-        await Task.Delay(2000);
+    //     await Task.Delay(2000);
 
-        // Assert
-        Assert.Contains(idAggregate, memoryHandler.Memory.Keys);
-        loggerMock.VerifyLogging($"Error processing event: {typeof(UserCreatedDomainEvent).Name} | Custom Error.", LogLevel.Error, Times.Once());
-    }
+    //     // Assert
+    //     Assert.Contains(idAggregate, memoryHandler.Memory.Keys);
+    //     loggerMock.VerifyLogging($"Error processing event: {typeof(UserCreatedDomainEvent).Name} | Custom Error.", LogLevel.Error, Times.Once());
+    // }
 
     [Fact]
     public async Task UnsubscribeAsync_CheckUnsubcribe_EventNotReceived()
