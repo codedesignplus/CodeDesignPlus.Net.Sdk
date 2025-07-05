@@ -57,7 +57,7 @@
       },
       "configurations": {
         "default": {
-          "args": "--org=codedesignplus --project=CodeDesignPlus.Net.RabbitMQ --server=http://sonarqube.codedesignplus.com:9000"
+          "args": "--org=codedesignplus --project=CodeDesignPlus.Net.Vault --server=http://sonarqube.codedesignplus.com:9000"
         }
       }
     },
