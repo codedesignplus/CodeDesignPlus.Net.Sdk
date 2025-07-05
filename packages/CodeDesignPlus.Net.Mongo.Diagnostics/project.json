@@ -49,7 +49,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "args": "--org=codedesignplus --project=CodeDesignPlus.Net.Mongo.Diagnostics --server=https://sonarcloud.io/",
+        "args": "--org=codedesignplus --project=CodeDesignPlus.Net.Mongo.Diagnostics",
         "commands": [
           "dotnet test {projectRoot}/{args.project}.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover",
           "dotnet sonarscanner begin /o:{args.org} /k:{args.project} /d:sonar.host.url={args.server} /d:sonar.coverage.exclusions=\"**Tests*.cs\" /d:sonar.cs.opencover.reportsPaths={projectRoot}/tests/{args.project}.Test/coverage.opencover.xml",
@@ -57,6 +57,11 @@
           "dotnet sonarscanner end"
         ],
         "parallel": false
+      },
+      "configurations": {
+        "default": {
+          "args": "--org=codedesignplus --project=CodeDesignPlus.Net.RabbitMQ --server=http://sonarqube.codedesignplus.com:9000"
+        }
       }
     },
     "pack": {
