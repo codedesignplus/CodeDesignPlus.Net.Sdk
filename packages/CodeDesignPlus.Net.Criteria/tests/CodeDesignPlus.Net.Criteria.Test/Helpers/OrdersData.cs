@@ -10,6 +10,7 @@ public class OrdersData
                 Id = 1,
                 Name = "Order 1",
                 Description = "Description Order 1",
+                Code = Guid.Parse("9432915d-8418-4896-86f6-6d2e0d0160af"),
                 CreatedAt = new LocalDate(2021, 1, 1).AtMidnight().InUtc().ToInstant(),
                 Total = 90,
                 Products =
@@ -44,6 +45,7 @@ public class OrdersData
                 Id = 2,
                 Name = "Order 2",
                 Description = "Description Order 2",
+                Code = Guid.Parse("f37fdc53-858b-4b6b-821a-406eee568a9c"),
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 200,
                 Products =
@@ -78,6 +80,7 @@ public class OrdersData
                 Id = 3,
                 Name = "Order 3",
                 Description = "Description Order 3",
+                Code = Guid.Parse("00c6d6c7-12e1-4e92-8663-88e3df24ed21"),
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 300,
                 Products =

@@ -158,9 +158,9 @@ internal static class Evaluator
     {
         return operatorSymbol switch
         {
-            "^=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.StartsWith), new[] { typeof(string) })!, constant),
-            "$=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.EndsWith), new[] { typeof(string) })!, constant),
-            "~=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.Contains), new[] { typeof(string) })!, constant),
+            "^=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])!, constant),
+            "$=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])!, constant),
+            "~=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!, constant),
             "=" => Expression.Equal(property, constant),
             "<" => Expression.LessThan(property, constant),
             ">" => Expression.GreaterThan(property, constant),

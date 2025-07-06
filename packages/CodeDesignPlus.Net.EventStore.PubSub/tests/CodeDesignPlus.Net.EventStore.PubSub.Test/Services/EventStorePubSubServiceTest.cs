@@ -4,9 +4,12 @@ using CodeDesignPlus.Net.EventStore.Abstractions;
 using CodeDesignPlus.Net.EventStore.Abstractions.Options;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Domain;
 using CodeDesignPlus.Net.EventStore.PubSub.Test.Helpers.Events;
+using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.xUnit.Containers.EventStoreContainer;
+using CodeDesignPlus.Net.xUnit.Extensions;
 using CodeDesignPlus.Net.xUnit.Output.Loggers;
+using EventStore.ClientAPI;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Moq;
@@ -202,6 +205,69 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         Assert.True(task.IsCompleted);
     }
 
+    [Fact]
+    public async Task EventAppearedAsync_CatchException_CheckLogger()
+    {
+        // Arrange
+        var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
+        var serviceProviderMock = new Mock<IServiceProvider>();
+        var loggerMock = new Mock<ILogger<EventStorePubSubService>>();
+        var coreOptions = MO.Options.Create(OptionsUtil.CoreOptions);
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
+
+        var service = new EventStorePubSubService(eventStoreFactoryMock.Object, serviceProviderMock.Object, loggerMock.Object, coreOptions, domainEventResolverService);
+        var resolveEvent = new ResolvedEvent();
+
+        // Act & Assert
+        var method = typeof(EventStorePubSubService).GetMethod("EventAppearedAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        method = method!.MakeGenericMethod(typeof(OrderCreatedEvent), typeof(OrderCreatedEventHandler));
+
+        var task = (Task)method?.Invoke(service, [resolveEvent, CancellationToken.None])!;
+
+        await task;
+
+        // Assert
+        Assert.True(task.IsCompleted);
+        loggerMock.VerifyLogging($"Error processing event: OrderCreatedEvent | No service for type 'Microsoft.Extensions.DependencyInjection.IServiceScopeFactory' has been registered..", LogLevel.Error);
+    }
+
+    [Fact]
+    public async Task EventAppearedAsync_CatchCodeDesignPlusException_CheckLogger()
+    {
+        // Arrange
+        var eventConext = new Mock<IEventContext>();
+        var serviceCollection = new ServiceCollection();
+        serviceCollection.AddSingleton<IEventContext>(x => throw new CodeDesignPlusException(Layer.Application, "100", "Custom Message"));
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        var eventStoreFactoryMock = new Mock<IEventStoreFactory>();
+        var serviceProviderMock = new Mock<IServiceProvider>();
+        var loggerMock = new Mock<ILogger<EventStorePubSubService>>();
+        var coreOptions = MO.Options.Create(OptionsUtil.CoreOptions);
+        var domainEventResolverService = Mock.Of<IDomainEventResolver>();
+
+        // eventConext
+        //     .Setup(x => x.SetCurrentDomainEvent(It.IsAny<IDomainEvent>()))
+        //     .Throws(new CodeDesignPlusException(Layer.Application, "100", "Custom Message"));
+
+        var service = new EventStorePubSubService(eventStoreFactoryMock.Object, serviceProvider, loggerMock.Object, coreOptions, domainEventResolverService);
+        var resolveEvent = new ResolvedEvent();
+
+        // Act & Assert
+        var method = typeof(EventStorePubSubService).GetMethod("EventAppearedAsync", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+
+        method = method!.MakeGenericMethod(typeof(OrderCreatedEvent), typeof(OrderCreatedEventHandler));
+
+        var task = (Task)method?.Invoke(service, [resolveEvent, CancellationToken.None])!;
+
+        await task;
+
+        // Assert
+        Assert.True(task.IsCompleted);
+        loggerMock.VerifyLogging($"Warning processing event: OrderCreatedEvent | Custom Message.", LogLevel.Warning);
+    }
+
     private TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output)
     {
         var webHostBuilder = new WebHostBuilder()
@@ -256,7 +322,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
             EventStorePubSub = new EventStorePubSubOptions
             {
                 Enabled = true,
-                UseQueue = enableQueue 
+                UseQueue = enableQueue
             }
         });
 

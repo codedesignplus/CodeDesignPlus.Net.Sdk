@@ -26,7 +26,8 @@
         "microservice.commons"
     ],
     "sonarlint.connectedMode.project": {
-        "connectionId": "codedesignplus",
-        "projectKey": "CodeDesignPlus.Net.Serializers"
-    }
+        "connectionId": "http-sonarqube-codedesignplus-com-9000-",
+        "projectKey": "CodeDesignPlus.Net.Cache"
+    },
+    "nxConsole.generateAiAgentRules": true
 }

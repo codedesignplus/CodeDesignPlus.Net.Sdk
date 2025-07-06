@@ -35,6 +35,6 @@ public class ValidationPipeline<TRequest, TResponse>(IEnumerable<IValidator<TReq
         if (failures.Count != 0)
             throw new ValidationException(failures);
 
-        return await next();
+        return await next(cancellationToken);
     }
 }

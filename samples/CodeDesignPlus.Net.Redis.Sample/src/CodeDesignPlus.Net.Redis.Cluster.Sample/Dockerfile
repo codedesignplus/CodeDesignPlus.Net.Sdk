@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build-env
 WORKDIR /app
 
 COPY ./packages/CodeDesignPlus.Net.Redis /app/packages/CodeDesignPlus.Net.Redis
@@ -10,10 +10,16 @@ COPY ./examples/CodeDesignPlus.Net.Redis.Sample /app/examples/CodeDesignPlus.Net
 RUN dotnet restore /app/examples/CodeDesignPlus.Net.Redis.Sample/src/CodeDesignPlus.Net.Redis.Cluster.Sample/
 
 # Build and publish a release
-RUN dotnet publish /app/examples/CodeDesignPlus.Net.Redis.Sample/src/CodeDesignPlus.Net.Redis.Cluster.Sample/ -c Release -o /app/out
+RUN dotnet publish \
+    /app/examples/CodeDesignPlus.Net.Redis.Sample/src/CodeDesignPlus.Net.Redis.Cluster.Sample/ \
+    -c Release \
+    -o /app/out
 
 # Build runtime image
-FROM mcr.microsoft.com/dotnet/runtime:8.0
+FROM mcr.microsoft.com/dotnet/runtime:9.0
 WORKDIR /app
 COPY --from=build-env /app/out .
+RUN useradd --create-home appuser \
+    && chown -R appuser /app
+USER appuser
 ENTRYPOINT ["dotnet", "CodeDesignPlus.Net.Redis.Cluster.Sample.dll"]

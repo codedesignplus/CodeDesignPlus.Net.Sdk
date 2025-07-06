@@ -156,26 +156,18 @@ public class RabbitPubSubService : IRabbitPubSub
     where TEvent : IDomainEvent
     where TEventHandler : IEventHandler<TEvent>
     {
-        bool messageProcessedSuccessfully = false; // Flag para saber si se procesó y se hizo Ack
-
-        try
+         try
         {
-            if (!channel.IsOpen)
-            {
-                this.logger.LogWarning(
-                    "Channel is already closed when starting to process event {TEvent} with delivery tag {DeliveryTag}. Message will likely be redelivered.",
-                    typeof(TEvent).Name,
-                    eventArguments.DeliveryTag
-                );
-                return;
-            }
-
-            this.logger.LogDebug("Processing event: {TEvent} with delivery tag {DeliveryTag}.", typeof(TEvent).Name, eventArguments.DeliveryTag);
+            this.logger.LogDebug("Processing event: {TEvent}.", typeof(TEvent).Name);
 
             using var scope = this.serviceProvider.CreateScope();
+
             var context = scope.ServiceProvider.GetRequiredService<IEventContext>();
+
             var body = eventArguments.Body.ToArray();
+
             var message = Encoding.UTF8.GetString(body);
+
             var @event = JsonSerializer.Deserialize<TEvent>(message);
 
             context.SetCurrentDomainEvent(@event);
@@ -184,93 +176,15 @@ public class RabbitPubSubService : IRabbitPubSub
 
             await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
 
-            try
-            {
-                if (channel.IsOpen)
-                {
-                    await channel.BasicAckAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, cancellationToken: cancellationToken);
-                    messageProcessedSuccessfully = true;
-
-                    this.logger.LogInformation("Event {TEvent} with delivery tag {DeliveryTag} processed and acknowledged successfully.", typeof(TEvent).Name, eventArguments.DeliveryTag);
-                }
-                else
-                {
-                    this.logger.LogWarning(
-                        "Channel closed AFTER processing but BEFORE acknowledging event {TEvent} with delivery tag {DeliveryTag}. Message might be redelivered.",
-                        typeof(TEvent).Name,
-                        eventArguments.DeliveryTag
-                );
-                }
-            }
-            catch (AlreadyClosedException ace)
-            {
-                //rallback
-                this.logger.LogWarning(ace,
-                    "Could not ACK event {TEvent} with delivery tag {DeliveryTag} because channel/connection is closed. Message might be redelivered.",
-                    typeof(TEvent).Name,
-                    eventArguments.DeliveryTag
-                );
-            }
-            catch (Exception ackEx)
-            {
-                //rallback
-                this.logger.LogError(ackEx, "Error acknowledging event {TEvent} with delivery tag {DeliveryTag} after successful processing.", typeof(TEvent).Name, eventArguments.DeliveryTag);
-            }
-
+            await channel.BasicAckAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, cancellationToken: cancellationToken);
         }
         catch (CodeDesignPlusException ex)
         {
-            // rallback
-            this.logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}. Delivery Tag: {DeliveryTag}", typeof(TEvent).Name, ex.Message, eventArguments.DeliveryTag);
+            this.logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
         }
         catch (Exception ex)
         {
-            // rallback
-            // Capturar específicamente si el canal se cerró DURANTE el procesamiento
-            if (ex is AlreadyClosedException || (ex.InnerException is AlreadyClosedException))
-            {
-                this.logger.LogWarning(ex, "Channel/Connection closed during processing of event {TEvent} with delivery tag {DeliveryTag}. Message might be redelivered.", typeof(TEvent).Name, eventArguments.DeliveryTag);
-            }
-            else
-            {
-                this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}. Delivery Tag: {DeliveryTag}", typeof(TEvent).Name, ex.Message, eventArguments.DeliveryTag);
-            }
-            // messageProcessedSuccessfully sigue siendo false
-        }
-        finally
-        {
-            if (!messageProcessedSuccessfully)
-            {
-                try
-                {
-                    // Verificar si el canal sigue abierto ANTES de Nack
-                    if (channel.IsOpen)
-                    {
-                        this.logger.LogWarning("Attempting to NACK event {TEvent} with delivery tag {DeliveryTag} (requeue=false) due to processing failure or failure to ACK.", typeof(TEvent).Name, eventArguments.DeliveryTag);
-                        // Considera si 'requeue: true' es apropiado para ciertos errores recuperables
-                        await channel.BasicNackAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: false, cancellationToken: cancellationToken);
-                    }
-                    else
-                    {
-                        // Si el canal ya está cerrado aquí, no podemos hacer Nack.
-                        // RabbitMQ debería reentregar el mensaje porque no fue confirmado (ni Ack ni Nack explícito en canal abierto).
-                        this.logger.LogWarning("Cannot NACK event {TEvent} with delivery tag {DeliveryTag} because channel is already closed. Message should be redelivered by broker.",
-                            typeof(TEvent).Name, eventArguments.DeliveryTag);
-                    }
-                }
-                catch (AlreadyClosedException ace)
-                {
-                    // Es normal llegar aquí si el canal se cerró después de un error de procesamiento pero antes del Nack
-                    this.logger.LogWarning(ace, "Could not NACK event {TEvent} with delivery tag {DeliveryTag} because channel/connection is closed. Message should be redelivered by broker.", typeof(TEvent).Name, eventArguments.DeliveryTag);
-                }
-                catch (Exception nackEx)
-                {
-                    // Otro error durante el Nack
-                    this.logger.LogError(nackEx, "Error negatively acknowledging event {TEvent} with delivery tag {DeliveryTag}.", typeof(TEvent).Name, eventArguments.DeliveryTag);
-                    // En este punto, el estado del mensaje es incierto. Podría ser reentregado o no.
-                }
-            }
-            // -----------------------------------------------------------------------
+            this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
         }
     }
 
