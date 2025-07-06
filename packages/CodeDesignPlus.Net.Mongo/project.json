@@ -59,11 +59,6 @@
           "dotnet sonarscanner end"
         ],
         "parallel": false
-      },
-      "configurations": {
-        "default": {
-          "args": "--org=codedesignplus --project=CodeDesignPlus.Net.Mongo --server=http://sonarqube.codedesignplus.com:9000"
-        }
       }
     },
     "pack": {
