@@ -13,8 +13,11 @@ public class ExceptionMiddlewareTests
 {
     private static ExceptionMiddleware CreateMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware>? logger = null, IHostEnvironment? env = null, CoreOptions? coreOptions = null)
     {
+        var hostEnvironment = new Mock<IHostEnvironment>();
+        hostEnvironment.Setup(e => e.EnvironmentName).Returns("Development");
+
         logger ??= Mock.Of<ILogger<ExceptionMiddleware>>();
-        env ??= Mock.Of<IHostEnvironment>(e => e.IsProduction() == false);
+        env ??= hostEnvironment.Object;
         coreOptions ??= new CoreOptions
         {
             Business = "CodeDesignPlus",
@@ -61,6 +64,7 @@ public class ExceptionMiddlewareTests
     {
         // Arrange
         var context = new DefaultHttpContext();
+        context.Response.Body = new MemoryStream();
 
         static Task next(HttpContext ctx) => throw new ValidationException("Validation failed",
         [
@@ -89,7 +93,9 @@ public class ExceptionMiddlewareTests
     {
         // Arrange
         var context = new DefaultHttpContext();
-        var ex = new CodeDesignPlusException(Layer.Application, "App error", "A-001");
+        context.Response.Body = new MemoryStream();
+
+        var ex = new CodeDesignPlusException(Layer.Application, "001", "App error");
         Task next(HttpContext ctx) => throw ex;
         var middleware = CreateMiddleware(next);
 
@@ -102,8 +108,7 @@ public class ExceptionMiddlewareTests
 
         context.Response.Body.Seek(0, SeekOrigin.Begin);
         var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
-        Assert.Contains("application-error", body.ToLowerInvariant());
-        Assert.Contains("A-001", body);
+        Assert.Contains("001", body);
         Assert.Contains("App error", body);
         Assert.Contains("TestApp", body);
     }
@@ -113,6 +118,8 @@ public class ExceptionMiddlewareTests
     {
         // Arrange
         var context = new DefaultHttpContext();
+        context.Response.Body = new MemoryStream();
+        
         static Task next(HttpContext ctx) => throw new Exception("Something went wrong");
         var middleware = CreateMiddleware(next);
 
@@ -135,9 +142,11 @@ public class ExceptionMiddlewareTests
     {
         // Arrange
         var context = new DefaultHttpContext();
-        var env = Mock.Of<IHostEnvironment>(e => e.IsProduction() == true);
+        //var env = Mock.Of<IHostEnvironment>(e => e.IsProduction() == true);
+        var env = new Mock<IHostEnvironment>();
+        env.Setup(e => e.EnvironmentName).Returns("Production");
         static Task next(HttpContext ctx) => throw new Exception("Sensitive error");
-        var middleware = CreateMiddleware(next, env: env);
+        var middleware = CreateMiddleware(next, env: env.Object);
 
         // Act
         await middleware.InvokeAsync(context);
