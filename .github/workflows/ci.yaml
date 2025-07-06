@@ -119,8 +119,10 @@ jobs:
       
       # Other Branches
       - name: Run SonarQube
-        if: env.IS_RC == 'true'
+        # if: env.IS_RC == 'true'
         run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         
       - name: .Net Pack
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
