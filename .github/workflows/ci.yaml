@@ -103,7 +103,7 @@ jobs:
       # Main
       - name: Run SonarQube Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube --args="--server=${{ vars.SERVER }}"
+        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube
 
       - name: .Net Pack Main
         if: env.IS_RELEASE == 'true'
@@ -120,7 +120,7 @@ jobs:
       # Other Branches
       - name: Run SonarQube
         if: env.IS_RC == 'true'
-        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube --args="--server=${{ vars.SERVER }}"
+        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube
         
       - name: .Net Pack
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
