@@ -36,6 +36,7 @@ try {
 
     execSync(joinedCommand, { stdio: 'inherit' });
     console.log('\n✅ SonarQube analysis completed successfully.');
+    
 } catch (error) {
     console.error('\n❌ ERROR: A command failed during SonarQube analysis.');
     if (error instanceof Error) {
