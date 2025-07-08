@@ -4,7 +4,6 @@ namespace CodeDesignPlus.Net.Microservice.Commons.Test.EntryPoints.Rest.Resource
 
 public class ResourcesExtensionsTest
 {
-    private class DummyProgram { }
 
     [Fact]
     public void AddResources_ThrowsArgumentNullException_WhenServicesIsNull()
@@ -14,7 +13,7 @@ public class ResourcesExtensionsTest
         var configuration = new ConfigurationBuilder().Build();
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => ResourcesExtensions.AddResources<DummyProgram>(services, configuration));
+        Assert.Throws<ArgumentNullException>(() => ResourcesExtensions.AddResources<Startup>(services, configuration));
     }
 
     [Fact]
@@ -25,7 +24,7 @@ public class ResourcesExtensionsTest
         IConfiguration configuration = null!;
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => ResourcesExtensions.AddResources<DummyProgram>(services, configuration));
+        Assert.Throws<ArgumentNullException>(() => ResourcesExtensions.AddResources<Startup>(services, configuration));
     }
 
     [Fact]
@@ -44,7 +43,7 @@ public class ResourcesExtensionsTest
         var services = new ServiceCollection();
 
         // Act
-        var result = ResourcesExtensions.AddResources<DummyProgram>(services, configuration);
+        var result = ResourcesExtensions.AddResources<Startup>(services, configuration);
 
         // Assert
         Assert.Same(services, result);
@@ -67,7 +66,7 @@ public class ResourcesExtensionsTest
         var services = new ServiceCollection();
 
         // Act
-        var result = ResourcesExtensions.AddResources<DummyProgram>(services, configuration);
+        var result = ResourcesExtensions.AddResources<Startup>(services, configuration);
         var serviceProvider = result.BuildServiceProvider();
 
         // Assert
