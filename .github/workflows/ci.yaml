@@ -103,7 +103,7 @@ jobs:
       # Main
       - name: Run SonarQube Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube
+        run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube 
 
       - name: .Net Pack Main
         if: env.IS_RELEASE == 'true'
