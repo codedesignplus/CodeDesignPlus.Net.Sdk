@@ -12,8 +12,6 @@ env:
   IS_RELEASE: ${{ github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' }}
   IS_RC: ${{ github.ref == 'refs/heads/rc' }}
   IS_BETA: ${{ github.ref == 'refs/heads/dev' }}
-  SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  NUGET_TOKEN: ${{ secrets.NUGET_TOKEN }}
 jobs:
   build:
     name: Build .Net
@@ -115,7 +113,7 @@ jobs:
         
       - name: .Net Push NuGet Package Main
         if: env.IS_RELEASE == 'true'
-        run: npx nx run-many --skip-nx-cache --target push --args="--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}"
+        run: npx nx run-many --skip-nx-cache --target push --args="--source=https://api.nuget.org/v3/index.json --token=${{secrets.NUGET_TOKEN}}"
       
       # Other Branches
       - name: Run SonarQube
@@ -123,7 +121,7 @@ jobs:
         run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
+          SONAR_HOST_URL: ${{ vars.SONAR_HOST_URL }}
         
       - name: .Net Pack
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
@@ -135,7 +133,7 @@ jobs:
         
       # - name: .Net Push NuGet Package
       #   if: env.IS_RC == 'true' || env.IS_BETA == 'true'
-      #   run: npx nx run-many --skip-nx-cache --target push --args="--source=https://api.nuget.org/v3/index.json --token=${{env.NUGET_TOKEN}}"
+      #   run: npx nx run-many --skip-nx-cache --target push --args="--source=https://api.nuget.org/v3/index.json --token=${{secrets.NUGET_TOKEN}}"
 
       - name: Push tag
         id: push_tag
