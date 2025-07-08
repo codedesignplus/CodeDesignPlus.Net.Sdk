@@ -468,7 +468,8 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
             .ToList();
 
         var countCursor = await collection.AggregateAsync<BsonDocument>(pipelineCount, cancellationToken: cancellationToken).ConfigureAwait(false);
-        var totalCount = countCursor.FirstOrDefault(cancellationToken: cancellationToken)?["TotalCount"]?.AsInt32 ?? 0;
+        var countCursorValue = await countCursor.FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+        var totalCount = countCursorValue["TotalCount"]?.AsInt32 ?? 0;
 
         var cursor = await collection.AggregateAsync<BsonDocument>(pipeline, cancellationToken: cancellationToken).ConfigureAwait(false);
         var resultList = new List<BsonDocument>();

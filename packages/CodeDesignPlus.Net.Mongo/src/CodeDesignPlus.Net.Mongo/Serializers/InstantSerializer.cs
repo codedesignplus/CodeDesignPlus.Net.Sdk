@@ -12,7 +12,7 @@ public class InstantSerializer : IBsonSerializer<Instant>
     /// <summary>
     /// Gets the serializer type.
     /// </summary>
-    public Type ValueType => typeof(Instant?);
+    public Type ValueType => typeof(Instant);
 
     /// <summary>
     /// Serialize the <see cref="Instant"/> to a string.
