@@ -2,6 +2,7 @@ using System.Net;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Security.MIddlewares;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 using Moq;
 
 namespace CodeDesignPlus.Net.Security.Test.Middlewares;
@@ -27,6 +28,8 @@ public class RbacMiddlewareTest
         services.AddSingleton(coreOptionsMock.Object);
         services.AddSingleton(rbacServiceMock.Object);
         httpContext.RequestServices = services.BuildServiceProvider();
+        httpContext.GetRouteData().Values["controller"] = "TestController";
+        httpContext.GetRouteData().Values["action"] = "TestAction";
     }
 
     [Fact]

@@ -23,8 +23,8 @@ public class RbacMiddleware(RequestDelegate next)
         var rbacService = context.RequestServices.GetRequiredService<IRbac>();
 
         var routeData = context.GetRouteData();
-        var controllerName = routeData.Values["controller"]?.ToString();
-        var actionName = routeData.Values["action"]?.ToString();
+        var controllerName = routeData.Values["controller"].ToString();
+        var actionName = routeData.Values["action"].ToString();
         var httpMethod = context.Request.Method;
 
         var isAuthorized = await rbacService.IsAuthorizedAsync(controllerName, actionName, httpMethod, userContext.Roles);

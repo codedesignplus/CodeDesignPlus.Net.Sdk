@@ -24,8 +24,8 @@ public class RefreshRbacBackgroundServiceTest
     public async Task ExecuteAsync_ShouldLogInformation_WhenServiceIsStopping()
     {
         // Arrange
-        var stoppingTokenSource = new CancellationTokenSource();
-        stoppingTokenSource.Cancel();
+        using var stoppingTokenSource = new CancellationTokenSource();
+        await stoppingTokenSource.CancelAsync();
 
         // Act
         await service.StartAsync(stoppingTokenSource.Token);
@@ -38,7 +38,7 @@ public class RefreshRbacBackgroundServiceTest
     public async Task ExecuteAsync_ShouldLogDebug_WhenRbacIsRefreshedSuccessfully()
     {
         // Arrange
-        var stoppingTokenSource = new CancellationTokenSource();
+        using var stoppingTokenSource = new CancellationTokenSource();
         stoppingTokenSource.CancelAfter(2000);
 
         // Act
@@ -53,7 +53,7 @@ public class RefreshRbacBackgroundServiceTest
     public async Task ExecuteAsync_ShouldLogError_WhenExceptionIsThrown()
     {
         // Arrange
-        var stoppingTokenSource = new CancellationTokenSource();
+        using var stoppingTokenSource = new CancellationTokenSource();
         mockRbacService.Setup(r => r.LoadRbacAsync(It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("Test exception"));
 
         // Act
@@ -67,15 +67,16 @@ public class RefreshRbacBackgroundServiceTest
     public async Task ExecuteAsync_ShouldLogInformation_WhenServiceIsRunning()
     {
         // Arrange
-        var stoppingTokenSource = new CancellationTokenSource();
+        using var stoppingTokenSource = new CancellationTokenSource();
         stoppingTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
 
         // Act
         _ = service.StartAsync(stoppingTokenSource.Token);
 
-        await Task.Delay(3000);
+        await Task.Delay(TimeSpan.FromSeconds(150));
 
         // Assert
         mockLogger.VerifyLogging("RefreshRbacBackgroundService is running", LogLevel.Information, Times.AtMostOnce());
+
     }
 }
