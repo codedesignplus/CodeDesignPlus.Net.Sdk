@@ -62,12 +62,16 @@ public static class ServiceCollectionExtensions
         if (options.RegisterHealthCheck)
         {
             services.AddHealthChecks()
-                .AddRabbitMQ(x =>
-                {
-                    var raabbitConnection = x.GetRequiredService<IRabbitConnection>();
+                .AddRabbitMQ(
+                    factory: x =>
+                    {
+                        var rabbitConnection = x.GetRequiredService<IRabbitConnection>();
 
-                    return raabbitConnection.Connection;
-                }, name: "RabbitMQ", tags: ["ready"]);
+                        return Task.FromResult(rabbitConnection.Connection);
+                    },
+                    name: "RabbitMQ",
+                    tags: ["ready"]
+                );
         }
 
         return services;

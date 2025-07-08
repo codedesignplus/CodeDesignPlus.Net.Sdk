@@ -24,7 +24,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
         get
         {
             var rawHeader = this.GetHeader<string>("Authorization");
-            
+
             return rawHeader?.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase) == true
                 ? rawHeader["Bearer ".Length..]
                 : rawHeader;
@@ -62,7 +62,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
                 claimValue = this.User.FindFirst(ClaimTypes.Subject)?.Value;
 
             if (string.IsNullOrEmpty(claimValue))
-                throw new SecurityException("The claim 'oid' or 'sub' is required.");
+                throw new InvalidOperationException("The claim 'oid' or 'sub' is required.");
 
             return ConvertTo<Guid>(claimValue);
         }
@@ -146,6 +146,12 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <returns>The claim value.</returns>
     public TValue GetClaim<TValue>(string claimType)
     {
+
+        if (typeof(TValue) == typeof(string[]))
+        {
+            return (TValue)(object)this.User.FindAll(claimType).Select(c => c.Value).ToArray();
+        }
+
         var claimValue = this.User.FindFirst(claimType)?.Value;
 
         return ConvertTo<TValue>(claimValue);
@@ -162,11 +168,6 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
         if (typeof(TValue) == typeof(Guid) && Guid.TryParse(claimValue, out var guidValue))
         {
             return (TValue)(object)guidValue;
-        }
-
-        if (typeof(TValue) == typeof(string[]))
-        {
-            return (TValue)(object)new string[] { claimValue };
         }
 
         return (TValue)Convert.ChangeType(claimValue, typeof(TValue));

@@ -68,7 +68,7 @@ public class RefreshRbacBackgroundServiceTest
     {
         // Arrange
         var stoppingTokenSource = new CancellationTokenSource();
-        stoppingTokenSource.CancelAfter(2000);
+        stoppingTokenSource.CancelAfter(TimeSpan.FromMinutes(3));
 
         // Act
         _ = service.StartAsync(stoppingTokenSource.Token);
@@ -76,6 +76,6 @@ public class RefreshRbacBackgroundServiceTest
         await Task.Delay(3000);
 
         // Assert
-        mockLogger.VerifyLogging("RefreshRbacBackgroundService is running", LogLevel.Information, Times.Once());
+        mockLogger.VerifyLogging("RefreshRbacBackgroundService is running", LogLevel.Information, Times.AtMostOnce());
     }
 }

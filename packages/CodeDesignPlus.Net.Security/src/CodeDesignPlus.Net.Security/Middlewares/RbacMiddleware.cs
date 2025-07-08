@@ -20,7 +20,6 @@ public class RbacMiddleware(RequestDelegate next)
     public async Task InvokeAsync(HttpContext context)
     {
         var userContext = context.RequestServices.GetRequiredService<IUserContext>();
-        var coreOptions = context.RequestServices.GetRequiredService<IOptions<CoreOptions>>().Value;
         var rbacService = context.RequestServices.GetRequiredService<IRbac>();
 
         var routeData = context.GetRouteData();

@@ -105,7 +105,8 @@ public class RabbitPubSubService : IRabbitPubSub
             routingKey: string.Empty,
             mandatory: true,
             basicProperties: properties,
-            body: body
+            body: body,
+            cancellationToken: cancellationToken
         );
 
         this.logger.LogInformation("Event {TEvent} published ", @event.GetType().Name);
