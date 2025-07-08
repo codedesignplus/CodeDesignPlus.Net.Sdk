@@ -123,6 +123,7 @@ jobs:
         run: npx nx run-many --skip-nx-cache --parallel 1 --target sonarqube
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ env.SONAR_HOST_URL }}
         
       - name: .Net Pack
         if: env.IS_RC == 'true' || env.IS_BETA == 'true'
