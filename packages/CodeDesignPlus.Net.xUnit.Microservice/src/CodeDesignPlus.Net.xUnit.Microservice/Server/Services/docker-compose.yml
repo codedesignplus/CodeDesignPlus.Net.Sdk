@@ -34,7 +34,7 @@ services:
     networks:
       - net_bridge
 
-  otel-collector:
+  otel.collector:
     image: otel/opentelemetry-collector
     ports:
       - "0:4317"

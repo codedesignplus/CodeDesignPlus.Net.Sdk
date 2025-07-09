@@ -12,6 +12,7 @@ public class MediatRExtensionsTest
         var services = new ServiceCollection();
 
         // Act
+        services.AddLogging();
         services.AddMediatR<Startup>();
         var serviceProvider = services.BuildServiceProvider();
 
