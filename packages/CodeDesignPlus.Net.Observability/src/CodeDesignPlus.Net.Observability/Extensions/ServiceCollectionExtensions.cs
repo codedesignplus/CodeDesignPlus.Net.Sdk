@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using OpenTelemetry;
+using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.Resources;
@@ -53,7 +54,9 @@ public static class ServiceCollectionExtensions
         var otel = services.AddOpenTelemetry()
             .ConfigureResource(resource =>
             {
-                resource.AddService(serviceName: coreOptions.AppName, serviceVersion: coreOptions.Version);
+                resource.AddService(serviceName: $"{coreOptions.AppName}-{coreOptions.TypeEntryPoint}", serviceVersion: coreOptions.Version);
+                resource.AddTelemetrySdk();
+                resource.AddEnvironmentVariableDetector();
             });
 
         otel.ConfigureMetrics(environment, observabilityOptions, metricsBuilder);
@@ -114,6 +117,14 @@ public static class ServiceCollectionExtensions
         if (!observabilityOptions.Trace.Enable)
             return;
 
+        var compositeTextMapPropagator = new CompositeTextMapPropagator(
+        [
+            new TraceContextPropagator(),
+            new BaggagePropagator()
+        ]);
+
+        Sdk.SetDefaultTextMapPropagator(compositeTextMapPropagator);
+
         otel.WithTracing(tracing =>
         {
             tracing.AddTraceAspNetCoreInstrumentation(observabilityOptions.Trace.AspNetCore);
@@ -122,6 +133,7 @@ public static class ServiceCollectionExtensions
             tracing.AddTraceCodeDesignPlusSdkInstrumentation(observabilityOptions.Trace.CodeDesignPlusSdk);
             tracing.AddTraceRedisInstrumentation(observabilityOptions.Trace.Redis);
             tracing.AddTraceKafkaInstrumentation(observabilityOptions.Trace.Kafka);
+            tracing.AddTraceRabbitMQInstrumentation(observabilityOptions.Trace.RabbitMQ);
 
             tracing.AddOtlpExporter(x =>
             {
@@ -149,7 +161,7 @@ public static class ServiceCollectionExtensions
             {
                 options.Filter = httpContext => httpContext.Request.Path.StartsWithSegments("/api");
             });
-            
+
             tracing.AddHttpClientInstrumentation();
         }
     }
@@ -213,5 +225,16 @@ public static class ServiceCollectionExtensions
     {
         if (enable)
             tracing.AddConfluentKafkaInstrumentation();
+    }
+
+    /// <summary>
+    /// Adds RabbitMQ instrumentation for tracing.
+    /// </summary>
+    /// <param name="tracing">The tracing builder.</param>
+    /// <param name="enable">Indicates whether to enable the instrumentation.</param>
+    private static void AddTraceRabbitMQInstrumentation(this TracerProviderBuilder tracing, bool enable)
+    {
+        if (enable)
+            tracing.AddRabbitMQInstrumentation();
     }
 }

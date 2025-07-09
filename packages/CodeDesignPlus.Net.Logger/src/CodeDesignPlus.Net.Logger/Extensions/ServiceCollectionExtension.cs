@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Logger.Extensions;
+﻿using Serilog.Events;
+
+namespace CodeDesignPlus.Net.Logger.Extensions;
 
 /// <summary>
 /// Provides extension methods for adding and configuring logging services.
@@ -44,8 +46,11 @@ public static class ServiceCollectionExtension
     {
         builder.UseSerilog((context, services, configuration) =>
         {
-            var coreOptions = services.GetService<IOptions<CoreOptions>>();
-            var loggerOptions = services.GetService<IOptions<LoggerOptions>>();
+            var coreOptions = services.GetRequiredService<IOptions<CoreOptions>>();
+            var environment = services.GetRequiredService<IHostEnvironment>();
+            var loggerOptions = context.Configuration.GetRequiredSection(LoggerOptions.Section).Get<LoggerOptions>();
+
+            var levelLogger = ConvertToSerilogLevel(loggerOptions.Level);
 
             configuration
                 .ReadFrom.Configuration(context.Configuration)
@@ -57,18 +62,22 @@ public static class ServiceCollectionExtension
                 .Enrich.WithProcessId()
                 .Enrich.WithProcessName()
                 .Enrich.WithEnvironmentUserName()
-                .Enrich.WithProperty("AppName", coreOptions.Value.AppName)
+                .Enrich.WithProperty("AppName", $"{coreOptions.Value.AppName}-{coreOptions.Value.TypeEntryPoint}")
                 .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
                     .WithDefaultDestructurers()
                     .WithDestructurers([new DbUpdateExceptionDestructurer()])
                 )
-                .Enrich.With(new ExceptionEnricher());
+                .Enrich.With(new ExceptionEnricher())
+                .MinimumLevel.Is(levelLogger);
 
-            if (loggerOptions.Value.Enable)
+            if(environment.IsDevelopment())
+                configuration.WriteTo.Console(restrictedToMinimumLevel: levelLogger);
+
+            if (loggerOptions.Enable)
             {
                 configuration.WriteTo.OpenTelemetry(options =>
                 {
-                    options.Endpoint = loggerOptions.Value.OTelEndpoint;
+                    options.Endpoint = loggerOptions.OTelEndpoint;
                     options.Protocol = OtlpProtocol.Grpc;
 
                     options.IncludedData =
@@ -96,5 +105,18 @@ public static class ServiceCollectionExtension
         });
 
         return builder;
+    }
+
+    /// <summary>
+    /// Converts a string log level to a Serilog LogEventLevel.
+    /// </summary>
+    /// <param name="logLevel">The string representation of the log level.</param>
+    /// <returns>The corresponding Serilog LogEventLevel.</returns>
+    private static LogEventLevel ConvertToSerilogLevel(string logLevel)
+    {
+        if(string.IsNullOrEmpty(logLevel))
+            return LogEventLevel.Error; 
+
+        return Enum.Parse<LogEventLevel>(logLevel); 
     }
 }

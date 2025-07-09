@@ -1,0 +1,67 @@
+{
+  "name": "CodeDesignPlus.Net.gRpc.Clients",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/CodeDesignPlus.Net.gRpc.Clients",
+  "targets": {
+    "restore": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.gRpc.Clients.sln"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.gRpc.Clients.sln"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.gRpc.Clients.sln"
+      },
+      "configurations": {
+        "production": {
+          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.gRpc.Clients.sln --configuration Release"
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.gRpc.Clients.sln"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.gRpc.Clients.sln --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+        }
+      }
+    },
+    "sonarqube": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "node tools/scripts/run-sonarqube.js --org=codedesignplus --project=CodeDesignPlus.Net.gRpc.Clients --projectRoot={projectRoot}"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.gRpc.Clients.sln --configuration Release /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:Version={args.version} --output dist/CodeDesignPlus.Net.gRpc.Clients"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.gRpc.Clients/*.nupkg --source {args.source} --api-key {args.token}"
+      }
+    }
+  }
+}

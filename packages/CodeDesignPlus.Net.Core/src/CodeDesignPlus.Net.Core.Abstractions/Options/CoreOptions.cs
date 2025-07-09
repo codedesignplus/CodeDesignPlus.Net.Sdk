@@ -26,6 +26,10 @@ public class CoreOptions : IValidatableObject
     [RegularExpression(@"^[a-z-]+$")]
     public required string AppName { get; set; }
     /// <summary>
+    /// Gets or sets the type entry point (worker, rest, grpc)
+    /// </summary>
+    public string TypeEntryPoint { get; set; } = null!;
+    /// <summary>
     /// Gets or sets the version
     /// </summary>
     [Required]
@@ -41,6 +45,14 @@ public class CoreOptions : IValidatableObject
     /// </summary>
     [Required]
     public required Contact Contact { get; set; }
+    /// <summary>
+    /// Gets or sets the path base for the microservice
+    /// </summary>
+    public string? PathBase { get; set; }
+    /// <summary>
+    /// Gets or sets the base URL for the API documentation
+    /// </summary>
+    public string ApiDocumentationBaseUrl { get; set; } = "https://api.codedesignplus.com/docs/";
 
     /// <summary>
     /// Validate the properties of the class

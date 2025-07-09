@@ -34,6 +34,12 @@ public class UserContext : IUserContext
 
     public string[] Roles { get; set; } = [];
 
+    public string AccessToken { get; set; } = string.Empty;
+
+    public string UserAgent { get; set; } = string.Empty;
+
+    public string IpAddress { get; set; } = string.Empty;
+
     public TValue GetClaim<TValue>(string claimType)
     {
         throw new NotImplementedException();

@@ -34,10 +34,9 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="MongoDB.Driver" Version="3.3.0" />
+    <PackageReference Include="MongoDB.Driver" Version="3.4.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Mongo.Diagnostics\src\CodeDesignPlus.Net.Mongo.Diagnostics\CodeDesignPlus.Net.Mongo.Diagnostics.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Criteria\src\CodeDesignPlus.Net.Criteria\CodeDesignPlus.Net.Criteria.csproj" />
   </ItemGroup>

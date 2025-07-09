@@ -45,4 +45,32 @@ public class CriteriaTest
         // Assert
         Assert.Equal(orderType, criteria.OrderType);
     }
+
+    [Fact]
+    public void Criteria_Limit_SetCorrectly()
+    {
+        // Arrange
+        var criteria = new C.Criteria();
+        var limit = 10;
+
+        // Act
+        criteria.Limit = limit;
+
+        // Assert
+        Assert.Equal(limit, criteria.Limit);
+    }
+
+    [Fact]
+    public void Criteria_Skip_SetCorrectly()
+    {
+        // Arrange
+        var criteria = new C.Criteria();
+        var skip = 5;
+
+        // Act
+        criteria.Skip = skip;
+
+        // Assert
+        Assert.Equal(skip, criteria.Skip);
+    }
 }

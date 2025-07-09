@@ -95,7 +95,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => repository.CreateAsync<Application>(null!));
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => repository.CreateAsync<Application>(null!, CancellationToken.None));
 
         Assert.Equal("Value cannot be null. (Parameter 'entity')", exception.Message);
     }
@@ -123,7 +123,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act 
-        await repository.CreateAsync(entity);
+        await repository.CreateAsync(entity, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == entity.Id);
 
@@ -150,7 +150,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => repository.UpdateAsync<Application>(null!));
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => repository.UpdateAsync<Application>(null!, CancellationToken.None));
 
         Assert.Equal("Value cannot be null. (Parameter 'entity')", exception.Message);
     }
@@ -177,7 +177,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Description = nameof(Application.Description)
         };
 
-        await repository.CreateAsync(applicationCreated);
+        await repository.CreateAsync(applicationCreated, CancellationToken.None);
 
         // Act
         var applicationUpdate = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
@@ -190,7 +190,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         applicationUpdate.IsActive = false;
         applicationUpdate.CreatedBy = Guid.NewGuid();
 
-        await repository.UpdateAsync(applicationUpdate);
+        await repository.UpdateAsync(applicationUpdate, CancellationToken.None);
 
         // Assert
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationUpdate.Id);
@@ -216,7 +216,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => repository.DeleteAsync<Application>(null));
+        var exception = await Assert.ThrowsAsync<ArgumentNullException>(() => repository.DeleteAsync<Application>(null, CancellationToken.None));
 
         Assert.Equal("Value cannot be null. (Parameter 'predicate')", exception.Message);
     }
@@ -236,7 +236,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var id = Guid.NewGuid();
 
         // Act
-        await repository.DeleteAsync<Application>(x => x.Id == id);
+        await repository.DeleteAsync<Application>(x => x.Id == id, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == id);
 
@@ -265,10 +265,10 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             Description = nameof(Application.Description)
         };
 
-        await repository.CreateAsync(applicationCreated);
+        await repository.CreateAsync(applicationCreated, CancellationToken.None);
 
         // Act
-        await repository.DeleteAsync<Application>(x => x.Id == applicationCreated.Id);
+        await repository.DeleteAsync<Application>(x => x.Id == applicationCreated.Id, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
 
@@ -291,7 +291,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act
-        await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().ToListAsync();
 
@@ -334,7 +334,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act
-        await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().ToListAsync();
 
@@ -360,7 +360,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act
-        await repository.UpdateRangeAsync(entities);
+        await repository.UpdateRangeAsync(entities, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().ToListAsync();
 
@@ -403,7 +403,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
 
         var repository = new ApplicationRepository(context);
 
-        await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities, CancellationToken.None);
 
         var entitiesCreated = await repository.GetEntity<Application>().ToListAsync();
 
@@ -419,7 +419,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
             x.CreatedBy = Guid.NewGuid();
         });
 
-        await repository.UpdateRangeAsync(entitiesUpdate);
+        await repository.UpdateRangeAsync(entitiesUpdate, CancellationToken.None);
 
         // Assert
         var result = await repository.GetEntity<Application>().Where(x => !x.IsActive).ToListAsync();
@@ -447,7 +447,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var repository = new ApplicationRepository(context);
 
         // Act
-        await repository.DeleteRangeAsync(entities);
+        await repository.DeleteRangeAsync(entities, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().ToListAsync();
 
@@ -489,14 +489,14 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
 
         var repository = new ApplicationRepository(context);
 
-        await repository.CreateRangeAsync(entities);
+        await repository.CreateRangeAsync(entities, CancellationToken.None);
 
         var entitiesCreated = await repository.GetEntity<Application>().ToListAsync();
 
         // Act
         var entitiesDelete = await repository.GetEntity<Application>().Where(x => x.IsActive).ToListAsync();
 
-        await repository.DeleteRangeAsync(entitiesDelete);
+        await repository.DeleteRangeAsync(entitiesDelete, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().ToListAsync();
 
@@ -518,7 +518,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         var id = Guid.NewGuid();
 
         // Act 
-        await repository.ChangeStateAsync<Application>(id, false);
+        await repository.ChangeStateAsync<Application>(id, false, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == id);
 
@@ -548,14 +548,14 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
 
         var repository = new ApplicationRepository(context);
 
-        await repository.CreateAsync(entity);
+        await repository.CreateAsync(entity, CancellationToken.None);
 
         var entityCreated = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == entity.Id);
 
         Assert.NotNull(entityCreated);
 
         // Act 
-        await repository.ChangeStateAsync<Application>(entityCreated.Id, !entityCreated.IsActive);
+        await repository.ChangeStateAsync<Application>(entityCreated.Id, !entityCreated.IsActive, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == entityCreated.Id);
 
@@ -602,8 +602,8 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         // Act
         await repository.TransactionAsync<bool>(async context =>
         {
-            await repository.CreateAsync(applicationCreated);
-        });
+            await repository.CreateAsync(applicationCreated, CancellationToken.None);
+        }, CancellationToken.None);
 
         var result = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
 
@@ -652,7 +652,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
         {
             await repository.TransactionAsync<bool>(async context =>
             {
-                await repository.CreateAsync(applicationCreated);
+                await repository.CreateAsync(applicationCreated, CancellationToken.None);
 
                 var application = await repository.GetEntity<Application>().FirstOrDefaultAsync(x => x.Id == applicationCreated.Id);
 
@@ -660,7 +660,7 @@ public class RepositoryBaseTest(SqlCollectionFixture sqlCollectionFixture)
                 {
                     throw new InvalidOperationException("Failed Transaction");
                 }
-            });
+            }, CancellationToken.None);
         });
 
         // Assert

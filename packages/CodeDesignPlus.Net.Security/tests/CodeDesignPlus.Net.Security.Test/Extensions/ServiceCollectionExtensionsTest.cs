@@ -1,10 +1,14 @@
 ﻿using CodeDesignPlus.Net.Security.Extensions;
+using CodeDesignPlus.Net.Security.Middlewares;
+using CodeDesignPlus.Net.Security.MIddlewares;
 using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 using CodeDesignPlus.Net.xUnit.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
+using Moq;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -213,6 +217,33 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(expectedMessage, responseJson.Message);
     }
 
+    [Fact]
+    public void AddSecurity_EnableValidateRbac_RegisterServiceRbac()
+    {
+        // Arrange
+        var security = OptionsUtil.SecurityOptions;
+        security.ValidateRbac = true;
+        security.ServerRbac = new Uri("https://localhost:5001");
+
+        var configuration = ConfigurationUtil.GetConfiguration(new { Security = security });
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddSecurity(configuration);
+
+        // Assert
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+        var rbacClient = serviceProvider.GetService<gRpc.Rbac.RbacClient>();
+        var rbacService = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IRbac));
+
+        Assert.NotNull(rbacClient);
+
+        Assert.NotNull(rbacService);
+        Assert.Equal(ServiceLifetime.Scoped, rbacService.Lifetime);
+        Assert.Equal(typeof(Rbac), rbacService.ImplementationType);
+    }
+
     private static AuthenticationFailedContext CreateAuthenticationFailedContext(HttpContext httpContext, Exception exception)
     {
         var scheme = new AuthenticationScheme(JwtBearerDefaults.AuthenticationScheme, JwtBearerDefaults.AuthenticationScheme, typeof(JwtBearerHandler));
@@ -231,3 +262,4 @@ public class ServiceCollectionExtensionsTest
         return await reader.ReadToEndAsync();
     }
 }
+

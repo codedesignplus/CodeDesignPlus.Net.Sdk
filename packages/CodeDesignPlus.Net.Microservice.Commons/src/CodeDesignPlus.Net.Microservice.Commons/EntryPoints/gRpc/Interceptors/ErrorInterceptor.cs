@@ -9,7 +9,8 @@ namespace CodeDesignPlus.Net.Microservice.Commons.EntryPoints.gRpc.Interceptors;
 /// <summary>
 /// Interceptor for handling errors in gRPC calls.
 /// </summary>
-public class ErrorInterceptor : Interceptor
+/// <param name="logger">Logger for logging errors.</param>
+public class ErrorInterceptor(ILogger<ErrorInterceptor> logger) : Interceptor
 {
     /// <summary>
     /// Handles unary server calls.
@@ -31,6 +32,7 @@ public class ErrorInterceptor : Interceptor
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred during unary server call");
             throw HandleException(ex);
         }
     }
@@ -55,6 +57,7 @@ public class ErrorInterceptor : Interceptor
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred during client streaming server call");
             throw HandleException(ex);
         }
     }
@@ -81,6 +84,7 @@ public class ErrorInterceptor : Interceptor
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred during server streaming server call");
             throw HandleException(ex);
         }
     }
@@ -107,6 +111,7 @@ public class ErrorInterceptor : Interceptor
         }
         catch (Exception ex)
         {
+            logger.LogError(ex, "Error occurred during duplex streaming call");
             throw HandleException(ex);
         }
     }

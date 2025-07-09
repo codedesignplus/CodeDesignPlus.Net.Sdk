@@ -1,0 +1,44 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  	<PropertyGroup>
+    	<TargetFramework>net9.0</TargetFramework>    
+		<ProjectGuid>{7CA1A65B-3319-4814-99E6-5877BAA7A637}</ProjectGuid>
+    	<ImplicitUsings>enable</ImplicitUsings>
+    	<Nullable>enable</Nullable>
+		<Authors>CodeDesignPlus</Authors>
+		<Description>CodeDesignPlus.Net.gRpc.Clients is a library that simplifies the integration of gRPC clients in .NET applications, providing a robust framework for building efficient and scalable gRPC-based services.</Description>
+		<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+    	<PackageId>CodeDesignPlus.Net.gRpc.Clients</PackageId>
+    	<RepositoryType>git</RepositoryType>
+    	<RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+   		<PackageProjectUrl>https://www.codedesignplus.com</PackageProjectUrl>
+		<PackageTags>CodeDesignPlus.Net.Sdk</PackageTags>
+		<Version>$(Version)</Version>
+		<PackageIcon>icon/logo.png</PackageIcon>
+		<PackageReadmeFile>docs/README.md</PackageReadmeFile>
+		<PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
+		<PublishRepositoryUrl>true</PublishRepositoryUrl>
+		<EmbedUntrackedSources>true</EmbedUntrackedSources>
+		<AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  	</PropertyGroup>
+	<ItemGroup>
+		<None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+		<None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+		<None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+	</ItemGroup>
+	<PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+		<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.gRpc.Clients.xml</DocumentationFile>
+	</PropertyGroup>
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.3.0" />
+		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
+		<PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.7" />
+	</ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\CodeDesignPlus.Net.gRpc.Clients.Abstractions\CodeDesignPlus.Net.gRpc.Clients.Abstractions.csproj" />
+	</ItemGroup>
+</Project>

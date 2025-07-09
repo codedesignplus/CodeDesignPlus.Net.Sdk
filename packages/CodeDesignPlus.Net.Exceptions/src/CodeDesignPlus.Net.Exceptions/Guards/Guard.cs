@@ -11,7 +11,7 @@ public static class Guard
     /// <param name="value">The value to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
     /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNull(object value, Layer layer, string error)
+    public static void IsNull([NotNull] object value, Layer layer, string error)
     {
         if (value is null)
             throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());

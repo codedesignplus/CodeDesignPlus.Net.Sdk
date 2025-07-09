@@ -36,13 +36,6 @@ public static class ServiceCollectionExtensions
         if(!options.Enable)
             return services;
 
-        if (options.Diagnostic.Enable)
-            services.AddMongoDiagnostics(x =>
-            {
-                x.Enable = options.Diagnostic.Enable;
-                x.EnableCommandText = options.Diagnostic.EnableCommandText;
-            });
-
         services.AddSingleton<IMongoClient>((serviceProvider) =>
         {
             var mongoOptions = serviceProvider.GetRequiredService<IOptions<MongoOptions>>().Value;
@@ -52,12 +45,6 @@ public static class ServiceCollectionExtensions
             var mongoUrl = MongoUrl.Create(mongoOptions.ConnectionString);
 
             var clientSettings = MongoClientSettings.FromUrl(mongoUrl);
-
-            if (mongoOptions.Diagnostic.Enable)
-                clientSettings.ClusterConfigurator = builder =>
-                {
-                    builder.SubscribeDiagnosticsActivityEventSubscriber(serviceProvider);
-                };
 
             clientSettings.SslSettings = new SslSettings
             {

@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.RabbitMQ.Extensions;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Extensions;
 
@@ -89,5 +90,58 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(ConfigurationUtil.RabbitMQOptions.Enable, value.Enable);
     }
 
+    [Fact]
+    public void AddRabbitMQ_DisabledServices_NotRegisterServices()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var options = new
+        {
+            Core = ConfigurationUtil.CoreOptions,
+            RabbitMQ = new RabbitMQOptions()
+            {
+                Enable = false,
+                Host = nameof(RabbitMQOptions.Host),
+                UserName = $"{nameof(RabbitMQOptions.Host)}@codedesignplus.com",
+                Password = nameof(RabbitMQOptions.Password),
+                Port = 5672,
+            }
+        };
+
+        var configuration = ConfigurationUtil.GetConfiguration(options);
+
+        // Act
+        services.AddRabbitMQ<ServiceCollectionExtensionsTest>(configuration);
+
+        // Assert
+        var serviceProvider = services.BuildServiceProvider();
+        Assert.Null(serviceProvider.GetService<IRabbitConnection>());
+        Assert.Null(serviceProvider.GetService<IRabbitPubSub>());
+    }
+
+    [Fact]
+    public void AddRabbitMQ_HealthCheck_Success()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddRabbitMQ<ServiceCollectionExtensionsTest>(configuration);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        // Assert
+        var options = serviceProvider.GetRequiredService<IOptions<HealthCheckServiceOptions>>();
+
+        var rabbit = options.Value.Registrations.FirstOrDefault(x => x.Name == "RabbitMQ");
+
+        Assert.NotNull(rabbit);
+
+        var client = rabbit.Factory(serviceProvider);
+
+        Assert.NotNull(client);
+    }
 
 }

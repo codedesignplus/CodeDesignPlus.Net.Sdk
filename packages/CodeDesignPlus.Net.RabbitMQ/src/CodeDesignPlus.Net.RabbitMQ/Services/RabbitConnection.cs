@@ -1,4 +1,5 @@
-﻿namespace CodeDesignPlus.Net.RabbitMQ.Services
+﻿
+namespace CodeDesignPlus.Net.RabbitMQ.Services
 {
     /// <summary>
     /// Manages the RabbitMQ connection.
@@ -10,7 +11,6 @@
         /// Gets the RabbitMQ connection.
         /// </summary>
         public IConnection Connection { get; private set; }
-
         private bool disposed = false;
 
         /// <summary>
@@ -43,6 +43,14 @@
                 {
                     this.Connection = await factory.CreateConnectionAsync(appName);
                     isConnected = this.Connection.IsOpen;
+
+                    this.Connection.CallbackExceptionAsync += CallbackExceiptionAsync;
+                    this.Connection.ConnectionBlockedAsync += ConnectionBlockedAsync;
+                    this.Connection.ConnectionRecoveryErrorAsync += ConnectionRecoveryErrorAsync;
+                    this.Connection.ConnectionShutdownAsync += ConnectionShutdownAsync;
+                    this.Connection.ConnectionUnblockedAsync += ConnectionUnblockedAsync;
+                    this.Connection.ConsumerTagChangeAfterRecoveryAsync += ConnectionConsumerTagChangeAfterRecoveryAsync;
+
                 }
                 catch (Exception ex)
                 {
@@ -59,6 +67,44 @@
                 throw new Exceptions.RabbitMQException("Failed to connect to the RabbitMQ server", errors);
 
             logger.LogInformation("RabbitMQ Connection established successfully.");
+        }
+
+        private Task ConnectionConsumerTagChangeAfterRecoveryAsync(object sender, ConsumerTagChangedAfterRecoveryEventArgs @event)
+        {
+            logger.LogInformation("Consumer tag changed after recovery: {TagBefore} -> {TagAfter}", @event.TagBefore, @event.TagAfter);
+
+            return Task.CompletedTask;
+        }
+
+        private async Task ConnectionUnblockedAsync(object sender, AsyncEventArgs @event)
+        {
+            logger.LogInformation("RabbitMQ connection unblocked.");
+            await Task.CompletedTask;
+        }
+
+        private async Task ConnectionShutdownAsync(object sender, ShutdownEventArgs @event)
+        {
+            logger.LogWarning("RabbitMQ connection shutdown: {Message}", @event.ReplyText);
+            await Task.CompletedTask;
+        }
+
+        private async Task ConnectionRecoveryErrorAsync(object sender, ConnectionRecoveryErrorEventArgs @event)
+        {
+            logger.LogError(@event.Exception, "RabbitMQ connection recovery error: {Message}", @event.Exception.Message);
+            await Task.CompletedTask;
+        }
+
+        private async Task ConnectionBlockedAsync(object sender, ConnectionBlockedEventArgs @event)
+        {
+            logger.LogWarning("RabbitMQ connection blocked: {Message}", @event.Reason);
+            await Task.CompletedTask;
+        }
+
+        private Task CallbackExceiptionAsync(object sender, CallbackExceptionEventArgs @event)
+        {
+            logger.LogError(@event.Exception, "RabbitMQ connection error: {Message}", @event.Exception.Message);
+
+            return Task.CompletedTask;
         }
 
         /// <summary>

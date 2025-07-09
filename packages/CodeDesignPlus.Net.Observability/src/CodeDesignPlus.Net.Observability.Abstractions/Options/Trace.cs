@@ -39,4 +39,9 @@ public class Trace
     /// Gets or sets a value indicating whether gRPC Client instrumentation is enabled for tracing.
     /// </summary>
     public bool GrpcClient { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether RabbitMQ instrumentation is enabled for tracing.
+    /// </summary>
+    public bool RabbitMQ { get; set; }
 }

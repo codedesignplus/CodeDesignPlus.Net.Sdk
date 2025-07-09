@@ -2,13 +2,14 @@
 using CodeDesignPlus.Net.xUnit.Extensions;
 using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Driver;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace CodeDesignPlus.Net.Mongo.Test.Extensions;
 
 
 [Collection(MongoCollectionFixture.Collection)]
 
-public class ServiceCollectionExtensionsTest(MongoCollectionFixture fixture) 
+public class ServiceCollectionExtensionsTest(MongoCollectionFixture fixture)
 {
     [Fact]
     public void AddMongo_ServiceCollectionIsNull_ArgumentNullException()
@@ -123,4 +124,52 @@ public class ServiceCollectionExtensionsTest(MongoCollectionFixture fixture)
         Assert.Equal(ServiceLifetime.Singleton, productRepository.Lifetime);
     }
 
+
+    [Fact]
+    public void AddMongo_Disable_NotRegisterServices()
+    {
+        // Arrange
+        var options = OptionsUtil.GetOptions(fixture.Container.Port);
+        options.Enable = false;
+
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
+            Mongo = options
+        });
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddMongo<StartupFake>(configuration);
+
+        // Assert
+        var mongoClient = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IMongoClient));
+
+        Assert.Null(mongoClient);
+    }
+
+    [Fact]
+    public void AddMongo_HealthCheck_Success()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.MongoOptions });
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddMongo<StartupFake>(configuration);
+
+        var serviceProvider = serviceCollection.BuildServiceProvider();
+
+        // Assert
+        var options = serviceProvider.GetRequiredService<IOptions<HealthCheckServiceOptions>>();
+
+        var mongo = options.Value.Registrations.FirstOrDefault(x => x.Name == "MongoDB");
+
+        Assert.NotNull(mongo);
+
+        var client = mongo.Factory(serviceProvider);
+
+        Assert.NotNull(client);
+    }
 }

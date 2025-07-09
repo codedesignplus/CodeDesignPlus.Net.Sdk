@@ -6,23 +6,13 @@ public static class OptionsUtil
     {
         Enable = true,
         ConnectionString = "mongodb://localhost:27017",
-        Database = "dbtestmongo",
-        Diagnostic = new()
-        {
-            Enable = true,
-            EnableCommandText = true
-        }
+        Database = "dbtestmongo"
     };
 
     public static MongoOptions GetOptions(int port) => new()
     {
         Enable = true,
         ConnectionString = $"mongodb://localhost:{port}",
-        Database = "dbtestmongo",
-        Diagnostic = new()
-        {
-            Enable = true,
-            EnableCommandText = true
-        }
+        Database = "dbtestmongo"
     };
 }

@@ -24,7 +24,7 @@ public class ServerTest : ServerBase<Program>, IClassFixture<Server<Program>>
         //Act
         var response = await Client.GetAsync("/weatherforecast");
 
-        var value = server.Services.GetService<IConfiguration>()?.GetValue<string>("Custom:Item");
+        var item = server.Services.GetService<IConfiguration>()?.GetValue<string>("Custom:Item");
 
         // Assert
         response.EnsureSuccessStatusCode();
@@ -34,6 +34,6 @@ public class ServerTest : ServerBase<Program>, IClassFixture<Server<Program>>
 
         Assert.NotNull(data);
         Assert.NotEmpty(data);
-        Assert.Equal(value, this.value.ToString());
+        Assert.Equal(item, this.value.ToString());
     }
 }

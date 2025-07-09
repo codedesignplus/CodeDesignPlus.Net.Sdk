@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Exceptions;
+using RabbitMQ.Client.Exceptions;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Services;
 
@@ -104,7 +105,8 @@ public class RabbitPubSubService : IRabbitPubSub
             routingKey: string.Empty,
             mandatory: true,
             basicProperties: properties,
-            body: body
+            body: body,
+            cancellationToken: cancellationToken
         );
 
         this.logger.LogInformation("Event {TEvent} published ", @event.GetType().Name);
@@ -128,8 +130,8 @@ public class RabbitPubSubService : IRabbitPubSub
 
         var exchangeName = this.domainEventResolverService.GetKeyDomainEvent<TEvent>();
 
-        await ConfigQueueAsync(channel, queueName, exchangeName);
         await ConfigQueueDlxAsync(channel, queueName, exchangeName);
+        await ConfigQueueAsync(channel, queueName, exchangeName);
 
         this.logger.LogInformation("Subscribed to event: {TEvent}.", typeof(TEvent).Name);
 
@@ -152,10 +154,10 @@ public class RabbitPubSubService : IRabbitPubSub
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     public async Task RecivedEvent<TEvent, TEventHandler>(IChannel channel, BasicDeliverEventArgs eventArguments, CancellationToken cancellationToken)
-        where TEvent : IDomainEvent
-        where TEventHandler : IEventHandler<TEvent>
+    where TEvent : IDomainEvent
+    where TEventHandler : IEventHandler<TEvent>
     {
-        try
+         try
         {
             this.logger.LogDebug("Processing event: {TEvent}.", typeof(TEvent).Name);
 
@@ -185,10 +187,6 @@ public class RabbitPubSubService : IRabbitPubSub
         {
             this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
         }
-        finally
-        {
-            await channel.BasicNackAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: false, cancellationToken: cancellationToken);
-        }
     }
 
     /// <summary>
@@ -199,9 +197,12 @@ public class RabbitPubSubService : IRabbitPubSub
     /// <param name="exchangeName">The exchange name.</param>
     private async Task ConfigQueueAsync(IChannel channel, string queue, string exchangeName)
     {
-        argumentsQueue["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName);
+        var arguments = new Dictionary<string, object>(this.argumentsQueue)
+        {
+            ["x-dead-letter-exchange"] = GetExchangeNameDlx(exchangeName)
+        };
         await channel.ExchangeDeclareAsync(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
-        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: argumentsQueue);
+        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: arguments);
         await channel.QueueBindAsync(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 

@@ -553,7 +553,7 @@ public class GuardTest
         var error = "D-017 : Throw exception when value is empty.";
 
         // Act
-        var exception = Assert.Throws<CodeDesignPlusException>(() => Guard.IsEmpty(value, layer, error));
+        var exception = Assert.Throws<CodeDesignPlusException>(() => Guard.IsEmpty(value!, layer, error));
 
         // Assert
         Assert.Equal(layer, exception.Layer);
@@ -602,7 +602,7 @@ public class GuardTest
         var error = "D-018 : Thorw exception when value is not empty.";
 
         // Act
-        var exception = Record.Exception(() => Guard.IsNotEmpty(value, layer, error));
+        var exception = Record.Exception(() => Guard.IsNotEmpty(value!, layer, error));
 
         // Assert
         Assert.Null(exception);

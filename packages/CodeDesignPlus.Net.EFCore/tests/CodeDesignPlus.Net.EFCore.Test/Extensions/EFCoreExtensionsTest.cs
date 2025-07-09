@@ -102,7 +102,7 @@ public class EFCoreExtensionsTest
             });
         }
 
-        await repository.CreateRangeAsync(applications);
+        await repository.CreateRangeAsync(applications, CancellationToken.None);
 
         // Act
         var pager = await repository.GetEntity<Application>().ToPageAsync(currentPage, pageSize);
