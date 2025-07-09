@@ -50,7 +50,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "node tools/scripts/run-sonarqube.js --org=codedesignplus --project=CodeDesignPlus.Net.PubSub --projectRoot={projectRoot}"
+        "command": "node tools/scripts/run-sonarqube.js --org=codedesignplus --project=CodeDesignPlus.Net.Redis.PubSub --projectRoot={projectRoot}"
       }
     },
     "pack": {
