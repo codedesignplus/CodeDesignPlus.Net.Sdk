@@ -32,12 +32,13 @@ public class VaultContainer : DockerCompose
             EnvironmentNameValue = new Dictionary<string, string>
             {
                 { "FILE_CREDENTIAL", this.id },
-            }
+            },
+            ComposeVersion = ComposeVersion.V2,
         };
 
         this.EnableGetPort = true;
         this.InternalPort = 8200;
-        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-vault";
+        this.ContainerName = $"vault";
 
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
 

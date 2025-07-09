@@ -78,11 +78,12 @@ public class RedisContainer : DockerCompose
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = "redis_" + Guid.NewGuid().ToString("N"),
+            ComposeVersion = ComposeVersion.V2,
         };
 
         EnableGetPort = true;
         InternalPort = 6380;
-        ContainerName = $"{dockerCompose.AlternativeServiceName}-redis";
+        ContainerName = $"redis";
 
         var compose = new DockerComposeCompositeService(DockerHost, dockerCompose);
 

@@ -17,12 +17,15 @@ public class ObservabilityContainer : DockerCompose
         // Configure the Docker Compose settings.
         var dockerCompose = new DockerComposeConfig
         {
-            ComposeFilePath = new[] { file },
+            ComposeFilePath = [file],
             ForceRecreate = true,
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = "observability_" + Guid.NewGuid().ToString("N"),
+            ComposeVersion = ComposeVersion.V2,
         };
+
+        this.EnableGetPort = false;
 
         // Create and return the Docker Compose service.
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);

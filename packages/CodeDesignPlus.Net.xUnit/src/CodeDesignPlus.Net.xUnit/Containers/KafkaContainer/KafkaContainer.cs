@@ -38,12 +38,13 @@ public class KafkaContainer : DockerCompose
             {
                 { "KAFKA_PORT" , random.Next(9000, 9999).ToString() },
                 { "KAFKA_HOST_PORT", hostPort.ToString() }
-            }
+            },
+            ComposeVersion = ComposeVersion.V2,
         };
 
         // Disable port retrieval and set the container name.
         this.EnableGetPort = false;
-        this.ContainerName = $"{compose.AlternativeServiceName}-kafka";
+        this.ContainerName = $"kafka";
 
         // Create and return the Docker Compose service.
         return new DockerComposeCompositeService(DockerHost, compose);

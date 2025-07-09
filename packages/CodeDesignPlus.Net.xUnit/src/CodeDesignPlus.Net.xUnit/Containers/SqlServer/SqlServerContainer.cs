@@ -22,12 +22,13 @@ public class SqlServerContainer : DockerCompose
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = "sql_" + Guid.NewGuid().ToString("N"),
+            ComposeVersion = ComposeVersion.V2,
         };
 
         // Enable port retrieval and set the internal port and container name.
         this.EnableGetPort = true;
         this.InternalPort = 1433;
-        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-sqlserver";
+        this.ContainerName = $"sqlserver";
 
         // Create and return the Docker Compose service.
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
