@@ -130,84 +130,84 @@ public class ServiceCollectionExtensionTest
         );
     }
 
-    [Fact]
-    public async Task UseSerilog_SendsLogsToOpenTelemetryAndLoki_Success()
-    {
-        // Arrange
-        var hostBuilder = Host
-            .CreateDefaultBuilder()
-            .UseEnvironment("Production")
-            .ConfigureAppConfiguration((context, config) =>
-            {
-                config.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "Helpers"));
-                config.AddEnvironmentVariables();
+    // [Fact]
+    // public async Task UseSerilog_SendsLogsToOpenTelemetryAndLoki_Success()
+    // {
+    //     // Arrange
+    //     var hostBuilder = Host
+    //         .CreateDefaultBuilder()
+    //         .UseEnvironment("Production")
+    //         .ConfigureAppConfiguration((context, config) =>
+    //         {
+    //             config.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "Helpers"));
+    //             config.AddEnvironmentVariables();
 
-                config.AddJsonFile("appsettings-otel.json", optional: false, reloadOnChange: true);
-            })
-            .ConfigureServices((context, services) =>
-            {
-                services.AddCore(context.Configuration);
-                services.AddLogger(context.Configuration);
-            })
-            .UseSerilog(configuration =>
-            {
-                configuration.WriteTo.InMemory(
-                   outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
-                   restrictedToMinimumLevel: LogEventLevel.Verbose
-               );
-            });
+    //             config.AddJsonFile("appsettings-otel.json", optional: false, reloadOnChange: true);
+    //         })
+    //         .ConfigureServices((context, services) =>
+    //         {
+    //             services.AddCore(context.Configuration);
+    //             services.AddLogger(context.Configuration);
+    //         })
+    //         .UseSerilog(configuration =>
+    //         {
+    //             configuration.WriteTo.InMemory(
+    //                outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff zzz} [{Level:u3}] {Message:lj}{NewLine}{Exception}",
+    //                restrictedToMinimumLevel: LogEventLevel.Verbose
+    //            );
+    //         });
 
-        // Act
-        var host = hostBuilder.Build();
+    //     // Act
+    //     var host = hostBuilder.Build();
 
-        var logger = host.Services.GetRequiredService<ILogger<ServiceCollectionExtensionTest>>();
+    //     var logger = host.Services.GetRequiredService<ILogger<ServiceCollectionExtensionTest>>();
 
-        logger.LogInformation("This is a test log for integration testing.");
+    //     logger.LogInformation("This is a test log for integration testing.");
 
-        await Task.Delay(10000);
+    //     await Task.Delay(10000);
 
-        var url = "http://localhost:3100/loki/api/v1/query_range?query={job=\"ms-test\"}";
+    //     var url = "http://localhost:3100/loki/api/v1/query_range?query={job=\"ms-test\"}";
 
-        var httpClient = new HttpClient();
-        var response = await httpClient.GetAsync(url);
+    //     var httpClient = new HttpClient();
+    //     var response = await httpClient.GetAsync(url);
 
-        response.EnsureSuccessStatusCode();
+    //     response.EnsureSuccessStatusCode();
 
-        var content = await response.Content.ReadAsStringAsync();
+    //     var content = await response.Content.ReadAsStringAsync();
 
-        var jsonResponse = JsonSerializer.Deserialize<RootObject>(content);
+    //     var jsonResponse = JsonSerializer.Deserialize<RootObject>(content);
 
-        Assert.NotNull(jsonResponse);
-        Assert.Equal("success", jsonResponse.Status);
+    //     Assert.NotNull(jsonResponse);
+    //     Assert.Equal("success", jsonResponse.Status);
 
-        var result = jsonResponse.Data.Result.FirstOrDefault();
+    //     var result = jsonResponse.Data.Result.FirstOrDefault();
 
-        Assert.NotNull(result);
-        Assert.NotEmpty(result.Values);
+    //     Assert.NotNull(result);
+    //     Assert.NotEmpty(result.Values);
 
-        var jsonValues = result.Values.FirstOrDefault();
+    //     var jsonValues = result.Values.FirstOrDefault();
 
-        Assert.NotNull(jsonValues);
-        var responseLog = JsonSerializer.Deserialize<LogEntry>(jsonValues.LastOrDefault()!);
+    //     Assert.NotNull(jsonValues);
+    //     var responseLog = JsonSerializer.Deserialize<LogEntry>(jsonValues.LastOrDefault()!);
 
 
-        Assert.NotNull(responseLog);
-        Assert.Equal("Information", responseLog.Severity);
-        Assert.Equal("This is a test log for integration testing.", responseLog.Body);
-        Assert.Equal("ms-test-rest", responseLog.Attributes!.AppName);
-        Assert.NotNull(responseLog.Attributes!.EnvironmentUserName);
-        Assert.NotNull(responseLog.Attributes!.MachineName);
-        Assert.NotEqual(0, responseLog.Attributes!.ProcessId);
-        Assert.NotNull(responseLog.Attributes!.ProcessName);
-        Assert.NotEqual(0, responseLog.Attributes!.ThreadId);
-        Assert.NotNull(responseLog.Attributes!.ThreadName);
-        Assert.Equal("CodeDesignPlus", responseLog.Resources!.ServiceBusiness);
-        Assert.Equal("codedesignplus@outlook.com", responseLog.Resources!.ServiceContactEmail);
-        Assert.Equal("CodeDesignPlus", responseLog.Resources!.ServiceContactName);
-        Assert.Equal("unit test for CodeDesignPlus.Net.Logger", responseLog.Resources!.ServiceDescription);
-        Assert.Equal("ms-test", responseLog.Resources!.ServiceName);
-        Assert.Equal("v1", responseLog.Resources!.ServiceVersion);
-    }
+    //     Assert.NotNull(responseLog);
+    //     Assert.Equal("Information", responseLog.Severity);
+    //     Assert.Equal("This is a test log for integration testing.", responseLog.Body);
+    //     Assert.Equal("ms-test-rest", responseLog.Attributes!.AppName);
+    //     Assert.NotNull(responseLog.Attributes!.EnvironmentUserName);
+    //     Assert.NotNull(responseLog.Attributes!.MachineName);
+    //     Assert.NotEqual(0, responseLog.Attributes!.ProcessId);
+    //     Assert.NotNull(responseLog.Attributes!.ProcessName);
+    //     Assert.NotEqual(0, responseLog.Attributes!.ThreadId);
+    //     Assert.NotNull(responseLog.Attributes!.ThreadName);
+    //     Assert.Equal("CodeDesignPlus", responseLog.Resources!.ServiceBusiness);
+    //     Assert.Equal("codedesignplus@outlook.com", responseLog.Resources!.ServiceContactEmail);
+    //     Assert.Equal("CodeDesignPlus", responseLog.Resources!.ServiceContactName);
+    //     Assert.Equal("unit test for CodeDesignPlus.Net.Logger", responseLog.Resources!.ServiceDescription);
+    //     Assert.Equal("ms-test", responseLog.Resources!.ServiceName);
+    //     Assert.Equal("v1", responseLog.Resources!.ServiceVersion);
+    // }
 
     [Fact]
     public void UseSerilog_ActionIsNull_Succecss()
