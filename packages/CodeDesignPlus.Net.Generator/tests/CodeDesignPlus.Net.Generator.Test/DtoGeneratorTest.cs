@@ -41,7 +41,7 @@ public class DtoGeneratorTest
         """;
 
         var source = commandType == "Record" ? sourceRecord : sourceClass;
-        
+
         var syntaxTree = SyntaxFactory.ParseSyntaxTree(source);
 
         var compilation = CSharpCompilation.Create("CodeDesignPlus.Net.Dummy",
@@ -123,4 +123,5 @@ public class DtoGeneratorTest
         Assert.Empty(generatorResult.GeneratedSources);
         Assert.Null(generatorResult.Exception);
     }
+    
 }

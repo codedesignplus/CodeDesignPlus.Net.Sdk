@@ -172,7 +172,8 @@ public class ServiceCollectionExtensionsTest
                 Redis = true,
                 Kafka = true,
                 SqlClient = true,
-                GrpcClient = true
+                GrpcClient = true,
+                RabbitMQ = true,
             }
         };
 
@@ -192,6 +193,6 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.NotEmpty(serviceCollection);
-        Assert.Equal(53, serviceCollection.Count);
+        Assert.Equal(54, serviceCollection.Count);
     }
 }

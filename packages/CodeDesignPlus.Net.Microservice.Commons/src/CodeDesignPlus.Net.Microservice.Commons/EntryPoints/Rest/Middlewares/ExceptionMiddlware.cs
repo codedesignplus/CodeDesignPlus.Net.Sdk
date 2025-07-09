@@ -71,7 +71,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-        var traceId = Activity.Current?.Id ?? context.TraceIdentifier;
+        var traceId = GetTraceId(context);
 
         var problemDetails = new ProblemDetails
         {
@@ -94,7 +94,6 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, serializerSettings));
     }
 
-
     /// <summary>
     /// Handles CodeDesignPlus exceptions.
     /// </summary>
@@ -106,23 +105,11 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
-        var traceId = Activity.Current?.Id ?? context.TraceIdentifier;
+        var traceId = GetTraceId(context);
 
-        var messageTemplate = exception.Layer switch
-        {
-            Layer.Domain => "Domain Error",
-            Layer.Infrastructure => "Infrastructure Error",
-            Layer.Application => "Application Error",
-            _ => "Internal Error Sdk CodeDesignPlus"
-        };
+        var messageTemplate = GetMessageTemplate(exception);
 
-        var detailMessage = exception.Layer switch
-        {
-            Layer.Domain => $"An error occurred in the domain layer - {exception.Code} ({exception.Message})",
-            Layer.Infrastructure => $"An error occurred in the infrastructure layer - {exception.Code} ({exception.Message})",
-            Layer.Application => $"An error occurred in the application layer - {exception.Code} ({exception.Message})",
-            _ => $"An internal error occurred in the SDK CodeDesignPlus - {exception.Code} ({exception.Message})"
-        };
+        var detailMessage = GetDetailMessage(exception);
 
         var layerName = exception.Layer.ToString().ToLowerInvariant();
 
@@ -141,6 +128,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, serializerSettings));
     }
 
+
     /// <summary>
     /// Handles general exceptions.
     /// </summary>
@@ -152,7 +140,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var traceId = Activity.Current?.Id ?? context.TraceIdentifier;
+        var traceId = GetTraceId(context);
 
         var problemDetails = new ProblemDetails
         {
@@ -183,4 +171,50 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         chars[0] = char.ToLowerInvariant(chars[0]);
         return new string(chars);
     }
+
+    /// <summary>
+    /// Gets a detailed message for the exception based on its layer.
+    /// This method provides a user-friendly message that indicates where the error occurred in the application architecture
+    /// </summary>
+    /// <param name="exception">The CodeDesignPlusException to get the detail message for.</param>
+    /// <returns>A string containing the detail message.</returns>
+    private static string GetDetailMessage(CodeDesignPlusException exception)
+    {
+        return exception.Layer switch
+        {
+            Layer.Domain => $"An error occurred in the domain layer - {exception.Code} ({exception.Message})",
+            Layer.Infrastructure => $"An error occurred in the infrastructure layer - {exception.Code} ({exception.Message})",
+            Layer.Application => $"An error occurred in the application layer - {exception.Code} ({exception.Message})",
+            _ => $"An internal error occurred in the SDK CodeDesignPlus - {exception.Code} ({exception.Message})"
+        };
+    }
+
+    /// <summary>
+    /// Gets a message template based on the exception's layer.
+    /// This method provides a standardized message template that can be used in the problem details response.
+    /// </summary>
+    /// <param name="exception">The CodeDesignPlusException to get the message template for.</param>
+    /// <returns>A string containing the message template.</returns>
+    private static string GetMessageTemplate(CodeDesignPlusException exception)
+    {
+        return exception.Layer switch
+        {
+            Layer.Domain => "Domain Error",
+            Layer.Infrastructure => "Infrastructure Error",
+            Layer.Application => "Application Error",
+            _ => "Internal Error Sdk CodeDesignPlus"
+        };
+    }
+    
+    /// <summary>
+    /// Gets the trace identifier for the current HTTP context.
+    /// This identifier is used to track the request across different services and logs.
+    /// </summary>
+    /// <param name="context">HTTP context containing the trace identifier</param>
+    /// <returns>The trace identifier</returns>
+    private static string GetTraceId(HttpContext context)
+    {
+        return Activity.Current?.Id ?? context.TraceIdentifier;
+    }
+
 }

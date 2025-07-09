@@ -15,11 +15,11 @@ using Xunit.Sdk;
 namespace CodeDesignPlus.Net.Logger.Test.Extensions;
 
 [Collection(ObservabilityCollectionFixture.Collection)]
-public class ServiceCollectionExtensionTest 
+public class ServiceCollectionExtensionTest
 {
     public ServiceCollectionExtensionTest(ObservabilityCollectionFixture fixture)
     {
-        if(!fixture.Container.IsRunning)
+        if (!fixture.Container.IsRunning)
             throw new TestClassException("The observability container is not running.");
     }
 
@@ -86,6 +86,7 @@ public class ServiceCollectionExtensionTest
         // Arrange
         var hostBuilder = Host
             .CreateDefaultBuilder()
+            .UseEnvironment("Development")
             .ConfigureAppConfiguration((context, config) =>
             {
                 config.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "Helpers"));
@@ -135,6 +136,7 @@ public class ServiceCollectionExtensionTest
     //     // Arrange
     //     var hostBuilder = Host
     //         .CreateDefaultBuilder()
+    //         .UseEnvironment("Production")
     //         .ConfigureAppConfiguration((context, config) =>
     //         {
     //             config.SetBasePath(Path.Combine(Directory.GetCurrentDirectory(), "Helpers"));
@@ -192,7 +194,7 @@ public class ServiceCollectionExtensionTest
     //     Assert.NotNull(responseLog);
     //     Assert.Equal("Information", responseLog.Severity);
     //     Assert.Equal("This is a test log for integration testing.", responseLog.Body);
-    //     Assert.Equal("ms-test", responseLog.Attributes!.AppName);
+    //     Assert.Equal("ms-test-rest", responseLog.Attributes!.AppName);
     //     Assert.NotNull(responseLog.Attributes!.EnvironmentUserName);
     //     Assert.NotNull(responseLog.Attributes!.MachineName);
     //     Assert.NotEqual(0, responseLog.Attributes!.ProcessId);
@@ -236,4 +238,45 @@ public class ServiceCollectionExtensionTest
         // Assert
         Assert.NotNull(logger);
     }
+
+
+    [Theory]
+    [InlineData("Verbose", LogEventLevel.Verbose)]
+    [InlineData("Debug", LogEventLevel.Debug)]
+    [InlineData("Information", LogEventLevel.Information)]
+    [InlineData("Warning", LogEventLevel.Warning)]
+    [InlineData("Error", LogEventLevel.Error)]
+    [InlineData("Fatal", LogEventLevel.Fatal)]
+    public void ConvertToSerilogLevel_ValidLevels_ReturnsExpectedLevel(string input, LogEventLevel expected)
+    {
+        var method = typeof(ServiceCollectionExtension)
+            .GetMethod("ConvertToSerilogLevel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+        var result = (LogEventLevel)method!.Invoke(null, [input])!;
+
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void ConvertToSerilogLevel_NullOrEmpty_ReturnsError()
+    {
+        var method = typeof(ServiceCollectionExtension)
+            .GetMethod("ConvertToSerilogLevel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+        var resultNull = (LogEventLevel)method!.Invoke(null, [null])!;
+        var resultEmpty = (LogEventLevel)method.Invoke(null, [""])!;
+
+        Assert.Equal(LogEventLevel.Error, resultNull);
+        Assert.Equal(LogEventLevel.Error, resultEmpty);
+    }
+
+    [Fact]
+    public void ConvertToSerilogLevel_InvalidLevel_ThrowsException()
+    {
+        var method = typeof(ServiceCollectionExtension)
+            .GetMethod("ConvertToSerilogLevel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+
+        Assert.ThrowsAny<System.Reflection.TargetInvocationException>(() => method!.Invoke(null, ["NotALevel"]));
+    }
+
 }

@@ -109,7 +109,7 @@ public class ExpressionConverterTest
         // Arrange
         var parameter = Expression.Parameter(typeof(Order), "x");
         var expression = Expression.LessThan(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
-        var converter = new ExpressionConverter(parameter,  true);
+        var converter = new ExpressionConverter(parameter, true);
 
         // Act
         var result = converter.Convert(expression);
@@ -152,7 +152,7 @@ public class ExpressionConverterTest
         // Arrange
         var parameter = Expression.Parameter(typeof(Order), "x");
         var expression = Expression.LessThanOrEqual(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
-        var converter = new ExpressionConverter(parameter,  true);
+        var converter = new ExpressionConverter(parameter, true);
 
         // Act
         var result = converter.Convert(expression);
@@ -239,7 +239,7 @@ public class ExpressionConverterTest
         // Arrange
         var parameter = Expression.Parameter(typeof(Order), "x");
         var expression = Expression.GreaterThanOrEqual(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
-        var converter = new ExpressionConverter(parameter,  true);
+        var converter = new ExpressionConverter(parameter, true);
 
         // Act
         var result = converter.Convert(expression);
@@ -417,7 +417,7 @@ public class ExpressionConverterTest
         Assert.Equal("$$entity.Description", ((BsonArray)rightAnd["$eq"])[0].AsString);
         Assert.Equal("Descript", ((BsonArray)rightAnd["$eq"])[1].AsString);
     }
-    
+
     [Fact]
     public void GetFieldName_InvalidExpression_ThrowsMongoException()
     {
@@ -453,4 +453,79 @@ public class ExpressionConverterTest
         Assert.IsType<Mongo.Exceptions.MongoException>(exception.InnerException);
         Assert.Equal("Only constant expressions for values are supported.", exception.InnerException.Message);
     }
+
+    [Fact]
+    public void GetConstantValue_WithGuidConstant_ReturnsBsonBinaryData()
+    {
+        // Arrange
+        var guid = Guid.NewGuid();
+        var constantExpression = Expression.Constant(guid);
+        var converterType = typeof(ExpressionConverter);
+        var methodInfo = converterType.GetMethod("GetConstantValue", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        var result = methodInfo!.Invoke(null, [constantExpression]);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<MongoDB.Bson.BsonBinaryData>(result);
+        var bsonBinary = (MongoDB.Bson.BsonBinaryData)result;
+        Assert.Equal(guid, bsonBinary.ToGuid());
+        //Assert.Equal(MongoDB.Bson.GuidRepresentation.Standard, bsonBinary.GuidRepresentation);
+    }
+
+    [Fact]
+    public void GetConstantValue_WithIntConstant_ReturnsBsonValue()
+    {
+        // Arrange
+        var value = 42;
+        var constantExpression = Expression.Constant(value);
+        var converterType = typeof(ExpressionConverter);
+        var methodInfo = converterType.GetMethod("GetConstantValue", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        var result = methodInfo!.Invoke(null, [constantExpression]);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<MongoDB.Bson.BsonInt32>(result);
+        Assert.Equal(value, ((MongoDB.Bson.BsonInt32)result).Value);
+    }
+
+    [Fact]
+    public void GetConstantValue_WithStringConstant_ReturnsBsonValue()
+    {
+        // Arrange
+        var value = "test string";
+        var constantExpression = Expression.Constant(value);
+        var converterType = typeof(ExpressionConverter);
+        var methodInfo = converterType.GetMethod("GetConstantValue", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        var result = methodInfo!.Invoke(null, [constantExpression]);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.IsType<MongoDB.Bson.BsonString>(result);
+        Assert.Equal(value, ((MongoDB.Bson.BsonString)result).Value);
+    }
+
+    [Fact]
+    public void GetConstantValue_WithNonConstantExpression_ThrowsMongoException()
+    {
+        // Arrange
+        var parameterExpression = Expression.Parameter(typeof(int), "x");
+        var converterType = typeof(ExpressionConverter);
+        var methodInfo = converterType.GetMethod("GetConstantValue", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        var exception = Record.Exception(() => methodInfo!.Invoke(null, [parameterExpression]));
+
+        // Assert
+        Assert.NotNull(exception);
+        Assert.IsType<TargetInvocationException>(exception);
+        Assert.IsType<Mongo.Exceptions.MongoException>(exception.InnerException);
+        Assert.Equal("Only constant expressions for values are supported.", exception.InnerException.Message);
+    }
+
 }

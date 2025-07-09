@@ -11,7 +11,6 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services
         /// Gets the RabbitMQ connection.
         /// </summary>
         public IConnection Connection { get; private set; }
-
         private bool disposed = false;
 
         /// <summary>
@@ -51,7 +50,7 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services
                     this.Connection.ConnectionShutdownAsync += ConnectionShutdownAsync;
                     this.Connection.ConnectionUnblockedAsync += ConnectionUnblockedAsync;
                     this.Connection.ConsumerTagChangeAfterRecoveryAsync += ConnectionConsumerTagChangeAfterRecoveryAsync;
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -101,27 +100,11 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services
             await Task.CompletedTask;
         }
 
-        private async Task CallbackExceiptionAsync(object sender, CallbackExceptionEventArgs @event)
+        private Task CallbackExceiptionAsync(object sender, CallbackExceptionEventArgs @event)
         {
             logger.LogError(@event.Exception, "RabbitMQ connection error: {Message}", @event.Exception.Message);
 
-            if (this.Connection.IsOpen)
-                return;
-
-            try
-            {
-                await this.ConnectAsync(new RabbitMQOptions(), "RabbitConnection");
-            }
-            catch (Exception ex)
-            {
-                logger.LogError(ex, "Failed to reconnect to RabbitMQ: {Message}", ex.Message);
-            }
-            finally
-            {
-                this.Connection.CallbackExceptionAsync -= CallbackExceiptionAsync;
-            }
-
-            logger.LogInformation("RabbitMQ connection re-established successfully.");
+            return Task.CompletedTask;
         }
 
         /// <summary>

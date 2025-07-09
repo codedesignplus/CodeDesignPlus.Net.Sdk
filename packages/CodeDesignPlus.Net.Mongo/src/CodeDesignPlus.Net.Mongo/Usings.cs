@@ -13,7 +13,6 @@ global using CodeDesignPlus.Net.Mongo.Abstractions;
 global using CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 global using CodeDesignPlus.Net.Mongo.Abstractions.Options;
 global using CodeDesignPlus.Net.Mongo.Converter;
-global using CodeDesignPlus.Net.Mongo.Diagnostics.Extensions;
 global using CodeDesignPlus.Net.Mongo.Repository;
 global using CodeDesignPlus.Net.Security.Abstractions;
 global using MongoDB.Bson;

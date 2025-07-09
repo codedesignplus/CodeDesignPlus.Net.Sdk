@@ -230,6 +230,24 @@ public class CriteriaExtensionsTest
     }
 
     [Fact]
+    public void GetFilterExpression_OperatorEqualWithGuid_ReturnsNotNull()
+    {
+        // Arrange
+        var code = Guid.Parse("9432915d-8418-4896-86f6-6d2e0d0160af");
+        var orderExpected = this.orders.FirstOrDefault(x => x.Code == code);
+        var criteria = new MC.Criteria { Filters = $"Code={code}" };
+
+        // Act
+        var filterExpression = criteria.GetFilterExpression<Order>();
+        var order = this.orders.AsQueryable().FirstOrDefault(filterExpression);
+
+        // Assert
+        Assert.NotNull(filterExpression);
+        Assert.NotNull(order);
+        Assert.Equal(orderExpected, order);
+    }
+
+    [Fact]
     public void GetFilterExpression_InvalidOperator_ThrowsException()
     {
         // Arrange

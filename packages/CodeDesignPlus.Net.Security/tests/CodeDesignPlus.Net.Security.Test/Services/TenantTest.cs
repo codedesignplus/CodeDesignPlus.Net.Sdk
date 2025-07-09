@@ -171,4 +171,251 @@ public class TenantTest
 
         Assert.Equal($"The given key '{key}' was not present in the dictionary.", exception.Message);
     }
+
+    [Fact]
+    public void Country_ReturnsCountry()
+    {
+        // Arrange
+        var country = new M.Country { Name = "TestCountry" };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                Country = country
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.Country;
+
+        // Assert
+        Assert.Equal(country, result);
+    }
+
+    [Fact]
+    public void State_ReturnsState()
+    {
+        // Arrange
+        var state = new M.State { Name = "TestState" };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                State = state
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.State;
+
+        // Assert
+        Assert.Equal(state, result);
+    }
+
+    [Fact]
+    public void City_ReturnsCity()
+    {
+        // Arrange
+        var city = new M.City { Name = "TestCity" };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                City = city
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.City;
+
+        // Assert
+        Assert.Equal(city, result);
+    }
+
+    [Fact]
+    public void Locality_ReturnsLocality()
+    {
+        // Arrange
+        var locality = new M.Locality { Name = "TestLocality" };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                Locality = locality
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.Locality;
+
+        // Assert
+        Assert.Equal(locality, result);
+    }
+
+    [Fact]
+    public void Neighborhood_ReturnsNeighborhood()
+    {
+        // Arrange
+        var neighborhood = new M.Neighborhood { Name = "TestNeighborhood" };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                Neighborhood = neighborhood
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.Neighborhood;
+
+        // Assert
+        Assert.Equal(neighborhood, result);
+    }
+
+    [Fact]
+    public void TimeZone_ReturnsCityTimeZone_WhenCityTimeZoneIsNotNull()
+    {
+        // Arrange
+        var city = new M.City { TimeZone = "CityTZ" };
+        var country = new M.Country { TimeZone = "CountryTZ" };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                City = city,
+                Country = country
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.TimeZone;
+
+        // Assert
+        Assert.Equal("CityTZ", result);
+    }
+
+    [Fact]
+    public void TimeZone_ReturnsCountryTimeZone_WhenCityTimeZoneIsNull()
+    {
+        // Arrange
+        var city = new M.City { TimeZone = null };
+        var country = new M.Country { TimeZone = "CountryTZ" };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                City = city,
+                Country = country
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.TimeZone;
+
+        // Assert
+        Assert.Equal("CountryTZ", result);
+    }
+
+    [Fact]
+    public void Currency_ReturnsCountryCurrency()
+    {
+        // Arrange
+        var currency = new M.Currency { Code = "USD" };
+        var country = new M.Country { Currency = currency };
+        var tenant = new M.Tenant
+        {
+            Location = new M.Location
+            {
+                Country = country
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.Currency;
+
+        // Assert
+        Assert.Equal(currency, result);
+    }
+
+    [Fact]
+    public void Metadata_ReturnsTenantMetadata()
+    {
+        // Arrange
+        var metadata = new Dictionary<string, string> { { "key", "value" } };
+        var tenant = new M.Tenant
+        {
+            Metadata = metadata
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.Metadata;
+
+        // Assert
+        Assert.Equal(metadata, result);
+    }
+
+    [Fact]
+    public void GetMetadata_Generic_ConvertsToCorrectType()
+    {
+        // Arrange
+        var metadata = new Dictionary<string, string> {
+            { "testKey", "123" }
+        };
+        var tenant = new M.Tenant { Metadata = metadata };
+
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act
+        var result = tenantService.GetMetadata<int>("testKey");
+
+        // Assert
+        Assert.Equal(123, result);
+    }
+
+    [Fact]
+    public void GetMetadata_KeyNotFound_ThrowsKeyNotFoundException()
+    {
+        // Arrange
+        var key = "nonExistentKey";
+        var tenant = new M.Tenant { Metadata = [] };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act & Assert
+        Assert.Throws<KeyNotFoundException>(() => tenantService.GetMetadata(key));
+    }
+
+    [Fact]
+    public void GetMetadata_Generic_InvalidCast_ThrowsInvalidCastException()
+    {
+        // Arrange
+        var key = "invalidInt";
+        var value = "notAnInt";
+        var tenant = new M.Tenant { Metadata = new Dictionary<string, string> { { key, value } } };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
+            .SetValue(tenantService, tenant);
+
+        // Act & Assert
+        Assert.Throws<FormatException>(() => tenantService.GetMetadata<int>(key));
+    }
+
 }

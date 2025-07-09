@@ -38,11 +38,6 @@ public class MongoOptions : IValidatableObject
     public SslProtocols SslProtocols { get; set; } = SslProtocols.Tls12 | SslProtocols.Tls13;
 
     /// <summary>
-    /// Gets or sets the diagnostics options for MongoDB.
-    /// </summary>
-    public MongoDiagnosticsOptions Diagnostic { get; set; } = new();
-
-    /// <summary>
     /// Gets or sets a value indicating whether to register automatic repositories.
     /// </summary>
     public bool RegisterAutomaticRepositories { get; set; } = true;
@@ -69,9 +64,6 @@ public class MongoOptions : IValidatableObject
                 new ValidationContext(this, null, null) { MemberName = nameof(this.ConnectionString) },
                 results
             );
-
-            if (this.Diagnostic.Enable)
-                Validator.TryValidateObject(this.Diagnostic, new ValidationContext(this.Diagnostic), results, true);
         }
 
         return results;

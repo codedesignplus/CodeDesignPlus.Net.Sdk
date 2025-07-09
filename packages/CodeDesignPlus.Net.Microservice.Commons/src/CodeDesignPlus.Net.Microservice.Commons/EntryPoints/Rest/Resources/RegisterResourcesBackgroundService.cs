@@ -27,11 +27,6 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
     /// <returns>A task that represents the long-running operation.</returns>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        stoppingToken.Register(() =>
-        {
-            logger.LogInformation("Register Resources Background Service is stopping.");
-        });
-
         var microservice = new Services.gRpc.Microservice()
         {
             Id = options.Value.Id.ToString(),
@@ -59,7 +54,7 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
                     Id = Guid.NewGuid().ToString(),
                     Name = method.Name,
                     Description = method.GetCustomAttribute<DescriptionAttribute>()?.Description ?? string.Empty,
-                    HttpMethod = method.GetCustomAttributes().FirstOrDefault(attr => attr is HttpMethodAttribute) is HttpMethodAttribute httpMethod ? ConvertToEnum(httpMethod.HttpMethods.First()) : Services.gRpc.HttpMethod.None
+                    HttpMethod = ConvertToEnum(method.GetCustomAttribute<HttpMethodAttribute>())
                 };
 
                 controller.Actions.Add(action);
@@ -68,10 +63,12 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
             microservice.Controllers.Add(controller);
         }
 
-        await client.CreateServiceAsync(new CreateServiceRequest()
+        var request = new CreateServiceRequest()
         {
             Service = microservice
-        }, cancellationToken: stoppingToken);
+        };
+
+        await client.CreateServiceAsync(request, cancellationToken: stoppingToken);
 
         logger.LogInformation("Resources registered in the service registry.");
 
@@ -83,9 +80,12 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
     /// </summary>
     /// <param name="value">The string value to convert.</param>
     /// <returns>The HttpMethod enum.</returns>
-    private static Services.gRpc.HttpMethod ConvertToEnum(string value)
+    private static Services.gRpc.HttpMethod ConvertToEnum(HttpMethodAttribute value)
     {
-        return value switch
+        if (value is null)        
+            return Services.gRpc.HttpMethod.None;
+
+        return value.HttpMethods.FirstOrDefault() switch
         {
             "GET" => Services.gRpc.HttpMethod.Get,
             "POST" => Services.gRpc.HttpMethod.Post,

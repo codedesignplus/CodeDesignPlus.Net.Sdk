@@ -123,6 +123,24 @@ public class UserContextTest
     }
 
     [Fact]
+    public void GetHeader_HttpContextIsNull_ReturnNull()
+    {
+        // Arrange
+        var httpContextAccessor = new HttpContextAccessor
+        {
+            HttpContext = null
+        };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var plan = userContext.GetHeader<string>("X-Plan");
+
+        // Assert
+        Assert.Null(plan);
+    }
+
+    [Fact]
     public void GetClaim_NotExistClaim_ReturnNull()
     {
         // Arrange
@@ -197,6 +215,293 @@ public class UserContextTest
 
         // Assert
         Assert.Equal(tenantExpected, tenant);
+    }
+
+
+    [Fact]
+    public void AccessToken_HeaderWithBearer_ReturnsTokenWithoutBearerPrefix()
+    {
+        // Arrange
+        var token = Guid.NewGuid().ToString();
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("Authorization", $"Bearer {token}");
+
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var accessToken = userContext.AccessToken;
+
+        // Assert
+        Assert.Equal(token, accessToken);
+    }
+
+    [Fact]
+    public void AccessToken_HeaderWithoutBearer_ReturnsRawHeader()
+    {
+        // Arrange
+        var token = Guid.NewGuid().ToString();
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("Authorization", token);
+
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var accessToken = userContext.AccessToken;
+
+        // Assert
+        Assert.Equal(token, accessToken);
+    }
+
+    [Fact]
+    public void AccessToken_HeaderNotPresent_ReturnsNull()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext();
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var accessToken = userContext.AccessToken;
+
+        // Assert
+        Assert.Null(accessToken);
+    }
+
+    [Fact]
+    public void UserAgent_HeaderPresent_ReturnsHeaderValue()
+    {
+        // Arrange
+        var userAgent = "CustomUserAgent/1.0";
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("User-Agent", userAgent);
+
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.UserAgent;
+
+        // Assert
+        Assert.Equal(userAgent, result);
+    }
+
+    [Fact]
+    public void UserAgent_HeaderNotPresent_ReturnsDefault()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext();
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.UserAgent;
+
+        // Assert
+        Assert.Equal("CodeDesignPlus/Client", result);
+    }
+
+    [Fact]
+    public void IpAddress_XForwardedForHeaderPresent_ReturnsHeaderValue()
+    {
+        // Arrange
+        var ip = "203.0.113.42";
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("X-Forwarded-For", ip);
+
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.IpAddress;
+
+        // Assert
+        Assert.Equal(ip, result);
+    }
+
+    [Fact]
+    public void IpAddress_XForwardedForNotPresent_UsesRemoteIpAddress()
+    {
+        // Arrange
+        var ip = "192.168.1.100";
+        var httpContext = new DefaultHttpContext();
+        httpContext.Connection.RemoteIpAddress = System.Net.IPAddress.Parse(ip);
+
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.IpAddress;
+
+        // Assert
+        Assert.Equal(ip, result);
+    }
+
+    [Fact]
+    public void IpAddress_NoHeaderOrRemoteIp_ReturnsEmptyString()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext();
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.IpAddress;
+
+        // Assert
+        Assert.Equal(string.Empty, result);
+    }
+
+
+    [Fact]
+    public void IpAddress_HttpContextIsNull_ReturnsEmptyString()
+    {
+        // Arrange
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = null };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.IpAddress;
+
+        // Assert
+        Assert.Equal(string.Empty, result);
+    }
+
+    [Fact]
+    public void IpAddress_RemoteIpAddressIsNull_ReturnsEmptyString()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext();
+        httpContext.Connection.RemoteIpAddress = null;
+
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.IpAddress;
+
+        // Assert
+        Assert.Equal(string.Empty, result);
+    }
+
+
+    [Fact]
+    public void IdUser_WithObjectIdentifierClaim_ReturnsGuid()
+    {
+        // Arrange
+        var idUserExpected = Guid.NewGuid();
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+            new(Abstractions.ClaimTypes.ObjectIdentifier, idUserExpected.ToString())
+            ]))
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var idUser = userContext.IdUser;
+
+        // Assert
+        Assert.Equal(idUserExpected, idUser);
+    }
+
+    [Fact]
+    public void IdUser_WithSubjectClaim_ReturnsGuid()
+    {
+        // Arrange
+        var idUserExpected = Guid.NewGuid();
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+            new(Abstractions.ClaimTypes.Subject, idUserExpected.ToString())
+            ]))
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var idUser = userContext.IdUser;
+
+        // Assert
+        Assert.Equal(idUserExpected, idUser);
+    }
+
+    [Fact]
+    public void IdUser_WithoutOidOrSubClaim_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity())
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act & Assert
+        Assert.Throws<InvalidOperationException>(() => { var _ = userContext.IdUser; });
+    }
+
+
+    [Fact]
+    public void Roles_WithGroupsClaim_ReturnsRolesArray()
+    {
+        // Arrange
+        var roles = new[] { "Admin", "User" };
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+                new(Abstractions.ClaimTypes.Groups, roles[0]),
+                new(Abstractions.ClaimTypes.Groups, roles[1])
+            ]))
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.Roles;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Contains(roles[0], result);
+        Assert.Contains(roles[1], result);
+    }
+
+    [Fact]
+    public void Roles_WithoutGroupsClaim_ReturnsNull()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity())
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.Roles;
+
+        // Assert
+        Assert.Empty(result);
     }
 
 }

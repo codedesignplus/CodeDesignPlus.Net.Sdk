@@ -13,7 +13,7 @@ using MongoDB.Bson;
 namespace CodeDesignPlus.Net.Mongo.Test.Repository;
 
 [Collection(MongoCollectionFixture.Collection)]
-public class RepositoryBaseTest 
+public class RepositoryBaseTest
 {
     private readonly Mock<ILogger<ClientRepository>> loggerMock;
     private readonly MongoContainer mongoContainer;
@@ -205,7 +205,7 @@ public class RepositoryBaseTest
         // Assert
         Assert.True(result);
     }
-    
+
     [Fact]
     public async Task DeleteAsync_WhenIdIsValidWithoutTenant_ReturnTrue()
     {
@@ -714,4 +714,108 @@ public class RepositoryBaseTest
         var collection = database.GetCollection<Client>(typeof(Client).Name);
         return (client, collection);
     }
+
+    [Fact]
+    public async Task Query_WhenCriteriaHasSortAndPaging_ReturnsSortedAndPagedResults()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var clients = new List<Client>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Alice1", IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Bob1", IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Charlie1", IsActive = true }
+        };
+
+        await repository.CreateRangeAsync(clients, cancellationToken);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            OrderBy = "Name",
+            OrderType = Net.Core.Abstractions.Models.Criteria.OrderTypes.Ascending,
+            Skip = 1,
+            Limit = 1
+        };
+
+        // Use reflection to access the private Query method
+        var method = typeof(RepositoryBase)
+            .GetMethod("Query", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .MakeGenericMethod(typeof(Client));
+
+        // Act
+        var query = (IFindFluent<Client, Client>)method.Invoke(repository, [criteria, Guid.Empty])!;
+        var result = await query.ToListAsync(cancellationToken);
+
+        // Assert
+        Assert.Single(result);
+    }
+
+    [Fact]
+    public async Task Query_WhenCriteriaHasNoSortOrPaging_ReturnsAllResults()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var clients = new List<Client>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Alice2", IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Bob2", IsActive = true }
+        };
+
+        await repository.CreateRangeAsync(clients, cancellationToken);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria();
+
+        // Use reflection to access the private Query method
+        var method = typeof(RepositoryBase)
+            .GetMethod("Query", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .MakeGenericMethod(typeof(Client));
+
+        // Act
+        var query = (IFindFluent<Client, Client>)method.Invoke(repository, [criteria, Guid.Empty])!;
+        var result = await query.ToListAsync(cancellationToken);
+
+        // Assert
+        Assert.Contains(result, c => c.Name == "Alice2");
+        Assert.Contains(result, c => c.Name == "Bob2");
+    }
+
+    [Fact]
+    public async Task Query_WhenCriteriaHasDescendingSort_ReturnsResultsInDescendingOrder()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var clients = new List<Client>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Alice3", IsActive = true },
+            new() { Id = Guid.NewGuid(), Name = "Bob3", IsActive = true }
+        };
+
+        await repository.CreateRangeAsync(clients, cancellationToken);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            OrderBy = "Name",
+            OrderType = Net.Core.Abstractions.Models.Criteria.OrderTypes.Descending
+        };
+
+        // Use reflection to access the private Query method
+        var method = typeof(RepositoryBase)
+            .GetMethod("Query", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .MakeGenericMethod(typeof(Client));
+
+        // Act
+        var query = (IFindFluent<Client, Client>)method.Invoke(repository, [criteria, Guid.Empty])!;
+        var result = await query.ToListAsync(cancellationToken);
+
+        // Assert
+        Assert.Contains(result, c => c.Name == "Alice3");
+        Assert.Contains(result, c => c.Name == "Bob3");
+    }
+
 }

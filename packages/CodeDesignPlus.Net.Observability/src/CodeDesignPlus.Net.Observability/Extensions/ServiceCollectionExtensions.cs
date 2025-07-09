@@ -123,6 +123,8 @@ public static class ServiceCollectionExtensions
             new BaggagePropagator()
         ]);
 
+        Sdk.SetDefaultTextMapPropagator(compositeTextMapPropagator);
+
         otel.WithTracing(tracing =>
         {
             tracing.AddTraceAspNetCoreInstrumentation(observabilityOptions.Trace.AspNetCore);

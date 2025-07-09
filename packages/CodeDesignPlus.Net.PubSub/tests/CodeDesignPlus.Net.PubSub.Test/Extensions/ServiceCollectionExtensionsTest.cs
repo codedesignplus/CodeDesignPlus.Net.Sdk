@@ -56,7 +56,7 @@ public class ServiceCollectionExtensionsTest
         var configuration = Mock.Of<IConfiguration>();
 
         // Act
-        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(configuration: null, setupOptions: x => {}));
+        var exception = Assert.Throws<ArgumentNullException>(() => serviceCollection.AddPubSub(configuration: null, setupOptions: x => { }));
 
         // Assert
         Assert.Equal("Value cannot be null. (Parameter 'configuration')", exception.Message);
@@ -264,6 +264,38 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.NotEmpty(eventHandlers);
+    }
+
+    [Fact]
+    public void AddEventsHandlers_RegisterAutomaticHandlers_Success()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        // Act
+        services.AddPubSub(configuration, x => x.RegisterAutomaticHandlers = true);
+
+        // Assert
+        var eventHandlers = services.Where(x => x.ImplementationType?.Name.StartsWith("RegisterEventHandlerBackgroundService") ?? false);
+
+        Assert.NotEmpty(eventHandlers);
+    }
+
+    [Fact]
+    public void AddEventsHandlers_RegisterAutomaticHandlers_False_Success()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        // Act
+        services.AddPubSub(configuration, x => x.RegisterAutomaticHandlers = false);
+
+        // Assert
+        var eventHandlers = services.Where(x => x.ImplementationType?.Name.StartsWith("RegisterEventHandlerBackgroundService") ?? false);
+        
+        Assert.Empty(eventHandlers);
     }
 
 }

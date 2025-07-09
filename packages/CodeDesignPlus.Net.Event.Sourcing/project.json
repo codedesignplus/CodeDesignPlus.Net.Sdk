@@ -49,14 +49,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "args": "--org=codedesignplus --project=CodeDesignPlus.Net.Event.Sourcing ",
-        "commands": [
-          "dotnet test {projectRoot}/{args.project}.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover",
-          "dotnet sonarscanner begin /o:{args.org} /k:{args.project} /d:sonar.host.url=http://sonarqube.codedesignplus.com:9000 /d:sonar.coverage.exclusions=\"**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.xUnit/**,**/CodeDesignPlus.Net.Event.Sourcing/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs\" /d:sonar.cs.opencover.reportsPaths={projectRoot}/tests/{args.project}.Test/coverage.opencover.xml",
-          "dotnet build {projectRoot}/{args.project}.sln",
-          "dotnet sonarscanner end"
-        ],
-        "parallel": false
+        "command": "node tools/scripts/run-sonarqube.js --org=codedesignplus --project=CodeDesignPlus.Net.Event.Sourcing --projectRoot={projectRoot}"
       }
     },
     "pack": {

@@ -36,7 +36,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entity">Entity to create.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
+    public Task CreateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -64,7 +64,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entity">Entity to update.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
+    public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -101,7 +101,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="predicate">A function to test each element for a condition.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public Task DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
+    public Task DeleteAsync<TEntity>(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         ArgumentNullException.ThrowIfNull(predicate);
 
@@ -134,7 +134,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entities">List of entities to create.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public async Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
+    public async Task CreateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         ArgumentNullException.ThrowIfNull(entities);
 
@@ -162,7 +162,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entities">List of entities to update.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public async Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
+    public async Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         ArgumentNullException.ThrowIfNull(entities);
 
@@ -178,7 +178,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="entities">List of entities to delete.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken = default) where TEntity : class, IEntityBase
+    public async Task DeleteRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) where TEntity : class, IEntityBase
     {
         ArgumentNullException.ThrowIfNull(entities);
 
@@ -195,7 +195,7 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// <param name="state">Status that will be assigned to the record if it exists.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public async Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken = default) where TEntity : class, IEntity
+    public async Task ChangeStateAsync<TEntity>(Guid id, bool state, CancellationToken cancellationToken) where TEntity : class, IEntity
     {
         var entity = await this.Context.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id, cancellationToken: cancellationToken);
 
@@ -212,10 +212,22 @@ public abstract class RepositoryBase(DbContext context) : IRepositoryBase
     /// </summary>
     /// <typeparam name="TResult">Type of data to return if the process is successful.</typeparam>
     /// <param name="process">Process to execute in the transaction flow.</param>
+    /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
+    /// <returns>Represents an asynchronous operation.</returns>
+    public Task TransactionAsync<TResult>(Func<DbContext, Task> process,  CancellationToken cancellationToken)
+    {
+        return this.TransactionAsync<TResult>(process, IsolationLevel.ReadUncommitted, cancellationToken);
+    }
+
+    /// <summary>
+    /// Allows multiple processes in the database in a single transaction.
+    /// </summary>
+    /// <typeparam name="TResult">Type of data to return if the process is successful.</typeparam>
+    /// <param name="process">Process to execute in the transaction flow.</param>
     /// <param name="isolation">Specifies the transaction locking behavior for the connection.</param>
     /// <param name="cancellationToken">Propagates notification that operations should be canceled.</param>
     /// <returns>Represents an asynchronous operation.</returns>
-    public async Task TransactionAsync<TResult>(Func<DbContext, Task> process, IsolationLevel isolation = IsolationLevel.ReadUncommitted, CancellationToken cancellationToken = default)
+    public async Task TransactionAsync<TResult>(Func<DbContext, Task> process, IsolationLevel isolation, CancellationToken cancellationToken)
     {
         var strategy = this.Context.Database.CreateExecutionStrategy();
 

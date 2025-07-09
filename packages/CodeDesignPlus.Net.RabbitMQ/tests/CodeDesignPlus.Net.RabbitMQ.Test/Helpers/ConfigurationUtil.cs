@@ -23,7 +23,7 @@ public static class ConfigurationUtil
         Host = nameof(RabbitMQ.Abstractions.Options.RabbitMQOptions.Host),
         UserName = $"{nameof(RabbitMQ.Abstractions.Options.RabbitMQOptions.Host)}@codedesignplus.com",
         Password = nameof(RabbitMQ.Abstractions.Options.RabbitMQOptions.Password),
-        Port = 5672,
+        Port = 5672
     };
 
     public static IConfiguration GetConfiguration()
