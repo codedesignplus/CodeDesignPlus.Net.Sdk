@@ -18,7 +18,7 @@ public class MongoContainer : DockerCompose
         // Configure the Docker Compose settings.
         var dockerCompose = new DockerComposeConfig
         {
-            ComposeFilePath = new[] { file },
+            ComposeFilePath = [file],
             ForceRecreate = true,
             RemoveOrphans = true,
             StopOnDispose = true,
@@ -26,13 +26,14 @@ public class MongoContainer : DockerCompose
             EnvironmentNameValue = new Dictionary<string, string>
             {
                 { "PORT_CUSTOM", port.ToString() },
-            }
+            },
+            ComposeVersion = ComposeVersion.V2,
         };
 
         // Enable port retrieval and set the internal port and container name.
         this.EnableGetPort = true;
         this.InternalPort = port;
-        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-mongo";
+        this.ContainerName = $"mongo";
 
         // Create and return the Docker Compose service.
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);

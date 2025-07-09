@@ -17,17 +17,18 @@ public class OpenTelemetryContainer : DockerCompose
         // Configure the Docker Compose settings.
         var dockerCompose = new DockerComposeConfig
         {
-            ComposeFilePath = new[] { file },
+            ComposeFilePath = [file],
             ForceRecreate = true,
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = "otel_" + Guid.NewGuid().ToString("N"),
+            ComposeVersion = ComposeVersion.V2,
         };
 
         // Enable port retrieval and set the internal port and container name.
         this.EnableGetPort = true;
         this.InternalPort = 4317;
-        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-otel-collector";
+        this.ContainerName = $"otel.collector";
 
         // Create and return the Docker Compose service.
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);

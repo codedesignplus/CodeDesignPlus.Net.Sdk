@@ -25,11 +25,12 @@ public class EventStoreContainer : DockerCompose
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = "eventstore_" + Guid.NewGuid().ToString("N"),
+            ComposeVersion = ComposeVersion.V2,
         };
 
         // Enable port retrieval and set the container name.
         this.EnableGetPort = true;
-        this.ContainerName = $"{dockerCompose.AlternativeServiceName}-eventstore.db";
+        this.ContainerName = $"eventstore.db";
 
         // Create and return the Docker Compose service.
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
