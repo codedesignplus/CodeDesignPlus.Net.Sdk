@@ -43,6 +43,7 @@ public class ServerCompose : DockerCompose
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = containerName,
+            ComposeVersion = ComposeVersion.V2
         };
 
         var compose = new DockerComposeCompositeService(DockerHost, dockerCompose);
@@ -59,7 +60,7 @@ public class ServerCompose : DockerCompose
         Redis = GetPort("redis", 6379);
         RabbitMQ = GetPort("rabbitmq", 5672);
         Mongo = GetPort("mongo", 27017);
-        Otel = GetPort("otel-collector", 4317);
+        Otel = GetPort("otel.collector", 4317);
 
     }
 
@@ -72,11 +73,10 @@ public class ServerCompose : DockerCompose
     /// <exception cref="Exception">The container was not found.</exception>
     public (string, int) GetPort(string service, int internalPort)
     {
-        var name = $"{containerName}-{service}";
-        var container = CompositeService.Containers.FirstOrDefault(x => x.Name.StartsWith(name));
+        var container = CompositeService.Containers.FirstOrDefault(x => x.Name.StartsWith(service));
 
         if (container == null)
-            throw new Exception($"The container {name} was not found.");
+            throw new Exception($"The container {service} was not found.");
 
         var endpoint = container.ToHostExposedEndpoint($"{internalPort}/tcp");
 
