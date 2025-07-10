@@ -1,5 +1,3 @@
-// tools/scripts/run-sonarqube.js
-
 const { execSync } = require('child_process');
 
 const sonarHost = process.env.SONAR_HOST_URL;
@@ -30,7 +28,7 @@ const exclusions = {
     'CodeDesignPlus.Net.File.Storage': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Security/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Generator': "**Tests*.cs",
     'CodeDesignPlus.Net.gRpc.Clients': "**Tests*.cs",
-    'CodeDesignPlus.Net.Kafka': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.PubSub/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
+    'CodeDesignPlus.Net.Kafka': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.PubSub/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Exceptions/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Logger': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Microservice.Commons': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Exceptions/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Mongo': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Criteria/**,**/CodeDesignPlus.Net.Mongo.Diagnostics/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Security/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
@@ -61,7 +59,7 @@ console.log(`\n Exclusions for project ${projectKey}: ${exclusions[projectKey] |
 
 const joinedCommand =
     `dotnet test ${projectRoot}/${projectKey}.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover && ` +
-    `dotnet sonarscanner begin /o:${org} /k:${projectKey} /d:sonar.host.url=${sonarHost} /d:sonar.cs.opencover.reportsPaths=${projectRoot}/tests/${projectKey}.Test/coverage.opencover.xml /d:sonar.javascript.enabled=false /d:sonar.architecture.enabled=false /d:sonar.coverage.exclusions=\"${exclusions[projectKey]}\" /d:sonar.login=${sonarToken} && ` +
+    `dotnet sonarscanner begin /o:${org} /k:${projectKey} /d:sonar.host.url=${sonarHost} /d:sonar.cs.opencover.reportsPaths=${projectRoot}/tests/${projectKey}.Test/coverage.opencover.xml /d:sonar.javascript.enabled=false /d:sonar.architecture.enabled=false /d:sonar.coverage.exclusions=${exclusions[projectKey]},**/*.js /d:sonar.login=${sonarToken} && ` +
     `dotnet build ${projectRoot}/${projectKey}.sln && ` +
     `dotnet sonarscanner end /d:sonar.token=${sonarToken}`;
 

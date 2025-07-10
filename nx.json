@@ -15,8 +15,7 @@
           "sonarqube",
           "pack",
           "push"
-        ],
-        "accessToken": "NTAzMmE4OGMtY2FjMC00ZmFiLTgwMzktOGE5NDQxNTcxODVlfHJlYWQtd3JpdGU="
+        ]
       }
     }
   }

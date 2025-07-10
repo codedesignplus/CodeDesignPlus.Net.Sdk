@@ -14,7 +14,7 @@ public class SqlServerContainerTest(SqlCollectionFixture sqlCollectionFixture)
     public void CheckConnectionService()
     {
         // Arrange
-        var sqlConnection = new SqlConnection($"Server=localhost,{this.container.Port};Database=master;User Id=sa;Password=Temporal1;Encrypt=True;TrustServerCertificate=True");
+        var sqlConnection = new SqlConnection($"Server=localhost,{this.container.Port};Database=master;User Id=sa;Password={this.container.Password};Encrypt=True;TrustServerCertificate=True");
 
         // Act
         sqlConnection.Open();

@@ -5,6 +5,7 @@ namespace CodeDesignPlus.Net.xUnit.Containers.SqlServer;
 /// </summary>
 public class SqlServerContainer : DockerCompose
 {
+    public string Password { get; private set; } = Guid.NewGuid().ToString("N")[..16];
     /// <summary>
     /// Builds the Docker Compose service configuration for the SQL Server container.
     /// </summary>
@@ -17,11 +18,15 @@ public class SqlServerContainer : DockerCompose
         // Configure the Docker Compose settings.
         var dockerCompose = new DockerComposeConfig
         {
-            ComposeFilePath = new[] { file },
+            ComposeFilePath = [file],
             ForceRecreate = true,
             RemoveOrphans = true,
             StopOnDispose = true,
             AlternativeServiceName = "sql_" + Guid.NewGuid().ToString("N"),
+            EnvironmentNameValue = new Dictionary<string, string>
+            {
+                { "SA_PASSWORD", this.Password },
+            },
             ComposeVersion = ComposeVersion.V2,
         };
 
