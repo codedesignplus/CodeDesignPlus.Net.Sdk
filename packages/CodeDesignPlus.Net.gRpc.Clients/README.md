@@ -8,7 +8,7 @@
   <h3 align="center">CodeDesignPlus.Net.gRpc.Clients</h3>
 
   <p align="center">
-    .NET Core archetype for efficient development, unit testing, and continuous integration of NuGet libraries.
+    .NET Core archetype for efficient development, unit testing, and continuous integration of NuGet libraries. 
     <br />
     <a href="https://codedesignplus.com">
       <strong>Explore the docs »</strong>
