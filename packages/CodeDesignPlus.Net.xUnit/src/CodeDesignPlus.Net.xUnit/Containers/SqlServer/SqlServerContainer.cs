@@ -5,7 +5,7 @@ namespace CodeDesignPlus.Net.xUnit.Containers.SqlServer;
 /// </summary>
 public class SqlServerContainer : DockerCompose
 {
-    public string Password { get; private set; } = Guid.NewGuid().ToString("N")[..16];
+    public string Password { get; private set; } = GeneratePassword();
     /// <summary>
     /// Builds the Docker Compose service configuration for the SQL Server container.
     /// </summary>
@@ -29,7 +29,7 @@ public class SqlServerContainer : DockerCompose
             },
             ComposeVersion = ComposeVersion.V2,
         };
-
+ 
         // Enable port retrieval and set the internal port and container name.
         this.EnableGetPort = true;
         this.InternalPort = 1433;
@@ -39,5 +39,17 @@ public class SqlServerContainer : DockerCompose
         var compose = new DockerComposeCompositeService(base.DockerHost, dockerCompose);
 
         return compose;
+    }
+
+    public static string GeneratePassword()
+    {
+        const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_+";
+        var random = new Random();
+        var password = new char[16];
+        for (int i = 0; i < password.Length; i++)
+        {
+            password[i] = chars[random.Next(chars.Length)];
+        }
+        return new string(password);
     }
 }

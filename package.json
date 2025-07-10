@@ -2,13 +2,13 @@
   "name": "codedesignplus",
   "version": "0.0.0",
   "license": "LGPL",
-  "scripts": {    
+  "scripts": {
     "affected": "npx nx show projects --affected --skip-nx-cache --head=HEAD --base=remotes/origin/main",
     "affected:restore": "npx nx affected --skip-nx-cache --target restore --head=HEAD --base=remotes/origin/main",
     "affected:format": "npx nx affected --skip-nx-cache --target format --head=HEAD --base=remotes/origin/main",
     "affected:build": "npx nx affected --skip-nx-cache --parallel 1 --target build --head=HEAD --base=remotes/origin/main",
     "affected:test": "npx nx affected --skip-nx-cache --target test --head=HEAD --base=remotes/origin/main",
-    "affected:sonarqube": "npx nx affected --skip-nx-cache --parallel 1 --target sonarqube --head=HEAD --base=remotes/origin/main", 
+    "affected:sonarqube": "npx nx affected --skip-nx-cache --parallel 1 --target sonarqube --head=HEAD --base=remotes/origin/main",
     "affected:graph": "npx nx affected --skip-nx-cache --target dep-graph --head=HEAD --base=remotes/origin/main",
     "all:restore": "npx nx run-many --all --skip-nx-cache --target restore --parallel 1 ",
     "all:format": "npx nx run-many --all --skip-nx-cache --target format",
@@ -22,13 +22,12 @@
     "all-cache:sonarqube": "npx nx run-many --all --target sonarqube --parallel 1"
   },
   "private": true,
-  "dependencies": {
-  },
   "devDependencies": {
+    "@codedesignplus/netcore": "^1.0.3-rc.0",
+    "@nrwl/workspace": "^16.10.0",
     "@nx/js": "16.10.0",
     "nx": "16.10.0",
-    "nx-cloud": "latest",    
-    "@codedesignplus/netcore": "^1.0.3-rc.0",
-    "@nrwl/workspace": "^16.10.0"
+    "nx-cloud": "latest",
+    "which": "^5.0.0"
   }
 }
