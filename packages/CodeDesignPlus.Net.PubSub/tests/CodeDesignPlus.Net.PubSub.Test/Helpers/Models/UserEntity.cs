@@ -14,4 +14,7 @@ public class UserEntity : IEntity
     public Guid Id { get; set; }
 
     public string? Name { get; set; }
+    public Instant? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
+    public bool IsDeleted { get; set; }
 }

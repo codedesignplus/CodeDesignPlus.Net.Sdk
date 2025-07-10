@@ -19,5 +19,8 @@ namespace CodeDesignPlus.Entities
 
         public List<AppPermision> AppPermisions { get; set; } = [];
         public List<RolePermission> RolePermisions { get; set; } = [];
+        public Instant? DeletedAt { get; set; }
+        public Guid? DeletedBy { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

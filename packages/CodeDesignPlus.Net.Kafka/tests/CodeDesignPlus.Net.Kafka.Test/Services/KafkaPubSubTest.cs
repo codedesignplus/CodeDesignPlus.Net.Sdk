@@ -177,6 +177,7 @@ public class KafkaPubSubTest
             {
                 Id = Guid.NewGuid(),
                 AppName = "ms-kafka-test",
+                TypeEntryPoint = "rest",
                 Version = "v1",
                 Business = "CodeDesignPlus",
                 Description = "Microservice Test",
