@@ -73,7 +73,8 @@ public class Rbac : IRbac
 
         var isAuthorized = resources.Any(x => x.Controller == controller && x.Action == action && x.Method == httpMethod && roles.Contains(x.Role));
 
-        this.logger.LogDebug("Role '{Role}' is {Authorized} to access the resource '{Controller}/{Action}' with the method '{HttpVerb}'", string.Join(",", roles), isAuthorized ? "authorized" : "not authorized", controller, action, httpVerb);
+        var sanitizedHttpVerb = httpVerb.Replace(Environment.NewLine, "").Replace("\n", "").Replace("\r", "");
+        this.logger.LogDebug("Role '{Role}' is {Authorized} to access the resource '{Controller}/{Action}' with the method '{HttpVerb}'", string.Join(",", roles), isAuthorized ? "authorized" : "not authorized", controller, action, sanitizedHttpVerb);
 
         return Task.FromResult(isAuthorized);
     }
