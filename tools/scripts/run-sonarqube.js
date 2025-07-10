@@ -1,6 +1,6 @@
-// tools/scripts/run-sonarqube.js
-
 const { execSync } = require('child_process');
+const which = require('which');
+const dotnetPath = which.sync('dotnet');
 
 const sonarHost = process.env.SONAR_HOST_URL;
 const sonarToken = process.env.SONAR_TOKEN;
@@ -29,8 +29,8 @@ const exclusions = {
     'CodeDesignPlus.Net.Exceptions': ",**Tests*.cs",
     'CodeDesignPlus.Net.File.Storage': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Security/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Generator': "**Tests*.cs",
-    'CodeDesignPlus.Net.gRpc.Clients': "**Tests*.cs",
-    'CodeDesignPlus.Net.Kafka': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.PubSub/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
+    'CodeDesignPlus.Net.gRpc.Clients': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Serializers/**,**/CodeDesignPlus.Net.Security/**,**Tests*.cs",
+    'CodeDesignPlus.Net.Kafka': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.PubSub/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Exceptions/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Logger': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Microservice.Commons': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Exceptions/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
     'CodeDesignPlus.Net.Mongo': "**/CodeDesignPlus.Net.Core/**,**/CodeDesignPlus.Net.Criteria/**,**/CodeDesignPlus.Net.Mongo.Diagnostics/**,**/CodeDesignPlus.Net.Redis/**,**/CodeDesignPlus.Net.Security/**,**/CodeDesignPlus.Net.Serializers/**,**Tests*.cs",
@@ -61,15 +61,51 @@ console.log(`\n Exclusions for project ${projectKey}: ${exclusions[projectKey] |
 
 const joinedCommand =
     `dotnet test ${projectRoot}/${projectKey}.sln /p:CollectCoverage=true /p:CoverletOutputFormat=opencover && ` +
-    `dotnet sonarscanner begin /o:${org} /k:${projectKey} /d:sonar.host.url=${sonarHost} /d:sonar.cs.opencover.reportsPaths=${projectRoot}/tests/${projectKey}.Test/coverage.opencover.xml /d:sonar.javascript.enabled=false /d:sonar.architecture.enabled=false /d:sonar.coverage.exclusions=\"${exclusions[projectKey]}\" /d:sonar.login=${sonarToken} && ` +
+    `dotnet sonarscanner begin /o:${org} /k:${projectKey} /d:sonar.host.url=${sonarHost} /d:sonar.cs.opencover.reportsPaths=${projectRoot}/tests/${projectKey}.Test/coverage.opencover.xml /d:sonar.javascript.enabled=false /d:sonar.architecture.enabled=false /d:sonar.coverage.exclusions=${exclusions[projectKey]},**/*.js /d:sonar.login=${sonarToken} && ` +
     `dotnet build ${projectRoot}/${projectKey}.sln && ` +
     `dotnet sonarscanner end /d:sonar.token=${sonarToken}`;
 
 try {
+    // Ejecutar los comandos por separado para evitar inyección de comandos
+    const path = require('path');
+    const { execFileSync } = require('child_process');
 
-    execSync(joinedCommand, { stdio: 'inherit' });
+    // 1. dotnet test
+    execFileSync(dotnetPath, [
+        'test',
+        path.join(projectRoot, `${projectKey}.sln`),
+        '/p:CollectCoverage=true',
+        '/p:CoverletOutputFormat=opencover'
+    ], { stdio: 'inherit' });
+
+    // 2. dotnet sonarscanner begin
+    execFileSync(dotnetPath, [
+        'sonarscanner',
+        'begin',
+        `/o:${org}`,
+        `/k:${projectKey}`,
+        `/d:sonar.host.url=${sonarHost}`,
+        `/d:sonar.cs.opencover.reportsPaths=${path.join(projectRoot, 'tests', projectKey + '.Test', 'coverage.opencover.xml')}`,
+        '/d:sonar.javascript.enabled=false',
+        '/d:sonar.architecture.enabled=false',
+        `/d:sonar.coverage.exclusions=${exclusions[projectKey]},**/*.js`,
+        `/d:sonar.login=${sonarToken}`
+    ], { stdio: 'inherit' });
+
+    // 3. dotnet build
+    execFileSync(dotnetPath, [
+        'build',
+        path.join(projectRoot, `${projectKey}.sln`)
+    ], { stdio: 'inherit' });
+
+    // 4. dotnet sonarscanner end
+    execFileSync(dotnetPath, [
+        'sonarscanner',
+        'end',
+        `/d:sonar.token=${sonarToken}`
+    ], { stdio: 'inherit' });
+
     console.log('\n✅ SonarQube analysis completed successfully.');
-    
 } catch (error) {
     console.error('\n❌ ERROR: A command failed during SonarQube analysis.');
     if (error instanceof Error) {

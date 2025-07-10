@@ -31,13 +31,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.gRpc.Clients\CodeDesignPlus.Net.gRpc.Clients.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.xUnit\src\CodeDesignPlus.Net.xUnit\CodeDesignPlus.Net.xUnit.csproj" />
   </ItemGroup>
+  
 
   <ItemGroup>
-    <Folder Include="Exceptions\" />
-    <Folder Include="Extensions\" />
     <Folder Include="Helpers\" />
-    <Folder Include="Options\" />
   </ItemGroup>
 
 </Project>

@@ -1,23 +1,4 @@
 {
   "extends": "nx/presets/npm.json",
-  "$schema": "./node_modules/nx/schemas/nx-schema.json",
-  "tasksRunnerOptions": {
-    "default": {
-      "runner": "nx-cloud",
-      "options": {
-        "cacheableOperations": [
-          "build",
-          "lint",
-          "test",
-          "e2e",
-          "restore",
-          "format",
-          "sonarqube",
-          "pack",
-          "push"
-        ],
-        "accessToken": "NTAzMmE4OGMtY2FjMC00ZmFiLTgwMzktOGE5NDQxNTcxODVlfHJlYWQtd3JpdGU="
-      }
-    }
-  }
+  "$schema": "./node_modules/nx/schemas/nx-schema.json"
 }

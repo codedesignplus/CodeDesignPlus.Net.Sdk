@@ -36,7 +36,7 @@ public static class ServiceCollectionExtensions
 
         if (!string.IsNullOrEmpty(options!.Payment))
         {
-            services.AddGrpcClient<CodeDesignPlus.Net.gRpc.Clients.Services.Payment.Payment.PaymentClient>(o =>
+            services.AddGrpcClient<Payment.PaymentClient>(o =>
             {
                 o.Address = new Uri(options.Payment);
             });
@@ -46,7 +46,7 @@ public static class ServiceCollectionExtensions
 
         if (!string.IsNullOrEmpty(options!.User))
         {
-            services.AddGrpcClient<CodeDesignPlus.Net.gRpc.Clients.Services.User.Users.UsersClient>(o =>
+            services.AddGrpcClient<Services.User.Users.UsersClient>(o =>
             {
                 o.Address = new Uri(options.User);
             });
@@ -56,7 +56,7 @@ public static class ServiceCollectionExtensions
 
         if (!string.IsNullOrEmpty(options!.Tenant))
         {
-            services.AddGrpcClient<CodeDesignPlus.Net.gRpc.Clients.Services.Tenant.Tenant.TenantClient>(o =>
+            services.AddGrpcClient<Services.Tenant.Tenant.TenantClient>(o =>
             {
                 o.Address = new Uri(options.Tenant);
             });
