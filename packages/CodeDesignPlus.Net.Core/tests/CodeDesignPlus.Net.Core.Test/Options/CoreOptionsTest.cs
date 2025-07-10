@@ -11,6 +11,7 @@ public class CoreOptionsTest
             Id = Guid.NewGuid(),
             Business = Guid.NewGuid().ToString(),
             AppName = "ms-test",
+            TypeEntryPoint = "rest",
             Version = "v1",
             Description = Guid.NewGuid().ToString(),
             Contact = new Contact()
@@ -87,6 +88,7 @@ public class CoreOptionsTest
             Id = Guid.NewGuid(),
             Business = Guid.NewGuid().ToString(),
             AppName = "ms-test",
+            TypeEntryPoint = "rest",
             Version = "v1",
             Description = Guid.NewGuid().ToString(),
             Contact = new Contact()

@@ -55,6 +55,7 @@ public static class OptionsUtil
         return new()
         {
             AppName = "AppTest",
+            TypeEntryPoint = "rest",
             Version = "1.0.0",
             Description = "Description Test",
             Business = "Business Test",

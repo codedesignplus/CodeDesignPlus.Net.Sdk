@@ -14,4 +14,7 @@ public class NotificationEntity : IEntity
     public Guid Tenant { get; set; }
 
     public Guid Id { get; set; }
+    public Instant? DeletedAt  { get; set; }
+    public Guid? DeletedBy  { get; set; }
+    public bool IsDeleted { get; set; }
 }

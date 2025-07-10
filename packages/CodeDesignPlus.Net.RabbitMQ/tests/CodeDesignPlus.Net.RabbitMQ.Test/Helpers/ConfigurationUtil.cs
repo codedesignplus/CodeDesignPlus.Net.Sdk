@@ -7,6 +7,7 @@ public static class ConfigurationUtil
     public static readonly CoreOptions CoreOptions = new()
     {
         AppName = "test-rabbitmq",
+        TypeEntryPoint = "rest",
         Business = "CodeDesignPlus",
         Description = "Test RabbitMQ",
         Version = "v1",

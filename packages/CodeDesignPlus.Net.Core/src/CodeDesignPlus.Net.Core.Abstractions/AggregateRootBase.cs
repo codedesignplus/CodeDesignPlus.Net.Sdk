@@ -4,7 +4,7 @@ namespace CodeDesignPlus.Net.Core.Abstractions;
 /// Represents the base class for aggregate roots in the domain.
 /// </summary>
 public abstract class AggregateRootBase : IAggregateRoot
-{    
+{
     private ConcurrentQueue<IDomainEvent> domainEvents = [];
 
     /// <summary>
@@ -21,22 +21,31 @@ public abstract class AggregateRootBase : IAggregateRoot
     /// Gets or sets the timestamp when the aggregate root was created.
     /// </summary>
     public Instant CreatedAt { get; set; }
-
     /// <summary>
     /// Gets or sets the unique identifier of the user who created the aggregate root.
     /// </summary>
     public Guid CreatedBy { get; set; }
-
     /// <summary>
     /// Gets or sets the timestamp when the aggregate root was last updated.
     /// </summary>
     public Instant? UpdatedAt { get; set; }
-
     /// <summary>
     /// Gets or sets the unique identifier of the user who last updated the aggregate root.
     /// </summary>
     public Guid? UpdatedBy { get; set; }
-
+    /// <summary>
+    /// Gets or sets the timestamp when the aggregate root was deleted.
+    /// </summary>
+    public Instant? DeletedAt { get; set; }
+    /// <summary>
+    /// Gets or sets the unique identifier of the user who deleted the aggregate root.
+    /// </summary>
+    public Guid? DeletedBy { get; set; }
+    /// <summary>
+    /// Gets or sets a value indicating whether the aggregate root is deleted.
+    /// This property is used to mark the aggregate root as deleted without physically removing it from the database.
+    /// </summary>
+    public bool IsDeleted { get; set; } = false;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="AggregateRootBase"/> class.

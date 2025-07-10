@@ -27,6 +27,7 @@ public class AggregateRootTest
         var createBy = Guid.NewGuid();
         var updatedBy = Guid.NewGuid();
         var tenant = Guid.NewGuid();
+        var deletedBy = Guid.NewGuid();
 
         var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
 
@@ -47,7 +48,7 @@ public class AggregateRootTest
 
         await Task.Delay(100);
 
-        orderAggregate.Delete();
+        orderAggregate.Delete(deletedBy);
 
         await Task.Delay(100);
 
@@ -122,6 +123,7 @@ public class AggregateRootTest
         var id = Guid.NewGuid();
         var createBy = Guid.NewGuid();
         var tenant = Guid.NewGuid();
+        var deletedBy = Guid.NewGuid();
 
         var orderAggregate = OrderAggregate.Create(id, "Test", "Test Description", 10, tenant, createBy);
 
@@ -129,7 +131,7 @@ public class AggregateRootTest
         domainEventsField!.SetValue(orderAggregate, null);
 
         // Act
-        orderAggregate.Delete();
+        orderAggregate.Delete(deletedBy);
 
         // Assert
         var events = orderAggregate.GetAndClearEvents();

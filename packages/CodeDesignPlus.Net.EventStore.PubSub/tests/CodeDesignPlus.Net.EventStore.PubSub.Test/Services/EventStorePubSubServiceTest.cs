@@ -297,6 +297,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
                 Id = Guid.NewGuid(),
                 Business = "CodeDesignPlus",
                 AppName = "ms-test",
+                TypeEntryPoint = "rest",
                 Version = "v1",
                 Description = "Description Test",
                 Contact = new Contact
