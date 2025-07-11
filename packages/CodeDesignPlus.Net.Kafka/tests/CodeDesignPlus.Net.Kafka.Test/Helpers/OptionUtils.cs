@@ -7,6 +7,7 @@ public static class OptionUtils
     public static readonly CoreOptions CoreOptions = new()
     {
         AppName = "xunit-kafka",
+        TypeEntryPoint = "rest",
         Description = "The xunit test for the kafka library",
         Version = "v1",
         Business = "CodeDesignPlus",

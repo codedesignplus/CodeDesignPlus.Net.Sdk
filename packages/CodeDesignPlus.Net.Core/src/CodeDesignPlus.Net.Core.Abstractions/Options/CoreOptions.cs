@@ -27,7 +27,8 @@ public class CoreOptions : IValidatableObject
     public required string AppName { get; set; }
     /// <summary>
     /// Gets or sets the type entry point (worker, rest, grpc)
-    /// </summary>
+    /// </summary>    
+    [Required]
     public string TypeEntryPoint { get; set; } = null!;
     /// <summary>
     /// Gets or sets the version
