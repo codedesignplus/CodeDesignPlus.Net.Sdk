@@ -704,6 +704,7 @@ public class EventStoreServiceTest(EventStoreCollectionFixture fixture)
             {
                 Id = Guid.NewGuid(),
                 AppName = "ms-test",
+                TypeEntryPoint = "rest",
                 Version = "v1",
                 Business = "CodeDesignPlus",
                 Description = "Description Test",

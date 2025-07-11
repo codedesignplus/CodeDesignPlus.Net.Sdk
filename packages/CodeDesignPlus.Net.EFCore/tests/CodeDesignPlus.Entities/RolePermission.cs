@@ -16,6 +16,9 @@ namespace CodeDesignPlus.Entities
         public Guid CreatedBy { get; set; }
         public Instant? UpdatedAt { get; set; }
         public Guid? UpdatedBy { get; set; }
+        public Instant? DeletedAt { get; set; }
+        public Guid? DeletedBy { get; set; }
+        public bool IsDeleted { get; set; }
 
         public Application Application { get; set; }
         public Permission Permission { get; set; }

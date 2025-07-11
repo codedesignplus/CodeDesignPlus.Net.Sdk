@@ -16,4 +16,7 @@ public class Order : IEntity
     public Guid CreatedBy { get; set; }
     public Guid? UpdatedBy { get; set; }
     public Guid Tenant { get; set; }
+    public Instant? DeletedAt { get; set; }
+    public Guid? DeletedBy { get; set; }
+    public bool IsDeleted { get; set; }
 }

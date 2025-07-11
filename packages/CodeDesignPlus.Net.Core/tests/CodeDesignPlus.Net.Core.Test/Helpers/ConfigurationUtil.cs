@@ -8,6 +8,7 @@ public static class ConfigurationUtil
     {
         Business = nameof(Core.Abstractions.Options.CoreOptions.Business),
         AppName = "ms-test",
+        TypeEntryPoint = "rest",
         Version = "v1",
         Description = nameof(Core.Abstractions.Options.CoreOptions.Description),
         Contact = new Contact()
