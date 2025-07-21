@@ -57,7 +57,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <summary>
     /// Gets the object identifier (OID) of the user of Identity Provider.
     /// </summary>
-    public Guid Oid
+    public string Oid
     {
         get
         {
@@ -69,7 +69,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
             if (string.IsNullOrEmpty(claimValue))
                 throw new InvalidOperationException("The claim 'oid' or 'sub' is required.");
 
-            return ConvertTo<Guid>(claimValue);
+            return ConvertTo<string>(claimValue);
         }
     }
 

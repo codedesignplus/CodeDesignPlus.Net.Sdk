@@ -36,7 +36,7 @@ public interface IUserContext
     /// <summary>
     /// Gets the object identifier (OID) of the user of Identity Provider.
     /// </summary>
-    Guid Oid { get; }
+    string Oid { get; }
 
     /// <summary>
     /// Gets a value indicating whether the user has been authenticated.
