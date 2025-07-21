@@ -50,9 +50,14 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     public bool IsApplication => options.Value.Applications.Contains(this.GetClaim<string>(ClaimTypes.Audience));
 
     /// <summary>
-    /// Gets the user ID.
+    /// Gets the user ID used internally in the application.
     /// </summary>
-    public Guid IdUser
+    public Guid IdUser => this.GetClaim<Guid>(ClaimTypes.UserId);
+
+    /// <summary>
+    /// Gets the object identifier (OID) of the user of Identity Provider.
+    /// </summary>
+    public Guid Oid
     {
         get
         {
