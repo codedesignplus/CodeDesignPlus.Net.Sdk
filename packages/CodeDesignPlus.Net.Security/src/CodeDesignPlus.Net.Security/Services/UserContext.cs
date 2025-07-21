@@ -57,21 +57,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <summary>
     /// Gets the object identifier (OID) of the user of Identity Provider.
     /// </summary>
-    public string Oid
-    {
-        get
-        {
-            var claimValue = this.User.FindFirst(ClaimTypes.ObjectIdentifier)?.Value;
-
-            if (string.IsNullOrEmpty(claimValue))
-                claimValue = this.User.FindFirst(ClaimTypes.Subject)?.Value;
-
-            if (string.IsNullOrEmpty(claimValue))
-                throw new InvalidOperationException("The claim 'oid' or 'sub' is required.");
-
-            return ConvertTo<string>(claimValue);
-        }
-    }
+    public string Oid => this.GetClaim<string>(ClaimTypes.ObjectIdentifier);
 
     /// <summary>
     /// Gets a value indicating whether the current user is authenticated.
