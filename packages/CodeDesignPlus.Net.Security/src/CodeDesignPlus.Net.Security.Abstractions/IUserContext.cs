@@ -29,9 +29,14 @@ public interface IUserContext
     bool IsApplication { get; }
 
     /// <summary>
-    /// Gets the ID of the authenticated user.
+    /// Gets the user ID used internally in the application.
     /// </summary>
     Guid IdUser { get; }
+
+    /// <summary>
+    /// Gets the object identifier (OID) of the user of Identity Provider.
+    /// </summary>
+    string Oid { get; }
 
     /// <summary>
     /// Gets a value indicating whether the user has been authenticated.

@@ -93,5 +93,9 @@ public static class ClaimTypes
     /// The user's roles.
     /// </summary>
     public const string Groups = "groups";
+    /// <summary>
+    /// The user's unique identifier in the application context, which is often used to identify the user across sessions.
+    /// </summary>
+    public const string UserId = "userId";
 
 }

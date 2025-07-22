@@ -7,6 +7,7 @@ public class UserContext : IUserContext
 {
     public bool IsApplication { get; set; }
     public required Guid IdUser { get; set; }
+    public string Oid { get; set; }
     public bool IsAuthenticated { get; set; }
     public required string Name { get; set; }
     public required string Email { get; set; }
