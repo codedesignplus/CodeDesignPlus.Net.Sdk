@@ -28,12 +28,12 @@ public class UserContextTest
 
         var httpContext = new DefaultHttpContext
         {
-            User = new ClaimsPrincipal(new ClaimsIdentity(new Claim[] {
-                new(Abstractions.ClaimTypes.ObjectIdentifier, idUserExpected.ToString()),
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new("userId", idUserExpected.ToString()),
                 new(Abstractions.ClaimTypes.Name, nameExpected),
                 new(Abstractions.ClaimTypes.Emails, emailExpected),
                 new(Abstractions.ClaimTypes.Audience, applicationExpected),
-            }))
+            ]))
         };
 
         httpContext.Request.Headers.Append("X-Tenant", tenantExpected);
@@ -46,7 +46,7 @@ public class UserContextTest
         var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
 
         // Act
-        var idUser = userContext.GetClaim<Guid>(Abstractions.ClaimTypes.ObjectIdentifier);
+        var idUser = userContext.GetClaim<Guid>("userId");
 
         // Assert
         Assert.Equal(idUserExpected, idUser);
@@ -397,7 +397,54 @@ public class UserContextTest
 
 
     [Fact]
-    public void IdUser_WithObjectIdentifierClaim_ReturnsGuid()
+    public void Oid_WithObjectIdentifierClaim_ReturnsGuid()
+    {
+        // Arrange
+        var oidExpected = Guid.NewGuid();
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+            new(Abstractions.ClaimTypes.ObjectIdentifier, oidExpected.ToString())
+            ]))
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var oid = userContext.Oid;
+
+        // Assert
+        Assert.Equal(oidExpected.ToString(), oid);
+    }
+
+    [Fact]
+    public void Oid_NotExist_ReturnsNull()
+    {
+        // Arrange
+        var oidExpected = Guid.NewGuid();
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity(
+            [
+            new(Abstractions.ClaimTypes.Subject, oidExpected.ToString())
+            ]))
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var oid = userContext.Oid;
+
+        // Assert
+        Assert.Null(oid);
+    }
+
+
+    [Fact]
+    public void IdUser_WithValue_ReturnsGuid()
     {
         // Arrange
         var idUserExpected = Guid.NewGuid();
@@ -405,7 +452,7 @@ public class UserContextTest
         {
             User = new ClaimsPrincipal(new ClaimsIdentity(
             [
-            new(Abstractions.ClaimTypes.ObjectIdentifier, idUserExpected.ToString())
+            new("userId", idUserExpected.ToString())
             ]))
         };
         var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
@@ -418,46 +465,6 @@ public class UserContextTest
         // Assert
         Assert.Equal(idUserExpected, idUser);
     }
-
-    [Fact]
-    public void IdUser_WithSubjectClaim_ReturnsGuid()
-    {
-        // Arrange
-        var idUserExpected = Guid.NewGuid();
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity(
-            [
-            new(Abstractions.ClaimTypes.Subject, idUserExpected.ToString())
-            ]))
-        };
-        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
-        var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
-
-        // Act
-        var idUser = userContext.IdUser;
-
-        // Assert
-        Assert.Equal(idUserExpected, idUser);
-    }
-
-    [Fact]
-    public void IdUser_WithoutOidOrSubClaim_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        var httpContext = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity())
-        };
-        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
-        var options = OptionsUtil.SecurityOptions;
-        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
-
-        // Act & Assert
-        Assert.Throws<InvalidOperationException>(() => { var _ = userContext.IdUser; });
-    }
-
 
     [Fact]
     public void Roles_WithGroupsClaim_ReturnsRolesArray()

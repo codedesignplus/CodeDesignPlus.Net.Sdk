@@ -20,7 +20,8 @@ public class CustomProfileService : IProfileService
             new ("state", "Bogotá D.C"),
             new ("jobTitle", "Arquitecto"),
             new ("emails", "codedesignplus@outlook.com"),
-            new ("oid", "802b1e5c-6e40-4e01-8095-c735b4c9959e")
+            new ("oid", "f3f67c89-2a7d-400f-8052-1fd6f39fd206"),
+            new ("userId", "802b1e5c-6e40-4e01-8095-c735b4c9959e")
         };
 
         context.IssuedClaims.AddRange(claims);
