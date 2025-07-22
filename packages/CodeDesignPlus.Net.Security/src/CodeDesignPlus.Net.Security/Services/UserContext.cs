@@ -50,23 +50,14 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     public bool IsApplication => options.Value.Applications.Contains(this.GetClaim<string>(ClaimTypes.Audience));
 
     /// <summary>
-    /// Gets the user ID.
+    /// Gets the user ID used internally in the application.
     /// </summary>
-    public Guid IdUser
-    {
-        get
-        {
-            var claimValue = this.User.FindFirst(ClaimTypes.ObjectIdentifier)?.Value;
+    public Guid IdUser => this.GetClaim<Guid>(ClaimTypes.UserId);
 
-            if (string.IsNullOrEmpty(claimValue))
-                claimValue = this.User.FindFirst(ClaimTypes.Subject)?.Value;
-
-            if (string.IsNullOrEmpty(claimValue))
-                throw new InvalidOperationException("The claim 'oid' or 'sub' is required.");
-
-            return ConvertTo<Guid>(claimValue);
-        }
-    }
+    /// <summary>
+    /// Gets the object identifier (OID) of the user of Identity Provider.
+    /// </summary>
+    public string Oid => this.GetClaim<string>(ClaimTypes.ObjectIdentifier);
 
     /// <summary>
     /// Gets a value indicating whether the current user is authenticated.
