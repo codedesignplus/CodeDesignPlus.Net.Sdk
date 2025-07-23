@@ -1,21 +1,24 @@
-MIT License
+# GNU LESSER GENERAL PUBLIC LICENSE
+**Version 3, 29 June 2007**
 
-Copyright (c) 2023 CodeDesignPlus
+Copyright (C) 2022–2030 Wilzon Liscano, CodeDesignPlus  
+All rights reserved by Wilzon Liscano and CodeDesignPlus.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+## License
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; not even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE. 
+You should have received a copy of the GNU Lesser General Public License along with this program. If not, you can find it at [https://www.gnu.org/licenses/](https://www.gnu.org/licenses/).
+
+---
+
+## Contact and Contributions
+**Questions, contributions, and issue reporting:**  
+For any questions, contributions, or to report issues, please contact Wilzon Liscano and CodeDesignPlus at:  
+📧 **support@codedesignplus.com**
+
+---
+
+## Pull Requests
+If you wish to contribute to this project, we invite you to submit a Pull Request with your improvements or corrections. All contributions will be reviewed and, if accepted, integrated into the main repository. Please ensure you follow best practices and document your changes.
