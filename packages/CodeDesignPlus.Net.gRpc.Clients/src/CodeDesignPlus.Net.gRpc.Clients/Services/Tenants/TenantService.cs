@@ -26,6 +26,38 @@ public class TenantService(Tenant.Tenant.TenantClient client, IUserContext userC
             { "X-Tenant", userContext.Tenant.ToString() }
         }, cancellationToken: cancellationToken);
     }
+    
+    /// <summary>
+    /// Updates an existing tenant.
+    /// </summary>
+    /// <param name="request">The request containing tenant information.</param>
+    /// <param name="cancellationToken"> Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception
+    public async Task UpdateTenantAsync(UpdateTenantRequest request, CancellationToken cancellationToken)
+    {
+        await client.UpdateTenantAsync(request, new Grpc.Core.Metadata
+        {
+            { "Authorization", $"Bearer {userContext.AccessToken}" },
+            { "X-Tenant", userContext.Tenant.ToString() }
+        }, cancellationToken: cancellationToken);
+    }
+
+    /// <summary>
+    /// Deletes an existing tenant.
+    /// </summary>
+    /// <param name="request">The request containing tenant information.</param>
+    /// <param name="cancellationToken"> Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception
+    public async Task DeleteTenantAsync(DeleteTenantRequest request, CancellationToken cancellationToken)
+    {
+        await client.DeleteTenantAsync(request, new Grpc.Core.Metadata
+        {
+            { "Authorization", $"Bearer {userContext.AccessToken}" },
+            { "X-Tenant", userContext.Tenant.ToString() }
+        }, cancellationToken: cancellationToken);
+    }
 
     /// <summary>
     /// Updates an existing tenant.
@@ -35,7 +67,7 @@ public class TenantService(Tenant.Tenant.TenantClient client, IUserContext userC
     /// <returns>Returns a task representing the asynchronous operation with the tenant information.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
     public async Task<GetTenantResponse> GetTenantByIdAsync(GetTenantRequest request, CancellationToken cancellationToken)
-    {        
+    {
         var response = await client.GetTenantAsync(request, new Grpc.Core.Metadata
         {
             { "Authorization", $"Bearer {userContext.AccessToken}" },
