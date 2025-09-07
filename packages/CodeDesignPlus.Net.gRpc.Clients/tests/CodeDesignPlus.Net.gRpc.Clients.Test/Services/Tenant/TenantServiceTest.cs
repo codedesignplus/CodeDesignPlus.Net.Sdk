@@ -181,7 +181,7 @@ public class TenantServiceTest
             Id = Guid.NewGuid().ToString(),
         };
 
-        // Act
+        // Act 
         await tenantService.DeleteTenantAsync(request, CancellationToken.None);
 
         // Assert
