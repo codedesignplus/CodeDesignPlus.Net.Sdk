@@ -66,14 +66,14 @@ public class CountryTest
     {
         // Arrange
         var country = new Country();
-        var currency = new Currency { Code = "USD", Symbol = "$" };
+        var currency = new Currency { Code = 170, Symbol = "$" };
 
         // Act
         country.Currency = currency;
 
         // Assert
         Assert.IsType<Currency>(country.Currency);
-        Assert.Equal("USD", country.Currency.Code);
+        Assert.Equal(170, country.Currency.Code);
         Assert.Equal("$", country.Currency.Symbol);
     }
 }
