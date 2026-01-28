@@ -23,7 +23,7 @@ public class File
     /// <summary>
     /// Gets or sets the file detail.
     /// </summary>
-    public FileDetail Detail { get; set; }
+    public FileDetail Detail { get; set; } 
 
     /// <summary>
     /// Gets or sets the size of the file.

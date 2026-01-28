@@ -5,4 +5,6 @@ namespace CodeDesignPlus.Net.Exceptions.Sample.Errors;
 public static class ErrorDomain
 {
     public const string UserIsRequired = "101: User is required";
+
+    public const string UserNotFound = "102: User not found";
 }
