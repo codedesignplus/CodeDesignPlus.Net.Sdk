@@ -133,7 +133,7 @@ jobs:
 
       - name: SemVer 
         id: git-semver
-        uses: codedesignplus/semver-git-version@v0.1.10
+        uses: codedesignplus/semver-git-version@v0.1.11-rc.12
         with:
           folder: ${{github.workspace}}
           release-branch: 'main'
