@@ -13,5 +13,5 @@ public interface IPaymentGrpc
     /// <param name="request">The request containing payment information.</param>
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
-    Task InitiatePaymentAsync(InitiatePaymentRequest request, CancellationToken cancellationToken);
+    Task<InitiatePaymentResponse> InitiatePaymentAsync(InitiatePaymentRequest request, CancellationToken cancellationToken);
 }

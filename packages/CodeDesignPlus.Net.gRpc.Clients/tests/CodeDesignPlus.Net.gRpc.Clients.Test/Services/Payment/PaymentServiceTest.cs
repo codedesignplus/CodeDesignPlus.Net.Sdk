@@ -19,7 +19,13 @@ public class PaymentServiceTest
         userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
         userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
 
-        var mockCall = GrpcUtil.CreateAsyncUnaryCall(new Google.Protobuf.WellKnownTypes.Empty());
+        var mockCall = GrpcUtil.CreateAsyncUnaryCall(new InitiatePaymentResponse
+        {
+            PaymentId = Guid.NewGuid().ToString(),
+            Success = true,
+            NextAction = NextActionType.Redirect,
+            RedirectUrl = "https://payment-redirect-url.com"
+        });
 
         var mockClient = new Mock<gRpc.Clients.Services.Payment.Payment.PaymentClient>();
         mockClient
@@ -75,9 +81,14 @@ public class PaymentServiceTest
         };
 
         // Act
-        await paymentService.InitiatePaymentAsync(request, CancellationToken.None);
+        var response = await paymentService.InitiatePaymentAsync(request, CancellationToken.None);
 
         // Assert
         mockClient.Verify(c => c.InitiatePaymentAsync(It.IsAny<InitiatePaymentRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Once);
+
+        Assert.NotNull(response);
+        Assert.True(response.Success);
+        Assert.Equal(NextActionType.Redirect, response.NextAction);
+        Assert.Equal("https://payment-redirect-url.com", response.RedirectUrl);
     }
 }
