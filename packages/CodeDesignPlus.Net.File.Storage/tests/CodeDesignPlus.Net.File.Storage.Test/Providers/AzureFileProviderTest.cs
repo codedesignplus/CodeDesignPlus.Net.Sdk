@@ -262,7 +262,7 @@ public class AzureFileProviderTest
 
         this.stream.Position = 0;
         Assert.True(result.Success);
-        Assert.Equal(stream.Length, result.Stream.Length);
+        Assert.Equal(stream.Length, result.Stream!.Length);
         Assert.Equal(0, result.Stream.Position);
         Assert.Equal(stream, result.Stream);
     }
@@ -297,6 +297,88 @@ public class AzureFileProviderTest
         // Assert
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
         factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
+        shareFileClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
+
+        Assert.False(result.Success);
+        Assert.Equal($"The file {filename} does not exist in the container {tenant}", result.Message);
+    }
+
+    [Fact]
+    public async Task GetSignedUrlAsync_FileExists_ReturnsSuccess()
+    {
+        // Arrange
+        var sasUri = new Uri("https://fakeaccount.file.core.windows.net/share/docs/general/FakeDocument.txt?sastoken");
+        shareClientMock
+            .Setup(x => x.GetDirectoryClient(It.IsAny<string>()))
+            .Callback<string>(t => Assert.Equal(target, t))
+            .Returns(shareDirectoryClientMock.Object)
+            .Verifiable();
+
+        shareDirectoryClientMock
+            .Setup(x => x.GetFileClient(It.IsAny<string>()))
+            .Callback<string>(t => Assert.Equal(filename, t))
+            .Returns(shareFileClientMock.Object)
+            .Verifiable();
+
+        shareFileClientMock
+            .Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Azure.Response.FromValue(true, Mock.Of<Azure.Response>()))
+            .Verifiable();
+
+        shareFileClientMock
+            .Setup(x => x.GenerateSasUri(It.IsAny<Azure.Storage.Sas.ShareFileSasPermissions>(), It.IsAny<DateTimeOffset>()))
+            .Returns(sasUri)
+            .Verifiable();
+
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var timeSpan = TimeSpan.FromMinutes(30);
+
+        // Act
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+
+        // Assert
+        shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
+        shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
+        shareFileClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        shareFileClientMock.Verify(x => x.GenerateSasUri(It.IsAny<Azure.Storage.Sas.ShareFileSasPermissions>(), It.IsAny<DateTimeOffset>()), Times.Once);
+
+        Assert.True(result.Success);
+        Assert.NotNull(result.File.Detail);
+        Assert.Equal(sasUri, result.File.Detail.SignedUrl);
+        Assert.Equal(target, result.File.Detail.Target);
+        Assert.Equal(filename, result.File.Detail.File);
+    }
+
+    [Fact]
+    public async Task GetSignedUrlAsync_FileDoesNotExist_ReturnsFailure()
+    {
+        // Arrange
+        shareClientMock
+            .Setup(x => x.GetDirectoryClient(It.IsAny<string>()))
+            .Callback<string>(t => Assert.Equal(target, t))
+            .Returns(shareDirectoryClientMock.Object)
+            .Verifiable();
+
+        shareDirectoryClientMock
+            .Setup(x => x.GetFileClient(It.IsAny<string>()))
+            .Callback<string>(t => Assert.Equal(filename, t))
+            .Returns(shareFileClientMock.Object)
+            .Verifiable();
+
+        shareFileClientMock
+            .Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
+            .Verifiable();
+
+        var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var timeSpan = TimeSpan.FromMinutes(30);
+
+        // Act
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+
+        // Assert
+        shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
         shareFileClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
 

@@ -13,8 +13,9 @@
 /// <param name="version">The version of the event.</param>
 /// <param name="event">The name of the event.</param>
 /// <param name="appName">The name of the application that generates the event or the name of the application to listen to the event.</param>
+/// <param name="business">The business context associated with the event.</param>
 [AttributeUsage(AttributeTargets.All)]
-public class EventKeyAttribute(string entity, ushort version, string @event, string? appName = null) : Attribute
+public class EventKeyAttribute(string entity, ushort version, string @event, string? appName = null, string? business = null) : Attribute
 {
     /// <summary>
     /// Gets the version of the event.
@@ -35,6 +36,11 @@ public class EventKeyAttribute(string entity, ushort version, string @event, str
     /// Gets the name of the application that generates the event or the name of the application to listen to the event.
     /// </summary>
     public string? AppName { get; } = appName;
+
+    /// <summary>
+    /// Gets the business context associated with the event.
+    /// </summary>
+    public string? Business { get; } = business;
 }
 
 /// <summary>
@@ -44,6 +50,7 @@ public class EventKeyAttribute(string entity, ushort version, string @event, str
 /// <param name="version">The version of the event.</param>
 /// <param name="event">The name of the event.</param>
 /// <param name="appName">The name of the application that generates the event or the name of the application to listen to the event.</param>
+/// <param name="business">The business context associated with the event.</param>
 [AttributeUsage(AttributeTargets.Class)]
-public class EventKeyAttribute<TAggregate>(ushort version, string @event, string? appName = null)
-    : EventKeyAttribute(typeof(TAggregate).Name, version, @event, appName) where TAggregate : IEntityBase;
+public class EventKeyAttribute<TAggregate>(ushort version, string @event, string? appName = null, string? business = null)
+    : EventKeyAttribute(typeof(TAggregate).Name, version, @event, appName, business) where TAggregate : IEntityBase;

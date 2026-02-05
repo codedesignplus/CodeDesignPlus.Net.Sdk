@@ -31,6 +31,16 @@ public class FileDetail
     public string UriViewInBrowser { get; }
 
     /// <summary>
+    /// Gets or sets the presigned URI for accessing the file.
+    /// </summary>
+    public Uri SignedUrl { get; set; }
+
+    /// <summary>
+    /// Gets or sets the expiration date and time of the presigned URI.
+    /// </summary>
+    public DateTime? SignedUrlExpiration { get; set; }
+
+    /// <summary>
     /// Gets the provider of the file.
     /// </summary>
     public string Provider { get; private set; }
@@ -59,5 +69,30 @@ public class FileDetail
 
         this.UriDownload = $"{uri}/{(int)provider}?file={file}{(!string.IsNullOrEmpty(target) ? $"&target={target}" : string.Empty)}";
         this.UriViewInBrowser = $"{uri}/{(int)provider}?viewInBrowser=true&file={file}{(!string.IsNullOrEmpty(target) ? $"&target={target}" : string.Empty)}";
+    }
+
+    
+    /// <summary>
+    /// Initializes a new instance of the <see cref="FileDetail"/> class.
+    /// </summary>
+    /// <param name="uri">The URI of the file.</param>
+    /// <param name="target">The target directory of the file.</param>
+    /// <param name="file">The name of the file.</param>
+    /// <param name="provider">The type of provider.</param>
+    /// <exception cref="ArgumentException">Thrown when the provider is not valid.</exception>
+    /// <exception cref="ArgumentNullException">Thrown when the URI or file name is null.</exception>
+    public FileDetail(Uri signedUrl, DateTime signedUrlExpiration, string target, string file, TypeProviders provider)
+    {
+        if (provider == TypeProviders.None)
+            throw new ArgumentException("The type provider is not valid", nameof(provider));
+
+        if (string.IsNullOrEmpty(file))
+            throw new ArgumentNullException(nameof(file));
+
+        this.SignedUrl = signedUrl ?? throw new ArgumentNullException(nameof(signedUrl));
+        this.SignedUrlExpiration = signedUrlExpiration;
+        this.Provider = provider.ToString();
+        this.Target = target;
+        this.File = file;
     }
 }

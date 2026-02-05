@@ -2,29 +2,26 @@ syntax = "proto3";
 
 
 import "google/protobuf/wrappers.proto";
-import "google/protobuf/empty.proto";
 
 option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Payment";
 
 package Payment;
 
-
-
 service Payment {
   rpc InitiatePayment (InitiatePaymentRequest) returns (InitiatePaymentResponse);
-  rpc UpdateStatus (UpdateStatusRequest) returns (UpdateStatusResponse);
 }
 
 message InitiatePaymentRequest {
   string id = 1;
   string module = 2;
-  Amount subTotal = 3;
-  Amount tax = 4;
-  Amount total = 5;
-  string description = 6;
-  Payer payer = 7;
-  PaymentMethod paymentMethod = 8;
-  PaymentProvider provider = 9;
+  string referenceId = 3;
+  Amount subTotal = 4;
+  Amount tax = 5;
+  Amount total = 6;
+  string description = 7;
+  Payer payer = 8;
+  PaymentMethod paymentMethod = 9;
+  PaymentProvider provider = 10;
 }
 
 enum PaymentProvider {
@@ -76,40 +73,25 @@ message Amount {
   google.protobuf.StringValue currency = 2;
 }
 
-message UpdateStatusRequest {
-  string id = 1;
-}
-
-message InitiatePaymentResponse {
-  bool success = 1;
-  PaymentStatus status = 2;
-  string transactionId = 3;
-  google.protobuf.StringValue message = 4;
-  google.protobuf.StringValue redirectUrl = 5;
-  FinancialNetwork financialNetwork = 6;
-}
-
-message UpdateStatusResponse {
-  bool success = 1;
-  PaymentStatus status = 2;
-  string TransactionId = 3;
-  google.protobuf.StringValue message = 4;
-  google.protobuf.StringValue redirectUrl = 5;
-  FinancialNetwork financialNetwork = 6;
-}
-
 enum PaymentStatus {
   Unknown = 0;
   Initiated = 1;
   Succeeded = 2;
   Failed = 3;
-  Pending = 4;
+  Expired = 4;
+  Pending = 5;
 }
 
-message FinancialNetwork {
-  google.protobuf.StringValue paymentNetworkResponseCode = 1;
-  google.protobuf.StringValue PaymentNetworkResponseErrorMessage = 2;
-  google.protobuf.StringValue trazabilityCode = 3;
-  google.protobuf.StringValue authorizationCode = 4;
-  google.protobuf.StringValue responseCode = 5;
+enum NextActionType {
+  Redirect = 0;
+  DisplayWidget = 1;
+  WaitConfirmation = 2;
+}
+
+message InitiatePaymentResponse {
+  bool success = 1;
+  string payment_id = 2;
+  NextActionType next_action = 3;
+  google.protobuf.StringValue redirect_url = 4; 
+  map<string, google.protobuf.StringValue> metadata = 5; 
 }

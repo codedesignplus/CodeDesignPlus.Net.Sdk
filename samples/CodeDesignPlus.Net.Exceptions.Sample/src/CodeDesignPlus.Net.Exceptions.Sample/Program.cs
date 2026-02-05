@@ -2,6 +2,7 @@
 using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.Exceptions.Guards;
 using CodeDesignPlus.Net.Exceptions.Sample.Errors;
+using CodeDesignPlus.Net.Exceptions.Sample.Models;
 
 string? user = null;
 
@@ -40,3 +41,10 @@ catch (CodeDesignPlusException ex)
     Console.WriteLine(ex.Code);
     Console.WriteLine(ex.Layer);
 }
+
+// Check the nullability of an object
+UserModel? userModel = null;
+
+DomainGuard.IsNull(userModel, ErrorDomain.UserNotFound);
+
+Console.WriteLine($"User found: {userModel.Name}");

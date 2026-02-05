@@ -10,42 +10,42 @@ public static class InfrastructureGuard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="error">The error message to include in the exception if the value is null.</param>
-    public static void IsNull([NotNull] object value, string error) => Guard.IsNull(value, Layer.Infrastructure, error);
+    public static void IsNull([NotNull] object? value, string error) => Guard.IsNull(value, Layer.Infrastructure, error);
 
     /// <summary>
     /// Throws an exception if the specified value is not null.
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="error">The error message to include in the exception if the value is not null.</param>
-    public static void IsNotNull(object value, string error) => Guard.IsNotNull(value, Layer.Infrastructure, error);
+    public static void IsNotNull(object? value, string error) => Guard.IsNotNull(value, Layer.Infrastructure, error);
 
     /// <summary>
     /// Throws an exception if the specified string is null or empty.
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="error">The error message to include in the exception if the string is null or empty.</param>
-    public static void IsNullOrEmpty(string value, string error) => Guard.IsNullOrEmpty(value, Layer.Infrastructure, error);
+    public static void IsNullOrEmpty(string? value, string error) => Guard.IsNullOrEmpty(value, Layer.Infrastructure, error);
 
     /// <summary>
     /// Throws an exception if the specified string is not null or empty.
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="error">The error message to include in the exception if the string is not null or empty.</param>
-    public static void IsNotNullOrEmpty(string value, string error) => Guard.IsNotNullOrEmpty(value, Layer.Infrastructure, error);
+    public static void IsNotNullOrEmpty(string? value, string error) => Guard.IsNotNullOrEmpty(value, Layer.Infrastructure, error);
 
     /// <summary>
     /// Throws an exception if the specified string is null or whitespace.
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="error">The error message to include in the exception if the string is null or whitespace.</param>
-    public static void IsNullOrWhiteSpace(string value, string error) => Guard.IsNullOrWhiteSpace(value, Layer.Infrastructure, error);
+    public static void IsNullOrWhiteSpace(string? value, string error) => Guard.IsNullOrWhiteSpace(value, Layer.Infrastructure, error);
 
     /// <summary>
     /// Throws an exception if the specified string is not null or whitespace.
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="error">The error message to include in the exception if the string is not null or whitespace.</param>
-    public static void IsNotNullOrWhiteSpace(string value, string error) => Guard.IsNotNullOrWhiteSpace(value, Layer.Infrastructure, error);
+    public static void IsNotNullOrWhiteSpace(string? value, string error) => Guard.IsNotNullOrWhiteSpace(value, Layer.Infrastructure, error);
 
     /// <summary>
     /// Throws an exception if the specified value is true.

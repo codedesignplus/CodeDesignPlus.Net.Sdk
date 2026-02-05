@@ -39,7 +39,7 @@ public class CurrencyTest
     {
         // Arrange
         var currency = new Currency();
-        var expected = "USD";
+        ushort expected = 170;
 
         // Act
         currency.Code = expected;

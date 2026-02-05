@@ -10,6 +10,8 @@ package Tenant;
 
 service Tenant {
   rpc CreateTenant (CreateTenantRequest) returns (google.protobuf.Empty);
+  rpc UpdateTenant (UpdateTenantRequest) returns (google.protobuf.Empty);
+  rpc DeleteTenant (DeleteTenantRequest) returns (google.protobuf.Empty);
   rpc GetTenant (GetTenantRequest) returns (GetTenantResponse);
 }
 
@@ -24,6 +26,23 @@ message CreateTenantRequest {
   Location location = 8;
   License license = 9;
   bool isActive = 10;
+}
+
+message UpdateTenantRequest {
+  string id = 1;
+  string name = 2;
+  TypeDocument typeDocument = 3;
+  string numbreDocument = 4;
+  google.protobuf.StringValue domain = 5;
+  string phone = 6;
+  string email = 7;
+  Location location = 8;
+  License license = 9;
+  bool isActive = 10;
+}
+
+message DeleteTenantRequest {
+  string id = 1;
 }
 
 message TypeDocument {

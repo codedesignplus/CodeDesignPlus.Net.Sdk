@@ -14,9 +14,9 @@ public class Currency
     /// </summary>
     public string Name { get; set; }
     /// <summary>
-    /// Gets or sets the code of the currency.
+    /// Gets or sets the code of the currency. (ISO 3166-1 numeric)
     /// </summary>
-    public string Code { get; set; }
+    public ushort Code { get; set; }
     /// <summary>
     /// Gets or sets the symbol of the currency.
     /// </summary>
