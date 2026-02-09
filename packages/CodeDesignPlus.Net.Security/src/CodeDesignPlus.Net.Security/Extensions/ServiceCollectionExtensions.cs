@@ -136,7 +136,18 @@ public static class ServiceCollectionExtensions
 
                     x.Events = new JwtBearerEvents
                     {
-                        OnAuthenticationFailed = AuthenticationFailed
+                        OnAuthenticationFailed = AuthenticationFailed,
+                        OnMessageReceived = context =>
+                        {
+                            var accessToken = context.Request.Query["access_token"];
+
+                            var path = context.HttpContext.Request.Path;
+                            
+                            if (!string.IsNullOrEmpty(accessToken) && (path.Value.Contains("/hubs/") || path.Value.Contains("/hub/")))
+                                context.Token = accessToken;
+                            
+                            return Task.CompletedTask;
+                        }
                     };
                 }
             );
