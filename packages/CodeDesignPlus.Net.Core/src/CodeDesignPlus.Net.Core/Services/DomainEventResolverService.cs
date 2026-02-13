@@ -91,6 +91,6 @@ public class DomainEventResolverService : IDomainEventResolver
 
         CoreException.ThrowIfNull(attribute, type.Name);
 
-        return $"{coreOptions.Business}.{attribute.AppName ?? coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
+        return $"{attribute.Business ?? coreOptions.Business}.{attribute.AppName ?? coreOptions.AppName}.{attribute.Version}.{attribute.Entity}.{attribute.Event}".ToLower();
     }
 }

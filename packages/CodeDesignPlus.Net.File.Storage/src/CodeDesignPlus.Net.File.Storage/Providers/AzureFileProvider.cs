@@ -117,6 +117,40 @@ public class AzureFileProvider(
     }
 
     /// <summary>
+    /// Gets a signed URL for downloading a file.
+    /// </summary>
+    /// <param name="file">The name of the file to download.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="timeSpan">The time span for which the signed URL is valid.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task<M.Response> GetSignedUrlAsync(string filename, string target, TimeSpan timeSpan, CancellationToken cancellationToken)
+    {
+        return base.ProcessAsync(factory.Options.AzureFile.Enable, filename, TypeProviders.AzureFileProvider, async (file, response) =>
+         {
+             var directory = this.factory.GetContainerClient().GetDirectoryClient(target);
+
+             var fileClient = directory.GetFileClient(filename);
+
+             if (!await fileClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
+             {
+                 response.Success = false;
+                 response.Message = $"The file {filename} does not exist in the container {this.factory.UserContext.Tenant}";
+
+                 return response;
+             }
+
+             var sasUri = fileClient.GenerateSasUri(Azure.Storage.Sas.ShareFileSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(timeSpan.TotalMinutes));
+
+             file.Detail = new Abstractions.Models.FileDetail(sasUri, DateTime.UtcNow.AddMinutes(timeSpan.Minutes), target, filename, TypeProviders.AzureBlobProvider);
+
+             response.Success = true;
+
+             return response;
+         });
+    }
+
+    /// <summary>
     /// Deletes a file from Azure File Storage.
     /// </summary>
     /// <param name="filename">The name of the file to delete.</param>

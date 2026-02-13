@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Users;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Tenants;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Notifications;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -62,6 +63,16 @@ public static class ServiceCollectionExtensions
             });
 
             services.AddScoped<ITenantGrpc, TenantService>();
+        }
+
+        if (!string.IsNullOrEmpty(options!.Notification))
+        {
+            services.AddGrpcClient<Services.Notification.Notifier.NotifierClient>(o =>
+            {
+                o.Address = new Uri(options.Notification);
+            });
+            
+            services.AddSingleton<INotificationGrpc, NotificationService>();
         }
 
         return services;

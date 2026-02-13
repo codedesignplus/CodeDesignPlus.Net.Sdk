@@ -52,6 +52,27 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
     }
 
     /// <summary>
+    /// Gets a signed URL for downloading a file.
+    /// </summary>
+    /// <param name="file">The name of the file to download.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="timeSpan">The time span for which the signed URL is valid.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public async Task<M.Response> GetSignedUrlAsync(string file, string target, TimeSpan timeSpan, CancellationToken cancellationToken = default)
+    {
+        foreach (var provider in providers)
+        {
+            var response = await provider.GetSignedUrlAsync(file, target, timeSpan, cancellationToken).ConfigureAwait(false);
+
+            if (response != null && response.Success)
+                return response;
+        }
+
+        return null;
+    }
+
+    /// <summary>
     /// Uploads a file to all providers.
     /// </summary>
     /// <param name="stream">The file stream.</param>
@@ -71,7 +92,7 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
             memory.Position = 0;
             stream.Position = 0;
 
-            var task =  provider.UploadAsync(memory, file, target, renowned, cancellationToken);
+            var task = provider.UploadAsync(memory, file, target, renowned, cancellationToken);
 
             tasks.Add(task);
         }
