@@ -41,4 +41,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\CodeDesignPlus.Net.gRpc.Clients.Abstractions\CodeDesignPlus.Net.gRpc.Clients.Abstractions.csproj" />
 	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="Services\Notifications\" />
+	</ItemGroup>
 </Project>
