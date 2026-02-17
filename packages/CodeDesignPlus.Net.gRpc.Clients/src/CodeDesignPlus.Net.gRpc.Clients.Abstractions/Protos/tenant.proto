@@ -13,6 +13,7 @@ service Tenant {
   rpc UpdateTenant (UpdateTenantRequest) returns (google.protobuf.Empty);
   rpc DeleteTenant (DeleteTenantRequest) returns (google.protobuf.Empty);
   rpc GetTenant (GetTenantRequest) returns (GetTenantResponse);
+  rpc ExistTenant (ExistTenantRequest) returns (google.protobuf.BoolValue);
 }
 
 message CreateTenantRequest {
@@ -42,6 +43,10 @@ message UpdateTenantRequest {
 }
 
 message DeleteTenantRequest {
+  string id = 1;
+}
+
+message ExistTenantRequest {
   string id = 1;
 }
 

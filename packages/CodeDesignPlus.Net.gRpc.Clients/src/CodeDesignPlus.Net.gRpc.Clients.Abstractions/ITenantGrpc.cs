@@ -35,4 +35,11 @@ public interface ITenantGrpc
     /// <param name="cancellationToken"> Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation with the tenant information.</returns>
     Task<GetTenantResponse> GetTenantByIdAsync(GetTenantRequest request, CancellationToken cancellationToken);
+    /// <summary>
+    /// Checks if a tenant exists.
+    /// </summary>
+    /// <param name="id">The ID of the tenant.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation with a boolean indicating if the tenant exists.</returns>
+    Task<bool> ExistTenantAsync(Guid id, CancellationToken cancellationToken);
 }
