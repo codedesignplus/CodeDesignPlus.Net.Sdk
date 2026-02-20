@@ -5,9 +5,9 @@ using CodeDesignPlus.Net.Serializers;
 namespace CodeDesignPlus.Net.RabbitMQ.Consumer.Sample;
 
 [QueueName("userentity", "register-user")]
-public class UserCreatedEventHandler(ILogger<UserCreatedEventHandler> logger) : IEventHandler<UserCreatedEvent>
+public class UserCreatedEventHandler(ILogger<UserCreatedEventHandler> logger) : IEventHandler<UserCreatedDomainEvent>
 {
-    public Task HandleAsync(UserCreatedEvent data, CancellationToken token)
+    public Task HandleAsync(UserCreatedDomainEvent data, CancellationToken token)
     {
         logger.LogInformation("Invoked Event: {Json}", JsonSerializer.Serialize(data));
 

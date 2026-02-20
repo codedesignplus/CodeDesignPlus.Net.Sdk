@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
 using Microsoft.Extensions.Hosting;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Services;
@@ -24,7 +25,10 @@ public class DeclareExchangeBackgroundService<TAssembly>(IChannelProvider channe
 
         foreach (var domainEvent in domainEvents)
         {
-            await channelProvider.ExchangeDeclareAsync(domainEvent, stoppingToken);
+            var attribute = domainEvent.GetCustomAttribute<EventKeyAttribute>();
+
+            if (attribute.AutoCreate)
+                await channelProvider.ExchangeDeclareAsync(domainEvent, stoppingToken);
         }
     }
 }

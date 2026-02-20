@@ -1,9 +1,10 @@
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Producer.Sample;
 
-[EventKey<UserEntity>(1, "created")]
+[EventKey<UserEntity>(1, "created", autoCreate: false)]
 public class UserCreatedDomainEvent(
     Guid aggregateId,
     string name,

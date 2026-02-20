@@ -4,27 +4,17 @@ using CodeDesignPlus.Net.PubSub.Abstractions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using CodeDesignPlus.Net.RabbitMQ.Producer.Sample;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
-var configuration = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-    .Build();
+var builder = Host.CreateApplicationBuilder(args);
 
-var serviceCollection = new ServiceCollection();
+builder.Logging.AddConsole();
 
-serviceCollection.AddLogging();
-serviceCollection.AddRabbitMQ<Program>(configuration);
+builder.Services.AddRabbitMQ<Program>(builder.Configuration);
 
-var serviceProvider = serviceCollection.BuildServiceProvider();
+builder.Services.AddHostedService<ProcessPublish>();
 
-var pubSub = serviceProvider.GetRequiredService<IPubSub>();
+var host = builder.Build();
 
-do
-{
-    var userCreatedDomainEvent = new UserCreatedDomainEvent(Guid.NewGuid(), "John Doe", "john.doe@codedesignplus.com");
-
-    await pubSub.PublishAsync(userCreatedDomainEvent, CancellationToken.None);
-
-    Console.WriteLine("Message published successfully");
-
-    await Task.Delay(1000);
-} while ( true);
+host.Run();

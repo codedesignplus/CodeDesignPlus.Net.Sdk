@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Exceptions;
+﻿using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using CodeDesignPlus.Net.Exceptions;
 using RabbitMQ.Client.Exceptions;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Services;
@@ -82,7 +83,7 @@ public class RabbitPubSubService : IRabbitPubSub
     {
         var channel = await this.channelProvider.GetChannelPublishAsync(@event.GetType(), cancellationToken);
 
-        var exchangeName = await this.channelProvider.ExchangeDeclareAsync(@event.GetType(), cancellationToken);
+        var exchangeName = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
         var message = JsonSerializer.Serialize(@event);
 
@@ -122,7 +123,9 @@ public class RabbitPubSubService : IRabbitPubSub
     public async Task SubscribeAsync<TEvent, TEventHandler>(CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
-    {
+    {        
+        await this.channelProvider.ExchangeDeclareAsync(typeof(TEvent), cancellationToken);
+
         var channel = await this.channelProvider.GetChannelConsumerAsync<TEvent, TEventHandler>(cancellationToken);
 
         var queueNameAttribute = typeof(TEventHandler).GetCustomAttribute<QueueNameAttribute>();

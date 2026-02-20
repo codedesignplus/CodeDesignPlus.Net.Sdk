@@ -14,8 +14,9 @@
 /// <param name="event">The name of the event.</param>
 /// <param name="appName">The name of the application that generates the event or the name of the application to listen to the event.</param>
 /// <param name="business">The business context associated with the event.</param>
+/// <param name="autoCreate"><c>true</c> if the infrastructure should be provisioned on startup; otherwise <c>false</c></param>
 [AttributeUsage(AttributeTargets.All)]
-public class EventKeyAttribute(string entity, ushort version, string @event, string? appName = null, string? business = null) : Attribute
+public class EventKeyAttribute(string entity, ushort version, string @event, string? appName = null, string? business = null, bool autoCreate = true) : Attribute
 {
     /// <summary>
     /// Gets the version of the event.
@@ -41,6 +42,14 @@ public class EventKeyAttribute(string entity, ushort version, string @event, str
     /// Gets the business context associated with the event.
     /// </summary>
     public string? Business { get; } = business;
+
+    /// <summary>
+    /// Gets a value indicating whether the messaging infrastructure (e.g., RabbitMQ Exchange or Kafka Topic) should be automatically created if it does not exist
+    /// </summary>
+    /// <value>
+    /// <c>true</c> if the infrastructure should be provisioned on startup; otherwise <c>false</c>
+    /// </value>
+    public bool AutoCreate  { get; } = autoCreate;
 }
 
 /// <summary>
@@ -51,6 +60,7 @@ public class EventKeyAttribute(string entity, ushort version, string @event, str
 /// <param name="event">The name of the event.</param>
 /// <param name="appName">The name of the application that generates the event or the name of the application to listen to the event.</param>
 /// <param name="business">The business context associated with the event.</param>
+/// <param name="autoCreate"><c>true</c> if the infrastructure should be provisioned on startup; otherwise <c>false</c></param>
 [AttributeUsage(AttributeTargets.Class)]
-public class EventKeyAttribute<TAggregate>(ushort version, string @event, string? appName = null, string? business = null)
-    : EventKeyAttribute(typeof(TAggregate).Name, version, @event, appName, business) where TAggregate : IEntityBase;
+public class EventKeyAttribute<TAggregate>(ushort version, string @event, string? appName = null, string? business = null, bool autoCreate = true)
+    : EventKeyAttribute(typeof(TAggregate).Name, version, @event, appName, business, autoCreate) where TAggregate : IEntityBase;

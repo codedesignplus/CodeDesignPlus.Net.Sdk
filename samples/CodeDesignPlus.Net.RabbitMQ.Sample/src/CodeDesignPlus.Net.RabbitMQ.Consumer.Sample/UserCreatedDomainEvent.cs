@@ -1,10 +1,11 @@
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Consumer.Sample;
 
 [EventKey<UserEntity>(1, "created", "sample-rabbitmq-producer")]
-public class UserCreatedEvent(
+public class UserCreatedDomainEvent(
     Guid aggregateId,
     string name,
     string email,
@@ -18,8 +19,8 @@ public class UserCreatedEvent(
     public string Email { get; } = email;
     public string? Password { get; set; } = password;
 
-    public static UserCreatedEvent Create(Guid aggregateId, string name, string email, string? password = null)
+    public static UserCreatedDomainEvent Create(Guid aggregateId, string name, string email, string? password = null)
     {
-        return new UserCreatedEvent(aggregateId, name, email, password);
+        return new UserCreatedDomainEvent(aggregateId, name, email, password);
     }
 }
