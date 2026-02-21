@@ -57,7 +57,6 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<IChannelProvider, ChannelProvider>();
 
         if (options.DeclareExchangesInitially)
-            services.AddHostedService<DeclareExchangeBackgroundService<TAssembly>>();
 
         if (options.RegisterHealthCheck)
         {

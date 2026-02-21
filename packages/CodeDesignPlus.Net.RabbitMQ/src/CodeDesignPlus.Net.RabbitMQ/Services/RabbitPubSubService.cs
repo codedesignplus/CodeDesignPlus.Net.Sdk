@@ -83,7 +83,7 @@ public class RabbitPubSubService : IRabbitPubSub
     {
         var channel = await this.channelProvider.GetChannelPublishAsync(@event.GetType(), cancellationToken);
 
-        var exchangeName = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
+        var exchangeName = await this.channelProvider.ExchangeDeclareAsync(@event.GetType(), cancellationToken);
 
         var message = JsonSerializer.Serialize(@event);
 

@@ -4,7 +4,7 @@ using NodaTime;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Producer.Sample;
 
-[EventKey<UserEntity>(1, "created", autoCreate: false)]
+[EventKey<UserEntity>(1, "created")]
 public class UserCreatedDomainEvent(
     Guid aggregateId,
     string name,
