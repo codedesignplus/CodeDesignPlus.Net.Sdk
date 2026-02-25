@@ -21,21 +21,11 @@ public class PaymentServiceTest
 
         var mockCall = GrpcUtil.CreateAsyncUnaryCall(new InitiatePaymentResponse
         {
-            Message = "Payment initiated successfully",
-            TransactionId = Guid.NewGuid().ToString(),
-            RedirectUrl = "https://example.com/redirect",
-            Status = PaymentStatus.Pending,
+            PaymentId = Guid.NewGuid().ToString(),
             Success = true,
-            FinancialNetwork = new FinancialNetwork
-            {
-                PaymentNetworkResponseCode = "00",
-                PaymentNetworkResponseErrorMessage = "Success",
-                TrazabilityCode = "TRAZ1234567890",
-                AuthorizationCode = "AUTH123456",
-                ResponseCode = "00",
-            }
+            NextAction = NextActionType.Redirect,
+            RedirectUrl = "https://payment-redirect-url.com"
         });
-
 
         var mockClient = new Mock<gRpc.Clients.Services.Payment.Payment.PaymentClient>();
         mockClient
@@ -94,38 +84,11 @@ public class PaymentServiceTest
         var response = await paymentService.InitiatePaymentAsync(request, CancellationToken.None);
 
         // Assert
-        Assert.NotNull(response);
         mockClient.Verify(c => c.InitiatePaymentAsync(It.IsAny<InitiatePaymentRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Once);
-    }
 
-
-    [Fact]
-    public async Task UpdateStatusAsync_ShouldReturnResponse_WhenCalledWithValidId()
-    {
-        // Arrange
-        var userContextMock = new Mock<IUserContext>();
-        userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
-        userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
-
-        var mockCall = GrpcUtil.CreateAsyncUnaryCall(new UpdateStatusResponse
-        {
-            Message = "Payment status updated successfully",
-            Success = true,
-        });
-
-        var mockClient = new Mock<gRpc.Clients.Services.Payment.Payment.PaymentClient>();
-        mockClient
-            .Setup(m => m.UpdateStatusAsync(It.IsAny<UpdateStatusRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None))
-            .Returns(mockCall);
-
-        var paymentService = new PaymentService(mockClient.Object, userContextMock.Object);
-        var paymentId = Guid.NewGuid();
-
-        // Act
-        var response = await paymentService.UpdateStatusAsync(paymentId, CancellationToken.None);
-
-        // Assert
         Assert.NotNull(response);
-        mockClient.Verify(c => c.UpdateStatusAsync(It.IsAny<UpdateStatusRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()), Times.Once);
+        Assert.True(response.Success);
+        Assert.Equal(NextActionType.Redirect, response.NextAction);
+        Assert.Equal("https://payment-redirect-url.com", response.RedirectUrl);
     }
 }

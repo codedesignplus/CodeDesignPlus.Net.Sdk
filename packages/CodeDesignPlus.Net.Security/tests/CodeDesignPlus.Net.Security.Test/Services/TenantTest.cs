@@ -334,7 +334,7 @@ public class TenantTest
     public void Currency_ReturnsCountryCurrency()
     {
         // Arrange
-        var currency = new M.Currency { Code = "USD" };
+        var currency = new M.Currency { Code = 170 };
         var country = new M.Country { Currency = currency };
         var tenant = new M.Tenant
         {

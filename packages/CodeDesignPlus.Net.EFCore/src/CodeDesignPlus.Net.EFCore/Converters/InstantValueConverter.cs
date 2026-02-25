@@ -11,9 +11,8 @@ public class InstantValueConverter : ValueConverter<Instant, DateTime>
     /// <summary>
     /// Initializes a new instance of <see cref="InstantValueConverter"/>.
     /// </summary>
-    public InstantValueConverter() : base(
-        instant => instant.ToDateTimeUtc(),
-        dateTime => Instant.FromDateTimeUtc(dateTime))
+    public InstantValueConverter() 
+        : base(instant => instant.ToDateTimeUtc(), dateTime => Instant.FromDateTimeUtc(dateTime))
     {
 
     }

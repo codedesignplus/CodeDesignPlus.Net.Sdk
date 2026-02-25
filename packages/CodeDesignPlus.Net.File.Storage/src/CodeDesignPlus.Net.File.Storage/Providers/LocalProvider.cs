@@ -83,6 +83,19 @@ public class LocalProvider(
     }
 
     /// <summary>
+    /// Gets a signed URL for downloading a file.
+    /// </summary>
+    /// <param name="file">The name of the file to download.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="timeSpan">The time span for which the signed URL is valid.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task<M.Response> GetSignedUrlAsync(string filename, string target, TimeSpan timeSpan, CancellationToken cancellationToken)
+    {
+        throw new NotSupportedException("Signed URLs are not supported for local file storage.");
+    }
+
+    /// <summary>
     /// Deletes a file from local storage.
     /// </summary>
     /// <param name="filename">The name of the file to delete.</param>

@@ -11,17 +11,17 @@ public class ApacheMime
     /// <summary>
     /// Gets or sets the file extension associated with the MIME type.
     /// </summary>
-    public string Extension { get; set; }
+    public string Extension { get; set; } = string.Empty;
 
     /// <summary>
     /// Gets or sets the name of the MIME type.
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; }= string.Empty;
 
     /// <summary>
     /// Gets or sets the MIME type.
     /// </summary>
-    public string MimeType { get; set; }
+    public string MimeType { get; set; }= string.Empty;
 
     /// <summary>
     /// Gets a read-only collection of Apache MIME types.
@@ -37,7 +37,7 @@ public class ApacheMime
             var resourceName = "CodeDesignPlus.Net.File.Storage.Abstractions.mime-types.json";
 
             using var stream = assembly.GetManifestResourceStream(resourceName);
-            using var reader = new StreamReader(stream);
+            using var reader = new StreamReader(stream!);
 
             var result = reader.ReadToEnd();
 

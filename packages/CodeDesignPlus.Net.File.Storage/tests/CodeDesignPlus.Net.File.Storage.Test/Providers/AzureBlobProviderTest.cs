@@ -206,7 +206,7 @@ public class AzureBlobProviderTest
 
         this.stream.Position = 0;
         Assert.True(result.Success);
-        Assert.Equal(stream.Length, result.Stream.Length);
+        Assert.Equal(stream.Length, result.Stream!.Length);
         Assert.Equal(0, result.Stream.Position);
         Assert.True(Helpers.Extensions.CompareStreams(stream, result.Stream));
     }
@@ -239,6 +239,63 @@ public class AzureBlobProviderTest
         Assert.False(result.Success);
         Assert.Equal($"The file {filename} does not exist in the container {tenant}", result.Message);
     }
+
+
+    [Fact]
+    public async Task GetSignedUrlAsync_FileExists_ReturnsSignedUrl()
+    {
+        // Arrange
+        var expectedSasUri = new Uri("https://fake.blob.core.windows.net/container/docs/general/FakeDocument.txt?sasToken");
+        blobClientMock
+            .Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Azure.Response.FromValue(true, Mock.Of<Azure.Response>()))
+            .Verifiable();
+
+        blobClientMock
+            .Setup(x => x.GenerateSasUri(It.IsAny<Azure.Storage.Sas.BlobSasPermissions>(), It.IsAny<DateTimeOffset>()))
+            .Returns(expectedSasUri)
+            .Verifiable();
+
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var timeSpan = TimeSpan.FromMinutes(15);
+
+        // Act
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+
+        // Assert
+        blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
+        blobClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        blobClientMock.Verify(x => x.GenerateSasUri(It.IsAny<Azure.Storage.Sas.BlobSasPermissions>(), It.IsAny<DateTimeOffset>()), Times.Once);
+
+        Assert.True(result.Success);
+        Assert.Equal(expectedSasUri, result.File.Detail.SignedUrl);
+        Assert.True(result.File.Detail.SignedUrlExpiration > DateTime.UtcNow);
+    }
+
+    [Fact]
+    public async Task GetSignedUrlAsync_FileDoesNotExist_ReturnsFailure()
+    {
+        // Arrange
+        blobClientMock
+            .Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
+            .Verifiable();
+
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+        var timeSpan = TimeSpan.FromMinutes(15);
+
+        // Act
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+
+        // Assert
+        blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
+        blobClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
+        blobClientMock.Verify(x => x.GenerateSasUri(It.IsAny<Azure.Storage.Sas.BlobSasPermissions>(), It.IsAny<DateTimeOffset>()), Times.Never);
+
+        Assert.False(result.Success);
+        Assert.Equal($"The file {file} does not exist in the container {tenant}", result.Message);
+    }
+
 
     [Fact]
     public async Task DeleteAsync_FileExist_Success()

@@ -1,5 +1,6 @@
 using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Producer.Sample;
 

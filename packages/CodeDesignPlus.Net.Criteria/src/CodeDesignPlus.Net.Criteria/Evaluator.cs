@@ -137,6 +137,13 @@ internal static class Evaluator
                 return Expression.Constant(guidValue, targetType);
             }
 
+            if (targetType == typeof(Guid?))
+            {
+                var guidValue = string.IsNullOrWhiteSpace(value) ? (Guid?)null : Guid.Parse(value);
+
+                return Expression.Constant(guidValue, targetType);
+            }
+
             var convertedValue = Convert.ChangeType(value, targetType);
             
             return Expression.Constant(convertedValue, targetType);

@@ -43,6 +43,9 @@
   </ItemGroup>
 
   <ItemGroup>  
+    <Protobuf Include="Protos\notifications.proto" GrpcServices="Client">
+      <Link>Protos\notifications.proto</Link>
+    </Protobuf>
     <Protobuf Include="Protos\payment.proto" GrpcServices="Client">
       <Link>Protos\payment.proto</Link>
     </Protobuf>

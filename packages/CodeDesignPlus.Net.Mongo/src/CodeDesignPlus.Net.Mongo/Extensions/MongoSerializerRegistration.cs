@@ -16,6 +16,8 @@ public static class MongoSerializerRegistration
         RegisterGuidSerializer();
         RegisterInstantSerializer();
         RegisterNullableInstantSerializer();
+        RegisterDurationSerializer();
+        RegisterNullableDurationSerializer();
     }
 
     /// <summary>
@@ -56,6 +58,30 @@ public static class MongoSerializerRegistration
         try
         {
             BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+        }
+        catch
+        {
+            // the unit test will fail if the serializer is already registered
+        }
+    }
+
+    private static void RegisterNullableDurationSerializer()
+    {
+        try
+        {
+            BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
+        }
+        catch
+        {
+            // the unit test will fail if the serializer is already registered
+        }
+    }
+
+    private static void RegisterDurationSerializer()
+    {
+        try
+        {
+            BsonSerializer.TryRegisterSerializer(new InstantSerializer());
         }
         catch
         {
