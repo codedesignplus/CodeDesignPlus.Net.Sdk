@@ -209,7 +209,7 @@ Distributed under the MIT License. See [LICENSE](LICENSE.md) for more informatio
 <!-- CONTACT -->
 ## Contact
 
-CodeDesignPlus - [@CodeDesignPlus](https://www.facebook.com/Codedesignplus-115087913695067) - codedesignplus@outlook.com
+CodeDesignPlus - [@CodeDesignPlus](https://www.facebook.com/Codedesignplus-115087913695067) - wliscano@codedesignplus.com
 
 Project Link: [CodeDesignPlus.Net.gRpc.Clients](https://github.com/codedesignplus/CodeDesignPlus.Net.gRpc.Clients)
 

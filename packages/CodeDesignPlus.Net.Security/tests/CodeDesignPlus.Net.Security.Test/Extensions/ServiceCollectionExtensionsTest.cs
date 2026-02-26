@@ -135,7 +135,7 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal("Bogotá D.C", info!.User.State);
         Assert.Equal("Arquitecto", info!.User.JobTitle);
         Assert.Equal("802b1e5c-6e40-4e01-8095-c735b4c9959e", info.User.IdUser);
-        Assert.Contains("codedesignplus@outlook.com", info!.User.Emails);
+        Assert.Contains("wliscano@codedesignplus.com", info!.User.Emails);
     }
 
     [Fact]
@@ -180,7 +180,7 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal("Bogotá D.C", info!.User.State);
         Assert.Equal("Arquitecto", info!.User.JobTitle);
         Assert.Equal("802b1e5c-6e40-4e01-8095-c735b4c9959e", info.User.IdUser);
-        Assert.Contains("codedesignplus@outlook.com", info!.User.Emails);
+        Assert.Contains("wliscano@codedesignplus.com", info!.User.Emails);
     }
 
     [Theory]

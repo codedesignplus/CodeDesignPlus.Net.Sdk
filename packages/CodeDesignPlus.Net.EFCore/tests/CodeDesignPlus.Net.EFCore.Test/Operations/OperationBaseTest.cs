@@ -24,7 +24,7 @@ public class OperationBaseTest
         var userContext = new UserContext()
         {
             Name = "codedesignplus",
-            Email = "codedesignplus@outlook.com",
+            Email = "wliscano@codedesignplus.com",
             IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
@@ -72,7 +72,7 @@ public class OperationBaseTest
         var userContext = new UserContext()
         {
             Name = "codedesignplus",
-            Email = "codedesignplus@outlook.com",
+            Email = "wliscano@codedesignplus.com",
             IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
@@ -122,7 +122,7 @@ public class OperationBaseTest
         var userContext = new UserContext()
         {
             Name = "codedesignplus",
-            Email = "codedesignplus@outlook.com",
+            Email = "wliscano@codedesignplus.com",
             IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
@@ -172,7 +172,7 @@ public class OperationBaseTest
         var userContext = new UserContext()
         {
             Name = "codedesignplus",
-            Email = "codedesignplus@outlook.com",
+            Email = "wliscano@codedesignplus.com",
             IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,
@@ -204,7 +204,7 @@ public class OperationBaseTest
         var userContext = new UserContext()
         {
             Name = "codedesignplus",
-            Email = "codedesignplus@outlook.com",
+            Email = "wliscano@codedesignplus.com",
             IdUser = Guid.NewGuid(),
             IsAuthenticated = true,
             IsApplication = false,

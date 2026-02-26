@@ -16,7 +16,7 @@ public static class OptionsUtil
         Contact = new()
         {
             Name = "CodeDesignPlus",
-            Email = "CodeDesignPlus@outlook.com"
+            Email = "wliscano@codedesignplus.com"
         }
     };
 

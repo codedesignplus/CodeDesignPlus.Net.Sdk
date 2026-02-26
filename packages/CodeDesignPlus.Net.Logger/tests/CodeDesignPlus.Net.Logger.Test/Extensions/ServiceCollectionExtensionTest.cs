@@ -202,7 +202,7 @@ public class ServiceCollectionExtensionTest
     //     Assert.NotEqual(0, responseLog.Attributes!.ThreadId);
     //     Assert.NotNull(responseLog.Attributes!.ThreadName);
     //     Assert.Equal("CodeDesignPlus", responseLog.Resources!.ServiceBusiness);
-    //     Assert.Equal("codedesignplus@outlook.com", responseLog.Resources!.ServiceContactEmail);
+    //     Assert.Equal("wliscano@codedesignplus.com", responseLog.Resources!.ServiceContactEmail);
     //     Assert.Equal("CodeDesignPlus", responseLog.Resources!.ServiceContactName);
     //     Assert.Equal("unit test for CodeDesignPlus.Net.Logger", responseLog.Resources!.ServiceDescription);
     //     Assert.Equal("ms-test", responseLog.Resources!.ServiceName);

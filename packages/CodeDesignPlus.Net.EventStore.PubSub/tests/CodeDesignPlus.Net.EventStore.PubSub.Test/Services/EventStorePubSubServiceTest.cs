@@ -303,7 +303,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
                 Contact = new Contact
                 {
                     Name = "CodeDesignPlus",
-                    Email = "codedesignplus@outlook.com"
+                    Email = "wliscano@codedesignplus.com"
                 }
             },
             EventStore = new EventStoreOptions()

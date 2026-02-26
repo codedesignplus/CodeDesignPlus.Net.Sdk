@@ -14,7 +14,7 @@ public static class ConfigurationUtil
         Contact = new()
         {
             Name = "CodeDesignPlus",
-            Email = "codedesignplus@outlook.com"
+            Email = "wliscano@codedesignplus.com"
         }
     };
 

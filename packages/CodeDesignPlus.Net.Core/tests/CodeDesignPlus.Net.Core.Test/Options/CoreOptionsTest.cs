@@ -17,7 +17,7 @@ public class CoreOptionsTest
             Contact = new Contact()
             {
                 Name = Guid.NewGuid().ToString(),
-                Email = "codedesignplus@outlook.com"
+                Email = "wliscano@codedesignplus.com"
             }
         };
 
@@ -68,7 +68,7 @@ public class CoreOptionsTest
             Contact = new Contact()
             {
                 Name = Guid.NewGuid().ToString(),
-                Email = "codedesignplus@outlook.com"
+                Email = "wliscano@codedesignplus.com"
             }
         };
 
@@ -119,7 +119,7 @@ public class CoreOptionsTest
             Contact = new Contact()
             {
                 Name = Guid.NewGuid().ToString(),
-                Email = "codedesignplus@outlook.com"
+                Email = "wliscano@codedesignplus.com"
             }
         };
 

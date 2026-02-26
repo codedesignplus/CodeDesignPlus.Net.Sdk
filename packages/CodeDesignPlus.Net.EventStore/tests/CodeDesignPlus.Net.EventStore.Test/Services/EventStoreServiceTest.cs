@@ -711,7 +711,7 @@ public class EventStoreServiceTest(EventStoreCollectionFixture fixture)
                 Contact = new Contact
                 {
                     Name = "CodeDesignPlus",
-                    Email = "codedesignplus@outlook.com"
+                    Email = "wliscano@codedesignplus.com"
                 }
             },
             EventSourcing = new

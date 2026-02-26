@@ -53,6 +53,6 @@ Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issue
 Distributed under the MIT License. See LICENSE for more information.
 
 ## Contact
-CodeDesignPlus - @CodeDesignPlus - codedesignplus@outlook.com
+CodeDesignPlus - @CodeDesignPlus - wliscano@codedesignplus.com
 
 Project Link: [CodeDesignPlus.Net.Mongo](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/tree/main/packages/CodeDesignPlus.Net.Mongo)

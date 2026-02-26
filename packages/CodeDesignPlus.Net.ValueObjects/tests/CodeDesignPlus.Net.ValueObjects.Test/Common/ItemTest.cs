@@ -1,4 +1,6 @@
-namespace CodeDesignPlus.Net.Core.Test.Abstractions;
+using CodeDesignPlus.Net.ValueObjects.Common;
+
+namespace CodeDesignPlus.Net.ValueObjects.Test.Common;
 
 public class ItemTest
 {

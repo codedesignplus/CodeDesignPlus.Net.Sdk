@@ -19,7 +19,7 @@ public class CustomProfileService : IProfileService
             new ("streetAddress", "Calle Siempre Viva"),
             new ("state", "Bogotá D.C"),
             new ("jobTitle", "Arquitecto"),
-            new ("emails", "codedesignplus@outlook.com"),
+            new ("emails", "wliscano@codedesignplus.com"),
             new ("oid", "f3f67c89-2a7d-400f-8052-1fd6f39fd206"),
             new ("userId", "802b1e5c-6e40-4e01-8095-c735b4c9959e")
         };

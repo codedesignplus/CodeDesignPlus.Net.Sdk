@@ -183,7 +183,7 @@ public class KafkaPubSubTest
                 Description = "Microservice Test",
                 Contact = new Contact
                 {
-                    Email = "codedesignplus@outlook.com",
+                    Email = "wliscano@codedesignplus.com",
                     Name = "CodeDesignPlus",
                 }
             },

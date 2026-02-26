@@ -1,0 +1,52 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+   	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <ProjectGuid>{C00DB7AD-AA56-4C36-8B4C-B4803D682FE1}</ProjectGuid>
+    <PublishAot>false</PublishAot>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+	<Authors>CodeDesignPlus</Authors>
+	<Description>A Domain-Driven Design (DDD) Shared Kernel providing enterprise-grade, immutable Value Objects (such as Money, Currency, and Location) to ensure domain consistency across all microservices.</Description>
+	<Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
+    <PackageId>CodeDesignPlus.Net.ValueObjects</PackageId>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
+    <PackageProjectUrl>https://www.codedesignplus.com</PackageProjectUrl>
+	<PackageTags>ddd;domain-driven-design;shared-kernel;value-objects;microservices;money;currency;location;architecture;enterprise</PackageTags>    
+	<Version>$(Version)</Version>
+	<PackageIcon>icon/logo.png</PackageIcon>
+    <PackageReadmeFile>docs/README.md</PackageReadmeFile>
+    <PackageLicenseFile>docs/LICENSE.md</PackageLicenseFile>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+  </PropertyGroup>
+	<ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" PackagePath="docs" />
+    <None Include="..\..\logo.png" Pack="true" PackagePath="icon" />
+    <None Include="..\..\README.md" Pack="true" PackagePath="docs" />
+  </ItemGroup>
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+	<DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.ValueObjects.xml</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
+    <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Common/" />
+    <Folder Include="Location/" />
+    <Folder Include="Payment/" />
+    <Folder Include="User/" />
+  </ItemGroup>
+</Project>

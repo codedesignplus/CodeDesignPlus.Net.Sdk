@@ -88,6 +88,6 @@ Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issue
 Distributed under the MIT License. See `LICENSE` for more information.
 
 ## Contact
-CodeDesignPlus - [@CodeDesignPlus](https://twitter.com/CodeDesignPlus) - codedesignplus@outlook.com
+CodeDesignPlus - [@CodeDesignPlus](https://twitter.com/CodeDesignPlus) - wliscano@codedesignplus.com
 
 Project Link: [CodeDesignPlus.Net.Sdk](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk)

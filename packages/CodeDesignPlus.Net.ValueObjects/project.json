@@ -1,0 +1,67 @@
+{
+  "name": "CodeDesignPlus.Net.ValueObjects",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "sourceRoot": "packages/CodeDesignPlus.Net.ValueObjects",
+  "targets": {
+    "restore": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet restore {projectRoot}/CodeDesignPlus.Net.ValueObjects.sln"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet format {projectRoot}/CodeDesignPlus.Net.ValueObjects.sln"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.ValueObjects.sln"
+      },
+      "configurations": {
+        "production": {
+          "command": "dotnet build {projectRoot}/CodeDesignPlus.Net.ValueObjects.sln --configuration Release"
+        }
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.ValueObjects.sln"
+      },
+      "configurations": {
+        "coverage": {
+          "command": "dotnet test {projectRoot}/CodeDesignPlus.Net.ValueObjects.sln --configuration Release /p:CollectCoverage=true /p:CoverletOutputFormat=opencover"
+        }
+      }
+    },
+    "sonarqube": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "node tools/scripts/run-sonarqube.js --org=codedesignplus --project=CodeDesignPlus.Net.ValueObjects --projectRoot={projectRoot}"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet pack {projectRoot}/CodeDesignPlus.Net.ValueObjects.sln --configuration Release /p:IncludeSymbols=true /p:SymbolPackageFormat=snupkg /p:Version={args.version} --output dist/CodeDesignPlus.Net.ValueObjects"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "outputs": [],
+      "options": {
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.ValueObjects/*.nupkg --source {args.source} --api-key {args.token}"
+      }
+    }
+  }
+}

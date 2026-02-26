@@ -16,7 +16,7 @@ public class OptionsUtil
         Contact = new Contact()
         {
             Name = nameof(Contact.Name),
-            Email = "codedesignplus@outlook.com"
+            Email = "wliscano@codedesignplus.com"
         },
     };
 

@@ -1,4 +1,6 @@
-namespace CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Exceptions.Guards;
+
+namespace CodeDesignPlus.Net.ValueObjects.Financial;
 
 /// <summary>
 /// Represents a monetary amount with its currency.
@@ -28,7 +30,7 @@ public sealed class Money : IEquatable<Money>
     {
         var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
         
-        ArgumentNullException.ThrowIfNull(currency, nameof(currency));
+        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, "000 : Currency code cannot be null or empty.");
 
         Amount = amount;
         Currency = normalizedCurrency;
@@ -54,9 +56,8 @@ public sealed class Money : IEquatable<Money>
     /// <param name="decimalPlaces">The number of decimal places for the currency.</param>
     /// <returns>A new Money instance.</returns>
     public static Money FromLong(long amountInMinorUnit, string currency, short decimalPlaces)
-    {
-        if(decimalPlaces < 0)
-            throw new ArgumentOutOfRangeException(nameof(decimalPlaces), "Decimal places cannot be negative.");
+    {        
+        Guard.IsLessThan(decimalPlaces, 0, Exceptions.Layer.None, "001 : Decimal places cannot be negative.");
         
         var factor = (decimal)Math.Pow(10, decimalPlaces);
         var amount = amountInMinorUnit / factor;
@@ -90,8 +91,7 @@ public sealed class Money : IEquatable<Money>
     /// <returns>A 'long' integer.</returns>
     public long ToLong(short decimalPlaces)
     {
-        if(decimalPlaces < 0)
-            throw new ArgumentOutOfRangeException(nameof(decimalPlaces), "Decimal places cannot be negative.");
+        Guard.IsLessThan(decimalPlaces, 0, Exceptions.Layer.None, "001 : Decimal places cannot be negative.");
 
         var factor = (decimal)Math.Pow(10, decimalPlaces);
         var roundedAmount = Math.Round(Amount * factor, MidpointRounding.AwayFromZero);
@@ -116,8 +116,7 @@ public sealed class Money : IEquatable<Money>
     /// <returns>A new Money instance representing the difference.</returns>
     public static Money operator -(Money a, Money b)
     {
-        if (a.Currency != b.Currency)
-            throw new InvalidOperationException("Cannot subtract amounts with different currencies.");
+        Guard.IsTrue(a.Currency != b.Currency, Exceptions.Layer.None, "002 : Cannot subtract amounts with different currencies.");
 
         return new Money(a.Amount - b.Amount, a.Currency);
     }
@@ -129,8 +128,7 @@ public sealed class Money : IEquatable<Money>
     /// <param name="b">The second Money instance.</param>
     public static Money operator +(Money a, Money b)
     {
-        if (a.Currency != b.Currency)
-            throw new InvalidOperationException("Cannot add amounts with different currencies.");
+        Guard.IsTrue(a.Currency != b.Currency, Exceptions.Layer.None, "002 : Cannot add amounts with different currencies.");
 
         return new Money(a.Amount + b.Amount, a.Currency);
     }
@@ -231,8 +229,7 @@ public sealed class Money : IEquatable<Money>
     /// <returns>The Money instance with the smaller amount.</returns>
     public static Money Min(Money a, Money b)
     {
-        if (a.Currency != b.Currency)
-            throw new InvalidOperationException("Cannot compare amounts with different currencies.");
+        Guard.IsTrue(a.Currency != b.Currency, Exceptions.Layer.None, "003 : Cannot compare amounts with different currencies.");
         
         return a.Amount < b.Amount ? a : b;
     }
@@ -245,8 +242,7 @@ public sealed class Money : IEquatable<Money>
     /// <returns>The Money instance with the larger amount.</returns>
     public static Money Max(Money a, Money b)
     {
-        if (a.Currency != b.Currency)
-            throw new InvalidOperationException("Cannot compare amounts with different currencies.");
+        Guard.IsTrue(a.Currency != b.Currency, Exceptions.Layer.None, "004 : Cannot compare amounts with different currencies.");
         
         return a.Amount > b.Amount ? a : b;
     }

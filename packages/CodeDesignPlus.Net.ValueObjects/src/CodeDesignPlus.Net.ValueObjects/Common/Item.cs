@@ -1,4 +1,4 @@
-namespace CodeDesignPlus.Net.Core.Abstractions;
+namespace CodeDesignPlus.Net.ValueObjects.Common;
 
 /// <summary>
 /// Represents an item with a unique identifier and a value.
