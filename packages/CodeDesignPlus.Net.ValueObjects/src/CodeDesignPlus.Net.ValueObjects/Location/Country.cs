@@ -1,6 +1,5 @@
 using System;
 
-using System.Text.Json.Serialization;
 using CodeDesignPlus.Net.Exceptions.Guards;
 using CodeDesignPlus.Net.ValueObjects.Financial;
 

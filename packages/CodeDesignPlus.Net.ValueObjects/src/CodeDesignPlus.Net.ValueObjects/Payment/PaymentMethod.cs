@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using CodeDesignPlus.Net.Exceptions.Guards;
 
 namespace CodeDesignPlus.Net.ValueObjects.Payment;
@@ -28,7 +27,6 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
         var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
         Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "006 : Code of the payment method cannot be null or empty");
 
-        // Validación XOR: Debe existir uno, y solo uno.
         bool bothAreNull = pse == null && creditCard == null;
         Guard.IsTrue(bothAreNull, Exceptions.Layer.None, "007 : Payment method details cannot be null");
 

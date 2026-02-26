@@ -3,6 +3,8 @@
    	<GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ProjectGuid>{C00DB7AD-AA56-4C36-8B4C-B4803D682FE1}</ProjectGuid>
     <PublishAot>false</PublishAot>
+     <Nullable>enable</Nullable>
+
     <TargetFramework>net9.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
 	<Authors>CodeDesignPlus</Authors>
@@ -42,6 +44,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core.Abstractions\CodeDesignPlus.Net.Core.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common/" />

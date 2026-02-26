@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using CodeDesignPlus.Net.Exceptions.Guards;
 
 namespace CodeDesignPlus.Net.ValueObjects.Location;
@@ -47,8 +46,11 @@ public sealed class Locality : IEquatable<Locality>
     /// <returns>True if the instances are equal; otherwise, false.</returns>
     public static bool operator ==(Locality? a, Locality? b)
     {
-        if (ReferenceEquals(a, b)) return true;
-        if (a is null || b is null) return false;
+        if (ReferenceEquals(a, b)) 
+            return true;
+
+        if (a is null || b is null) 
+            return false;
 
         return a.Equals(b);
     }
@@ -68,7 +70,8 @@ public sealed class Locality : IEquatable<Locality>
     /// <returns>True if the current instance is equal to the specified Locality instance; otherwise, false.</returns>
     public bool Equals(Locality? other)
     {
-        if (other is null) return false;
+        if (other is null) 
+            return false;
 
         return this.Id == other.Id &&
                this.Name == other.Name;

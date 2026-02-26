@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CodeDesignPlus.Net.Exceptions.Guards;
 
@@ -44,25 +43,25 @@ public sealed partial class Buyer : IEquatable<Buyer>
     [JsonConstructor]
     private Buyer(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document)
     {
-        Guard.GuidIsEmpty(buyerId, Exceptions.Layer.None, "BuyerId cannot be empty");
+        Guard.GuidIsEmpty(buyerId, Exceptions.Layer.None, "000 : BuyerId cannot be empty");
 
         var normalizedName = name?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "Name cannot be null or empty");
-        Guard.IsGreaterThan(normalizedName.Length, 124, Exceptions.Layer.None, "Name cannot be greater than 124 characters");
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "001 : Name cannot be null or empty");
+        Guard.IsGreaterThan(normalizedName.Length, 124, Exceptions.Layer.None, "002 : Name cannot be greater than 124 characters");
 
         var normalizedPhone = phone?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, "Phone cannot be null or empty");
-        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, "Phone contains invalid characters");
+        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, "003 : Phone cannot be null or empty");
+        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, "004 : Phone contains invalid characters");
 
         var normalizedEmail = email?.Trim().ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, "Email cannot be null or empty");
-        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, "Email contains invalid characters");
+        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, "005 : Email cannot be null or empty");
+        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, "006 : Email contains invalid characters");
 
-        Guard.IsNull(typeDocument, Exceptions.Layer.None, "TypeDocument cannot be null");
+        Guard.IsNull(typeDocument, Exceptions.Layer.None, "007 : TypeDocument cannot be null");
 
         var normalizedDocument = document?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, "Document cannot be null or empty");
-        Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, "Document cannot be greater than 20 characters");
+        Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, "008 : Document cannot be null or empty");
+        Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, "009 : Document cannot be greater than 20 characters");
 
         this.BuyerId = buyerId;
         this.Name = normalizedName;
@@ -95,8 +94,11 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <returns><c>true</c> if the instances are equal; otherwise, <c>false</c>.</returns>
     public static bool operator ==(Buyer? a, Buyer? b)
     {
-        if (ReferenceEquals(a, b)) return true;
-        if (a is null || b is null) return false;
+        if (ReferenceEquals(a, b)) 
+            return true;
+
+        if (a is null || b is null) 
+            return false;
 
         return a.Equals(b);
     }
@@ -116,7 +118,8 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <returns><c>true</c> if the specified <see cref="Buyer"/> is equal to the current <see cref="Buyer"/>; otherwise, <c>false</c>.</returns>
     public bool Equals(Buyer? other)
     {
-        if (other is null) return false;
+        if (other is null) 
+            return false;
 
         return this.BuyerId == other.BuyerId &&
                this.Name == other.Name &&

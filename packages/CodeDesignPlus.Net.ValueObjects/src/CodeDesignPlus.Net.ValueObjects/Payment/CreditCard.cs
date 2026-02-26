@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using CodeDesignPlus.Net.Exceptions.Guards;
 
@@ -82,8 +81,12 @@ public sealed partial class CreditCard : IEquatable<CreditCard>
     /// <returns>True if the instances are equal; otherwise, false.</returns>
     public static bool operator ==(CreditCard? a, CreditCard? b)
     {
-        if (ReferenceEquals(a, b)) return true;
-        if (a is null || b is null) return false;
+        if (ReferenceEquals(a, b)) 
+            return true;
+
+        if (a is null || b is null) 
+            return false;
+            
         return a.Equals(b);
     }
 

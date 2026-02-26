@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using CodeDesignPlus.Net.Exceptions.Guards;
 
 namespace CodeDesignPlus.Net.ValueObjects.User;

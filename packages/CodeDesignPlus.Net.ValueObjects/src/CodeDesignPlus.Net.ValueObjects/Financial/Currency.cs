@@ -1,4 +1,3 @@
-using System.Text.Json.Serialization;
 using CodeDesignPlus.Net.Exceptions.Guards;
 
 namespace CodeDesignPlus.Net.ValueObjects.Financial;
@@ -44,7 +43,7 @@ public sealed class Currency : IEquatable<Currency>
     [JsonConstructor]
     private Currency(Guid currencyId, string name, string code, string symbol, short decimalDigits, short numericCode)
     {
-        var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
+        var normalizedCode = code.Trim().ToUpperInvariant() ?? string.Empty;
 
         Guard.GuidIsEmpty(currencyId, Exceptions.Layer.None, "000 : CurrencyId is empty");
         Guard.IsNullOrEmpty(name, Exceptions.Layer.None, "001 : Name is required");

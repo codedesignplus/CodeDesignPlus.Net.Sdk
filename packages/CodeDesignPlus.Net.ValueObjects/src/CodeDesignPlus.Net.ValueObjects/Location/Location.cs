@@ -1,5 +1,3 @@
-using System;
-using System.Text.Json.Serialization;
 using CodeDesignPlus.Net.Exceptions.Guards;
 
 namespace CodeDesignPlus.Net.ValueObjects.Location;
@@ -93,8 +91,11 @@ public sealed class Location : IEquatable<Location>
     /// <returns>True if the instances are equal; otherwise, false.</returns>
     public static bool operator ==(Location? a, Location? b)
     {
-        if (ReferenceEquals(a, b)) return true;
-        if (a is null || b is null) return false;
+        if (ReferenceEquals(a, b)) 
+            return true;
+
+        if (a is null || b is null) 
+            return false;
 
         return a.Equals(b);
     }
