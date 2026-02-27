@@ -7,6 +7,7 @@ using CodeDesignPlus.Net.gRpc.Clients.Services.Tenants;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notifications;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Currencies;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Countries;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Memory;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -92,6 +93,9 @@ public static class ServiceCollectionExtensions
 
             services.AddSingleton<ICurrencyGrpc, CurrenciesService>();
             services.AddSingleton<ICountryGrpc, CountriesService>();
+            services.AddSingleton<IMemoryService<ValueObjects.Financial.Currency>, MemoryService<ValueObjects.Financial.Currency>>();
+            services.AddSingleton<IMemoryService<ValueObjects.Location.Country>, MemoryService<ValueObjects.Location.Country>>();
+
         }
 
         return services;
