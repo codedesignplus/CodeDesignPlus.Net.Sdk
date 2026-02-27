@@ -31,6 +31,29 @@ public class CurrenciesService(CurrencyService.CurrencyServiceClient client, IMe
     }
 
     /// <summary>
+    /// Retrieves currency information based on the provided parameters.
+    /// </summary>
+    /// <param name="id">The unique identifier of the currency.</param>
+    /// <param name="code">The unique code of the currency.</param>
+    /// <param name="numericCode">The numeric code of the currency.</param>
+    /// <param name="name">The name of the currency.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
+    public Task<GetCurrencyResponse> GetCurrencyAsync(Guid? id = null, string? code = null, int? numericCode = null, string? name = null, CancellationToken cancellationToken = default)
+    {
+        var request = new GetCurrencyRequest
+        {
+            Id = id?.ToString() ?? null,
+            Code = code ?? string.Empty,
+            NumericCode = numericCode ?? 0,
+            Name = name ?? string.Empty
+        };
+
+        return GetCurrencyAsync(request, cancellationToken);
+    }
+
+    /// <summary>
     /// Generates a unique key for caching currency data based on the request parameters.
     /// </summary>
     /// <param name="request">The request containing currency information.</param>

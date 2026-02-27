@@ -31,6 +31,30 @@ public class CountriesService(CountryService.CountryServiceClient client, IMemor
     }
 
     /// <summary>
+    /// Retrieves country information based on the provided parameters.
+    /// </summary>
+    /// <param name="id">The unique identifier of the country.</param>
+    /// <param name="code">The unique code of the country.</param>
+    /// <param name="name">The name of the country.</param>
+    /// <param name="alpha2">The alpha-2 code of the country.</param>
+    /// <param name="alpha3">The alpha-3 code of the country.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation.</returns>
+    public Task<GetCountryResponse> GetCountryAsync(Guid? id = null, string? code = null, string? name = null, string? alpha2 = null, string? alpha3 = null, CancellationToken cancellationToken = default)
+    {
+        var request = new GetCountryRequest
+        {
+            Id = id?.ToString() ?? null,
+            Code = code ?? string.Empty,
+            Name = name ?? string.Empty,
+            Alpha2 = alpha2 ?? string.Empty,
+            Alpha3 = alpha3 ?? string.Empty
+        };
+
+        return GetCountryAsync(request, cancellationToken);
+    }
+
+    /// <summary>
     /// Generates a unique key for caching country data based on the request parameters.
     /// </summary>
     /// <param name="request">The request containing country information.</param>
