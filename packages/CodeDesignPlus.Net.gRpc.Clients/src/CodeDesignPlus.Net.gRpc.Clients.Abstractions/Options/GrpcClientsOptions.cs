@@ -26,4 +26,8 @@ public class GrpcClientsOptions
     /// Gets or sets the URL for the Notification gRPC service.
     /// </summary>
     public string Notification { get; set; } = null!;
+    /// <summary>
+    /// Gets or sets the URL for the Location gRPC service.
+    /// </summary>
+    public string Location { get; set; } = null!;
 }

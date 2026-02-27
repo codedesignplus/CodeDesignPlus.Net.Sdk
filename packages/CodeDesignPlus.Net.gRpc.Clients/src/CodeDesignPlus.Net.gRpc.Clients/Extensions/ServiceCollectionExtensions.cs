@@ -5,6 +5,8 @@ using CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Users;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Tenants;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notifications;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Currencies;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Countries;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -43,6 +45,7 @@ public static class ServiceCollectionExtensions
             });
 
             services.AddScoped<IPaymentGrpc, PaymentService>();
+
         }
 
         if (!string.IsNullOrEmpty(options!.User))
@@ -71,8 +74,24 @@ public static class ServiceCollectionExtensions
             {
                 o.Address = new Uri(options.Notification);
             });
-            
+
             services.AddSingleton<INotificationGrpc, NotificationService>();
+        }
+
+        if (!string.IsNullOrEmpty(options!.Location))
+        {
+            services.AddGrpcClient<CurrencyService.CurrencyServiceClient>(o =>
+            {
+                o.Address = new Uri(options.Location);
+            });
+
+            services.AddGrpcClient<CountryService.CountryServiceClient>(o =>
+            {
+                o.Address = new Uri(options.Location);
+            });
+
+            services.AddSingleton<ICurrencyGrpc, CurrenciesService>();
+            services.AddSingleton<ICountryGrpc, CountriesService>();
         }
 
         return services;

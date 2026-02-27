@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+import "google/protobuf/wrappers.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Countries";
+
+package country;
+
+service CountryService {
+  rpc GetCountry (GetCountryRequest) returns (GetCountryResponse);
+}
+
+message GetCountryRequest {
+  google.protobuf.StringValue id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue alpha2 = 3;
+  google.protobuf.StringValue alpha3 = 4;
+  google.protobuf.StringValue code = 5;
+}
+
+message GetCountryResponse {
+  string id = 1;
+  string name = 2;
+  string alpha2 = 3;
+  string alpha3 = 4;
+  string code = 5;
+  optional string capital = 6;
+  Currency currency = 7;
+  string timezone = 8;
+  string name_native = 9;
+  string region = 10;
+  string subregion = 11;
+  double latitude = 12;
+  double longitude = 13;
+  optional string flag = 14;
+}
+
+// Estructura anidada para el país
+message Currency {
+  string id = 1;
+  string code = 2;
+  int32 numeric_code = 3;
+  int32 decimal_digits = 4;
+  string symbol = 5;
+  string name = 6;
+}
