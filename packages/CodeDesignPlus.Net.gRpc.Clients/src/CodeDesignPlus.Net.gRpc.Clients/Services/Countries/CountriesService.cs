@@ -1,4 +1,6 @@
+using CodeDesignPlus.Net.Exceptions.Guards;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Memory;
+using CodeDesignPlus.Net.ValueObjects.Location;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Services.Countries;
 
@@ -7,7 +9,7 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Services.Countries;
 /// </summary>
 /// <param name="client">The gRPC client for country operations.</param>
 /// <param name="memoryService">The memory service for caching country data.</param>
-public class CountriesService(CountryService.CountryServiceClient client, IMemoryService<GetCountryResponse> memoryService) : ICountryGrpc
+public class CountriesService(CountryService.CountryServiceClient client, IMemoryService<Country> memoryService) : ICountryGrpc
 {
     /// <summary>
     /// Retrieves country information.
@@ -16,7 +18,7 @@ public class CountriesService(CountryService.CountryServiceClient client, IMemor
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    public async Task<GetCountryResponse> GetCountryAsync(GetCountryRequest request, CancellationToken cancellationToken)
+    public async Task<Country> GetCountryAsync(GetCountryRequest request, CancellationToken cancellationToken)
     {
         var cachedResponse = memoryService.GetMemory(GetKey(request));
 
@@ -25,9 +27,18 @@ public class CountriesService(CountryService.CountryServiceClient client, IMemor
         
         var response = await client.GetCountryAsync(request, cancellationToken: cancellationToken);
 
-        memoryService.AddMemory(GetKey(request), response);
+        Guard.IsNull(response, Net.Exceptions.Layer.None, "000 : Country not found.");
+        Guard.IsFalse(Guid.TryParse(response.Id, out var countryId), Net.Exceptions.Layer.None, "001 : Invalid country ID.");        
+        Guard.IsFalse(ushort.TryParse(response.Code, out var countryCode), Net.Exceptions.Layer.None, "002 : Invalid country code.");
+        Guard.IsFalse(Guid.TryParse(response.Currency.Id, out var currencyId), Net.Exceptions.Layer.None, "003 : Invalid currency ID.");
 
-        return response;
+        var currency = ValueObjects.Financial.Currency.Create(currencyId, response.Currency.Name, response.Currency.Code, response.Currency.Symbol, (short)response.Currency.DecimalDigits, (short)response.Currency.NumericCode);
+
+        var country = Country.Create(countryId, response.Name, response.Alpha2, response.Alpha3, countryCode, response.Timezone, currency);
+
+        memoryService.AddMemory(GetKey(request), country);
+
+        return country;
     }
 
     /// <summary>
@@ -40,7 +51,7 @@ public class CountriesService(CountryService.CountryServiceClient client, IMemor
     /// <param name="alpha3">The alpha-3 code of the country.</param>
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
-    public Task<GetCountryResponse> GetCountryAsync(Guid? id = null, string? code = null, string? name = null, string? alpha2 = null, string? alpha3 = null, CancellationToken cancellationToken = default)
+    public Task<Country> GetCountryAsync(Guid? id = null, string? code = null, string? name = null, string? alpha2 = null, string? alpha3 = null, CancellationToken cancellationToken = default)
     {
         var request = new GetCountryRequest
         {

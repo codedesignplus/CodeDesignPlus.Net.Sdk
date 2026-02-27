@@ -40,6 +40,7 @@
 	</ItemGroup>
 	<ItemGroup>
 		<ProjectReference Include="..\CodeDesignPlus.Net.gRpc.Clients.Abstractions\CodeDesignPlus.Net.gRpc.Clients.Abstractions.csproj" />
+    	<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Services\Countries\" />

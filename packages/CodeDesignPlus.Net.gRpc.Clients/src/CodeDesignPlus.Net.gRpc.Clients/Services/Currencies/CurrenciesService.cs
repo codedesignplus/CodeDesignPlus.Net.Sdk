@@ -1,4 +1,6 @@
+using CodeDesignPlus.Net.Exceptions.Guards;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Memory;
+using CodeDesignPlus.Net.ValueObjects.Financial;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Services.Currencies;
 
@@ -7,7 +9,7 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Services.Currencies;
 /// </summary>
 /// <param name="client">The gRPC client for currency operations.</param>
 /// <param name="memoryService">The memory service for caching currency data.</param>
-public class CurrenciesService(CurrencyService.CurrencyServiceClient client, IMemoryService<GetCurrencyResponse> memoryService) : ICurrencyGrpc
+public class CurrenciesService(CurrencyService.CurrencyServiceClient client, IMemoryService<Currency> memoryService) : ICurrencyGrpc
 {
     /// <summary>
     /// Retrieves currency information.
@@ -16,7 +18,7 @@ public class CurrenciesService(CurrencyService.CurrencyServiceClient client, IMe
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    public async Task<GetCurrencyResponse> GetCurrencyAsync(GetCurrencyRequest request, CancellationToken cancellationToken)
+    public async Task<Currency> GetCurrencyAsync(GetCurrencyRequest request, CancellationToken cancellationToken)
     {
         var cachedResponse = memoryService.GetMemory(GetKey(request));
 
@@ -25,9 +27,14 @@ public class CurrenciesService(CurrencyService.CurrencyServiceClient client, IMe
         
         var response = await client.GetCurrencyAsync(request, cancellationToken: cancellationToken);
 
-        memoryService.AddMemory(GetKey(request), response);
+        Guard.IsNull(response, Net.Exceptions.Layer.None, "000 : Currency not found.");
+        Guard.IsFalse(Guid.TryParse(response.Id, out var currencyId), Net.Exceptions.Layer.None, "001 : Invalid currency ID.");
 
-        return response;
+        var currency = Currency.Create(currencyId, response.Name, response.Code, response.Symbol, (short)response.DecimalDigits, (short)response.NumericCode);
+
+        memoryService.AddMemory(GetKey(request), currency);
+
+        return currency;
     }
 
     /// <summary>
@@ -40,7 +47,7 @@ public class CurrenciesService(CurrencyService.CurrencyServiceClient client, IMe
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    public Task<GetCurrencyResponse> GetCurrencyAsync(Guid? id = null, string? code = null, int? numericCode = null, string? name = null, CancellationToken cancellationToken = default)
+    public Task<Currency> GetCurrencyAsync(Guid? id = null, string? code = null, int? numericCode = null, string? name = null, CancellationToken cancellationToken = default)
     {
         var request = new GetCurrencyRequest
         {

@@ -1,5 +1,6 @@
 using System;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Countries;
+using CodeDesignPlus.Net.ValueObjects.Location;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Abstractions;
 
@@ -15,7 +16,7 @@ public interface ICountryGrpc
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    Task<GetCountryResponse> GetCountryAsync(GetCountryRequest request, CancellationToken cancellationToken);
+    Task<Country> GetCountryAsync(GetCountryRequest request, CancellationToken cancellationToken);
 
     
     /// <summary>
@@ -25,5 +26,5 @@ public interface ICountryGrpc
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    Task<GetCountryResponse> GetCountryAsync(Guid? id = null, string code = null, string name = null, string alpha2 = null, string alpha3 = null, CancellationToken cancellationToken = default);
+    Task<Country> GetCountryAsync(Guid? id = null, string code = null, string name = null, string alpha2 = null, string alpha3 = null, CancellationToken cancellationToken = default);
 }

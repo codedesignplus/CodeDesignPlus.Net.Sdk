@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.gRpc.Clients.Services.Currencies;
+using CodeDesignPlus.Net.ValueObjects.Financial;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Abstractions;
 
@@ -14,7 +15,7 @@ public interface ICurrencyGrpc
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    Task<GetCurrencyResponse> GetCurrencyAsync(GetCurrencyRequest request, CancellationToken cancellationToken);
+    Task<Currency> GetCurrencyAsync(GetCurrencyRequest request, CancellationToken cancellationToken);
 
     /// <summary>
     /// Retrieves currency information by its unique identifier.
@@ -26,5 +27,5 @@ public interface ICurrencyGrpc
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
-    Task<GetCurrencyResponse> GetCurrencyAsync(Guid? id = null, string code = null, int? numericCode = null, string name = null, CancellationToken cancellationToken = default);
+    Task<Currency> GetCurrencyAsync(Guid? id = null, string code = null, int? numericCode = null, string name = null, CancellationToken cancellationToken = default);
 }
