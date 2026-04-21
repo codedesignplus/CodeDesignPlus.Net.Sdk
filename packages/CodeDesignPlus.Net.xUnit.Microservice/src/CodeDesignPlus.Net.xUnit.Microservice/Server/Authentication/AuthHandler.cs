@@ -22,6 +22,7 @@ public class AuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, I
     {
         var claims = new[] {
             new Claim(Claims.ClaimTypes.ObjectIdentifier, Guid.NewGuid().ToString()),
+            new Claim(Claims.ClaimTypes.UserId, Guid.NewGuid().ToString()),
             new Claim(Claims.ClaimTypes.Audience, "TestAudience"),
             new Claim(Claims.ClaimTypes.Name, "CodeDesignPlus"),
             new Claim(Claims.ClaimTypes.Emails, "codedesignplus@codedesignplus.com"),
