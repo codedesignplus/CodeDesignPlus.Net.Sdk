@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Common/" />
+    <Folder Include="FileServer\" />
     <Folder Include="Location/" />
     <Folder Include="Payment/" />
     <Folder Include="User/" />
