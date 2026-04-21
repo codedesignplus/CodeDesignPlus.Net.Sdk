@@ -27,9 +27,11 @@ public static class VaultClientFactory
         {
             var jwt = File.ReadAllText(options.Kubernetes.PathTokenKubernetes);
 
+            var roleName = !string.IsNullOrEmpty(options.Kubernetes.GlobalRole) ? options.Kubernetes.GlobalRole : $"{options.AppName}-{options.Kubernetes.RoleSufix}";
+
             return new VaultClient(new VaultClientSettings(
                 options.Address,
-                new KubernetesAuthMethodInfo($"{options.AppName}-{options.Kubernetes.RoleSufix}", jwt)
+                new KubernetesAuthMethodInfo(roleName, jwt)
             ));
         }
 
