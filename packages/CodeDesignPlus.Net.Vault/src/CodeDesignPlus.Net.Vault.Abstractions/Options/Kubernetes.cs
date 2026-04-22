@@ -15,10 +15,10 @@ public class Kubernetes
     [Required]
     public string SufixMoundPoint { get; set; } = "k8s";
     /// <summary>
-    /// Gets or sets the sufix to mount the Kubernetes service.
+    /// Gets or sets the suffix to mount the Kubernetes service.
     /// </summary>
     [Required]
-    public string RoleSufix { get; set; } = "k8s-role";
+    public string RoleSuffix { get; set; } = "k8s-role";
     /// <summary>
     /// Gets or sets the path of the token of the kubernetes
     /// </summary>

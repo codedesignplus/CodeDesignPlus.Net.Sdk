@@ -27,7 +27,7 @@ public static class VaultClientFactory
         {
             var jwt = File.ReadAllText(options.Kubernetes.PathTokenKubernetes);
 
-            var roleName = $"{options.AppName}-{options.Kubernetes.RoleSufix}";
+            var roleName = $"{options.AppName}-{options.Kubernetes.RoleSuffix}";
 
             return new VaultClient(new VaultClientSettings(
                 options.Address,

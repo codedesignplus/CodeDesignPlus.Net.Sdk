@@ -43,7 +43,7 @@ public class VaultOptionsTest
         options.Mongo.TemplateConnectionString = null;
 
         options.Kubernetes.Enable = false;
-        options.Kubernetes.RoleSufix = null;
+        options.Kubernetes.RoleSuffix = null;
         options.Kubernetes.SufixMoundPoint = null;
 
         options.RabbitMQ.RoleSufix = null;
