@@ -1,4 +1,6 @@
 using CodeDesignPlus.Net.Security.Abstractions.Models;
+using CodeDesignPlus.Net.ValueObjects.Financial;
+using CodeDesignPlus.Net.ValueObjects.Location;
 
 namespace CodeDesignPlus.Net.Security.Abstractions;
 

@@ -1,3 +1,5 @@
+using CodeDesignPlus.Net.ValueObjects.Location;
+
 namespace CodeDesignPlus.Net.Security.Abstractions.Models;
 
 /// <summary>

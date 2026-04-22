@@ -2,6 +2,8 @@
 using Microsoft.Extensions.Logging;
 using CodeDesignPlus.Net.Cache.Abstractions;
 using Models = CodeDesignPlus.Net.Security.Abstractions.Models;
+using CodeDesignPlus.Net.ValueObjects.Location;
+using CodeDesignPlus.Net.ValueObjects.Financial;
 
 namespace CodeDesignPlus.Net.Security.Services;
 
@@ -85,31 +87,31 @@ public class Tenant : ITenant
     /// <summary>
     /// Get the country information.
     /// </summary>
-    public Models.Country Country => this.tenant.Location.Country;
+    public Country Country => this.tenant.Location.Country;
     /// <summary>
     /// Get the state information.
     /// </summary>
-    public Models.State State => this.tenant.Location.State;
+    public State State => this.tenant.Location.State;
     /// <summary>
     /// Get the city information.
     /// </summary>
-    public Models.City City => this.tenant.Location.City;
+    public City City => this.tenant.Location.City;
     /// <summary>
     /// Get the locality information.
     /// </summary>
-    public Models.Locality Locality => this.tenant.Location.Locality;
+    public Locality Locality => this.tenant.Location.Locality;
     /// <summary>
     /// Get the neighborhood information.
     /// </summary>
-    public Models.Neighborhood Neighborhood => this.tenant.Location.Neighborhood;
+    public Neighborhood Neighborhood => this.tenant.Location.Neighborhood;
     /// <summary>
     /// Get the time zone.
     /// </summary>
-    public string TimeZone => this.tenant.Location.City.TimeZone ?? this.tenant.Location.Country.TimeZone;
+    public string TimeZone => this.tenant.Location.City.Timezone ?? this.tenant.Location.Country.Timezone;
     /// <summary>
     /// Get the currency.
     /// </summary>
-    public Models.Currency Currency => this.tenant.Location.Country.Currency;
+    public Currency Currency => this.tenant.Location.Country.Currency;
     /// <summary>
     /// Get the metadata.
     /// </summary>
