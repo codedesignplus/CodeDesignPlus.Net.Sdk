@@ -1,3 +1,5 @@
+using CodeDesignPlus.Net.Core.Exceptions;
+
 namespace CodeDesignPlus.Net.xUnit.Microservice.Attributes;
 
 /// <summary>

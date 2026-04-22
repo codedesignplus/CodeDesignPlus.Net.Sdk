@@ -34,7 +34,7 @@ public class AggregateAttribute<TAssemblyScan>(bool useCreateMethod) : DataAttri
                 var nameConstructor = aggregate.GetMethod("Create", BindingFlags.Static | BindingFlags.Public);
 
                 if (nameConstructor is null)
-                    throw new CoreException($"The {aggregate.Name} class does not have a static Create method.");
+                    throw new Core.Exceptions.CoreException($"The {aggregate.Name} class does not have a static Create method.");
 
                 values = nameConstructor.GetParameters().GetParameterValues();
                 instance = nameConstructor.Invoke(null, [.. values.Values]);
