@@ -20,10 +20,6 @@ public class Kubernetes
     [Required]
     public string RoleSufix { get; set; } = "k8s-role";
     /// <summary>
-    /// Gets or sets an explicit global role name. If provided, overrides AppName-RoleSufix.
-    /// </summary>
-    public string GlobalRole { get; set; }
-    /// <summary>
     /// Gets or sets the path of the token of the kubernetes
     /// </summary>
     public string PathTokenKubernetes { get; set; } = "/var/run/secrets/kubernetes.io/serviceaccount/token";
