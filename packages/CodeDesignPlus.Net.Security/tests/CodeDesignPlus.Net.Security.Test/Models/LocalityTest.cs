@@ -1,60 +1,21 @@
-using CodeDesignPlus.Net.Security.Abstractions.Models;
-
 namespace CodeDesignPlus.Net.Security.Test.Models;
 
 public class LocalityTest
 {
     [Fact]
-    public void Locality_Id_ShouldBeOfTypeGuid()
+    public void Locality_Create_SetsId_Correctly()
     {
-        // Arrange
-        var locality = new Locality();
-
-        // Act
-        locality.Id = Guid.NewGuid();
-
-        // Assert
-        Assert.IsType<Guid>(locality.Id);
-    }
-
-    [Fact]
-    public void Locality_Name_ShouldBeOfTypeString()
-    {
-        // Arrange
-        var locality = new Locality();
-
-        // Act
-        locality.Name = "Test Locality";
-
-        // Assert
-        Assert.IsType<string>(locality.Name);
-    }
-
-    [Fact]
-    public void Locality_Id_ShouldGetAndSetId()
-    {
-        // Arrange
-        var locality = new Locality();
         var id = Guid.NewGuid();
-
-        // Act
-        locality.Id = id;
-
-        // Assert
+        var locality = Locality.Create(id, "Test Locality");
+        Assert.IsType<Guid>(locality.Id);
         Assert.Equal(id, locality.Id);
     }
 
     [Fact]
-    public void Locality_Name_ShouldGetAndSetName()
+    public void Locality_Create_SetsName_Correctly()
     {
-        // Arrange
-        var locality = new Locality();
-        var name = "Test Locality";
-
-        // Act
-        locality.Name = name;
-
-        // Assert
-        Assert.Equal(name, locality.Name);
+        var locality = Locality.Create(Guid.NewGuid(), "Test Locality");
+        Assert.IsType<string>(locality.Name);
+        Assert.Equal("Test Locality", locality.Name);
     }
 }

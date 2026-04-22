@@ -1,78 +1,62 @@
-using System;
-using Xunit;
-using CodeDesignPlus.Net.Security.Abstractions.Models;
-
 namespace CodeDesignPlus.Net.Security.Test.Models;
 
 public class LocationTest
 {
+    private static Currency CreateCurrency() =>
+        Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
+
+    private static Country CreateCountry() =>
+        Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
+
+    private static State CreateState() =>
+        State.Create(Guid.NewGuid(), "California", "CA");
+
+    private static City CreateCity() =>
+        City.Create(Guid.NewGuid(), "New York", null);
+
+    private static Locality CreateLocality() =>
+        Locality.Create(Guid.NewGuid(), "Test Locality");
+
+    private static Neighborhood CreateNeighborhood() =>
+        Neighborhood.Create(Guid.NewGuid(), "Test Neighborhood");
+
     [Fact]
-    public void Location_CountryProperty_SetAndGet()
+    public void Location_Create_SetsCountry_Correctly()
     {
-        // Arrange
-        var location = new Location();
-        var country = new Country();
-
-        // Act
-        location.Country = country;
-
-        // Assert
+        var country = CreateCountry();
+        var location = Location.Create(country, CreateState(), CreateCity(), CreateLocality(), CreateNeighborhood(), "123 Main St", "12345");
         Assert.Equal(country, location.Country);
     }
 
     [Fact]
-    public void Location_StateProperty_SetAndGet()
+    public void Location_Create_SetsState_Correctly()
     {
-        // Arrange
-        var location = new Location();
-        var state = new State();
-
-        // Act
-        location.State = state;
-
-        // Assert
+        var state = CreateState();
+        var location = Location.Create(CreateCountry(), state, CreateCity(), CreateLocality(), CreateNeighborhood(), "123 Main St", "12345");
         Assert.Equal(state, location.State);
     }
 
     [Fact]
-    public void Location_CityProperty_SetAndGet()
+    public void Location_Create_SetsCity_Correctly()
     {
-        // Arrange
-        var location = new Location();
-        var city = new City();
-
-        // Act
-        location.City = city;
-
-        // Assert
+        var city = CreateCity();
+        var location = Location.Create(CreateCountry(), CreateState(), city, CreateLocality(), CreateNeighborhood(), "123 Main St", "12345");
         Assert.Equal(city, location.City);
     }
 
     [Fact]
-    public void Location_LocalityProperty_SetAndGet()
+    public void Location_Create_SetsLocality_Correctly()
     {
-        // Arrange
-        var location = new Location();
-        var locality = new Locality();
-
-        // Act
-        location.Locality = locality;
-
-        // Assert
+        var locality = CreateLocality();
+        var location = Location.Create(CreateCountry(), CreateState(), CreateCity(), locality, CreateNeighborhood(), "123 Main St", "12345");
         Assert.Equal(locality, location.Locality);
     }
 
     [Fact]
-    public void Location_NeighborhoodProperty_SetAndGet()
+    public void Location_Create_SetsNeighborhood_Correctly()
     {
-        // Arrange
-        var location = new Location();
-        var neighborhood = new Neighborhood();
-
-        // Act
-        location.Neighborhood = neighborhood;
-
-        // Assert
+        var neighborhood = CreateNeighborhood();
+        var location = Location.Create(CreateCountry(), CreateState(), CreateCity(), CreateLocality(), neighborhood, "123 Main St", "12345");
         Assert.Equal(neighborhood, location.Neighborhood);
     }
 }

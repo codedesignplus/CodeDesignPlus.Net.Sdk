@@ -1,50 +1,26 @@
-using System;
-using CodeDesignPlus.Net.Security.Abstractions.Models;
-using Xunit;
-
 namespace CodeDesignPlus.Net.Security.Test.Models;
 
 public class StateTest
 {
     [Fact]
-    public void State_Id_Should_Be_Guid()
+    public void State_Create_SetsId_Correctly()
     {
-        // Arrange
-        var state = new State();
-        var expectedId = Guid.NewGuid();
-
-        // Act
-        state.Id = expectedId;
-
-        // Assert
-        Assert.Equal(expectedId, state.Id);
+        var id = Guid.NewGuid();
+        var state = State.Create(id, "TestState", "TS");
+        Assert.Equal(id, state.Id);
     }
 
     [Fact]
-    public void State_Name_Should_Be_String()
+    public void State_Create_SetsName_Correctly()
     {
-        // Arrange
-        var state = new State();
-        var expectedName = "TestState";
-
-        // Act
-        state.Name = expectedName;
-
-        // Assert
-        Assert.Equal(expectedName, state.Name);
+        var state = State.Create(Guid.NewGuid(), "TestState", "TS");
+        Assert.Equal("TestState", state.Name);
     }
 
     [Fact]
-    public void State_Code_Should_Be_String()
+    public void State_Create_SetsCode_Correctly()
     {
-        // Arrange
-        var state = new State();
-        var expectedCode = "TS";
-
-        // Act
-        state.Code = expectedCode;
-
-        // Assert
-        Assert.Equal(expectedCode, state.Code);
+        var state = State.Create(Guid.NewGuid(), "TestState", "TS");
+        Assert.Equal("TS", state.Code);
     }
 }

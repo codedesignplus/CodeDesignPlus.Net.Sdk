@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Security;
 using System.Threading.Tasks;
 using CodeDesignPlus.Net.Cache.Abstractions;
 using M = CodeDesignPlus.Net.Security.Abstractions.Models;
@@ -24,6 +23,35 @@ public class TenantTest
         cacheManagerMock = new Mock<ICacheManager>();
         tenantService = new Tenant(loggerMock.Object, cacheManagerMock.Object);
     }
+
+    private static Currency CreateCurrency(string code = "USD", short numericCode = 840) =>
+        Currency.Create(Guid.NewGuid(), "US Dollar", code, "$", 2, numericCode);
+
+    private static Country CreateCountry(string timezone = "America/New_York", Currency? currency = null) =>
+        Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, timezone, currency ?? CreateCurrency());
+
+    private static State CreateState() =>
+        State.Create(Guid.NewGuid(), "New York", "NY");
+
+    private static City CreateCity(string? timezone = null) =>
+        City.Create(Guid.NewGuid(), "New York", timezone);
+
+    private static Locality CreateLocality() =>
+        Locality.Create(Guid.NewGuid(), "Manhattan");
+
+    private static Neighborhood CreateNeighborhood() =>
+        Neighborhood.Create(Guid.NewGuid(), "Midtown");
+
+    private static Location CreateLocation(Country? country = null, State? state = null, City? city = null, Locality? locality = null, Neighborhood? neighborhood = null) =>
+        Location.Create(
+            country ?? CreateCountry(),
+            state ?? CreateState(),
+            city ?? CreateCity(),
+            locality ?? CreateLocality(),
+            neighborhood ?? CreateNeighborhood(),
+            "123 Main St",
+            "10001"
+        );
 
     [Fact]
     public async Task SetTenantAsync_TenantExists_SetsTenant()
@@ -51,7 +79,7 @@ public class TenantTest
         cacheManagerMock.Setup(cm => cm.ExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<Security.Exceptions.SecurityException>(() => tenantService.SetTenantAsync(tenantId));
+        var exception = await Assert.ThrowsAsync<SecurityException>(() => tenantService.SetTenantAsync(tenantId));
 
         Assert.Equal("The tenant specified does not exist at the level of the cache.", exception.Message);
         cacheManagerMock.Verify(cm => cm.ExistsAsync($"Tenant:{tenantId}"), Times.Once);
@@ -126,10 +154,7 @@ public class TenantTest
     {
         // Arrange
         var key = "invalidKey";
-        var tenant = new M.Tenant
-        {
-            Metadata = []
-        };
+        var tenant = new M.Tenant { Metadata = [] };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(tenantService, tenant);
 
         // Act & Assert
@@ -160,10 +185,7 @@ public class TenantTest
     {
         // Arrange
         var key = "invalidKey";
-        var tenant = new M.Tenant
-        {
-            Metadata = []
-        };
+        var tenant = new M.Tenant { Metadata = [] };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(tenantService, tenant);
 
         // Act & Assert
@@ -176,14 +198,8 @@ public class TenantTest
     public void Country_ReturnsCountry()
     {
         // Arrange
-        var country = new M.Country { Name = "TestCountry" };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                Country = country
-            }
-        };
+        var country = CreateCountry();
+        var tenant = new M.Tenant { Location = CreateLocation(country: country) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -198,14 +214,8 @@ public class TenantTest
     public void State_ReturnsState()
     {
         // Arrange
-        var state = new M.State { Name = "TestState" };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                State = state
-            }
-        };
+        var state = CreateState();
+        var tenant = new M.Tenant { Location = CreateLocation(state: state) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -220,14 +230,8 @@ public class TenantTest
     public void City_ReturnsCity()
     {
         // Arrange
-        var city = new M.City { Name = "TestCity" };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                City = city
-            }
-        };
+        var city = CreateCity();
+        var tenant = new M.Tenant { Location = CreateLocation(city: city) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -242,14 +246,8 @@ public class TenantTest
     public void Locality_ReturnsLocality()
     {
         // Arrange
-        var locality = new M.Locality { Name = "TestLocality" };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                Locality = locality
-            }
-        };
+        var locality = CreateLocality();
+        var tenant = new M.Tenant { Location = CreateLocation(locality: locality) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -264,14 +262,8 @@ public class TenantTest
     public void Neighborhood_ReturnsNeighborhood()
     {
         // Arrange
-        var neighborhood = new M.Neighborhood { Name = "TestNeighborhood" };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                Neighborhood = neighborhood
-            }
-        };
+        var neighborhood = CreateNeighborhood();
+        var tenant = new M.Tenant { Location = CreateLocation(neighborhood: neighborhood) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -286,16 +278,10 @@ public class TenantTest
     public void TimeZone_ReturnsCityTimeZone_WhenCityTimeZoneIsNotNull()
     {
         // Arrange
-        var city = new M.City { TimeZone = "CityTZ" };
-        var country = new M.Country { TimeZone = "CountryTZ" };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                City = city,
-                Country = country
-            }
-        };
+        var city = City.Create(Guid.NewGuid(), "New York", "CityTZ");
+        var currency = Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "CountryTZ", currency);
+        var tenant = new M.Tenant { Location = CreateLocation(country: country, city: city) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -310,16 +296,10 @@ public class TenantTest
     public void TimeZone_ReturnsCountryTimeZone_WhenCityTimeZoneIsNull()
     {
         // Arrange
-        var city = new M.City { TimeZone = null };
-        var country = new M.Country { TimeZone = "CountryTZ" };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                City = city,
-                Country = country
-            }
-        };
+        var city = City.Create(Guid.NewGuid(), "New York", null);
+        var currency = Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "CountryTZ", currency);
+        var tenant = new M.Tenant { Location = CreateLocation(country: country, city: city) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -334,15 +314,9 @@ public class TenantTest
     public void Currency_ReturnsCountryCurrency()
     {
         // Arrange
-        var currency = new M.Currency { Code = 170 };
-        var country = new M.Country { Currency = currency };
-        var tenant = new M.Tenant
-        {
-            Location = new M.Location
-            {
-                Country = country
-            }
-        };
+        var currency = Currency.Create(Guid.NewGuid(), "Colombian Peso", "COP", "$", 2, 170);
+        var country = Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "America/Bogota", currency);
+        var tenant = new M.Tenant { Location = CreateLocation(country: country) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -358,10 +332,7 @@ public class TenantTest
     {
         // Arrange
         var metadata = new Dictionary<string, string> { { "key", "value" } };
-        var tenant = new M.Tenant
-        {
-            Metadata = metadata
-        };
+        var tenant = new M.Tenant { Metadata = metadata };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -376,11 +347,8 @@ public class TenantTest
     public void GetMetadata_Generic_ConvertsToCorrectType()
     {
         // Arrange
-        var metadata = new Dictionary<string, string> {
-            { "testKey", "123" }
-        };
+        var metadata = new Dictionary<string, string> { { "testKey", "123" } };
         var tenant = new M.Tenant { Metadata = metadata };
-
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
 
@@ -417,5 +385,4 @@ public class TenantTest
         // Act & Assert
         Assert.Throws<FormatException>(() => tenantService.GetMetadata<int>(key));
     }
-
 }

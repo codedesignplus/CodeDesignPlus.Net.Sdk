@@ -1,10 +1,23 @@
-
-using M =  CodeDesignPlus.Net.Security.Abstractions.Models;
+using M = CodeDesignPlus.Net.Security.Abstractions.Models;
 
 namespace CodeDesignPlus.Net.Security.Test.Models;
 
 public class TenantTest
 {
+    private static Currency CreateCurrency() =>
+        Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
+
+    private static Location CreateLocation() =>
+        Location.Create(
+            Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "America/New_York", CreateCurrency()),
+            State.Create(Guid.NewGuid(), "New York", "NY"),
+            City.Create(Guid.NewGuid(), "New York", null),
+            Locality.Create(Guid.NewGuid(), "Manhattan"),
+            Neighborhood.Create(Guid.NewGuid(), "Midtown"),
+            "123 Main St",
+            "10001"
+        );
+
     [Fact]
     public void Tenant_Id_Should_Be_Guid()
     {
@@ -63,13 +76,13 @@ public class TenantTest
     {
         // Arrange
         var tenant = new M.Tenant();
-        var location = new M.Location();
+        var location = CreateLocation();
 
         // Act
         tenant.Location = location;
 
         // Assert
-        Assert.IsType<M.Location>(tenant.Location);
+        Assert.IsType<Location>(tenant.Location);
     }
 
     [Fact]

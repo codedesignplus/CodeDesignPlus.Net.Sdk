@@ -1,23 +1,13 @@
-using CodeDesignPlus.Net.Security.Abstractions.Models;
-
 namespace CodeDesignPlus.Net.Security.Test.Models;
 
 public class NeighborhoodTest
 {
     [Fact]
-    public void Neighborhood_Id_ShouldBeOfTypeGuid()
+    public void Neighborhood_Create_SetsIdAndName_Correctly()
     {
-        // Arrange
         var id = Guid.NewGuid();
         var name = "Neighborhood";
-
-        // Act
-        var neighborhood = new Neighborhood() {
-            Id = id,
-            Name = name
-        };
-
-        // Assert 
+        var neighborhood = Neighborhood.Create(id, name);
         Assert.Equal(id, neighborhood.Id);
         Assert.Equal(name, neighborhood.Name);
     }

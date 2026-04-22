@@ -1,5 +1,4 @@
 ﻿global using CodeDesignPlus.Net.Core.Abstractions;
-global using CodeDesignPlus.Net.Core.Exceptions;
 global using CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
 global using MediatR;
 global using Microsoft.Extensions.Configuration;

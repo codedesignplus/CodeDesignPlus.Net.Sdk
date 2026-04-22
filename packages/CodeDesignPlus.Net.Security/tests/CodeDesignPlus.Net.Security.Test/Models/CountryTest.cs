@@ -1,79 +1,50 @@
-using System;
-using CodeDesignPlus.Net.Security.Abstractions.Models;
-using Xunit;
-
 namespace CodeDesignPlus.Net.Security.Test.Models;
 
 public class CountryTest
 {
+    private static Currency CreateCurrency() =>
+        Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
+
     [Fact]
-    public void Country_Id_Should_Be_Guid()
+    public void Country_Create_SetsId_Correctly()
     {
-        // Arrange
-        var country = new Country();
-
-        // Act
-        country.Id = Guid.NewGuid();
-
-        // Assert
+        var id = Guid.NewGuid();
+        var country = Country.Create(id, "United States", "US", "USA", 840, "PST", CreateCurrency());
         Assert.IsType<Guid>(country.Id);
+        Assert.Equal(id, country.Id);
     }
 
     [Fact]
-    public void Country_Name_Should_Be_String()
+    public void Country_Create_SetsName_Correctly()
     {
-        // Arrange
-        var country = new Country();
-
-        // Act
-        country.Name = "United States";
-
-        // Assert
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
         Assert.IsType<string>(country.Name);
         Assert.Equal("United States", country.Name);
     }
 
     [Fact]
-    public void Country_Code_Should_Be_String()
+    public void Country_Create_SetsAlpha2_Correctly()
     {
-        // Arrange
-        var country = new Country();
-
-        // Act
-        country.Code = "US";
-
-        // Assert
-        Assert.IsType<string>(country.Code);
-        Assert.Equal("US", country.Code);
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
+        Assert.IsType<string>(country.Alpha2);
+        Assert.Equal("US", country.Alpha2);
     }
 
     [Fact]
-    public void Country_TimeZone_Should_Be_String()
+    public void Country_Create_SetsTimezone_Correctly()
     {
-        // Arrange
-        var country = new Country();
-
-        // Act
-        country.TimeZone = "PST";
-
-        // Assert
-        Assert.IsType<string>(country.TimeZone);
-        Assert.Equal("PST", country.TimeZone);
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
+        Assert.IsType<string>(country.Timezone);
+        Assert.Equal("PST", country.Timezone);
     }
 
     [Fact]
-    public void Country_Currency_Should_Be_Currency()
+    public void Country_Create_SetsCurrency_Correctly()
     {
-        // Arrange
-        var country = new Country();
-        var currency = new Currency { Code = 170, Symbol = "$" };
-
-        // Act
-        country.Currency = currency;
-
-        // Assert
+        var currency = Currency.Create(Guid.NewGuid(), "Colombian Peso", "COP", "$", 2, 170);
+        var country = Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "America/Bogota", currency);
         Assert.IsType<Currency>(country.Currency);
-        Assert.Equal(170, country.Currency.Code);
+        Assert.Equal("COP", country.Currency.Code);
         Assert.Equal("$", country.Currency.Symbol);
     }
 }
