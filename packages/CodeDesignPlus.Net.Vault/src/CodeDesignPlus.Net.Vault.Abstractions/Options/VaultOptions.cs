@@ -16,12 +16,13 @@ public class VaultOptions : IValidatableObject
     {
         get
         {
-            if (!string.IsNullOrEmpty(this.Token))
+            if (this.Kubernetes != null && this.Kubernetes.Enable)
+                return TypeAuth.Kubernetes;
+            else if (!string.IsNullOrEmpty(this.Token))
                 return TypeAuth.Token;
             else if (!string.IsNullOrEmpty(this.RoleId) && !string.IsNullOrEmpty(this.SecretId))
                 return TypeAuth.AppRole;
-            else if (this.Kubernetes != null && this.Kubernetes.Enable)
-                return TypeAuth.Kubernetes;
+           
 
             return TypeAuth.None;
         }
