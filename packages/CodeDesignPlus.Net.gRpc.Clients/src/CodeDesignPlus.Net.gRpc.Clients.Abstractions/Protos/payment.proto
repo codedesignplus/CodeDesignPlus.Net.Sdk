@@ -5,8 +5,6 @@ import "google/protobuf/wrappers.proto";
 
 option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Payment";
 
-package Payment;
-
 service Payment {
   rpc InitiatePayment (InitiatePaymentRequest) returns (InitiatePaymentResponse);
 }
@@ -55,10 +53,10 @@ message Address {
 }
 
 message CreditCard {
-  string number = 1;
-  string securityCode = 2;
-  string expirationDate = 3;
-  string name = 4;
+  string last4Digits = 1;
+  string cardHolderName = 2;
+  string creditCardTokenId = 3;
+  string expirationDate = 4;
   int32 installmentsNumber = 5;
 }
 
@@ -83,7 +81,7 @@ enum PaymentStatus {
 }
 
 enum NextActionType {
-  Redirect = 0;
+  Redrect = 0;
   DisplayWidget = 1;
   WaitConfirmation = 2;
 }
