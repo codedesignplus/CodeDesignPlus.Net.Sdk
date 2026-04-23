@@ -55,11 +55,11 @@ public class PaymentServiceTest
                 Type = "creditCard",
                 CreditCard = new CreditCard
                 {
-                    Number = "4111111111111111",
+                    CreditCardTokenId = Guid.NewGuid().ToString(),
                     ExpirationDate = "2025/12",
-                    SecurityCode = "123",
                     InstallmentsNumber = 1,
-                    Name = "Test User",
+                    CardHolderName = "Test User",
+                    Last4Digits = "4123"
                 }
             },
             Provider = PaymentProvider.Payu,

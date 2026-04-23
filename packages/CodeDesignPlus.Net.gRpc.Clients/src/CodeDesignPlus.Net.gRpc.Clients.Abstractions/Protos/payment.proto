@@ -81,7 +81,7 @@ enum PaymentStatus {
 }
 
 enum NextActionType {
-  Redrect = 0;
+  Redirect = 0;
   DisplayWidget = 1;
   WaitConfirmation = 2;
 }
