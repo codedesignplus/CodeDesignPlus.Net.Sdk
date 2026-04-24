@@ -48,14 +48,14 @@ public sealed class Currency : IEquatable<Currency>
         Guard.GuidIsEmpty(currencyId, Exceptions.Layer.None, "000 : CurrencyId is empty");
         Guard.IsNullOrEmpty(name, Exceptions.Layer.None, "001 : Name is required");
         
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "002 : Code is required");
-        Guard.IsFalse(normalizedCode.Length == 3, Exceptions.Layer.None, "003 : Code length is invalid"); 
+        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, $"002 : Code is required for {name}-{code}");
+        Guard.IsFalse(normalizedCode.Length == 3, Exceptions.Layer.None, $"003 : Code length is invalid for {name}-{code}"); 
         
-        Guard.IsNullOrEmpty(symbol, Exceptions.Layer.None, "004 : Symbol is required");
+        Guard.IsNullOrEmpty(symbol, Exceptions.Layer.None, $"004 : Symbol is required for {name}-{code}");
 
-        Guard.IsNotInRange(numericCode, 1, 999, Exceptions.Layer.None, "005 : Numeric code is invalid");
+        Guard.IsNotInRange(numericCode, 1, 999, Exceptions.Layer.None, $"005 : Numeric code is invalid for {name}-{code}");
 
-        Guard.IsLessThan(decimalDigits, 0, Exceptions.Layer.None, "006 : Decimal digits is invalid");
+        Guard.IsLessThan(decimalDigits, 0, Exceptions.Layer.None, $"006 : Decimal digits is invalid for {name}-{code}");
 
         this.CurrencyId = currencyId;
         this.Name = name;
