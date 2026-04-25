@@ -68,6 +68,9 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
     /// <returns>A task representing the asynchronous operation.</returns>
     private Task HandleExceptionsAsync(HttpContext context, ValidationException exception)
     {
+        if (context.Response.HasStarted)
+            return Task.CompletedTask;
+
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
@@ -102,6 +105,9 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
     /// <returns>A task representing the asynchronous operation.</returns>
     private Task HandleExceptionsAsync(HttpContext context, CodeDesignPlusException exception)
     {
+        if (context.Response.HasStarted)
+            return Task.CompletedTask;
+
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
 
@@ -137,6 +143,9 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
     /// <returns>A task representing the asynchronous operation.</returns>
     private Task HandleExceptionsAsync(HttpContext context, Exception exception)
     {
+        if (context.Response.HasStarted)
+            return Task.CompletedTask;
+
         context.Response.ContentType = "application/problem+json";
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
