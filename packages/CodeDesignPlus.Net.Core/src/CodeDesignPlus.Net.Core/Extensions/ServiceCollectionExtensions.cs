@@ -47,10 +47,10 @@ public static class ServiceCollectionExtensions
     {
         var startups = AppDomain.CurrentDomain
             .GetAssemblies()
-            .SelectMany(x => x.GetTypes())
-            .Where(x => !x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly"))
+            .SelectManyTypesSafely()
+            .Where(x => x.FullName != null && (!x.FullName.StartsWith("Castle") || !x.FullName.Contains("DynamicProxyGenAssembly")))
             .Where(x => typeof(IStartup).IsAssignableFrom(x) && !x.IsInterface && !x.IsAbstract)
-            .Select(x => (IStartup)Activator.CreateInstance(x))
+            .Select(x => (IStartup)Activator.CreateInstance(x)!)
             .ToArray();
 
         foreach (var startup in startups)

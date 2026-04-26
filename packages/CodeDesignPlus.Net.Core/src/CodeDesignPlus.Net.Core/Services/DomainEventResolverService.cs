@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Core.Services;
+﻿using CodeDesignPlus.Net.Core.Extensions;
+
+namespace CodeDesignPlus.Net.Core.Services;
 
 /// <summary>
 /// Service responsible for resolving domain event types based on event names and attributes.
@@ -26,7 +28,7 @@ public class DomainEventResolverService : IDomainEventResolver
         this.coreOptions = options.Value;
 
         var types = AppDomain.CurrentDomain.GetAssemblies()
-            .SelectMany(s => s.GetTypes())
+            .SelectManyTypesSafely()
             .Where(x => typeof(DomainEvent).IsAssignableFrom(x) && !x.IsAbstract);
 
         foreach (var type in types)

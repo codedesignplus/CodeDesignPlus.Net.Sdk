@@ -113,7 +113,7 @@ public static class ServiceCollectionExtensions
                         ValidateLifetime = securityOptions.ValidateLifetime,
                         ValidateAudience = securityOptions.ValidateAudience,
                         ValidAudiences = securityOptions.ValidAudiences,
-                        ValidateIssuerSigningKey = certificate == null,
+                        ValidateIssuerSigningKey = certificate != null,
                         RequireSignedTokens = certificate != null,
                     };
 
