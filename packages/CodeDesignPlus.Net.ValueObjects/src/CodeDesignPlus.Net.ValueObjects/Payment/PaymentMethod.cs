@@ -9,9 +9,9 @@ namespace CodeDesignPlus.Net.ValueObjects.Payment;
 public sealed class PaymentMethod : IEquatable<PaymentMethod>
 {
     /// <summary>
-    /// The code representing the payment method.
+    /// The type representing the payment method.
     /// </summary>
-    public string Code { get; private set; }
+    public string Type { get; private set; }
     /// <summary>
     /// The PSE payment details, if applicable.
     /// </summary>
@@ -22,10 +22,10 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
     public CreditCard? CreditCard { get; private set; }
 
     [JsonConstructor]
-    private PaymentMethod(string code, Pse? pse, CreditCard? creditCard)
+    private PaymentMethod(string type, Pse? pse, CreditCard? creditCard)
     {
-        var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "006 : Code of the payment method cannot be null or empty");
+        var normalizedType = type?.Trim().ToUpperInvariant() ?? string.Empty;
+        Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, "006 : Type of the payment method cannot be null or empty");
 
         bool bothAreNull = pse == null && creditCard == null;
         Guard.IsTrue(bothAreNull, Exceptions.Layer.None, "007 : Payment method details cannot be null");
@@ -33,7 +33,7 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
         bool bothAreProvided = pse != null && creditCard != null;
         Guard.IsTrue(bothAreProvided, Exceptions.Layer.None, "008 : Only one payment method is allowed");
 
-        this.Code = normalizedCode;
+        this.Type = normalizedType;
         this.Pse = pse;
         this.CreditCard = creditCard;
     }
@@ -41,13 +41,13 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
     /// <summary>
     /// Creates a new instance of the PaymentMethod class.
     /// </summary>
-    /// <param name="code">The code representing the payment method.</param>
+    /// <param name="type">The type representing the payment method.</param>
     /// <param name="pse">The PSE payment details, if applicable.</param>
     /// <param name="creditCard">The credit card payment details, if applicable.</param>
     /// <returns>A new instance of the PaymentMethod class.</returns>
-    public static PaymentMethod Create(string code, Pse? pse, CreditCard? creditCard)
+    public static PaymentMethod Create(string type, Pse? pse, CreditCard? creditCard)
     {
-        return new PaymentMethod(code, pse, creditCard);
+        return new PaymentMethod(type, pse, creditCard);
     }
 
     /// <summary>
@@ -81,7 +81,7 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
         if (other is null) 
             return false;
         
-        return Code == other.Code 
+        return Type == other.Type 
         && EqualityComparer<Pse?>.Default.Equals(Pse, other.Pse) 
         && EqualityComparer<CreditCard?>.Default.Equals(CreditCard, other.CreditCard);
     }
@@ -97,5 +97,5 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
     /// Returns a hash code for the current payment method instance.
     /// </summary>
     /// <returns>A hash code for the current payment method instance.</returns>
-    public override int GetHashCode() => HashCode.Combine(Code, Pse, CreditCard);
+    public override int GetHashCode() => HashCode.Combine(Type, Pse, CreditCard);
 }
