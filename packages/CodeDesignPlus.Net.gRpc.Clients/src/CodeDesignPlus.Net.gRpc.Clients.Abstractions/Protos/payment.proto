@@ -57,7 +57,8 @@ message CreditCard {
   string cardHolderName = 2;
   string creditCardTokenId = 3;
   string expirationDate = 4;
-  int32 installmentsNumber = 5;
+  string securityCode = 5;
+  int32 installmentsNumber = 6;
 }
 
 message Pse {
@@ -81,9 +82,10 @@ enum PaymentStatus {
 }
 
 enum NextActionType {
-  Redirect = 0;
-  DisplayWidget = 1;
-  WaitConfirmation = 2;
+  Undefined = 0;
+  Redirect = 1;
+  DisplayWidget = 2;
+  WaitConfirmation = 3;
 }
 
 message InitiatePaymentResponse {
