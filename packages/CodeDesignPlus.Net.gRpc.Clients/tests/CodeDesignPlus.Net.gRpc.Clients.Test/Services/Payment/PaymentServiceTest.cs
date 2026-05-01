@@ -46,8 +46,7 @@ public class PaymentServiceTest
                     Country = "Test Country",
                     Street = "123 Test St",
                     PostalCode = "12345",
-                    State = "Test State",
-                    Phone = "123-456-7890"
+                    State = "Test State"
                 },
             },
             PaymentMethod = new PaymentMethod
