@@ -112,7 +112,7 @@ public sealed partial class Payer : IEquatable<Payer>
     /// <summary>
     /// Gets the type of identification document.
     /// </summary>
-    public TypeDocument TypeDocument { get; private set; }
+    public TypeDocument? TypeDocument { get; private set; }
 
     /// <summary>
     /// Gets the identification document number (DNI, NIT, Tax ID, etc.).
@@ -122,10 +122,10 @@ public sealed partial class Payer : IEquatable<Payer>
     /// <summary>
     /// Gets the billing address.
     /// </summary>
-    public Address BillingAddress { get; private set; }
+    public Address? BillingAddress { get; private set; }
 
     [JsonConstructor]
-    private Payer(string fullName, string? emailAddress, string? contactPhone, TypeDocument typeDocument, string documentNumber, Address billingAddress)
+    private Payer(string fullName, string? emailAddress, string? contactPhone, TypeDocument? typeDocument, string documentNumber, Address? billingAddress)
     {
         var normalizedFullName = fullName?.Trim() ?? string.Empty;
         var normalizedDocument = documentNumber?.Trim() ?? string.Empty;
@@ -133,12 +133,8 @@ public sealed partial class Payer : IEquatable<Payer>
         Guard.IsNullOrEmpty(normalizedFullName, Exceptions.Layer.None, "000 : Full name cannot be null or empty");
         Guard.IsGreaterThan(normalizedFullName.Length, 150, Exceptions.Layer.None, "001 : Full name cannot be greater than 150 characters");
 
-        Guard.IsNull(typeDocument, Exceptions.Layer.None, "007 : Type document cannot be null");
-
         Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, "008 : Document number cannot be null or empty");
         Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, "009 : Document number cannot be greater than 20 characters");
-
-        Guard.IsNull(billingAddress, Exceptions.Layer.None, "010 : Billing address cannot be null");
 
         // Optional fields validation - only validate if provided
         if (emailAddress != null)
@@ -194,6 +190,19 @@ public sealed partial class Payer : IEquatable<Payer>
     public static Payer CreateFromBuyer(string fullName, Buyer buyer, TypeDocument typeDocument, string documentNumber, Address billingAddress)
     {
         return new Payer(fullName, buyer.Email, buyer.Phone, typeDocument, documentNumber, billingAddress);
+    }
+
+    
+    /// <summary>
+    /// Creates a minimal payer snapshot using buyer's contact information.
+    /// Use this when the payer is the same as the buyer and you want to reuse their contact info.
+    /// Email and phone are derived from the buyer's data.
+    /// </summary>
+    /// <param name="buyer">The buyer instance to extract email and phone from.</param>
+    /// <returns>A new instance of the <see cref="Payer"/> class.</returns>
+    public static Payer CreateFromBuyer(Buyer buyer)
+    {
+        return new Payer(buyer.Name, buyer.Email, buyer.Phone, buyer.TypeDocument, buyer.Document!, buyer.ShippingAddress);
     }
 
     /// <summary>
