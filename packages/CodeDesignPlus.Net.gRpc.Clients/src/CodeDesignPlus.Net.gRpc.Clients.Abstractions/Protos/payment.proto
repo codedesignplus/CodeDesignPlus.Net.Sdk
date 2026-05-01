@@ -5,6 +5,8 @@ import "google/protobuf/wrappers.proto";
 
 option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Payment";
 
+package Payment;
+
 service Payment {
   rpc InitiatePayment (InitiatePaymentRequest) returns (InitiatePaymentResponse);
 }
