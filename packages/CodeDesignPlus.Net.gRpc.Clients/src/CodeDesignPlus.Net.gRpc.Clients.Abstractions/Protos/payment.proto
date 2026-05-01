@@ -44,6 +44,7 @@ message Buyer {
   string email = 4;
   optional TypeDocument typeDocument = 5;
   optional string document = 6;
+  optional Address shippingAddress = 7;
 }
 
 message Payer {

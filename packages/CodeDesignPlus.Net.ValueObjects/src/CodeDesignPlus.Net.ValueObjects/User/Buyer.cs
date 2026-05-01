@@ -11,21 +11,44 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// <remarks>
 /// <para><strong>Usage Examples:</strong></para>
 ///
-/// <para><strong>Example 1: PayU Colombia (Complete - LATAM compliance)</strong></para>
+/// <para><strong>Example 1: Physical Product with Shipping (E-commerce)</strong></para>
 /// <code>
 /// var typeDoc = TypeDocument.Create("CC", "Cédula de Ciudadanía");
+/// var shippingAddr = Address.Create(
+///     street: "Carrera 15 #89-20",
+///     country: "CO",
+///     state: "Cundinamarca",
+///     city: "Bogotá",
+///     postalCode: "110221"
+/// );
+///
 /// var buyer = Buyer.Create(
 ///     buyerId: userId,
 ///     name: "Juan Pérez",
 ///     phone: "+573001234567",
 ///     email: "juan@email.com",
 ///     typeDocument: typeDoc,
-///     document: "1234567890"
+///     document: "1234567890",
+///     shippingAddress: shippingAddr
 /// );
-/// // All fields populated for markets requiring full identification
+/// // Complete buyer for physical product delivery
 /// </code>
 ///
-/// <para><strong>Example 2: Stripe International (Minimal)</strong></para>
+/// <para><strong>Example 2: Digital Product/Service (No Shipping)</strong></para>
+/// <code>
+/// var typeDoc = TypeDocument.Create("CC", "Cédula de Ciudadanía");
+/// var buyer = Buyer.CreateWithoutShipping(
+///     buyerId: userId,
+///     name: "María López",
+///     phone: "+573101234567",
+///     email: "maria@email.com",
+///     typeDocument: typeDoc,
+///     document: "9876543210"
+/// );
+/// // buyer.ShippingAddress = null (digital product - no delivery needed)
+/// </code>
+///
+/// <para><strong>Example 3: International Digital Service (Minimal)</strong></para>
 /// <code>
 /// var buyer = Buyer.CreateMinimal(
 ///     buyerId: userId,
@@ -35,18 +58,8 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// );
 /// // buyer.TypeDocument = null
 /// // buyer.Document = null
-/// // Use for international markets that don't require fiscal identification
-/// </code>
-///
-/// <para><strong>Example 3: Mercado Pago Argentina</strong></para>
-/// <code>
-/// var buyer = Buyer.CreateMinimal(
-///     buyerId: userId,
-///     name: "María López",
-///     phone: "+5491123456789",
-///     email: "maria@email.com"
-/// );
-/// // Mercado Pago can handle buyer without document in some flows
+/// // buyer.ShippingAddress = null
+/// // For SaaS subscriptions, streaming services, etc.
 /// </code>
 /// </remarks>
 public sealed partial class Buyer : IEquatable<Buyer>
@@ -81,9 +94,13 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// Gets the document number of the buyer (optional, required for LATAM markets).
     /// </summary>
     public string? Document { get; private set; }
+    /// <summary>
+    /// Gets the shipping address where physical products will be delivered (optional, not needed for digital products/services).
+    /// </summary>
+    public Address? ShippingAddress { get; private set; }
 
     [JsonConstructor]
-    private Buyer(Guid buyerId, string name, string phone, string email, TypeDocument? typeDocument, string? document)
+    private Buyer(Guid buyerId, string name, string phone, string email, TypeDocument? typeDocument, string? document, Address? shippingAddress)
     {
         Guard.GuidIsEmpty(buyerId, Exceptions.Layer.None, "000 : BuyerId cannot be empty");
 
@@ -113,11 +130,29 @@ public sealed partial class Buyer : IEquatable<Buyer>
         this.Phone = normalizedPhone;
         this.Email = normalizedEmail;
         this.TypeDocument = typeDocument;
+        this.ShippingAddress = shippingAddress;
     }
 
     /// <summary>
-    /// Creates a new immutable snapshot of the buyer's details with all fields (LATAM compliance).
-    /// Use this for markets requiring full identification: Colombia (PSE), Mexico, Brazil.
+    /// Creates a new immutable snapshot of the buyer's details with all fields including shipping address.
+    /// Use this for physical product purchases requiring full identification and delivery (LATAM compliance).
+    /// </summary>
+    /// <param name="buyerId">The unique identifier of the buyer.</param>
+    /// <param name="name">The name of the buyer.</param>
+    /// <param name="phone">The phone number of the buyer.</param>
+    /// <param name="email">The email address of the buyer.</param>
+    /// <param name="typeDocument">The type of document of the buyer.</param>
+    /// <param name="document">The document number of the buyer.</param>
+    /// <param name="shippingAddress">The shipping address for physical product delivery.</param>
+    /// <returns>A new instance of the <see cref="Buyer"/> class.</returns>
+    public static Buyer Create(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document, Address shippingAddress)
+    {
+        return new Buyer(buyerId, name, phone, email, typeDocument, document, shippingAddress);
+    }
+
+    /// <summary>
+    /// Creates a buyer snapshot with identification but without shipping address.
+    /// Use this for digital products/services that don't require physical delivery.
     /// </summary>
     /// <param name="buyerId">The unique identifier of the buyer.</param>
     /// <param name="name">The name of the buyer.</param>
@@ -126,15 +161,15 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <param name="typeDocument">The type of document of the buyer.</param>
     /// <param name="document">The document number of the buyer.</param>
     /// <returns>A new instance of the <see cref="Buyer"/> class.</returns>
-    public static Buyer Create(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document)
+    public static Buyer CreateWithoutShipping(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document)
     {
-        return new Buyer(buyerId, name, phone, email, typeDocument, document);
+        return new Buyer(buyerId, name, phone, email, typeDocument, document, null);
     }
 
     /// <summary>
-    /// Creates a minimal buyer snapshot without document identification (international markets).
-    /// Use this for Stripe, PayPal, or markets that don't require fiscal identification.
-    /// TypeDocument and Document will be null.
+    /// Creates a minimal buyer snapshot without document identification or shipping address.
+    /// Use this for digital products/services in international markets (Stripe, PayPal).
+    /// TypeDocument, Document, and ShippingAddress will be null.
     /// </summary>
     /// <param name="buyerId">The unique identifier of the buyer.</param>
     /// <param name="name">The name of the buyer.</param>
@@ -143,7 +178,7 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <returns>A new instance of the <see cref="Buyer"/> class.</returns>
     public static Buyer CreateMinimal(Guid buyerId, string name, string phone, string email)
     {
-        return new Buyer(buyerId, name, phone, email, null, null);
+        return new Buyer(buyerId, name, phone, email, null, null, null);
     }
 
     /// <summary>
@@ -186,7 +221,8 @@ public sealed partial class Buyer : IEquatable<Buyer>
                this.Phone == other.Phone &&
                this.Email == other.Email &&
                Equals(this.TypeDocument, other.TypeDocument) &&
-               this.Document == other.Document;
+               this.Document == other.Document &&
+               Equals(this.ShippingAddress, other.ShippingAddress);
     }
 
     /// <summary>
@@ -202,6 +238,6 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <returns>A hash code for the current <see cref="Buyer"/>.</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(BuyerId, Name, Phone, Email, TypeDocument, Document);
+        return HashCode.Combine(BuyerId, Name, Phone, Email, TypeDocument, Document, ShippingAddress);
     }
 }
