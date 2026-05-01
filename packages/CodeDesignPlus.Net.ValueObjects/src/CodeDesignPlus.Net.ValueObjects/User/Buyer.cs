@@ -6,7 +6,49 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// <summary>
 /// Represents the snapshot of a buyer's information at the exact moment a payment is initiated.
 /// This immutable Value Object guarantees that contact and identification details remain valid and unchanged.
+/// The buyer is the person who makes the purchase and receives order notifications.
 /// </summary>
+/// <remarks>
+/// <para><strong>Usage Examples:</strong></para>
+///
+/// <para><strong>Example 1: PayU Colombia (Complete - LATAM compliance)</strong></para>
+/// <code>
+/// var typeDoc = TypeDocument.Create("CC", "Cédula de Ciudadanía");
+/// var buyer = Buyer.Create(
+///     buyerId: userId,
+///     name: "Juan Pérez",
+///     phone: "+573001234567",
+///     email: "juan@email.com",
+///     typeDocument: typeDoc,
+///     document: "1234567890"
+/// );
+/// // All fields populated for markets requiring full identification
+/// </code>
+///
+/// <para><strong>Example 2: Stripe International (Minimal)</strong></para>
+/// <code>
+/// var buyer = Buyer.CreateMinimal(
+///     buyerId: userId,
+///     name: "John Doe",
+///     phone: "+12125551234",
+///     email: "john@email.com"
+/// );
+/// // buyer.TypeDocument = null
+/// // buyer.Document = null
+/// // Use for international markets that don't require fiscal identification
+/// </code>
+///
+/// <para><strong>Example 3: Mercado Pago Argentina</strong></para>
+/// <code>
+/// var buyer = Buyer.CreateMinimal(
+///     buyerId: userId,
+///     name: "María López",
+///     phone: "+5491123456789",
+///     email: "maria@email.com"
+/// );
+/// // Mercado Pago can handle buyer without document in some flows
+/// </code>
+/// </remarks>
 public sealed partial class Buyer : IEquatable<Buyer>
 {
     [GeneratedRegex(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", RegexOptions.Compiled)]
@@ -32,16 +74,16 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// </summary>
     public string Email { get; private set; }
     /// <summary>
-    /// Gets the type of document of the buyer.
+    /// Gets the type of document of the buyer (optional, required for LATAM markets).
     /// </summary>
-    public TypeDocument TypeDocument { get; private set; }
+    public TypeDocument? TypeDocument { get; private set; }
     /// <summary>
-    /// Gets the document number of the buyer.
+    /// Gets the document number of the buyer (optional, required for LATAM markets).
     /// </summary>
-    public string Document { get; private set; }
+    public string? Document { get; private set; }
 
     [JsonConstructor]
-    private Buyer(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document)
+    private Buyer(Guid buyerId, string name, string phone, string email, TypeDocument? typeDocument, string? document)
     {
         Guard.GuidIsEmpty(buyerId, Exceptions.Layer.None, "000 : BuyerId cannot be empty");
 
@@ -57,22 +99,25 @@ public sealed partial class Buyer : IEquatable<Buyer>
         Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, "005 : Email cannot be null or empty");
         Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, "006 : Email contains invalid characters");
 
-        Guard.IsNull(typeDocument, Exceptions.Layer.None, "007 : TypeDocument cannot be null");
-
-        var normalizedDocument = document?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, "008 : Document cannot be null or empty");
-        Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, "009 : Document cannot be greater than 20 characters");
+        // Optional fields validation - only validate if provided
+        if (document != null)
+        {
+            var normalizedDocument = document.Trim();
+            Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, "008 : Document cannot be empty when provided");
+            Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, "009 : Document cannot be greater than 20 characters");
+            this.Document = normalizedDocument;
+        }
 
         this.BuyerId = buyerId;
         this.Name = normalizedName;
         this.Phone = normalizedPhone;
         this.Email = normalizedEmail;
         this.TypeDocument = typeDocument;
-        this.Document = normalizedDocument;
     }
 
     /// <summary>
-    /// Creates a new immutable snapshot of the buyer's details.
+    /// Creates a new immutable snapshot of the buyer's details with all fields (LATAM compliance).
+    /// Use this for markets requiring full identification: Colombia (PSE), Mexico, Brazil.
     /// </summary>
     /// <param name="buyerId">The unique identifier of the buyer.</param>
     /// <param name="name">The name of the buyer.</param>
@@ -84,6 +129,21 @@ public sealed partial class Buyer : IEquatable<Buyer>
     public static Buyer Create(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document)
     {
         return new Buyer(buyerId, name, phone, email, typeDocument, document);
+    }
+
+    /// <summary>
+    /// Creates a minimal buyer snapshot without document identification (international markets).
+    /// Use this for Stripe, PayPal, or markets that don't require fiscal identification.
+    /// TypeDocument and Document will be null.
+    /// </summary>
+    /// <param name="buyerId">The unique identifier of the buyer.</param>
+    /// <param name="name">The name of the buyer.</param>
+    /// <param name="phone">The phone number of the buyer.</param>
+    /// <param name="email">The email address of the buyer.</param>
+    /// <returns>A new instance of the <see cref="Buyer"/> class.</returns>
+    public static Buyer CreateMinimal(Guid buyerId, string name, string phone, string email)
+    {
+        return new Buyer(buyerId, name, phone, email, null, null);
     }
 
     /// <summary>
@@ -125,7 +185,7 @@ public sealed partial class Buyer : IEquatable<Buyer>
                this.Name == other.Name &&
                this.Phone == other.Phone &&
                this.Email == other.Email &&
-               this.TypeDocument.Equals(other.TypeDocument) && // Asumiendo que TypeDocument es un Enum o implementa IEquatable
+               Equals(this.TypeDocument, other.TypeDocument) &&
                this.Document == other.Document;
     }
 
