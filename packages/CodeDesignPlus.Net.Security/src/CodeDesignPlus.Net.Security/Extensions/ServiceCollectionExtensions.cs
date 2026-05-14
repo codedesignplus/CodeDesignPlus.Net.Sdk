@@ -168,6 +168,9 @@ public static class ServiceCollectionExtensions
     /// <returns>A task that represents the asynchronous operation.</returns>
     internal static async Task AuthenticationFailed(AuthenticationFailedContext context)
     {
+        if (context.Response.HasStarted)
+            return;
+
         var exception = context.Exception;
 
         context.Response.StatusCode = StatusCodes.Status401Unauthorized;

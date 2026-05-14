@@ -45,6 +45,9 @@ public static class AuthenticationFailedContextExtensions
     /// <returns>A task that represents the asynchronous operation.</returns>
     private static async Task WriteTokenException(this AuthenticationFailedContext context, string header, string message)
     {
+        if (context.Response.HasStarted)
+            return;
+
         var isGrpcRequest = context.Request.ContentType?.StartsWith("application/grpc", StringComparison.OrdinalIgnoreCase) == true;
 
         if (isGrpcRequest)
