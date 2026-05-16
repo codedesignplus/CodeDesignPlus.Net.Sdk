@@ -76,9 +76,11 @@ message Location {
 message Country {
   string id = 1;
   string name = 2;
-  uint32 code = 3; // ISO 3166-1 numeric code
-  string timezone = 4; // IANA Time Zone Database format
-  Currency currency = 5;
+  string alpha2 = 3; // ISO 3166-1 alpha-2 code
+  string alpha3 = 4; // ISO 3166-1 alpha-3 code
+  uint32 code = 5; // ISO 3166-1 numeric code
+  string timezone = 6; // IANA Time Zone Database format
+  Currency currency = 7;
 }
 
 message State {
@@ -104,10 +106,12 @@ message Neighborhood {
 }
 
 message Currency {
-  string id = 1; 
+  string id = 1;
   string code = 2; // ISO 4217 currency code
   string name = 3;
   string symbol = 4;
+  int32 decimalDigits = 5; // Number of decimal digits
+  int32 numericCode = 6; // ISO 4217 numeric code
 }
 
 message GetTenantRequest {

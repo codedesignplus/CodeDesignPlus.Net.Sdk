@@ -1,7 +1,6 @@
 using System.Threading.Channels;
 using Grpc.Core;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notification;
-using Google.Protobuf.WellKnownTypes;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Services.Notifications;
 
@@ -29,11 +28,9 @@ public class NotificationService : INotificationGrpc, IDisposable, IAsyncDisposa
 
         backgroundTasks =
         [
-            Task.Run(() => HandleStreamAsync(userChannel.Reader,token => this.client.SendToUser(cancellationToken: token), "User Stream", cts.Token)),
-
-            Task.Run(() => HandleStreamAsync(broadcastChannel.Reader,token => this.client.Broadcast(cancellationToken: token), "Broadcast Stream", cts.Token)),
-
-            Task.Run(() => HandleStreamAsync(groupChannel.Reader,token => this.client.SendToGroup(cancellationToken: token), "Group Stream", cts.Token))
+            Task.Run(() => HandleStreamAsync(userChannel.Reader, token => this.client.SendToUser(cancellationToken: token), "User Stream", cts.Token)),
+            Task.Run(() => HandleStreamAsync(broadcastChannel.Reader, token => this.client.Broadcast(cancellationToken: token), "Broadcast Stream", cts.Token)),
+            Task.Run(() => HandleStreamAsync(groupChannel.Reader, token => this.client.SendToGroup(cancellationToken: token), "Group Stream", cts.Token))
         ];
     }
 
@@ -52,7 +49,11 @@ public class NotificationService : INotificationGrpc, IDisposable, IAsyncDisposa
         await groupChannel.Writer.WriteAsync(request, cancellationToken);
     }
 
-    private async Task HandleStreamAsync<TRequest>(ChannelReader<TRequest> channelReader, Func<CancellationToken, AsyncClientStreamingCall<TRequest, Empty>> callFactory, string streamName, CancellationToken token)
+    private async Task HandleStreamAsync<TRequest>(
+        ChannelReader<TRequest> channelReader,
+        Func<CancellationToken, AsyncDuplexStreamingCall<TRequest, NotificationResponse>> callFactory,
+        string streamName,
+        CancellationToken token)
     {
         while (!token.IsCancellationRequested)
         {
@@ -60,25 +61,29 @@ public class NotificationService : INotificationGrpc, IDisposable, IAsyncDisposa
             {
                 using var call = callFactory(token);
 
+                // Read responses from server in background
+                var responseTask = Task.Run(async () =>
+                {
+                    await foreach (var response in call.ResponseStream.ReadAllAsync(token))
+                    {
+                        if (!response.Success)
+                            logger.LogWarning("{StreamName} server reported failure: {Message}", streamName, response.Message);
+                    }
+                }, token);
+
                 await foreach (var request in channelReader.ReadAllAsync(token))
                 {
                     await call.RequestStream.WriteAsync(request, token);
                 }
 
                 await call.RequestStream.CompleteAsync();
-                await call;
+                await responseTask;
             }
             catch (RpcException ex)
             {
                 logger.LogError(ex, "gRPC Error in {StreamName}. Reconnecting in 5s...", streamName);
-                try
-                {
-                    await Task.Delay(5000, token);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
+                try { await Task.Delay(5000, token); }
+                catch (OperationCanceledException) { break; }
             }
             catch (OperationCanceledException)
             {
@@ -87,15 +92,8 @@ public class NotificationService : INotificationGrpc, IDisposable, IAsyncDisposa
             catch (Exception ex)
             {
                 logger.LogError(ex, "Unexpected error in {StreamName}. Reconnecting in 5s...", streamName);
-
-                try
-                {
-                    await Task.Delay(5000, token);
-                }
-                catch (OperationCanceledException)
-                {
-                    break;
-                }
+                try { await Task.Delay(5000, token); }
+                catch (OperationCanceledException) { break; }
             }
         }
     }

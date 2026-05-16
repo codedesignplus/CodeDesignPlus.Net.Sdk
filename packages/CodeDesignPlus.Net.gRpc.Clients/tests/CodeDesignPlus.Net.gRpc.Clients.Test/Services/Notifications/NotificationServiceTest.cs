@@ -2,7 +2,6 @@ using System.Reflection;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notification;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notifications;
 using CodeDesignPlus.Net.xUnit.Extensions;
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Core;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -39,7 +38,7 @@ public class NotificationServiceTests
             .Returns(Task.CompletedTask)
             .Callback(() => resetEvent.Set());
 
-        var call = CreateCall(mockUserStream.Object);
+        var call = CreateDuplexCall(mockUserStream.Object);
         mockClient.Setup(x => x.SendToUser(It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
                    .Returns(call);
 
@@ -50,7 +49,6 @@ public class NotificationServiceTests
 
         // Assert
         Assert.True(resetEvent.Wait(1000), "El mensaje no fue procesado por el stream a tiempo.");
-
         mockUserStream.Verify(x => x.WriteAsync(request, It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -66,7 +64,7 @@ public class NotificationServiceTests
             .Returns(Task.CompletedTask)
             .Callback(() => resetEvent.Set());
 
-        var call = CreateCall(mockBroadcastStream.Object);
+        var call = CreateDuplexCall(mockBroadcastStream.Object);
         mockClient.Setup(x => x.Broadcast(It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
                    .Returns(call);
 
@@ -92,7 +90,7 @@ public class NotificationServiceTests
             .Returns(Task.CompletedTask)
             .Callback(() => resetEvent.Set());
 
-        var call = CreateCall(mockGroupStream.Object);
+        var call = CreateDuplexCall(mockGroupStream.Object);
         mockClient.Setup(x => x.SendToGroup(It.IsAny<Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
                    .Returns(call);
 
@@ -117,7 +115,6 @@ public class NotificationServiceTests
 
         // Act
         await Task.Delay(100);
-
         await service.DisposeAsync();
 
         // Assert
@@ -150,7 +147,6 @@ public class NotificationServiceTests
         var fieldInfo = typeof(NotificationService).GetField("backgroundTasks", BindingFlags.NonPublic | BindingFlags.Instance);
         var tasks = (List<Task>)fieldInfo!.GetValue(service)!;
 
-        // Añadimos una tarea que ya ha fallado
         tasks.Add(Task.FromException(new Exception("Shutdown Error")));
 
         // Act
@@ -160,11 +156,23 @@ public class NotificationServiceTests
         mockLogger.VerifyLogging("Error during NotificationService shutdown", LogLevel.Error);
     }
 
-    private AsyncClientStreamingCall<TRequest, Empty> CreateCall<TRequest>(IClientStreamWriter<TRequest> requestStream)
+    /// <summary>
+    /// Creates a mock <see cref="AsyncDuplexStreamingCall{TRequest, TResponse}"/> backed by the given request stream.
+    /// The response stream is an empty async enumerable so the background reader loop exits cleanly.
+    /// </summary>
+    private static AsyncDuplexStreamingCall<TRequest, NotificationResponse> CreateDuplexCall<TRequest>(
+        IClientStreamWriter<TRequest> requestStream)
     {
-        return new AsyncClientStreamingCall<TRequest, Empty>(
+        var mockResponseStream = new Mock<IAsyncStreamReader<NotificationResponse>>();
+
+        // Response stream returns no items immediately so the reader task completes without blocking.
+        mockResponseStream
+            .Setup(x => x.MoveNext(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+
+        return new AsyncDuplexStreamingCall<TRequest, NotificationResponse>(
             requestStream,
-            Task.FromResult(new Empty()),
+            mockResponseStream.Object,
             Task.FromResult(new Metadata()),
             () => Status.DefaultSuccess,
             () => [],

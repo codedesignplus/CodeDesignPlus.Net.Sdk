@@ -1,28 +1,26 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-
 option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Notification";
 
-package Notification;
+package Notifications;
 
 service Notifier {
   //Sent notifications to a specific user identified by their ID.
-  rpc SendToUser (stream NotificationUserRequest) returns (google.protobuf.Empty);
+  rpc SendToUser (stream NotificationUserRequest) returns (stream NotificationResponse);
   //Sends a broadcast notification to all connected users (within a Tenant).
-  rpc Broadcast (stream NotificationBroadcastRequest) returns (google.protobuf.Empty);
+  rpc Broadcast (stream NotificationBroadcastRequest) returns (stream NotificationResponse);
   //Sends notifications to a logical group of connections (e.g., "Administrators", "Project_A").
-  rpc SendToGroup (stream NotificationGroupRequest) returns (google.protobuf.Empty);
+  rpc SendToGroup (stream NotificationGroupRequest) returns (stream NotificationResponse);
 }
 
 message NotificationUserRequest {
   string id = 1;
   //Unique identifier of the target user (GUID or JWT Sub).
-  string userId = 2;      
+  string userId = 2;
   //Name of the event in the frontend (e.g., OrderUpdated).
-  string eventName = 3;    
+  string eventName = 3;
   //Serialized JSON object with the notification data.
-  string jsonPayload = 4;   
+  string jsonPayload = 4;
   //Identifier of the client/organization for data isolation.
   string tenant = 5;
   //Identifier of the system or user originating the notification.
@@ -53,4 +51,9 @@ message NotificationGroupRequest {
   string tenant = 5;
   //Identifier of the system or user originating the notification.
   string sentBy = 6;
+}
+
+message NotificationResponse {
+  bool success = 1;
+  string message = 2;
 }
