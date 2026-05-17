@@ -61,7 +61,7 @@
       "executor": "nx:run-commands",
       "outputs": [],
       "options": {
-        "command": "dotnet nuget push dist/CodeDesignPlus.Net.Exceptions/*.nupkg --source {args.source} --api-key {args.token}"
+        "command": "dotnet nuget push dist/CodeDesignPlus.Net.Exceptions/*.nupkg --source {args.source} --api-key {args.token} --skip-duplicate"
       }
     }
   }
