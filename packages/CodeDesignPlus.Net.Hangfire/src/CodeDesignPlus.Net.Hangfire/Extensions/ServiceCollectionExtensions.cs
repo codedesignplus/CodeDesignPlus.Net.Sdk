@@ -15,9 +15,7 @@ public static class ServiceCollectionExtensions
     /// <param name="services">Colección de servicios de DI.</param>
     /// <param name="configuration">Configuración de la aplicación.</param>
     /// <returns>La misma colección de servicios para encadenamiento.</returns>
-    public static IServiceCollection AddHangfire<TProgram>(
-        this IServiceCollection services,
-        IConfiguration configuration)
+    public static IServiceCollection AddHangfire<TProgram>(this IServiceCollection services, IConfiguration configuration) 
         where TProgram : class
     {
         ArgumentNullException.ThrowIfNull(services);
