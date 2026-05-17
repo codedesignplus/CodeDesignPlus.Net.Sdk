@@ -41,6 +41,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Hangfire.Abstractions\CodeDesignPlus.Net.Hangfire.Abstractions.csproj" />
-    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Redis\src\CodeDesignPlus.Net.Redis.Abstractions\CodeDesignPlus.Net.Redis.Abstractions.csproj" />
+    <PackageReference Include="CodeDesignPlus.Net.Redis.Abstractions" Version="0.13.0-beta.12770" />
   </ItemGroup>
 </Project>
