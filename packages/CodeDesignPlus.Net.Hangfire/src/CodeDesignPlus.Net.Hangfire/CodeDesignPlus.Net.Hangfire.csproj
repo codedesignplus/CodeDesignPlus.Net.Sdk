@@ -5,7 +5,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>CodeDesignPlus.Net.Hangfire es una librería que integra Hangfire como motor de jobs recurrentes y en segundo plano en el ecosistema CodeDesignPlus, usando Redis como storage a través de IRedisFactory y ofreciendo auto-descubrimiento de jobs vía reflexión.</Description>
+    <Description>CodeDesignPlus.Net.Hangfire integra Hangfire en el ecosistema CodeDesignPlus con soporte para Redis y MongoDB como storage (configurable), auto-descubrimiento de jobs vía reflexión y atributo [RecurringJobOptions].</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageId>CodeDesignPlus.Net.Hangfire</PackageId>
     <RepositoryType>git</RepositoryType>
@@ -32,15 +32,16 @@
     <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.Hangfire.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.22" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.8.23" />
     <PackageReference Include="Hangfire.Redis.StackExchange" Version="1.12.0" />
+    <PackageReference Include="Hangfire.Mongo" Version="1.15.0" />
     <PackageReference Include="Hangfire.Dashboard.BasicAuthorization" Version="1.0.2" />
+    <PackageReference Include="CodeDesignPlus.Net.Redis.Abstractions" Version="0.13.0-beta.12770" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.7" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Hangfire.Abstractions\CodeDesignPlus.Net.Hangfire.Abstractions.csproj" />
-    <PackageReference Include="CodeDesignPlus.Net.Redis.Abstractions" Version="0.13.0-beta.12770" />
   </ItemGroup>
 </Project>

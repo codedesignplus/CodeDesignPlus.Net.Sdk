@@ -6,16 +6,20 @@ namespace CodeDesignPlus.Net.Hangfire.Extensions;
 public static class ServiceCollectionExtensions
 {
     /// <summary>
-    /// Registra Hangfire en el contenedor de DI usando Redis (vía <see cref="IRedisFactory"/>)
-    /// como storage, y auto-descubre los jobs marcados con
-    /// <see cref="RecurringJobOptionsAttribute"/>.
+    /// Registra Hangfire en el contenedor de DI usando Redis o MongoDB como storage
+    /// (según <see cref="HangfireOptions.StorageType"/>), y auto-descubre los jobs
+    /// marcados con <see cref="RecurringJobOptionsAttribute"/>.
     /// </summary>
-    /// <typeparam name="TProgram">Tipo del punto de entrada del microservicio.
-    /// Se usa para obtener el ensamblado donde se buscan los jobs.</typeparam>
+    /// <typeparam name="TProgram">
+    /// Tipo del punto de entrada del microservicio.
+    /// Se usa para obtener el ensamblado donde se buscan los jobs.
+    /// </typeparam>
     /// <param name="services">Colección de servicios de DI.</param>
     /// <param name="configuration">Configuración de la aplicación.</param>
     /// <returns>La misma colección de servicios para encadenamiento.</returns>
-    public static IServiceCollection AddHangfire<TProgram>(this IServiceCollection services, IConfiguration configuration) 
+    public static IServiceCollection AddHangfire<TProgram>(
+        this IServiceCollection services,
+        IConfiguration configuration)
         where TProgram : class
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -37,17 +41,15 @@ public static class ServiceCollectionExtensions
 
         services.AddHangfire((serviceProvider, config) =>
         {
-            var redisFactory = serviceProvider.GetRequiredService<IRedisFactory>();
-            var redis = redisFactory.Create(FactoryConst.RedisCore);
-
             config
                 .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
                 .UseSimpleAssemblyNameTypeSerializer()
-                .UseRecommendedSerializerSettings()
-                .UseRedisStorage(redis.Connection, new RedisStorageOptions
-                {
-                    Prefix = options.Prefix
-                });
+                .UseRecommendedSerializerSettings();
+
+            if (options.StorageType == HangfireStorageType.Mongo)
+                ConfigureMongoStorage(serviceProvider, config, options);
+            else
+                ConfigureRedisStorage(serviceProvider, config, options);
         });
 
         services.AddHangfireServer(serverOptions =>
@@ -114,6 +116,47 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
+    /// Configura Redis como storage de Hangfire usando <see cref="IRedisFactory"/>
+    /// del SDK CodeDesignPlus.
+    /// </summary>
+    private static void ConfigureRedisStorage(
+        IServiceProvider serviceProvider,
+        IGlobalConfiguration config,
+        HangfireOptions options)
+    {
+        var redisFactory = serviceProvider.GetRequiredService<IRedisFactory>();
+        var redis = redisFactory.Create(FactoryConst.RedisCore);
+
+        config.UseRedisStorage(redis.Connection, new RedisStorageOptions
+        {
+            Prefix = options.Prefix
+        });
+    }
+
+    /// <summary>
+    /// Configura MongoDB como storage de Hangfire usando el <see cref="IMongoClient"/>
+    /// registrado por <c>AddMongo()</c> del SDK CodeDesignPlus.
+    /// </summary>
+    private static void ConfigureMongoStorage(
+        IServiceProvider serviceProvider,
+        IGlobalConfiguration config,
+        HangfireOptions options)
+    {
+        var mongoClient = serviceProvider.GetRequiredService<IMongoClient>();
+
+        config.UseMongoStorage(mongoClient, options.Mongo.DatabaseName, new MongoStorageOptions
+        {
+            Prefix = options.Prefix,
+            CheckConnection = options.Mongo.CheckConnection,
+            MigrationOptions = new MongoMigrationOptions
+            {
+                MigrationStrategy = new MigrateMongoMigrationStrategy(),
+                BackupStrategy = new CollectionMongoBackupStrategy()
+            }
+        });
+    }
+
+    /// <summary>
     /// Registra como servicios Scoped todas las clases del ensamblado de
     /// <typeparamref name="TProgram"/> que implementen <see cref="IRecurrentJob"/>.
     /// </summary>
@@ -159,7 +202,6 @@ public static class ServiceCollectionExtensions
             var attr = jobType.GetCustomAttribute<RecurringJobOptionsAttribute>()!;
             var jobId = attr.JobId ?? ToKebabCase(jobType.Name);
 
-            // Construye la lambda: (TJob job) => job.ExecuteAsync(JobCancellationToken.Null)
             var parameter = Expression.Parameter(jobType, "job");
             var cancelToken = Expression.Constant(JobCancellationToken.Null, typeof(IJobCancellationToken));
             var methodInfo = jobType.GetMethod(nameof(IRecurrentJob.ExecuteAsync))!;
