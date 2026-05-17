@@ -1,0 +1,16 @@
+global using System;
+global using System.Collections.Generic;
+global using System.Linq.Expressions;
+global using CodeDesignPlus.Net.Hangfire.Abstractions;
+global using CodeDesignPlus.Net.Hangfire.Abstractions.Attributes;
+global using CodeDesignPlus.Net.Hangfire.Abstractions.Options;
+global using CodeDesignPlus.Net.Hangfire.Extensions;
+global using CodeDesignPlus.Net.Hangfire.Services;
+global using Hangfire;
+global using Hangfire.Common;
+global using Hangfire.States;
+global using Hangfire.Storage;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Moq;
+global using Xunit;

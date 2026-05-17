@@ -1,0 +1,16 @@
+global using System;
+global using System.Collections.Generic;
+global using System.Linq;
+global using System.Linq.Expressions;
+global using System.Reflection;
+global using CodeDesignPlus.Net.Hangfire.Abstractions;
+global using CodeDesignPlus.Net.Hangfire.Abstractions.Attributes;
+global using CodeDesignPlus.Net.Hangfire.Abstractions.Options;
+global using CodeDesignPlus.Net.Hangfire.Services;
+global using CodeDesignPlus.Net.Redis.Abstractions;
+global using Hangfire;
+global using Hangfire.Dashboard.BasicAuthorization;
+global using Hangfire.Redis.StackExchange;
+global using Microsoft.AspNetCore.Builder;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
