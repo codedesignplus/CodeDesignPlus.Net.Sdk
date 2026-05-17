@@ -202,23 +202,30 @@ public static class ServiceCollectionExtensions
             var attr = jobType.GetCustomAttribute<RecurringJobOptionsAttribute>()!;
             var jobId = attr.JobId ?? ToKebabCase(jobType.Name);
 
+            // Build lambda: (TJob job) => job.ExecuteAsync(JobCancellationToken.Null)
             var parameter = Expression.Parameter(jobType, "job");
             var cancelToken = Expression.Constant(JobCancellationToken.Null, typeof(IJobCancellationToken));
-            var methodInfo = jobType.GetMethod(nameof(IRecurrentJob.ExecuteAsync))!;
-            var methodCall = Expression.Call(parameter, methodInfo, cancelToken);
+            var executeMethod = jobType.GetMethod(nameof(IRecurrentJob.ExecuteAsync))!;
+            var methodCall = Expression.Call(parameter, executeMethod, cancelToken);
+            var lambdaDelegateType = typeof(Expression<>).MakeGenericType(typeof(Action<>).MakeGenericType(jobType));
 
-            var lambdaDelegateType = typeof(Action<>).MakeGenericType(jobType);
-            var lambda = Expression.Lambda(lambdaDelegateType, methodCall, parameter);
-
-            var addOrUpdateMethod = typeof(IRecurringJobManager)
+            // AddOrUpdate<T> generic overloads live in RecurringJobManagerExtensions, NOT on IRecurringJobManager.
+            // We target the 5-param overload: (manager, recurringJobId, methodCall, cronExpression, options)
+            var addOrUpdateMethod = typeof(RecurringJobManagerExtensions)
                 .GetMethods()
-                .First(m => m.Name == nameof(IRecurringJobManager.AddOrUpdate)
+                .First(m => m.Name == "AddOrUpdate"
                          && m.IsGenericMethod
-                         && m.GetParameters().Length == 4)
+                         && m.GetParameters().Length == 5
+                         && m.GetParameters()[2].ParameterType.Name.StartsWith("Expression")
+                         && m.GetParameters()[3].ParameterType == typeof(string)
+                         && m.GetParameters()[4].ParameterType == typeof(RecurringJobOptions))
                 .MakeGenericMethod(jobType);
 
-            addOrUpdateMethod.Invoke(recurringJobManager,
+            var lambda = Expression.Lambda(typeof(Action<>).MakeGenericType(jobType), methodCall, parameter);
+
+            addOrUpdateMethod.Invoke(null,
             [
+                recurringJobManager,
                 jobId,
                 lambda,
                 attr.CronExpression,
