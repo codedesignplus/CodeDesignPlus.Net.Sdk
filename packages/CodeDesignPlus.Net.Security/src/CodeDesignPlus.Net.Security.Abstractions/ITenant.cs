@@ -65,4 +65,13 @@ public interface ITenant
     /// Get the metadata.
     /// </summary>
     Dictionary<string, string> Metadata { get; }
+    /// <summary>
+    /// Get the license modules purchased by the tenant.
+    /// </summary>
+    IReadOnlyList<LicenseModule> Modules { get; }
+    /// <summary>
+    /// Returns true if the tenant's license includes the module with the given ID.
+    /// </summary>
+    /// <param name="moduleId">The module identifier to check.</param>
+    bool HasModule(Guid moduleId);
 }

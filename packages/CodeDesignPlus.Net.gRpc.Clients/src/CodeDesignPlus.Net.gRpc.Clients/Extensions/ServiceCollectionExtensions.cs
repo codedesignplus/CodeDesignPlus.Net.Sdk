@@ -8,6 +8,10 @@ using CodeDesignPlus.Net.gRpc.Clients.Services.Notifications;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Currencies;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Countries;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Memory;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Licenses;
+using LicenseGrpc = CodeDesignPlus.Net.Microservice.Licenses.Rest.Grpc.LicenseService;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Cache;
+using CodeDesignPlus.Net.Security.Abstractions;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -97,6 +101,19 @@ public static class ServiceCollectionExtensions
             services.AddSingleton<IMemoryService<ValueObjects.Location.Country>, MemoryService<ValueObjects.Location.Country>>();
 
         }
+
+        if (!string.IsNullOrEmpty(options!.License))
+        {
+            services.AddGrpcClient<LicenseGrpc.LicenseServiceClient>(o =>
+            {
+                o.Address = new Uri(options.License);
+            });
+
+            services.AddScoped<ILicenseGrpc, LicenseService>();
+        }
+
+        if (!string.IsNullOrEmpty(options!.Tenant) && !string.IsNullOrEmpty(options!.License))
+            services.AddScoped<ITenantCacheLoader, TenantCacheLoader>();
 
         return services;
     }

@@ -30,4 +30,8 @@ public class GrpcClientsOptions
     /// Gets or sets the URL for the Location gRPC service.
     /// </summary>
     public string Location { get; set; } = null!;
+    /// <summary>
+    /// Gets or sets the URL for the License gRPC service.
+    /// </summary>
+    public string License { get; set; } = null!;
 }

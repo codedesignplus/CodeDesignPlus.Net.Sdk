@@ -27,4 +27,9 @@ public class License
     /// Gets or sets the metadata information of the license.
     /// </summary>
     public Dictionary<string, string> Metadata { get; set; } = [];
+    /// <summary>
+    /// Gets or sets the modules active in this license snapshot.
+    /// This is an immutable capture of the modules purchased at order time.
+    /// </summary>
+    public List<LicenseModule> Modules { get; set; } = [];
 }

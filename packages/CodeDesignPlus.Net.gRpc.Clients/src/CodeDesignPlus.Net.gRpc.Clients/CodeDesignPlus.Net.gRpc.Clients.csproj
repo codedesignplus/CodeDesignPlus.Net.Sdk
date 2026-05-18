@@ -41,6 +41,11 @@
 	<ItemGroup>
 		<ProjectReference Include="..\CodeDesignPlus.Net.gRpc.Clients.Abstractions\CodeDesignPlus.Net.gRpc.Clients.Abstractions.csproj" />
     	<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
+		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Cache\src\CodeDesignPlus.Net.Cache.Abstractions\CodeDesignPlus.Net.Cache.Abstractions.csproj" />
+		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.ValueObjects\src\CodeDesignPlus.Net.ValueObjects\CodeDesignPlus.Net.ValueObjects.csproj" />
+	</ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="NodaTime" Version="3.2.2" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Services\Countries\" />

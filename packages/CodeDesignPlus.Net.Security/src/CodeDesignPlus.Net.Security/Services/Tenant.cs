@@ -116,4 +116,13 @@ public class Tenant : ITenant
     /// Get the metadata.
     /// </summary>
     public Dictionary<string, string> Metadata => this.tenant.Metadata;
+    /// <summary>
+    /// Get the license modules purchased by the tenant.
+    /// </summary>
+    public IReadOnlyList<Models.LicenseModule> Modules => this.tenant.License.Modules;
+    /// <summary>
+    /// Returns true if the tenant's license includes the module with the given ID.
+    /// </summary>
+    /// <param name="moduleId">The module identifier to check.</param>
+    public bool HasModule(Guid moduleId) => this.tenant.License.Modules.Any(m => m.Id == moduleId);
 }

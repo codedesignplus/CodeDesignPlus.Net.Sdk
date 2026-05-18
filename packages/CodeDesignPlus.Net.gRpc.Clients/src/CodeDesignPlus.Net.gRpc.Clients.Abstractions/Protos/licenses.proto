@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.Microservice.Licenses.Rest.Grpc";
+
+package license_service;
+
+service LicenseService {
+  // Returns the immutable license snapshot for a given tenant (based on their purchase order).
+  // Used by LicenseMiddleware in the Security SDK to populate the tenant cache.
+  rpc GetTenantLicense (GetTenantLicenseRequest) returns (GetTenantLicenseResponse);
+}
+
+message GetTenantLicenseRequest {
+  string tenant_id = 1;
+}
+
+message GetTenantLicenseResponse {
+  string license_id = 1;
+  string name = 2;
+  google.protobuf.Timestamp start_date = 3;
+  google.protobuf.Timestamp end_date = 4;
+  repeated LicenseModuleResponse modules = 5;
+  map<string, string> metadata = 6;
+}
+
+message LicenseModuleResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+}

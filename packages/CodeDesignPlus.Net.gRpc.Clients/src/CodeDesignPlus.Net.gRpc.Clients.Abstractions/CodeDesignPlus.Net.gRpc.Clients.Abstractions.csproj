@@ -61,6 +61,9 @@
     <Protobuf Include="Protos\country.proto" GrpcServices="Client">
       <Link>Protos\country.proto</Link>
     </Protobuf>
+    <Protobuf Include="Protos\licenses.proto" GrpcServices="Client">
+      <Link>Protos\licenses.proto</Link>
+    </Protobuf>
   </ItemGroup>
   
   <ItemGroup>
