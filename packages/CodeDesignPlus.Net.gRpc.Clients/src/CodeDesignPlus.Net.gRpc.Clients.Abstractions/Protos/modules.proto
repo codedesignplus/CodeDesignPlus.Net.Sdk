@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.Microservice.Modules.gRpc";
+
+package Module;
+
+service Module {
+  rpc CreateModule (CreateModuleRequest) returns (google.protobuf.Empty);
+  rpc UpdateModule (UpdateModuleRequest) returns (google.protobuf.Empty);
+  rpc DeleteModule (DeleteModuleRequest) returns (google.protobuf.Empty);
+  rpc GetModuleById (GetModuleByIdRequest) returns (GetModuleResponse);
+  rpc GetAllModules (GetAllModulesRequest) returns (GetAllModulesResponse);
+  rpc AddService (AddServiceRequest) returns (google.protobuf.Empty);
+  rpc RemoveService (RemoveServiceRequest) returns (google.protobuf.Empty);
+}
+
+message CreateModuleRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated ServiceMessage services = 4;
+}
+
+message UpdateModuleRequest {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated ServiceMessage services = 4;
+  bool is_active = 5;
+}
+
+message DeleteModuleRequest {
+  string id = 1;
+}
+
+message GetModuleByIdRequest {
+  string id = 1;
+}
+
+message GetAllModulesRequest {
+  string filters = 1;
+  int32 limit = 2;
+}
+
+message GetModuleResponse {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  repeated ServiceMessage services = 4;
+  bool is_active = 5;
+}
+
+message GetAllModulesResponse {
+  repeated GetModuleResponse modules = 1;
+  int64 total_count = 2;
+}
+
+message AddServiceRequest {
+  string module_id = 1;
+  string service_id = 2;
+  string name = 3;
+  string controller = 4;
+  string action = 5;
+  string http_method = 6;
+}
+
+message RemoveServiceRequest {
+  string module_id = 1;
+  string service_id = 2;
+}
+
+message ServiceMessage {
+  string id = 1;
+  string name = 2;
+  string controller = 3;
+  string action = 4;
+  string http_method = 5;
+}

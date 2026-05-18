@@ -36,7 +36,7 @@
     <PackageReference Include="Hangfire.Redis.StackExchange" Version="1.12.0" />
     <PackageReference Include="Hangfire.Mongo" Version="1.15.0" />
     <PackageReference Include="Hangfire.Dashboard.BasicAuthorization" Version="1.0.2" />
-    <PackageReference Include="CodeDesignPlus.Net.Redis.Abstractions" Version="0.13.0-beta.12770" />
+    <PackageReference Include="CodeDesignPlus.Net.Redis.Abstractions" Version="0.13.0-beta.12816" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.7" />

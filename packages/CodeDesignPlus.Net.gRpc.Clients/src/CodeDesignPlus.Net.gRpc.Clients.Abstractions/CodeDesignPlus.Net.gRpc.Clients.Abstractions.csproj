@@ -64,6 +64,9 @@
     <Protobuf Include="Protos\licenses.proto" GrpcServices="Client">
       <Link>Protos\licenses.proto</Link>
     </Protobuf>
+    <Protobuf Include="Protos\modules.proto" GrpcServices="Client">
+      <Link>Protos\modules.proto</Link>
+    </Protobuf>
   </ItemGroup>
   
   <ItemGroup>
