@@ -42,6 +42,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Hangfire.Abstractions\CodeDesignPlus.Net.Hangfire.Abstractions.csproj" />
-		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Redis.Abstractions\src\CodeDesignPlus.Net.Redis.Abstractions\CodeDesignPlus.Net.Redis.Abstractions.csproj" />
+		<ProjectReference Include="..\..\..\CodeDesignPlus.Net.Redis\src\CodeDesignPlus.Net.Redis.Abstractions\CodeDesignPlus.Net.Redis.Abstractions.csproj" />
   </ItemGroup>
 </Project>
