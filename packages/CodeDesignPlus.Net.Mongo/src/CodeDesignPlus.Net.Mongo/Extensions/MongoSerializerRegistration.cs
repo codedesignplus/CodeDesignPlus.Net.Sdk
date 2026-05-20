@@ -18,75 +18,92 @@ public static class MongoSerializerRegistration
         RegisterNullableInstantSerializer();
         RegisterDurationSerializer();
         RegisterNullableDurationSerializer();
+        RegisterLocalDateSerializer();
+        RegisterNullableLocalDateSerializer();
+        RegisterLocalTimeSerializer();
+        RegisterNullableLocalTimeSerializer();
+        RegisterLocalDateTimeSerializer();
+        RegisterNullableLocalDateTimeSerializer();
+        RegisterZonedDateTimeSerializer();
+        RegisterNullableZonedDateTimeSerializer();
     }
 
-    /// <summary>
-    /// Registers the <see cref="NullableInstantSerializer"/> if it has not been registered yet.
-    /// </summary>
-    private static void RegisterNullableInstantSerializer()
-    {
-        try
-        {
-            BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
-        }
-        catch
-        {
-            // the unit test will fail if the serializer is already registered
-        }
-    }
-
-    /// <summary>
-    /// Registers the <see cref="InstantSerializer"/> if it has not been registered yet.
-    /// </summary>
-    private static void RegisterInstantSerializer()
-    {
-        try
-        {
-            BsonSerializer.TryRegisterSerializer(new InstantSerializer());
-        }
-        catch
-        {
-            // the unit test will fail if the serializer is already registered
-        }
-    }
-
-    /// <summary>
-    /// Registers the <see cref="GuidSerializer"/> if it has not been registered yet.
-    /// </summary>
     private static void RegisterGuidSerializer()
     {
-        try
-        {
-            BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
-        }
-        catch
-        {
-            // the unit test will fail if the serializer is already registered
-        }
+        try { BsonSerializer.TryRegisterSerializer(new GuidSerializer(GuidRepresentation.Standard)); }
+        catch { }
     }
 
-    private static void RegisterNullableDurationSerializer()
+    private static void RegisterInstantSerializer()
     {
-        try
-        {
-            BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer());
-        }
-        catch
-        {
-            // the unit test will fail if the serializer is already registered
-        }
+        try { BsonSerializer.TryRegisterSerializer(new InstantSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterNullableInstantSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new NullableInstantSerializer()); }
+        catch { }
     }
 
     private static void RegisterDurationSerializer()
     {
-        try
-        {
-            BsonSerializer.TryRegisterSerializer(new InstantSerializer());
-        }
-        catch
-        {
-            // the unit test will fail if the serializer is already registered
-        }
+        try { BsonSerializer.TryRegisterSerializer(new DurationSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterNullableDurationSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new NullableDurationSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterLocalDateSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new LocalDateSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterNullableLocalDateSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new NullableLocalDateSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterLocalTimeSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new LocalTimeSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterNullableLocalTimeSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new NullableLocalTimeSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterLocalDateTimeSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new LocalDateTimeSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterNullableLocalDateTimeSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new NullableLocalDateTimeSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterZonedDateTimeSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new ZonedDateTimeSerializer()); }
+        catch { }
+    }
+
+    private static void RegisterNullableZonedDateTimeSerializer()
+    {
+        try { BsonSerializer.TryRegisterSerializer(new NullableZonedDateTimeSerializer()); }
+        catch { }
     }
 }
 
