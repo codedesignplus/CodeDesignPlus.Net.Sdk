@@ -103,6 +103,25 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     }
 
     /// <summary>
+    /// Creates a new entity or replaces it if one with the same Id already exists (upsert).
+    /// Useful for event-driven projections where the order of Create/Update events is not guaranteed.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="entity">The entity to create or replace.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous upsert operation.</returns>
+    public Task UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+
+        var filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
+        var options = new ReplaceOptions { IsUpsert = true };
+
+        return collection.ReplaceOneAsync(filter, entity, options, cancellationToken);
+    }
+
+    /// <summary>
     /// Determines whether an entity exists by its identifier asynchronously.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
