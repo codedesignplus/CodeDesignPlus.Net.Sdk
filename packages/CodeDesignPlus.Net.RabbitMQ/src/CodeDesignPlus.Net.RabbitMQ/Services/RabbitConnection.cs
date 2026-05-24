@@ -30,7 +30,9 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services
                 HostName = settings.Host,
                 Port = settings.Port,
                 UserName = settings.UserName,
-                Password = settings.Password
+                Password = settings.Password,
+                AutomaticRecoveryEnabled = true,
+                NetworkRecoveryInterval = TimeSpan.FromSeconds(10)
             };
 
             var isConnected = false;
