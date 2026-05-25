@@ -32,8 +32,9 @@ public static class VaultExtensions
 
         if (options.Enable)
         {
+            services.AddSingleton(new VaultClientProvider(options));
             services.AddSingleton<IVaultTransit, VaultTransit>();
-            services.AddSingleton(x => VaultClientFactory.Create(options));
+            services.AddHostedService<VaultTokenRenewalService>();
         }
 
         return services;

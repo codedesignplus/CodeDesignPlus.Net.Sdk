@@ -3,7 +3,7 @@ namespace CodeDesignPlus.Net.Vault.Services;
 /// <summary>
 /// Implementation of the IVaultTransit interface for Vault Transit operations, providing methods for encryption and decryption.
 /// </summary>
-public class VaultTransit(IVaultClient client, IOptions<VaultOptions> options) : IVaultTransit
+public class VaultTransit(VaultClientProvider clientProvider, IOptions<VaultOptions> options) : IVaultTransit
 {
 
     /// <summary>
@@ -26,7 +26,7 @@ public class VaultTransit(IVaultClient client, IOptions<VaultOptions> options) :
             Base64EncodedContext = Convert.ToBase64String(Encoding.UTF8.GetBytes(context)),
         };
 
-        var decryptionResponse = await client.V1.Secrets.Transit.DecryptAsync(keyName, decryptOptions, mountPoint: $"{options.Value.Solution}-transit");
+        var decryptionResponse = await clientProvider.Client.V1.Secrets.Transit.DecryptAsync(keyName, decryptOptions, mountPoint: $"{options.Value.Solution}-transit");
 
         var value = Convert.ToString(Encoding.UTF8.GetString(Convert.FromBase64String(decryptionResponse.Data.Base64EncodedPlainText)));
 
@@ -61,7 +61,7 @@ public class VaultTransit(IVaultClient client, IOptions<VaultOptions> options) :
             BatchedDecryptionItems = items
         };
 
-        var decryptionResponse = await client.V1.Secrets.Transit.DecryptAsync(keyName, decryptOptions, mountPoint: $"{options.Value.Solution}-transit");
+        var decryptionResponse = await clientProvider.Client.V1.Secrets.Transit.DecryptAsync(keyName, decryptOptions, mountPoint: $"{options.Value.Solution}-transit");
 
         var values = decryptionResponse.Data.BatchedResults.Select(x =>
         {
@@ -93,7 +93,7 @@ public class VaultTransit(IVaultClient client, IOptions<VaultOptions> options) :
             KeyType = options.Value.Transit.KeyType
         };
 
-        var encryptionResponse = await client.V1.Secrets.Transit.EncryptAsync(keyName, encryptOptions, $"{options.Value.Solution}-transit");
+        var encryptionResponse = await clientProvider.Client.V1.Secrets.Transit.EncryptAsync(keyName, encryptOptions, $"{options.Value.Solution}-transit");
 
         return (keyName, encryptionResponse.Data.CipherText);
     }
@@ -127,7 +127,7 @@ public class VaultTransit(IVaultClient client, IOptions<VaultOptions> options) :
             BatchedEncryptionItems = items
         };
 
-        var encryptionResponse = await client.V1.Secrets.Transit.EncryptAsync(keyName, encryptOptions, mountPoint: $"{options.Value.Solution}-transit");
+        var encryptionResponse = await clientProvider.Client.V1.Secrets.Transit.EncryptAsync(keyName, encryptOptions, mountPoint: $"{options.Value.Solution}-transit");
 
         return (keyName, encryptionResponse.Data.BatchedResults.Select(x => x.CipherText).ToList());
     }
