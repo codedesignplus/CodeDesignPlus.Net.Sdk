@@ -28,7 +28,7 @@ public class TenantTest
         Currency.Create(Guid.NewGuid(), "US Dollar", code, "$", 2, numericCode);
 
     private static Country CreateCountry(string timezone = "America/New_York", Currency? currency = null) =>
-        Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, timezone, currency ?? CreateCurrency());
+        Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", timezone, currency ?? CreateCurrency());
 
     private static State CreateState() =>
         State.Create(Guid.NewGuid(), "New York", "NY");
@@ -280,7 +280,7 @@ public class TenantTest
         // Arrange
         var city = City.Create(Guid.NewGuid(), "New York", "CityTZ");
         var currency = Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
-        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "CountryTZ", currency);
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", "CountryTZ", currency);
         var tenant = new M.Tenant { Location = CreateLocation(country: country, city: city) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
@@ -298,7 +298,7 @@ public class TenantTest
         // Arrange
         var city = City.Create(Guid.NewGuid(), "New York", null);
         var currency = Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
-        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "CountryTZ", currency);
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", "CountryTZ", currency);
         var tenant = new M.Tenant { Location = CreateLocation(country: country, city: city) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);
@@ -315,7 +315,7 @@ public class TenantTest
     {
         // Arrange
         var currency = Currency.Create(Guid.NewGuid(), "Colombian Peso", "COP", "$", 2, 170);
-        var country = Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "America/Bogota", currency);
+        var country = Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "+57", "America/Bogota", currency);
         var tenant = new M.Tenant { Location = CreateLocation(country: country) };
         tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!
             .SetValue(tenantService, tenant);

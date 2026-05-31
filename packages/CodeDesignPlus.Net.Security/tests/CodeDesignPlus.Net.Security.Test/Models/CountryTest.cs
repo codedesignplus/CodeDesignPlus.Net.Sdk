@@ -9,7 +9,7 @@ public class CountryTest
     public void Country_Create_SetsId_Correctly()
     {
         var id = Guid.NewGuid();
-        var country = Country.Create(id, "United States", "US", "USA", 840, "PST", CreateCurrency());
+        var country = Country.Create(id, "United States", "US", "USA", 840, "+1", "PST", CreateCurrency());
         Assert.IsType<Guid>(country.Id);
         Assert.Equal(id, country.Id);
     }
@@ -17,7 +17,7 @@ public class CountryTest
     [Fact]
     public void Country_Create_SetsName_Correctly()
     {
-        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", "PST", CreateCurrency());
         Assert.IsType<string>(country.Name);
         Assert.Equal("United States", country.Name);
     }
@@ -25,7 +25,7 @@ public class CountryTest
     [Fact]
     public void Country_Create_SetsAlpha2_Correctly()
     {
-        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", "PST", CreateCurrency());
         Assert.IsType<string>(country.Alpha2);
         Assert.Equal("US", country.Alpha2);
     }
@@ -33,7 +33,7 @@ public class CountryTest
     [Fact]
     public void Country_Create_SetsTimezone_Correctly()
     {
-        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
+        var country = Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", "PST", CreateCurrency());
         Assert.IsType<string>(country.Timezone);
         Assert.Equal("PST", country.Timezone);
     }
@@ -42,7 +42,7 @@ public class CountryTest
     public void Country_Create_SetsCurrency_Correctly()
     {
         var currency = Currency.Create(Guid.NewGuid(), "Colombian Peso", "COP", "$", 2, 170);
-        var country = Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "America/Bogota", currency);
+        var country = Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "+57", "America/Bogota", currency);
         Assert.IsType<Currency>(country.Currency);
         Assert.Equal("COP", country.Currency.Code);
         Assert.Equal("$", country.Currency.Symbol);

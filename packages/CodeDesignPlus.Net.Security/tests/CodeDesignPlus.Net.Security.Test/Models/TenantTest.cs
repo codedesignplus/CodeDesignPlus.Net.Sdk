@@ -9,7 +9,7 @@ public class TenantTest
 
     private static Location CreateLocation() =>
         Location.Create(
-            Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "America/New_York", CreateCurrency()),
+            Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", "America/New_York", CreateCurrency()),
             State.Create(Guid.NewGuid(), "New York", "NY"),
             City.Create(Guid.NewGuid(), "New York", null),
             Locality.Create(Guid.NewGuid(), "Manhattan"),

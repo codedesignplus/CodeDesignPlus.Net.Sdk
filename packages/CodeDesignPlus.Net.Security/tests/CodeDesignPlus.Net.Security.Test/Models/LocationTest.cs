@@ -6,7 +6,7 @@ public class LocationTest
         Currency.Create(Guid.NewGuid(), "US Dollar", "USD", "$", 2, 840);
 
     private static Country CreateCountry() =>
-        Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "PST", CreateCurrency());
+        Country.Create(Guid.NewGuid(), "United States", "US", "USA", 840, "+1", "PST", CreateCurrency());
 
     private static State CreateState() =>
         State.Create(Guid.NewGuid(), "California", "CA");
