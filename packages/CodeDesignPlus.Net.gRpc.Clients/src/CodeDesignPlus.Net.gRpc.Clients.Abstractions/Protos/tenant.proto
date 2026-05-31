@@ -79,8 +79,9 @@ message Country {
   string alpha2 = 3; // ISO 3166-1 alpha-2 code
   string alpha3 = 4; // ISO 3166-1 alpha-3 code
   uint32 code = 5; // ISO 3166-1 numeric code
-  string timezone = 6; // IANA Time Zone Database format
-  Currency currency = 7;
+  string phone_code = 6; // ITU-T E.164 international dialing code
+  string timezone = 7; // IANA Time Zone Database format
+  Currency currency = 8;
 }
 
 message State {

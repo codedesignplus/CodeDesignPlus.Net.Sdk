@@ -37,6 +37,11 @@ public sealed class Country : IEquatable<Country>
     public ushort Code { get; private set; }
 
     /// <summary>
+    /// International dialing code according to ITU-T E.164 (e.g., "+1", "+57", "+44").
+    /// </summary>
+    public string PhoneCode { get; private set; }
+
+    /// <summary>
     /// The primary timezone of the country.
     /// </summary>
     public string Timezone { get; private set; }
@@ -47,7 +52,7 @@ public sealed class Country : IEquatable<Country>
     public Currency Currency { get; private set; }
 
     [JsonConstructor]
-    private Country(Guid id, string name, string alpha2, string alpha3, ushort code, string timezone, Currency currency)
+    private Country(Guid id, string name, string alpha2, string alpha3, ushort code, string phoneCode, string timezone, Currency currency)
     {
         var normalizedAlpha2 = alpha2?.Trim().ToUpperInvariant() ?? string.Empty;
         var normalizedAlpha3 = alpha3?.Trim().ToUpperInvariant() ?? string.Empty;
@@ -63,15 +68,18 @@ public sealed class Country : IEquatable<Country>
 
         Guard.IsNotInRange(code, 1, 999, Exceptions.Layer.None, "006 : Country numeric code is invalid.");
 
-        Guard.IsNullOrEmpty(timezone, Exceptions.Layer.None, "007 : Country timezone cannot be empty.");
+        Guard.IsNullOrEmpty(phoneCode, Exceptions.Layer.None, "007 : Country phone code cannot be empty.");
 
-        Guard.IsNull(currency, Exceptions.Layer.None, "008 : Country currency is required.");
+        Guard.IsNullOrEmpty(timezone, Exceptions.Layer.None, "008 : Country timezone cannot be empty.");
+
+        Guard.IsNull(currency, Exceptions.Layer.None, "009 : Country currency is required.");
 
         this.Id = id;
         this.Name = name;
         this.Alpha2 = normalizedAlpha2;
         this.Alpha3 = normalizedAlpha3;
         this.Code = code;
+        this.PhoneCode = phoneCode;
         this.Timezone = timezone;
         this.Currency = currency;
     }
@@ -84,12 +92,13 @@ public sealed class Country : IEquatable<Country>
     /// <param name="alpha2">ISO 3166-1 Alpha-2 code (e.g., "US", "CO").</param>
     /// <param name="alpha3">ISO 3166-1 Alpha-3 code (e.g., "USA", "COL").</param>
     /// <param name="code">ISO 3166-1 numeric code (e.g., 840 for USA, 170 for Colombia).</param>
+    /// <param name="phoneCode">International dialing code according to ITU-T E.164 (e.g., "+1", "+57").</param>
     /// <param name="timezone">The primary timezone of the country.</param>
     /// <param name="currency">The primary currency used in this country.</param>
     /// <returns>A new instance of the <see cref="Country"/> class.</returns>
-    public static Country Create(Guid id, string name, string alpha2, string alpha3, ushort code, string timezone, Currency currency)
+    public static Country Create(Guid id, string name, string alpha2, string alpha3, ushort code, string phoneCode, string timezone, Currency currency)
     {
-        return new Country(id, name, alpha2, alpha3, code, timezone, currency);
+        return new Country(id, name, alpha2, alpha3, code, phoneCode, timezone, currency);
     }
 
     /// <summary>
@@ -132,6 +141,7 @@ public sealed class Country : IEquatable<Country>
                this.Alpha2 == other.Alpha2 &&
                this.Alpha3 == other.Alpha3 &&
                this.Code == other.Code &&
+               this.PhoneCode == other.PhoneCode &&
                this.Timezone == other.Timezone &&
                this.Currency == other.Currency;
     }
@@ -149,6 +159,6 @@ public sealed class Country : IEquatable<Country>
     /// <returns>A hash code for the current <see cref="Country"/>.</returns>
     public override int GetHashCode()
     {
-        return HashCode.Combine(Id, Name, Alpha2, Alpha3, Code, Timezone, Currency);
+        return HashCode.Combine(Id, Name, Alpha2, Alpha3, Code, PhoneCode, Timezone, Currency);
     }
 }

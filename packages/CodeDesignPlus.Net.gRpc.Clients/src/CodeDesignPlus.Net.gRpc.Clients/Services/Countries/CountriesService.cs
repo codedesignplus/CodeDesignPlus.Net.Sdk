@@ -34,7 +34,7 @@ public class CountriesService(CountryService.CountryServiceClient client, IMemor
 
         var currency = ValueObjects.Financial.Currency.Create(currencyId, response.Currency.Name, response.Currency.Code, response.Currency.Symbol, (short)response.Currency.DecimalDigits, (short)response.Currency.NumericCode);
 
-        var country = Country.Create(countryId, response.Name, response.Alpha2, response.Alpha3, countryCode, response.Timezone, currency);
+        var country = Country.Create(countryId, response.Name, response.Alpha2, response.Alpha3, countryCode, response.PhoneCode, response.Timezone, currency);
 
         memoryService.AddMemory(GetKey(request), country);
 

@@ -16,6 +16,7 @@ message GetCountryRequest {
   google.protobuf.StringValue alpha2 = 3;
   google.protobuf.StringValue alpha3 = 4;
   google.protobuf.StringValue code = 5;
+  google.protobuf.StringValue phone_code = 6;
 }
 
 message GetCountryResponse {
@@ -24,15 +25,16 @@ message GetCountryResponse {
   string alpha2 = 3;
   string alpha3 = 4;
   string code = 5;
-  optional string capital = 6;
-  Currency currency = 7;
-  string timezone = 8;
-  string name_native = 9;
-  string region = 10;
-  string subregion = 11;
-  double latitude = 12;
-  double longitude = 13;
-  optional string flag = 14;
+  string phone_code = 6;
+  optional string capital = 7;
+  Currency currency = 8;
+  string timezone = 9;
+  string name_native = 10;
+  string region = 11;
+  string subregion = 12;
+  double latitude = 13;
+  double longitude = 14;
+  optional string flag = 15;
 }
 
 // Estructura anidada para el país

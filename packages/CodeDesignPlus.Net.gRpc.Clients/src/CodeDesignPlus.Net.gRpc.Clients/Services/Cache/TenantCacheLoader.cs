@@ -118,6 +118,7 @@ public class TenantCacheLoader(
             proto.Country?.Alpha2 ?? "XX",
             proto.Country?.Alpha3 ?? "XXX",
             (ushort)(proto.Country?.Code ?? 1),
+            proto.Country?.PhoneCode ?? "+1",
             proto.Country?.Timezone ?? "UTC",
             currency);
 
