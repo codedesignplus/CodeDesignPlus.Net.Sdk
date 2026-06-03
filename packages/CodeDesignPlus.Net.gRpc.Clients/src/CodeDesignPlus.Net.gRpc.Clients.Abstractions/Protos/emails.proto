@@ -1,0 +1,47 @@
+syntax = "proto3";
+
+
+import "google/protobuf/wrappers.proto";
+import "google/protobuf/empty.proto";
+
+option csharp_namespace = "CodeDesignPlus.Net.Microservice.Emails.gRpc";
+
+package Emails;
+
+
+service Emails {
+  rpc GetEmails (stream GetEmailsRequest) returns (stream GetEmailsResponse);
+  rpc SendEmail (SendEmailRequest) returns (SendEmailResponse);
+}
+
+message GetEmailsRequest {
+  string Id = 1;
+}
+
+message GetEmailsResponse {
+
+}
+
+message Attachment {
+  string fileName = 1;
+  string contentType = 2;
+  bytes content = 3;
+}
+
+message SendEmailRequest {
+  string id = 1;
+  string idTemplate = 2;
+  repeated string to = 3;
+  repeated string cc = 4;
+  repeated string bcc = 5;
+  string subject = 6;
+  string body = 7;
+  string from = 8;
+  repeated Attachment attachments = 9;
+  map<string, string> values = 10;
+}
+
+message SendEmailResponse {
+  string code = 1;
+  string message = 2;
+}

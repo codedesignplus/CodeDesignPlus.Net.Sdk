@@ -38,4 +38,8 @@ public class GrpcClientsOptions
     /// Gets or sets the URL for the Module gRPC service.
     /// </summary>
     public string Module { get; set; } = null!;
+    /// <summary>
+    /// Gets or sets the URL for the Email gRPC service.
+    /// </summary>
+    public string Email { get; set; } = null!;
 }

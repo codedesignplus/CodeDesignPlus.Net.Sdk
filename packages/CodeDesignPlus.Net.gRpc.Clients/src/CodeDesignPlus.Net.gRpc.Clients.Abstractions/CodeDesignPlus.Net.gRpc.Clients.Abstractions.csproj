@@ -67,6 +67,9 @@
     <Protobuf Include="Protos\modules.proto" GrpcServices="Client">
       <Link>Protos\modules.proto</Link>
     </Protobuf>
+    <Protobuf Include="Protos\emails.proto" GrpcServices="Client">
+      <Link>Protos\emails.proto</Link>
+    </Protobuf>
   </ItemGroup>
   
   <ItemGroup>

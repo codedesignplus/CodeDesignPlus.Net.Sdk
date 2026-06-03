@@ -14,6 +14,7 @@ using LicenseGrpc = CodeDesignPlus.Net.Microservice.Licenses.Rest.Grpc.LicenseSe
 using ModuleGrpc = CodeDesignPlus.Net.Microservice.Modules.gRpc.Module;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Cache;
 using CodeDesignPlus.Net.Security.Abstractions;
+using CodeDesignPlus.Net.gRpc.Clients.Services.Emails;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -122,6 +123,16 @@ public static class ServiceCollectionExtensions
             });
 
             services.AddScoped<IModuleGrpc, ModuleClientService>();
+        }
+
+        if (!string.IsNullOrEmpty(options!.Email))
+        {
+            services.AddGrpcClient<CodeDesignPlus.Net.Microservice.Emails.gRpc.Emails.EmailsClient>(o =>
+            {
+                o.Address = new Uri(options.Email);
+            });
+
+            services.AddScoped<IEmailGrpc, EmailService>();
         }
 
         if (!string.IsNullOrEmpty(options!.Tenant) && !string.IsNullOrEmpty(options!.License))
