@@ -15,6 +15,7 @@ public class RabbitPubSubService : IRabbitPubSub
     private readonly CoreOptions coreOptions;
     private readonly IChannelProvider channelProvider;
     private readonly Dictionary<string, object> argumentsQueue;
+    private readonly IActivityService activityService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RabbitPubSubService"/> class.
@@ -25,7 +26,8 @@ public class RabbitPubSubService : IRabbitPubSub
     /// <param name="channelProvider">The channel provider.</param>
     /// <param name="coreOptions">The core options.</param>
     /// <param name="rabbitMQOptions">The RabbitMQ options.</param>
-    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolver domainEventResolverService, IChannelProvider channelProvider, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions)
+    /// <param name="activityService">The activity service for distributed tracing (optional).</param>
+    public RabbitPubSubService(ILogger<RabbitPubSubService> logger, IServiceProvider serviceProvider, IDomainEventResolver domainEventResolverService, IChannelProvider channelProvider, IOptions<CoreOptions> coreOptions, IOptions<RabbitMQOptions> rabbitMQOptions, IActivityService activityService = null)
     {
         ArgumentNullException.ThrowIfNull(logger);
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -39,6 +41,7 @@ public class RabbitPubSubService : IRabbitPubSub
         this.domainEventResolverService = domainEventResolverService;
         this.coreOptions = coreOptions.Value;
         this.channelProvider = channelProvider;
+        this.activityService = activityService;
 
         this.argumentsQueue = rabbitMQOptions.Value.QueueArguments.GetArguments();
 
@@ -84,6 +87,19 @@ public class RabbitPubSubService : IRabbitPubSub
         var channel = await this.channelProvider.GetChannelPublishAsync(@event.GetType(), cancellationToken);
 
         var exchangeName = await this.channelProvider.ExchangeDeclareAsync(@event.GetType(), cancellationToken);
+
+        // Use Activity.Current from the automatic RabbitMQ instrumentation or current context
+        var activity = Activity.Current;
+
+        // Inject trace context into the domain event metadata before serialization
+        this.activityService?.Inject(activity, @event);
+
+        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.operation.type", "publish");
+        activity?.AddTag("messaging.destination.name", exchangeName);
+        activity?.AddTag("event.type", @event.GetType().Name);
+        activity?.AddTag("event.id", @event.EventId.ToString());
+        activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
 
         var message = JsonSerializer.Serialize(@event);
 
@@ -160,7 +176,9 @@ public class RabbitPubSubService : IRabbitPubSub
     where TEvent : IDomainEvent
     where TEventHandler : IEventHandler<TEvent>
     {
-         try
+        Activity activity = null;
+
+        try
         {
             this.logger.LogDebug("Processing event: {TEvent}.", typeof(TEvent).Name);
 
@@ -174,6 +192,16 @@ public class RabbitPubSubService : IRabbitPubSub
 
             var @event = JsonSerializer.Deserialize<TEvent>(message);
 
+            var parentContext = this.activityService?.Extract(@event);
+
+            activity = this.activityService?.StartActivity($"consume {typeof(TEvent).Name}", ActivityKind.Consumer, parentContext);
+
+            activity?.AddTag("messaging.system", "rabbitmq");
+            activity?.AddTag("messaging.operation.type", "process");
+            activity?.AddTag("event.type", typeof(TEvent).Name);
+            activity?.AddTag("event.id", @event.EventId.ToString());
+            activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
+
             context.SetCurrentDomainEvent(@event);
 
             var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
@@ -181,14 +209,22 @@ public class RabbitPubSubService : IRabbitPubSub
             await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
 
             await channel.BasicAckAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, cancellationToken: cancellationToken);
+
+            activity?.SetStatus(ActivityStatusCode.Ok);
         }
         catch (CodeDesignPlusException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             this.logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
+        finally
+        {
+            activity?.Stop();
         }
     }
 

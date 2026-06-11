@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.File.Storage.Providers;
+namespace CodeDesignPlus.Net.File.Storage.Providers;
 
 /// <summary>
 /// Provides methods for interacting with local file storage.
@@ -9,15 +9,12 @@
 /// <param name="options">The file storage options.</param>
 /// <param name="logger">The logger instance.</param>
 /// <param name="environment">The host environment.</param>
-/// <param name="userContext">The user context.</param>
 public class LocalProvider(
     IOptions<FileStorageOptions> options,
     ILogger<LocalProvider> logger,
-    IHostEnvironment environment,
-    IUserContext userContext
+    IHostEnvironment environment
     ) : BaseProvider(logger, environment), ILocalProvider
 {
-    private readonly IUserContext UserContext = userContext;
     private readonly FileStorageOptions Options = options.Value;
 
     /// <summary>
@@ -25,13 +22,14 @@ public class LocalProvider(
     /// </summary>
     /// <param name="filename">The name of the file to download.</param>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DownloadAsync(string filename, string target, Guid tenant, CancellationToken cancellationToken = default)
     {
         return ProcessAsync(Options.Local.Enable, filename, TypeProviders.LocalProvider, async (file, response) =>
         {
-            var path = Path.Combine(Options.Local.Folder, UserContext.Tenant.ToString(), target, filename);
+            var path = Path.Combine(Options.Local.Folder, tenant.ToString(), target, filename);
 
             if (System.IO.File.Exists(path))
             {
@@ -61,13 +59,14 @@ public class LocalProvider(
     /// <param name="filename">The name of the file.</param>
     /// <param name="target">The target directory.</param>
     /// <param name="renowned">Whether to rename the file if it already exists.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
+    public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned, Guid tenant, CancellationToken cancellationToken = default)
     {
         return ProcessAsync(Options.Local.Enable, filename, TypeProviders.LocalProvider, async (file, response) =>
         {
-            var path = GetFullPath(file, target, renowned);
+            var path = GetFullPath(file, target, tenant, renowned);
 
             using var fileStream = new FileStream(path, FileMode.Create);
 
@@ -85,12 +84,13 @@ public class LocalProvider(
     /// <summary>
     /// Gets a signed URL for downloading a file.
     /// </summary>
-    /// <param name="file">The name of the file to download.</param>
+    /// <param name="filename">The name of the file to download.</param>
     /// <param name="target">The target directory.</param>
     /// <param name="timeSpan">The time span for which the signed URL is valid.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> GetSignedUrlAsync(string filename, string target, TimeSpan timeSpan, CancellationToken cancellationToken)
+    public Task<M.Response> GetSignedUrlAsync(string filename, string target, TimeSpan timeSpan, Guid tenant, CancellationToken cancellationToken)
     {
         throw new NotSupportedException("Signed URLs are not supported for local file storage.");
     }
@@ -100,13 +100,14 @@ public class LocalProvider(
     /// </summary>
     /// <param name="filename">The name of the file to delete.</param>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DeleteAsync(string filename, string target, Guid tenant, CancellationToken cancellationToken = default)
     {
         return ProcessAsync(Options.Local.Enable, filename, TypeProviders.LocalProvider, (file, response) =>
         {
-            var path = Path.Combine(GetPath(target), filename);
+            var path = Path.Combine(GetPath(target, tenant), filename);
 
             if (!System.IO.File.Exists(path))
             {
@@ -125,13 +126,14 @@ public class LocalProvider(
     }
 
     /// <summary>
-    /// Gets the full path for the specified target directory.
+    /// Gets the full path for the specified target directory and tenant.
     /// </summary>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier.</param>
     /// <returns>The full path.</returns>
-    private string GetPath(string target)
+    private string GetPath(string target, Guid tenant)
     {
-        var path = Path.Combine(Options.Local.Folder, UserContext.Tenant.ToString(), target);
+        var path = Path.Combine(Options.Local.Folder, tenant.ToString(), target);
 
         if (!Directory.Exists(path))
             Directory.CreateDirectory(path);
@@ -144,11 +146,12 @@ public class LocalProvider(
     /// </summary>
     /// <param name="file">The file.</param>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier.</param>
     /// <param name="renowned">Whether to rename the file if it already exists.</param>
     /// <returns>The full path.</returns>
-    private string GetFullPath(Abstractions.Models.File file, string target, bool renowned)
+    private string GetFullPath(Abstractions.Models.File file, string target, Guid tenant, bool renowned)
     {
-        var path = GetPath(target);
+        var path = GetPath(target, tenant);
 
         if (!renowned)
             return Path.Combine(path, file.FullName);

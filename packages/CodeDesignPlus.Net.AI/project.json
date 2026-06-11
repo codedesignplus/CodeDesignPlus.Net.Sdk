@@ -1,0 +1,60 @@
+{
+  "name": "CodeDesignPlus.Net.AI",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "projectType": "library",
+  "targets": {
+    "restore": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet restore",
+        "cwd": "packages/CodeDesignPlus.Net.AI"
+      }
+    },
+    "format": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "dotnet format",
+        "cwd": "packages/CodeDesignPlus.Net.AI"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["restore"],
+      "options": {
+        "command": "dotnet build --no-restore",
+        "cwd": "packages/CodeDesignPlus.Net.AI"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "dotnet test --no-build --collect:\"XPlat Code Coverage\"",
+        "cwd": "packages/CodeDesignPlus.Net.AI"
+      }
+    },
+    "sonarqube": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "bash sonar.sh",
+        "cwd": "packages/CodeDesignPlus.Net.AI"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "dotnet pack --no-build -c Release -o ../../dist/packages /p:Version={args.version} --include-symbols --include-source -p:SymbolPackageFormat=snupkg",
+        "cwd": "packages/CodeDesignPlus.Net.AI"
+      }
+    },
+    "push": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["pack"],
+      "options": {
+        "command": "dotnet nuget push ../../dist/packages/CodeDesignPlus.Net.AI.*.nupkg --source https://api.nuget.org/v3/index.json --api-key {args.nuget-api-key} --skip-duplicate",
+        "cwd": "packages/CodeDesignPlus.Net.AI"
+      }
+    }
+  }
+}

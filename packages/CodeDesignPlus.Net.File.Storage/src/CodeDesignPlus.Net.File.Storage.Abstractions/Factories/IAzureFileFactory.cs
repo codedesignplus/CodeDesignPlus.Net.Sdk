@@ -11,11 +11,6 @@ public interface IAzureFileFactory
     FileStorageOptions Options { get; }
 
     /// <summary>
-    /// Gets the user context.
-    /// </summary>
-    IUserContext UserContext { get; }
-
-    /// <summary>
     /// Gets the Share service client.
     /// </summary>
     ShareServiceClient Client { get; }
@@ -27,8 +22,9 @@ public interface IAzureFileFactory
     IAzureFileFactory Create();
 
     /// <summary>
-    /// Gets the Share client for the current tenant.
+    /// Gets the Share client for the specified tenant.
     /// </summary>
+    /// <param name="tenant">The tenant identifier.</param>
     /// <returns>The Share client.</returns>
-    ShareClient GetContainerClient();
+    ShareClient GetContainerClient(Guid tenant);
 }

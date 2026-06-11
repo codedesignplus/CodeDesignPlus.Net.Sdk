@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.File.Storage.Providers;
+namespace CodeDesignPlus.Net.File.Storage.Providers;
 
 /// <summary>
 /// Provides methods for interacting with Azure Blob Storage.
@@ -22,20 +22,21 @@ public class AzureBlobProvider(
     /// </summary>
     /// <param name="filename">The name of the file to download.</param>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> DownloadAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DownloadAsync(string filename, string target, Guid tenant, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
             var name = GetName(target, filename);
 
-            var blobClient = this.factory.GetContainerClient().GetBlobClient(name);
+            var blobClient = this.factory.GetContainerClient(tenant).GetBlobClient(name);
 
             if (!await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 response.Success = false;
-                response.Message = $"The file {filename} does not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} does not exist in the container {tenant}";
 
                 return response;
             }
@@ -59,13 +60,14 @@ public class AzureBlobProvider(
     /// <param name="filename">The name of the file.</param>
     /// <param name="target">The target directory.</param>
     /// <param name="renowned">Whether to rename the file if it already exists.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned = false, CancellationToken cancellationToken = default)
+    public Task<M.Response> UploadAsync(Stream stream, string filename, string target, bool renowned, Guid tenant, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
-            var container = this.factory.GetContainerClient();
+            var container = this.factory.GetContainerClient(tenant);
 
             await container.CreateIfNotExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -94,7 +96,7 @@ public class AzureBlobProvider(
             {
                 AccessTier = AccessTier.Hot,
                 Metadata = file.GetMetadata(this.factory.Options.UriDownload),
-                Tags = file.GetTags(this.factory.UserContext.Tenant),
+                Tags = file.GetTags(tenant),
                 HttpHeaders = new BlobHttpHeaders
                 {
                     ContentType = file.Mime.MimeType
@@ -113,23 +115,24 @@ public class AzureBlobProvider(
     /// <summary>
     /// Gets a signed URL for downloading a file.
     /// </summary>
-    /// <param name="file">The name of the file to download.</param>
+    /// <param name="filename">The name of the file to download.</param>
     /// <param name="target">The target directory.</param>
     /// <param name="timeSpan">The time span for which the signed URL is valid.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> GetSignedUrlAsync(string filename, string target, TimeSpan timeSpan, CancellationToken cancellationToken)
+    public Task<M.Response> GetSignedUrlAsync(string filename, string target, TimeSpan timeSpan, Guid tenant, CancellationToken cancellationToken)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
             var name = GetName(target, filename);
 
-            var blobClient = this.factory.GetContainerClient().GetBlobClient(name);
+            var blobClient = this.factory.GetContainerClient(tenant).GetBlobClient(name);
 
             if (!await blobClient.ExistsAsync(cancellationToken).ConfigureAwait(false))
             {
                 response.Success = false;
-                response.Message = $"The file {file} does not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} does not exist in the container {tenant}";
 
                 return response;
             }
@@ -149,13 +152,14 @@ public class AzureBlobProvider(
     /// </summary>
     /// <param name="filename">The name of the file to delete.</param>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response> DeleteAsync(string filename, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response> DeleteAsync(string filename, string target, Guid tenant, CancellationToken cancellationToken = default)
     {
         return base.ProcessAsync(factory.Options.AzureBlob.Enable, filename, TypeProviders.AzureBlobProvider, async (file, response) =>
         {
-            var container = this.factory.GetContainerClient();
+            var container = this.factory.GetContainerClient(tenant);
 
             var name = GetName(target, filename);
 
@@ -166,7 +170,7 @@ public class AzureBlobProvider(
             response.Success = deleted;
 
             if (!deleted)
-                response.Message = $"The file {filename} does not exist in the container {this.factory.UserContext.Tenant}";
+                response.Message = $"The file {filename} does not exist in the container {tenant}";
 
             return response;
         });

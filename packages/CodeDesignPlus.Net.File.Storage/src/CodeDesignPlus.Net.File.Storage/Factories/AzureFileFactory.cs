@@ -11,11 +11,6 @@
         public FileStorageOptions Options { get; private set; }
 
         /// <summary>
-        /// Gets the user context.
-        /// </summary>
-        public IUserContext UserContext { get; private set; }
-
-        /// <summary>
         /// Gets the ShareServiceClient used to interact with Azure File Storage.
         /// </summary>
         public ShareServiceClient Client { get; private set; }
@@ -24,17 +19,14 @@
         /// Initializes a new instance of the <see cref="AzureFileFactory"/> class.
         /// </summary>
         /// <param name="options">The file storage options.</param>
-        /// <param name="userContext">The user context.</param>
         /// <exception cref="ArgumentNullException">
-        /// Thrown when <paramref name="options"/> or <paramref name="userContext"/> is null.
+        /// Thrown when <paramref name="options"/> is null.
         /// </exception>
-        public AzureFileFactory(IOptions<FileStorageOptions> options, IUserContext userContext)
+        public AzureFileFactory(IOptions<FileStorageOptions> options)
         {
             ArgumentNullException.ThrowIfNull(options);
-            ArgumentNullException.ThrowIfNull(userContext);
 
             Options = options.Value;
-            UserContext = userContext;
         }
 
         /// <summary>
@@ -61,12 +53,13 @@
         }
 
         /// <summary>
-        /// Gets the <see cref="ShareClient"/> for the current tenant.
+        /// Gets the <see cref="ShareClient"/> for the specified tenant.
         /// </summary>
-        /// <returns>The <see cref="ShareClient"/> for the current tenant.</returns>
-        public ShareClient GetContainerClient()
+        /// <param name="tenant">The tenant identifier.</param>
+        /// <returns>The <see cref="ShareClient"/> for the specified tenant.</returns>
+        public ShareClient GetContainerClient(Guid tenant)
         {
-            return this.Client.GetShareClient(this.UserContext.Tenant.ToString());
+            return this.Client.GetShareClient(tenant.ToString());
         }
     }
 }

@@ -14,6 +14,7 @@ public class EventStorePubSubService : IEventStorePubSub
     private readonly CoreOptions options;
     private readonly PersistentSubscriptionSettings settings;
     private readonly IDomainEventResolver domainEventResolverService;
+    private readonly IActivityService activityService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EventStorePubSubService"/> class.
@@ -23,6 +24,7 @@ public class EventStorePubSubService : IEventStorePubSub
     /// <param name="logger">The logger instance.</param>
     /// <param name="coreOptions">The EventStore Pub/Sub options.</param>
     /// <param name="domainEventResolverService">The service to resolve domain events.</param>
+    /// <param name="activityService">The activity service for distributed tracing (optional).</param>
     /// <exception cref="ArgumentNullException">
     /// Thrown when <paramref name="eventStoreFactory"/>, <paramref name="serviceProvider"/>, <paramref name="logger"/>, <paramref name="coreOptions"/>, or <paramref name="domainEventResolverService"/> is null.
     /// </exception>
@@ -31,7 +33,8 @@ public class EventStorePubSubService : IEventStorePubSub
         IServiceProvider serviceProvider,
         ILogger<EventStorePubSubService> logger,
         IOptions<CoreOptions> coreOptions,
-        IDomainEventResolver domainEventResolverService)
+        IDomainEventResolver domainEventResolverService,
+        IActivityService activityService = null)
     {
         ArgumentNullException.ThrowIfNull(eventStoreFactory);
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -44,6 +47,7 @@ public class EventStorePubSubService : IEventStorePubSub
         this.logger = logger;
         this.domainEventResolverService = domainEventResolverService;
         this.options = coreOptions.Value;
+        this.activityService = activityService;
 
         this.settings = PersistentSubscriptionSettings
             .Create()
@@ -63,6 +67,19 @@ public class EventStorePubSubService : IEventStorePubSub
         var connection = await this.eventStoreFactory.CreateAsync(EventStoreFactoryConst.Core, cancellationToken).ConfigureAwait(false);
 
         var stream = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
+
+        // Use Activity.Current from the current context
+        var activity = Activity.Current;
+
+        // Inject trace context into the domain event metadata before serialization
+        this.activityService?.Inject(activity, @event);
+
+        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.operation.type", "publish");
+        activity?.AddTag("messaging.destination.name", stream);
+        activity?.AddTag("event.type", @event.GetType().Name);
+        activity?.AddTag("event.id", @event.EventId.ToString());
+        activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
 
         var eventData = new EventData(
             @event.EventId,
@@ -138,10 +155,12 @@ public class EventStorePubSubService : IEventStorePubSub
     /// <param name="event">The resolved event.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    private Task EventAppearedAsync<TEvent, TEventHandler>(ResolvedEvent @event, CancellationToken cancellationToken)
+    private async Task EventAppearedAsync<TEvent, TEventHandler>(ResolvedEvent @event, CancellationToken cancellationToken)
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        Activity activity = null;
+
         try
         {
             using var scope = serviceProvider.CreateScope();
@@ -150,22 +169,38 @@ public class EventStorePubSubService : IEventStorePubSub
 
             var domainEvent = JsonSerializer.Deserialize<TEvent>(Encoding.UTF8.GetString(@event.Event.Data));
 
+            var parentContext = this.activityService?.Extract(domainEvent);
+
+            activity = this.activityService?.StartActivity($"consume {typeof(TEvent).Name}", ActivityKind.Consumer, parentContext);
+
+            activity?.AddTag("messaging.system", "eventstore");
+            activity?.AddTag("messaging.operation.type", "process");
+            activity?.AddTag("event.type", typeof(TEvent).Name);
+            activity?.AddTag("event.id", domainEvent.EventId.ToString());
+            activity?.AddTag("event.aggregate_id", domainEvent.AggregateId.ToString());
+
             context.SetCurrentDomainEvent(domainEvent);
 
             var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
-            return eventHandler.HandleAsync(@domainEvent, cancellationToken);
+            await eventHandler.HandleAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+
+            activity?.SetStatus(ActivityStatusCode.Ok);
         }
         catch (CodeDesignPlusException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
         }
-
-        return Task.CompletedTask;
+        finally
+        {
+            activity?.Stop();
+        }
     }
 
     /// <summary>

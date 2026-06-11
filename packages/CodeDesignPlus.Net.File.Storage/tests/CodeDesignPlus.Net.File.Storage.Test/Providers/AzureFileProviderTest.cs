@@ -1,9 +1,8 @@
-﻿using Azure.Storage.Files.Shares;
+using Azure.Storage.Files.Shares;
 using Azure.Storage.Files.Shares.Models;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using CodeDesignPlus.Net.File.Storage.Providers;
-using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
@@ -30,7 +29,6 @@ public class AzureFileProviderTest
     private readonly Mock<ShareDirectoryClient> shareDirectoryClientMock;
     private readonly Mock<ShareFileClient> shareFileClientMock;
     private readonly Mock<IAzureFileFactory> factoryMock;
-    private readonly Mock<IUserContext> userContextMock;
 
     public AzureFileProviderTest()
     {
@@ -46,7 +44,6 @@ public class AzureFileProviderTest
         this.options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
         this.loggerMock = new Mock<ILogger<AzureFileProvider>>();
-        this.userContextMock = new Mock<IUserContext>();
         this.environmentMock = new Mock<IHostEnvironment>();
         this.shareServiceClientMock = new Mock<ShareServiceClient>();
         this.shareClientMock = new Mock<ShareClient>();
@@ -54,12 +51,9 @@ public class AzureFileProviderTest
         this.shareFileClientMock = new Mock<ShareFileClient>();
         this.factoryMock = new Mock<IAzureFileFactory>();
 
-        userContextMock.SetupGet(x => x.Tenant).Returns(tenant);
-
         factoryMock.SetupGet(x => x.Options).Returns(options.Value);
-        factoryMock.SetupGet(x => x.UserContext).Returns(userContextMock.Object);
 
-        factoryMock.Setup(x => x.GetContainerClient()).Returns(shareClientMock.Object).Verifiable();
+        factoryMock.Setup(x => x.GetContainerClient(It.IsAny<Guid>())).Returns(shareClientMock.Object).Verifiable();
         factoryMock.Setup(x => x.Create()).Returns(factoryMock.Object).Verifiable();
 
         shareClientMock.Setup(x => x.GetDirectoryClient(It.IsAny<string>())).Returns(shareDirectoryClientMock.Object).Verifiable();
@@ -118,7 +112,7 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, false, tenant, cancellationToken);
 
         // Assert
         AssertUpload(result);
@@ -134,7 +128,7 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, false, tenant, cancellationToken);
 
         // Assert
         AssertUpload(result);
@@ -168,7 +162,7 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, this.filename, target, true, cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, true, tenant, cancellationToken);
 
         // Assert
         AssertUpload(result, 2);
@@ -178,7 +172,7 @@ public class AzureFileProviderTest
     [Fact]
     public async Task UploadAsync_DirectoryNotExist_Success()
     {
-        // Arrange        
+        // Arrange
         shareDirectoryClientMock
             .Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(Azure.Response.FromValue(false, Mock.Of<Azure.Response>()))
@@ -196,7 +190,7 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, false, tenant, cancellationToken);
 
         // Assert
         AssertUpload(result);
@@ -212,7 +206,7 @@ public class AzureFileProviderTest
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
         shareFileClientMock.Verify(x => x.CreateAsync(It.IsAny<long>(), It.IsAny<ShareFileCreateOptions>(), It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
         shareFileClientMock.Verify(x => x.UploadAsync(stream, It.IsAny<ShareFileUploadOptions>(), It.IsAny<CancellationToken>()), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
 
         Assert.True(result.Success);
         Assert.Equal(stream.Length, result.File.Size);
@@ -252,11 +246,11 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.DownloadAsync(this.filename, this.target, cancellationToken);
+        var result = await provider.DownloadAsync(this.filename, this.target, tenant, cancellationToken);
 
         // Assert
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
         shareFileClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
 
@@ -292,11 +286,11 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.DownloadAsync(this.filename, this.target, cancellationToken);
+        var result = await provider.DownloadAsync(this.filename, this.target, tenant, cancellationToken);
 
         // Assert
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
         shareFileClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
 
@@ -335,7 +329,7 @@ public class AzureFileProviderTest
         var timeSpan = TimeSpan.FromMinutes(30);
 
         // Act
-        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, tenant, cancellationToken);
 
         // Assert
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
@@ -375,7 +369,7 @@ public class AzureFileProviderTest
         var timeSpan = TimeSpan.FromMinutes(30);
 
         // Act
-        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, tenant, cancellationToken);
 
         // Assert
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
@@ -405,11 +399,11 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.DeleteAsync(this.filename, this.target, cancellationToken);
+        var result = await provider.DeleteAsync(this.filename, this.target, tenant, cancellationToken);
 
         // Assert
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
         shareFileClientMock.Verify(x => x.DeleteIfExistsAsync(It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
 
@@ -445,11 +439,11 @@ public class AzureFileProviderTest
         var provider = new AzureFileProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.DeleteAsync(this.filename, this.target, cancellationToken);
+        var result = await provider.DeleteAsync(this.filename, this.target, tenant, cancellationToken);
 
         // Assert
         shareClientMock.Verify(x => x.GetDirectoryClient(target), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
         shareDirectoryClientMock.Verify(x => x.GetFileClient(filename), Times.Once);
         shareFileClientMock.Verify(x => x.DeleteIfExistsAsync(It.IsAny<ShareFileRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
 

@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.File.Storage.Services;
+namespace CodeDesignPlus.Net.File.Storage.Services;
 
 /// <summary>
 /// Service for handling file storage operations.
@@ -16,15 +16,19 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
     /// </summary>
     /// <param name="file">The name of the file to delete.</param>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response[]> DeleteAsync(string file, string target, CancellationToken cancellationToken = default)
+    public Task<M.Response[]> DeleteAsync(string file, string target, Guid tenant, CancellationToken cancellationToken = default)
     {
+        if (tenant == Guid.Empty)
+            throw new FileStorageException("Tenant cannot be empty.");
+
         var tasks = new List<Task<M.Response>>();
 
         foreach (var provider in providers)
         {
-            var task = provider.DeleteAsync(file, target, cancellationToken);
+            var task = provider.DeleteAsync(file, target, tenant, cancellationToken);
             tasks.Add(task);
         }
 
@@ -36,13 +40,17 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
     /// </summary>
     /// <param name="file">The name of the file to download.</param>
     /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<M.Response> DownloadAsync(string file, string target, CancellationToken cancellationToken = default)
+    public async Task<M.Response> DownloadAsync(string file, string target, Guid tenant, CancellationToken cancellationToken = default)
     {
+        if (tenant == Guid.Empty)
+            throw new FileStorageException("Tenant cannot be empty.");
+
         foreach (var provider in providers)
         {
-            var response = await provider.DownloadAsync(file, target, cancellationToken).ConfigureAwait(false);
+            var response = await provider.DownloadAsync(file, target, tenant, cancellationToken).ConfigureAwait(false);
 
             if (response != null && response.Success)
                 return response;
@@ -57,13 +65,17 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
     /// <param name="file">The name of the file to download.</param>
     /// <param name="target">The target directory.</param>
     /// <param name="timeSpan">The time span for which the signed URL is valid.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public async Task<M.Response> GetSignedUrlAsync(string file, string target, TimeSpan timeSpan, CancellationToken cancellationToken = default)
+    public async Task<M.Response> GetSignedUrlAsync(string file, string target, TimeSpan timeSpan, Guid tenant, CancellationToken cancellationToken = default)
     {
+        if (tenant == Guid.Empty)
+            throw new FileStorageException("Tenant cannot be empty.");
+
         foreach (var provider in providers)
         {
-            var response = await provider.GetSignedUrlAsync(file, target, timeSpan, cancellationToken).ConfigureAwait(false);
+            var response = await provider.GetSignedUrlAsync(file, target, timeSpan, tenant, cancellationToken).ConfigureAwait(false);
 
             if (response != null && response.Success)
                 return response;
@@ -79,10 +91,14 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
     /// <param name="file">The name of the file.</param>
     /// <param name="target">The target directory.</param>
     /// <param name="renowned">Whether to rename the file if it already exists.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
-    public Task<M.Response[]> UploadAsync(Stream stream, string file, string target, bool renowned, CancellationToken cancellationToken = default)
+    public Task<M.Response[]> UploadAsync(Stream stream, string file, string target, bool renowned, Guid tenant, CancellationToken cancellationToken = default)
     {
+        if (tenant == Guid.Empty)
+            throw new FileStorageException("Tenant cannot be empty.");
+
         var tasks = new List<Task<M.Response>>();
 
         foreach (var provider in providers)
@@ -92,7 +108,7 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
             memory.Position = 0;
             stream.Position = 0;
 
-            var task = provider.UploadAsync(memory, file, target, renowned, cancellationToken);
+            var task = provider.UploadAsync(memory, file, target, renowned, tenant, cancellationToken);
 
             tasks.Add(task);
         }

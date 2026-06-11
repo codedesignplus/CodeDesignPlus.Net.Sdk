@@ -14,7 +14,6 @@ global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Azure.Identity;
 global using Azure.Storage.Blobs;
-global using CodeDesignPlus.Net.Security.Abstractions;
 global using Azure.Storage.Files.Shares;
 global using Azure.Storage.Blobs.Models;
 global using Microsoft.Extensions.Hosting;

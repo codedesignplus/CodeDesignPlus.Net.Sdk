@@ -11,11 +11,6 @@ public interface IAzureBlobFactory
     FileStorageOptions Options { get; }
 
     /// <summary>
-    /// Gets the user context.
-    /// </summary>
-    IUserContext UserContext { get; }
-
-    /// <summary>
     /// Gets the Blob service client.
     /// </summary>
     BlobServiceClient Client { get; }
@@ -27,8 +22,9 @@ public interface IAzureBlobFactory
     IAzureBlobFactory Create();
 
     /// <summary>
-    /// Gets the Blob container client for the current tenant.
+    /// Gets the Blob container client for the specified tenant.
     /// </summary>
+    /// <param name="tenant">The tenant identifier.</param>
     /// <returns>The Blob container client.</returns>
-    BlobContainerClient GetContainerClient();
+    BlobContainerClient GetContainerClient(Guid tenant);
 }

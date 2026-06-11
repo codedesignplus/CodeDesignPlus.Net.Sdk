@@ -14,7 +14,7 @@ namespace CodeDesignPlus.Net.Kafka.Services;
 /// <param name="kafkaOptions">The Kafka options.</param>
 /// <param name="serviceProvider">The service provider.</param>
 /// <param name="coreOptions">The core options.</param>
-public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domainEventResolver, IOptions<KafkaOptions> kafkaOptions, IServiceProvider serviceProvider, IOptions<CoreOptions> coreOptions) : IKafkaPubSub
+public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domainEventResolver, IOptions<KafkaOptions> kafkaOptions, IServiceProvider serviceProvider, IOptions<CoreOptions> coreOptions, IActivityService activityService = null) : IKafkaPubSub
 {
     /// <summary>
     /// Publishes an event to Kafka.
@@ -30,6 +30,19 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
         logger.LogInformation("Starting to publish event to Kafka. Event type: {EventType}", type.Name);
 
         var topic = domainEventResolver.GetKeyDomainEvent(type);
+
+        // Use Activity.Current from the automatic Kafka instrumentation or current context
+        var activity = Activity.Current;
+
+        // Inject trace context into the domain event metadata before serialization
+        activityService?.Inject(activity, @event);
+
+        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.operation.type", "publish");
+        activity?.AddTag("messaging.destination.name", topic);
+        activity?.AddTag("event.type", type.Name);
+        activity?.AddTag("event.id", @event.EventId.ToString());
+        activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
 
         var headers = new Headers
         {
@@ -150,6 +163,8 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
 
         while (!cancellationToken.IsCancellationRequested)
         {
+            Activity activity = null;
+
             try
             {
                 logger.LogInformation("{EventType} | Listener the event {Topic}", typeof(TEvent).Name, topic);
@@ -160,21 +175,40 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
 
                 var value = consumer.Consume(cancellationToken);
 
+                var parentContext = activityService?.Extract(value.Message.Value);
+
+                activity = activityService?.StartActivity($"consume {typeof(TEvent).Name}", ActivityKind.Consumer, parentContext);
+
+                activity?.AddTag("messaging.system", "kafka");
+                activity?.AddTag("messaging.operation.type", "process");
+                activity?.AddTag("messaging.destination.name", topic);
+                activity?.AddTag("event.type", typeof(TEvent).Name);
+                activity?.AddTag("event.id", value.Message.Value.EventId.ToString());
+                activity?.AddTag("event.aggregate_id", value.Message.Value.AggregateId.ToString());
+
                 context.SetCurrentDomainEvent(value.Message.Value);
 
                 var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
                 await eventHandler.HandleAsync(value.Message.Value, cancellationToken).ConfigureAwait(false);
 
+                activity?.SetStatus(ActivityStatusCode.Ok);
+
                 logger.LogInformation("{EventType} | End Listener the event {Topic}", typeof(TEvent).Name, topic);
             }
             catch (CodeDesignPlusException ex)
             {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
             }
             catch (Exception ex)
             {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
                 logger.LogError(ex, "{EventType} | An error occurred while consuming a Kafka message for event topic: {Topic} | {Message}", typeof(TEvent).Name, topic, ex.Message);
+            }
+            finally
+            {
+                activity?.Stop();
             }
         }
     }

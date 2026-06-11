@@ -140,7 +140,6 @@ public class ActivitySourceService : IActivityService
     /// <param name="value">The value of the trace context.</param>
     internal static void InjectTraceContextIntoBasicProperties<TDomainEvent>(TDomainEvent domainEvent, string key, string value) where TDomainEvent : IDomainEvent
     {
-        Console.WriteLine($"Injecting {key}: {value}");
-        domainEvent.Metadata.Add(key, value);
+        domainEvent.Metadata[key] = value;
     }
 }

@@ -11,6 +11,7 @@ public class RedisPubSubService : IRedisPubSub
     private readonly Redis.Abstractions.IRedis redisService;
     private readonly IDomainEventResolver domainEventResolverService;
     private readonly IServiceProvider serviceProvider;
+    private readonly IActivityService activityService;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RedisPubSubService"/> class.
@@ -19,12 +20,14 @@ public class RedisPubSubService : IRedisPubSub
     /// <param name="serviceProvider">The service provider.</param>
     /// <param name="logger">The logger instance.</param>
     /// <param name="domainEventResolverService">The domain event resolver service.</param>
+    /// <param name="activityService">The activity service for distributed tracing (optional).</param>
     /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
     public RedisPubSubService(
         IRedisFactory redisServiceFactory,
         IServiceProvider serviceProvider,
         ILogger<RedisPubSubService> logger,
-        IDomainEventResolver domainEventResolverService)
+        IDomainEventResolver domainEventResolverService,
+        IActivityService activityService = null)
     {
         ArgumentNullException.ThrowIfNull(redisServiceFactory);
         ArgumentNullException.ThrowIfNull(serviceProvider);
@@ -36,6 +39,7 @@ public class RedisPubSubService : IRedisPubSub
         this.domainEventResolverService = domainEventResolverService;
         this.serviceProvider = serviceProvider;
         this.logger = logger;
+        this.activityService = activityService;
 
         this.logger.LogInformation("RedisPubSubService initialized.");
     }
@@ -47,13 +51,32 @@ public class RedisPubSubService : IRedisPubSub
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the event is null.</exception>
-    public Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
+    public async Task PublishAsync(IDomainEvent @event, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(@event);
 
         this.logger.LogInformation("Publishing event: {TEvent}.", @event.GetType().Name);
 
-        return this.PrivatePublishAsync<long>(@event);
+        var channel = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
+
+        // Use Activity.Current from the automatic Redis instrumentation or current context
+        var activity = Activity.Current;
+
+        // Inject trace context into the domain event metadata before serialization
+        this.activityService?.Inject(activity, @event);
+
+        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.operation.type", "publish");
+        activity?.AddTag("messaging.destination.name", channel);
+        activity?.AddTag("event.type", @event.GetType().Name);
+        activity?.AddTag("event.id", @event.EventId.ToString());
+        activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
+
+        var message = JsonSerializer.Serialize(@event);
+
+        var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
+
+        this.logger.LogInformation("Event {TEvent} published with {Notified} notifications.", @event.GetType().Name, notified);
     }
 
     /// <summary>
@@ -67,25 +90,6 @@ public class RedisPubSubService : IRedisPubSub
         var tasks = @event.Select(x => this.PublishAsync(x, cancellationToken));
 
         return Task.WhenAll(tasks);
-    }
-
-    /// <summary>
-    /// Publishes a domain event to the Redis channel.
-    /// </summary>
-    /// <typeparam name="TResult">The result type.</typeparam>
-    /// <param name="event">The domain event to publish.</param>
-    /// <returns>A task that represents the asynchronous operation, containing the result.</returns>
-    private async Task<TResult> PrivatePublishAsync<TResult>(object @event)
-    {
-        var channel = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
-
-        var message = JsonSerializer.Serialize(@event);
-
-        var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
-
-        this.logger.LogInformation("Event {TEvent} published with {Notified} notifications.", @event.GetType().Name, notified);
-
-        return (TResult)Convert.ChangeType(notified, typeof(TResult));
     }
 
     /// <summary>
@@ -117,6 +121,8 @@ public class RedisPubSubService : IRedisPubSub
         where TEvent : IDomainEvent
         where TEventHandler : IEventHandler<TEvent>
     {
+        Activity activity = null;
+
         try
         {
             using var scope = serviceProvider.CreateScope();
@@ -125,19 +131,37 @@ public class RedisPubSubService : IRedisPubSub
 
             var @event = JsonSerializer.Deserialize<TEvent>(value);
 
+            var parentContext = this.activityService?.Extract(@event);
+
+            activity = this.activityService?.StartActivity($"consume {typeof(TEvent).Name}", ActivityKind.Consumer, parentContext);
+
+            activity?.AddTag("messaging.system", "redis");
+            activity?.AddTag("messaging.operation.type", "process");
+            activity?.AddTag("event.type", typeof(TEvent).Name);
+            activity?.AddTag("event.id", @event.EventId.ToString());
+            activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
+
             context.SetCurrentDomainEvent(@event);
 
             var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
             eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);
+
+            activity?.SetStatus(ActivityStatusCode.Ok);
         }
         catch (CodeDesignPlusException ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
         }
         catch (Exception ex)
         {
+            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
             this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+        }
+        finally
+        {
+            activity?.Stop();
         }
     }
 

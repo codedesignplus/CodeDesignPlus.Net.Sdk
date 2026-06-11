@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using Moq;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
@@ -17,6 +17,7 @@ public class FileStorageServiceTest
         var filename = "file.txt";
         var target = "target";
         var renowned = true;
+        var tenant = Guid.NewGuid();
         var file = new M.File(filename);
         var stream = new MemoryStream();
 
@@ -29,12 +30,13 @@ public class FileStorageServiceTest
         var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
-            .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-            .Callback<Stream, string, string, bool, CancellationToken>((s, f, t, r, c) =>
+            .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<Stream, string, string, bool, Guid, CancellationToken>((s, f, t, r, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
                 Assert.Equal(renowned, r);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(stream.Length, s.Length);
                 Assert.Equal(cancellationToken, c);
             })
@@ -42,12 +44,13 @@ public class FileStorageServiceTest
             .Verifiable();
 
         azureFileProviderMock
-            .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-            .Callback<Stream, string, string, bool, CancellationToken>((s, f, t, r, c) =>
+            .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<Stream, string, string, bool, Guid, CancellationToken>((s, f, t, r, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
                 Assert.Equal(renowned, r);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(stream.Length, s.Length);
                 Assert.Equal(cancellationToken, c);
             })
@@ -55,12 +58,13 @@ public class FileStorageServiceTest
             .Verifiable();
 
         localProviderMock
-            .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-            .Callback<Stream, string, string, bool, CancellationToken>((s, f, t, r, c) =>
+            .Setup(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<Stream, string, string, bool, Guid, CancellationToken>((s, f, t, r, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
                 Assert.Equal(renowned, r);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(stream.Length, s.Length);
                 Assert.Equal(cancellationToken, c);
             })
@@ -77,7 +81,7 @@ public class FileStorageServiceTest
         var service = new FileStorageService(providers);
 
         // Act
-        var result = await service.UploadAsync(stream, filename, target, renowned, cancellationToken);
+        var result = await service.UploadAsync(stream, filename, target, renowned, tenant, cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -85,9 +89,9 @@ public class FileStorageServiceTest
         Assert.Contains(responseFile, result);
         Assert.Contains(responseLocal, result);
 
-        azureBlobProviderMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
-        azureFileProviderMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
-        localProviderMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+        azureBlobProviderMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        azureFileProviderMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        localProviderMock.Verify(x => x.UploadAsync(It.IsAny<Stream>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -100,6 +104,7 @@ public class FileStorageServiceTest
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
+        var tenant = Guid.NewGuid();
         var file = new M.File(filename);
 
         var responseBlob = new M.Response(file, TypeProviders.AzureBlobProvider) { Success = true };
@@ -111,11 +116,12 @@ public class FileStorageServiceTest
         var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Callback<string, string, CancellationToken>((f, t, c) =>
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, Guid, CancellationToken>((f, t, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseBlob)
@@ -131,12 +137,12 @@ public class FileStorageServiceTest
         var service = new FileStorageService(providers);
 
         // Act
-        var result = await service.DownloadAsync(filename, target, cancellationToken);
+        var result = await service.DownloadAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(responseBlob, result);
-        azureBlobProviderMock.Verify(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        azureBlobProviderMock.Verify(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -149,6 +155,7 @@ public class FileStorageServiceTest
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
+        var tenant = Guid.NewGuid();
         var file = new M.File(filename);
 
         var responseBlob = new M.Response(file, TypeProviders.AzureBlobProvider) { Success = false };
@@ -160,22 +167,24 @@ public class FileStorageServiceTest
         var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Callback<string, string, CancellationToken>((f, t, c) =>
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, Guid, CancellationToken>((f, t, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseBlob)
             .Verifiable();
 
         azureFileProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Callback<string, string, CancellationToken>((f, t, c) =>
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, Guid, CancellationToken>((f, t, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseFile)
@@ -191,13 +200,13 @@ public class FileStorageServiceTest
         var service = new FileStorageService(providers);
 
         // Act
-        var result = await service.DownloadAsync(filename, target, cancellationToken);
+        var result = await service.DownloadAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(responseFile, result);
-        azureBlobProviderMock.Verify(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-        azureFileProviderMock.Verify(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        azureBlobProviderMock.Verify(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        azureFileProviderMock.Verify(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -210,13 +219,14 @@ public class FileStorageServiceTest
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
+        var tenant = Guid.NewGuid();
 
         var providers = new List<IProvider>();
 
         var service = new FileStorageService(providers);
 
         // Act
-        var result = await service.DownloadAsync(filename, target, cancellationToken);
+        var result = await service.DownloadAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -232,6 +242,7 @@ public class FileStorageServiceTest
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
+        var tenant = Guid.NewGuid();
 
         var responseBlob = new M.Response(new M.File(filename), TypeProviders.AzureBlobProvider) { Success = false };
         var responseFile = new M.Response(new M.File(filename), TypeProviders.AzureFileProvider) { Success = false };
@@ -242,17 +253,17 @@ public class FileStorageServiceTest
         var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(responseBlob)
             .Verifiable();
 
         azureFileProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(responseFile)
             .Verifiable();
 
         localProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(responseLocal)
             .Verifiable();
 
@@ -266,7 +277,7 @@ public class FileStorageServiceTest
         var service = new FileStorageService(providers);
 
         // Act
-        var result = await service.DownloadAsync(filename, target, cancellationToken);
+        var result = await service.DownloadAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -282,23 +293,24 @@ public class FileStorageServiceTest
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
+        var tenant = Guid.NewGuid();
 
         var azureBlobProviderMock = new Mock<IAzureBlobProvider>();
         var azureFileProviderMock = new Mock<IAzureFileProvider>();
         var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((M.Response)null!)
             .Verifiable();
 
         azureFileProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((M.Response)null!)
             .Verifiable();
 
         localProviderMock
-            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .Setup(x => x.DownloadAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((M.Response)null!)
             .Verifiable();
 
@@ -312,7 +324,7 @@ public class FileStorageServiceTest
         var service = new FileStorageService(providers);
 
         // Act
-        var result = await service.DownloadAsync(filename, target, cancellationToken);
+        var result = await service.DownloadAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -328,6 +340,7 @@ public class FileStorageServiceTest
         var options = new Mock<IOptions<FileStorageOptions>>();
         var filename = "file.txt";
         var target = "target";
+        var tenant = Guid.NewGuid();
 
         var responseBlob = new M.Response(new M.File(filename), TypeProviders.AzureBlobProvider) { Success = true };
         var responseFile = new M.Response(new M.File(filename), TypeProviders.AzureFileProvider) { Success = true };
@@ -338,33 +351,36 @@ public class FileStorageServiceTest
         var localProviderMock = new Mock<ILocalProvider>();
 
         azureBlobProviderMock
-            .Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Callback<string, string, CancellationToken>((f, t, c) =>
+            .Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, Guid, CancellationToken>((f, t, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseBlob)
             .Verifiable();
 
         azureFileProviderMock
-            .Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Callback<string, string, CancellationToken>((f, t, c) =>
+            .Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, Guid, CancellationToken>((f, t, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseFile)
             .Verifiable();
 
         localProviderMock
-            .Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
-            .Callback<string, string, CancellationToken>((f, t, c) =>
+            .Setup(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .Callback<string, string, Guid, CancellationToken>((f, t, ten, c) =>
             {
                 Assert.Equal(filename, f);
                 Assert.Equal(target, t);
+                Assert.Equal(tenant, ten);
                 Assert.Equal(cancellationToken, c);
             })
             .ReturnsAsync(responseLocal)
@@ -380,16 +396,16 @@ public class FileStorageServiceTest
         var service = new FileStorageService(providers);
 
         // Act
-        var result = await service.DeleteAsync(filename, target, cancellationToken);
+        var result = await service.DeleteAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         Assert.NotNull(result);
         Assert.Contains(responseBlob, result);
         Assert.Contains(responseFile, result);
         Assert.Contains(responseLocal, result);
-        azureBlobProviderMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-        azureFileProviderMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-        localProviderMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
+        azureBlobProviderMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        azureFileProviderMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
+        localProviderMock.Verify(x => x.DeleteAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Once);
 
     }
 }

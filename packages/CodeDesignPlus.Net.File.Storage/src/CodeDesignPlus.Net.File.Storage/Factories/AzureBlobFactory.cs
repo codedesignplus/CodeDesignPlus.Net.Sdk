@@ -11,11 +11,6 @@ public class AzureBlobFactory : IAzureBlobFactory
     public FileStorageOptions Options { get; private set; }
 
     /// <summary>
-    /// Gets the user context.
-    /// </summary>
-    public IUserContext UserContext { get; private set; }
-
-    /// <summary>
     /// Gets the Blob service client.
     /// </summary>
     public BlobServiceClient Client { get; private set; }
@@ -24,17 +19,14 @@ public class AzureBlobFactory : IAzureBlobFactory
     /// Initializes a new instance of the <see cref="AzureBlobFactory"/> class.
     /// </summary>
     /// <param name="options">The file storage options.</param>
-    /// <param name="userContext">The user context.</param>
     /// <exception cref="ArgumentNullException">
-    /// Thrown when <paramref name="options"/> or <paramref name="userContext"/> is null.
+    /// Thrown when <paramref name="options"/> is null.
     /// </exception>
-    public AzureBlobFactory(IOptions<FileStorageOptions> options, IUserContext userContext)
+    public AzureBlobFactory(IOptions<FileStorageOptions> options)
     {
         ArgumentNullException.ThrowIfNull(options);
-        ArgumentNullException.ThrowIfNull(userContext);
 
         Options = options.Value;
-        UserContext = userContext;
     }
 
     /// <summary>
@@ -61,11 +53,12 @@ public class AzureBlobFactory : IAzureBlobFactory
     }
 
     /// <summary>
-    /// Gets the Blob container client for the current tenant.
+    /// Gets the Blob container client for the specified tenant.
     /// </summary>
+    /// <param name="tenant">The tenant identifier.</param>
     /// <returns>The Blob container client.</returns>
-    public BlobContainerClient GetContainerClient()
+    public BlobContainerClient GetContainerClient(Guid tenant)
     {
-        return this.Client.GetBlobContainerClient(this.UserContext.Tenant.ToString());
+        return this.Client.GetBlobContainerClient(tenant.ToString());
     }
 }

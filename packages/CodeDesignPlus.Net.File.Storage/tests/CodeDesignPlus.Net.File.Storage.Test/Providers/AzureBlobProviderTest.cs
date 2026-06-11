@@ -1,9 +1,8 @@
-﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Factories;
 using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using CodeDesignPlus.Net.File.Storage.Providers;
-using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Moq;
 using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
@@ -29,7 +28,6 @@ public class AzureBlobProviderTest
     private readonly Mock<BlobContainerClient> blobContainerClientMock;
     private readonly Mock<BlobClient> blobClientMock;
     private readonly Mock<IAzureBlobFactory> factoryMock;
-    private readonly Mock<IUserContext> userContextMock;
 
     public AzureBlobProviderTest()
     {
@@ -46,18 +44,14 @@ public class AzureBlobProviderTest
         this.options = O.Options.Create(OptionsUtil.FileStorageOptions);
 
         this.loggerMock = new Mock<ILogger<AzureBlobProvider>>();
-        this.userContextMock = new Mock<IUserContext>();
         this.environmentMock = new Mock<IHostEnvironment>();
         this.blobContainerClientMock = new Mock<BlobContainerClient>();
         this.blobClientMock = new Mock<BlobClient>();
         this.factoryMock = new Mock<IAzureBlobFactory>();
 
-        userContextMock.SetupGet(x => x.Tenant).Returns(tenant);
-
         factoryMock.SetupGet(x => x.Options).Returns(options.Value);
-        factoryMock.SetupGet(x => x.UserContext).Returns(userContextMock.Object);
 
-        factoryMock.Setup(x => x.GetContainerClient()).Returns(blobContainerClientMock.Object).Verifiable();
+        factoryMock.Setup(x => x.GetContainerClient(It.IsAny<Guid>())).Returns(blobContainerClientMock.Object).Verifiable();
         factoryMock.Setup(x => x.Create()).Returns(factoryMock.Object).Verifiable();
 
         blobContainerClientMock.Setup(x => x.GetBlobClient(It.IsAny<string>())).Returns(blobClientMock.Object).Verifiable();
@@ -101,7 +95,7 @@ public class AzureBlobProviderTest
         var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, false, tenant, cancellationToken);
 
         // Assert
         this.AssertsUpload(result);
@@ -110,7 +104,7 @@ public class AzureBlobProviderTest
     [Fact]
     public async Task UploadAsync_EmptyTarget_Success()
     {
-        // Arrange     
+        // Arrange
         this.target = null!;
         this.blobname = $"{filename}";
         this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, this.blobname, TypeProviders.AzureBlobProvider);
@@ -118,7 +112,7 @@ public class AzureBlobProviderTest
         var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, this.filename, target, cancellationToken: cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, false, tenant, cancellationToken);
 
         // Assert
         this.AssertsUpload(result);
@@ -128,7 +122,7 @@ public class AzureBlobProviderTest
     [Fact]
     public async Task UploadAsync_Renowned_Success()
     {
-        // Arrange    
+        // Arrange
         file.Renowned = true;
         this.blobname = $"{target}/{file.Name} ({2}){file.Extension}";
         this.pathDetail = new M.FileDetail(OptionsUtil.FileStorageOptions.UriDownload, target, System.IO.Path.GetFileName(this.blobname), TypeProviders.AzureBlobProvider);
@@ -153,7 +147,7 @@ public class AzureBlobProviderTest
         var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, this.filename, target, true, cancellationToken);
+        var result = await provider.UploadAsync(stream, this.filename, target, true, tenant, cancellationToken);
 
         // Assert
         this.AssertsUpload(result, 2);
@@ -164,7 +158,7 @@ public class AzureBlobProviderTest
         blobContainerClientMock.Verify(x => x.CreateIfNotExistsAsync(It.IsAny<PublicAccessType>(), It.IsAny<Dictionary<string, string>>(), It.IsAny<BlobContainerEncryptionScopeOptions>(), It.IsAny<CancellationToken>()), Times.Once);
         blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
         blobClientMock.Verify(x => x.UploadAsync(stream, It.IsAny<BlobUploadOptions>(), It.IsAny<CancellationToken>()), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
 
         Assert.True(result.Success);
         Assert.Equal(stream.Length, result.File.Size);
@@ -196,13 +190,13 @@ public class AzureBlobProviderTest
 
 
         // Act
-        var result = await provider.DownloadAsync(filename, target, cancellationToken);
+        var result = await provider.DownloadAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
         blobClientMock.Verify(x => x.DownloadToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Once);
         blobClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
 
         this.stream.Position = 0;
         Assert.True(result.Success);
@@ -228,12 +222,12 @@ public class AzureBlobProviderTest
 
 
         // Act
-        var result = await provider.DownloadAsync(filename, target, cancellationToken);
+        var result = await provider.DownloadAsync(filename, target, tenant, cancellationToken);
 
         // Assert
         blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
         blobClientMock.Verify(x => x.ExistsAsync(It.IsAny<CancellationToken>()), Times.Once);
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
         blobClientMock.Verify(x => x.DownloadToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()), Times.Never);
 
         Assert.False(result.Success);
@@ -260,7 +254,7 @@ public class AzureBlobProviderTest
         var timeSpan = TimeSpan.FromMinutes(15);
 
         // Act
-        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, tenant, cancellationToken);
 
         // Assert
         blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
@@ -285,7 +279,7 @@ public class AzureBlobProviderTest
         var timeSpan = TimeSpan.FromMinutes(15);
 
         // Act
-        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, cancellationToken);
+        var result = await provider.GetSignedUrlAsync(filename, target, timeSpan, tenant, cancellationToken);
 
         // Assert
         blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
@@ -293,7 +287,7 @@ public class AzureBlobProviderTest
         blobClientMock.Verify(x => x.GenerateSasUri(It.IsAny<Azure.Storage.Sas.BlobSasPermissions>(), It.IsAny<DateTimeOffset>()), Times.Never);
 
         Assert.False(result.Success);
-        Assert.Equal($"The file {file} does not exist in the container {tenant}", result.Message);
+        Assert.Equal($"The file {filename} does not exist in the container {tenant}", result.Message);
     }
 
 
@@ -305,10 +299,10 @@ public class AzureBlobProviderTest
         var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.DeleteAsync(filename, target, cancellationToken);
+        var result = await provider.DeleteAsync(filename, target, tenant, cancellationToken);
 
         // Arrange
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
         blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
         blobClientMock.Verify(x => x.DeleteIfExistsAsync(It.IsAny<DeleteSnapshotsOption>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
 
@@ -331,10 +325,10 @@ public class AzureBlobProviderTest
         var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
 
         // Act
-        var result = await provider.DeleteAsync(filename, target, cancellationToken);
+        var result = await provider.DeleteAsync(filename, target, tenant, cancellationToken);
 
         // Arrange
-        factoryMock.Verify(x => x.GetContainerClient(), Times.Once);
+        factoryMock.Verify(x => x.GetContainerClient(It.IsAny<Guid>()), Times.Once);
         blobContainerClientMock.Verify(x => x.GetBlobClient(blobname), Times.Once);
         blobClientMock.Verify(x => x.DeleteIfExistsAsync(It.IsAny<DeleteSnapshotsOption>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()), Times.Once);
 

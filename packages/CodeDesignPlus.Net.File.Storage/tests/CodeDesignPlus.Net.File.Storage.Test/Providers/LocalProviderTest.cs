@@ -1,6 +1,5 @@
-﻿using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
+using CodeDesignPlus.Net.File.Storage.Abstractions.Providers;
 using CodeDesignPlus.Net.File.Storage.Providers;
-using CodeDesignPlus.Net.Security.Abstractions;
 using Microsoft.Extensions.Hosting;
 using Moq;
 
@@ -21,13 +20,10 @@ public class LocalProviderTest
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext>();
-        userContext.SetupGet(x => x.Tenant).Returns(tenant);
-
-        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object);
 
         // Act
-        var response = await provider.UploadAsync(stream, filename, target);
+        var response = await provider.UploadAsync(stream, filename, target, false, tenant);
 
         // Assert
         Assert.True(response.Success);
@@ -56,14 +52,11 @@ public class LocalProviderTest
         var target = "test";
         var renowned = true;
 
-        var userContext = new Mock<IUserContext>();
-        userContext.SetupGet(x => x.Tenant).Returns(tenant);
-
-        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object);
 
         // Act
-        var result = await provider.UploadAsync(stream, filename, target, renowned);
-        var response = await provider.UploadAsync(stream, filename, target, renowned);
+        var result = await provider.UploadAsync(stream, filename, target, renowned, tenant);
+        var response = await provider.UploadAsync(stream, filename, target, renowned, tenant);
 
         // Assert
         Assert.True(response.Success);
@@ -90,19 +83,16 @@ public class LocalProviderTest
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext>();
-        userContext.SetupGet(x => x.Tenant).Returns(tenant);
-
-        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object);
 
         // Act
-        var response = await provider.UploadAsync(stream, filename, target);
+        var response = await provider.UploadAsync(stream, filename, target, false, tenant);
 
         // Assert
         Assert.True(response.Success);
 
         // Act
-        var responseDelete = await provider.DeleteAsync(filename, target);
+        var responseDelete = await provider.DeleteAsync(filename, target, tenant);
 
         // Assert
         Assert.True(responseDelete.Success);
@@ -121,13 +111,10 @@ public class LocalProviderTest
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext>();
-        userContext.SetupGet(x => x.Tenant).Returns(tenant);
-
-        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object);
 
         // Act
-        var responseDelete = await provider.DeleteAsync(filename, target);
+        var responseDelete = await provider.DeleteAsync(filename, target, tenant);
 
         // Assert
         Assert.False(responseDelete.Success);
@@ -147,19 +134,16 @@ public class LocalProviderTest
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext>();
-        userContext.SetupGet(x => x.Tenant).Returns(tenant);
-
-        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object);
 
         // Act
-        var response = await provider.UploadAsync(stream, filename, target);
+        var response = await provider.UploadAsync(stream, filename, target, false, tenant);
 
         // Assert
         Assert.True(response.Success);
 
         // Act
-        var responseDownload = await provider.DownloadAsync(filename, target);
+        var responseDownload = await provider.DownloadAsync(filename, target, tenant);
 
         // Assert
         Assert.True(responseDownload.Success);
@@ -181,13 +165,10 @@ public class LocalProviderTest
         var stream = new MemoryStream(Encoding.UTF8.GetBytes("test"));
         var target = "test";
 
-        var userContext = new Mock<IUserContext>();
-        userContext.SetupGet(x => x.Tenant).Returns(tenant);
-
-        var provider = new LocalProvider(options, logger.Object, environment.Object, userContext.Object);
+        var provider = new LocalProvider(options, logger.Object, environment.Object);
 
         // Act
-        var responseDownload = await provider.DownloadAsync(filename, target);
+        var responseDownload = await provider.DownloadAsync(filename, target, tenant);
 
         // Assert
         Assert.False(responseDownload.Success);

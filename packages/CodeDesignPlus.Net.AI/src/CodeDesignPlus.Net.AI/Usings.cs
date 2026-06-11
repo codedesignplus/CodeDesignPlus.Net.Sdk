@@ -1,0 +1,10 @@
+global using CodeDesignPlus.Net.AI.Abstractions;
+global using CodeDesignPlus.Net.AI.Abstractions.Options;
+global using CodeDesignPlus.Net.AI.Abstractions.Providers;
+global using CodeDesignPlus.Net.AI.Exceptions;
+global using CodeDesignPlus.Net.AI.Providers;
+global using CodeDesignPlus.Net.AI.Services;
+global using Microsoft.Extensions.Configuration;
+global using Microsoft.Extensions.DependencyInjection;
+global using Microsoft.Extensions.Logging;
+global using Microsoft.Extensions.Options;
