@@ -28,10 +28,7 @@ message GeneratePdfRequest {
 }
 
 message GeneratePdfResponse {
-  string id = 1;
-  string name = 2;
-  string target = 3;
-  string signedUrl = 4;
-  bool success = 5;
-  string error = 6;
+  bytes pdfContent = 1;
+  bool success = 2;
+  string error = 3;
 }

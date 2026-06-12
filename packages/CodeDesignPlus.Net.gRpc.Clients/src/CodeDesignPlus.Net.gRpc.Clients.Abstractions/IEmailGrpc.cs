@@ -16,10 +16,10 @@ public interface IEmailGrpc
     Task<RenderTemplateResponse> RenderTemplateAsync(RenderTemplateRequest request, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Generates a PDF from a template, uploads it to FileStorage, and returns the file reference and signed URL.
+    /// Generates a PDF from a template with the provided variable values.
     /// </summary>
     /// <param name="request">The request containing the template type and variable values.</param>
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
-    /// <returns>Returns the file reference (id, name, target) and a signed URL to access the PDF.</returns>
+    /// <returns>Returns the generated PDF bytes.</returns>
     Task<GeneratePdfResponse> GeneratePdfAsync(GeneratePdfRequest request, CancellationToken cancellationToken);
 }

@@ -19,7 +19,7 @@ public class EmailServiceTest
         var mockCall = GrpcUtil.CreateAsyncUnaryCall(new RenderTemplateResponse
         {
             RenderedHtml = "<h1>Hello John</h1>",
-            Subject = "Welcome John",
+            Subject = "Welcome",
             Success = true,
             Error = string.Empty
         });
@@ -30,8 +30,11 @@ public class EmailServiceTest
             .Returns(mockCall);
 
         var emailService = new EmailService(mockClient.Object, userContextMock.Object);
-        var request = new RenderTemplateRequest { TemplateType = "PurchaseConfirmation" };
-        request.Values.Add("buyer_name", "John Doe");
+        var request = new RenderTemplateRequest
+        {
+            TemplateType = "WelcomeEmail"
+        };
+        request.Values.Add("Name", "John Doe");
 
         // Act
         var response = await emailService.RenderTemplateAsync(request, CancellationToken.None);
@@ -42,24 +45,22 @@ public class EmailServiceTest
         Assert.NotNull(response);
         Assert.True(response.Success);
         Assert.Equal("<h1>Hello John</h1>", response.RenderedHtml);
-        Assert.Equal("Welcome John", response.Subject);
+        Assert.Equal("Welcome", response.Subject);
     }
 
     [Fact]
-    public async Task GeneratePdfAsync_ShouldReturnFileReference_WhenCalledWithValidRequest()
+    public async Task GeneratePdfAsync_ShouldReturnResponse_WhenCalledWithValidRequest()
     {
         // Arrange
         var userContextMock = new Mock<IUserContext>();
         userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
         userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
 
-        var fileId = Guid.NewGuid().ToString();
+        var pdfBytes = new byte[] { 0x25, 0x50, 0x44, 0x46 };
+
         var mockCall = GrpcUtil.CreateAsyncUnaryCall(new GeneratePdfResponse
         {
-            Id = fileId,
-            Name = "PurchaseReceipt-123.pdf",
-            Target = "emails-pdf/tenant-id",
-            SignedUrl = "https://storage.example.com/signed-url",
+            PdfContent = Google.Protobuf.ByteString.CopyFrom(pdfBytes),
             Success = true,
             Error = string.Empty
         });
@@ -70,8 +71,14 @@ public class EmailServiceTest
             .Returns(mockCall);
 
         var emailService = new EmailService(mockClient.Object, userContextMock.Object);
-        var request = new GeneratePdfRequest { TemplateType = "PurchaseReceipt" };
-        request.Values.Add("buyer_name", "John Doe");
+        var tenant = Guid.NewGuid();
+        var request = new GeneratePdfRequest
+        {
+            TemplateType = "Invoice",
+            Tenant = tenant.ToString()
+        };
+        request.Values.Add("OrderId", "12345");
+        request.Values.Add("Total", "100.00");
 
         // Act
         var response = await emailService.GeneratePdfAsync(request, CancellationToken.None);
@@ -81,9 +88,41 @@ public class EmailServiceTest
 
         Assert.NotNull(response);
         Assert.True(response.Success);
-        Assert.Equal(fileId, response.Id);
-        Assert.Equal("PurchaseReceipt-123.pdf", response.Name);
-        Assert.Equal("emails-pdf/tenant-id", response.Target);
-        Assert.Equal("https://storage.example.com/signed-url", response.SignedUrl);
+        Assert.Equal(pdfBytes, response.PdfContent.ToByteArray());
+    }
+
+    [Fact]
+    public async Task GeneratePdfAsync_ShouldReturnError_WhenGenerationFails()
+    {
+        // Arrange
+        var userContextMock = new Mock<IUserContext>();
+        userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
+        userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
+
+        var mockCall = GrpcUtil.CreateAsyncUnaryCall(new GeneratePdfResponse
+        {
+            Success = false,
+            Error = "Template not found"
+        });
+
+        var mockClient = new Mock<CodeDesignPlus.Net.Microservice.Emails.gRpc.Emails.EmailsClient>();
+        mockClient
+            .Setup(m => m.GeneratePdfAsync(It.IsAny<GeneratePdfRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None))
+            .Returns(mockCall);
+
+        var emailService = new EmailService(mockClient.Object, userContextMock.Object);
+        var request = new GeneratePdfRequest
+        {
+            TemplateType = "NonExistentTemplate",
+            Tenant = Guid.NewGuid().ToString()
+        };
+
+        // Act
+        var response = await emailService.GeneratePdfAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(response);
+        Assert.False(response.Success);
+        Assert.Equal("Template not found", response.Error);
     }
 }

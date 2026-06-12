@@ -172,8 +172,7 @@ public class ServiceCollectionExtensionsTest
                 Redis = true,
                 Kafka = true,
                 SqlClient = true,
-                GrpcClient = true,
-                RabbitMQ = true,
+                GrpcClient = true
             }
         };
 
