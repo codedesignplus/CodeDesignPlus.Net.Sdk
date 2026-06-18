@@ -52,13 +52,17 @@ public static class ServiceCollectionExtensions
                 ConfigureRedisStorage(serviceProvider, config, options);
         });
 
-        services.AddHangfireServer(serverOptions =>
-        {
-            serverOptions.WorkerCount = options.WorkerCount;
-            serverOptions.Queues = options.Queues;
-        });
 
-        RegisterRecurrentJobs<TProgram>(services);
+        if (options.WorkerCount >= 1) 
+        { 
+            services.AddHangfireServer(serverOptions =>
+            {
+                serverOptions.WorkerCount = options.WorkerCount;
+                serverOptions.Queues = options.Queues;
+            });
+
+            RegisterRecurrentJobs<TProgram>(services);
+        }
 
         return services;
     }

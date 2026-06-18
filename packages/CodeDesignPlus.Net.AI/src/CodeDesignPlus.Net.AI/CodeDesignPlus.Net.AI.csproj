@@ -45,5 +45,6 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.0" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.0" />
     <PackageReference Include="OpenAI" Version="2.1.0" />
+    <PackageReference Include="Azure.AI.DocumentIntelligence" Version="1.0.0" />
   </ItemGroup>
 </Project>
