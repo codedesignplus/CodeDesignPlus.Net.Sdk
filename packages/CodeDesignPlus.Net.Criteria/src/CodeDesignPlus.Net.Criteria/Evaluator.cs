@@ -144,11 +144,17 @@ internal static class Evaluator
                 return Expression.Constant(guidValue, targetType);
             }
 
+            if (targetType.IsEnum)
+            {
+                var enumValue = Enum.Parse(targetType, value, ignoreCase: true);
+                return Expression.Constant(enumValue, targetType);
+            }
+
             var convertedValue = Convert.ChangeType(value, targetType);
-            
+
             return Expression.Constant(convertedValue, targetType);
         }
-        catch (Exception ex) when (ex is InvalidCastException || ex is FormatException)
+        catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is ArgumentException)
         {
             throw new CriteriaException($"Invalid value '{value}' for type {targetType}", ex);
         }

@@ -84,4 +84,53 @@ public class EvaluatorTest
         Assert.IsType<CriteriaException>(exception.InnerException);
         Assert.Equal($"Unsupported operator: {unsupportedOperator}", exception.InnerException.Message);
     }
+
+    [Fact]
+    public void Evaluate_EnumFilterByName_ReturnsMatchingRecords()
+    {
+        // Arrange
+        var orders = OrdersData.GetOrders();
+        var expression = Evaluator.Evaluate<Order>(new AstNode(AstType.Expression, null,
+        [
+            new AstNode(AstType.Condition, "Status=Pending", [])
+        ]));
+
+        // Act
+        var result = orders.AsQueryable().Where(expression).ToList();
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(OrderStatus.Pending, result[0].Status);
+    }
+
+    [Fact]
+    public void Evaluate_EnumFilterByNameCaseInsensitive_ReturnsMatchingRecords()
+    {
+        // Arrange
+        var orders = OrdersData.GetOrders();
+        var expression = Evaluator.Evaluate<Order>(new AstNode(AstType.Expression, null,
+        [
+            new AstNode(AstType.Condition, "Status=completed", [])
+        ]));
+
+        // Act
+        var result = orders.AsQueryable().Where(expression).ToList();
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(OrderStatus.Completed, result[0].Status);
+    }
+
+    [Fact]
+    public void Evaluate_EnumFilterInvalidName_ThrowsCriteriaException()
+    {
+        // Arrange
+        var methodInfo = typeof(Evaluator).GetMethod("CreateConstantExpression", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act & Assert
+        var exception = Assert.Throws<TargetInvocationException>(() =>
+            methodInfo!.Invoke(null, ["InvalidStatus", typeof(OrderStatus)]));
+        Assert.IsType<CriteriaException>(exception.InnerException);
+        Assert.Contains("Invalid value 'InvalidStatus' for type", exception.InnerException.Message);
+    }
 }

@@ -13,6 +13,7 @@ public class OrdersData
                 Code = Guid.Parse("9432915d-8418-4896-86f6-6d2e0d0160af"),
                 CreatedAt = new LocalDate(2021, 1, 1).AtMidnight().InUtc().ToInstant(),
                 Total = 90,
+                Status = OrderStatus.Pending,
                 Products =
                 [
                     new Product
@@ -48,6 +49,7 @@ public class OrdersData
                 Code = Guid.Parse("f37fdc53-858b-4b6b-821a-406eee568a9c"),
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 200,
+                Status = OrderStatus.Processing,
                 Products =
                 [
                     new Product
@@ -83,6 +85,7 @@ public class OrdersData
                 Code = Guid.Parse("00c6d6c7-12e1-4e92-8663-88e3df24ed21"),
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 300,
+                Status = OrderStatus.Completed,
                 Products =
                 [
                     new Product
