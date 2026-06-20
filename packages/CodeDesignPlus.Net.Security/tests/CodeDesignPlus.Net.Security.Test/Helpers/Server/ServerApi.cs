@@ -52,7 +52,7 @@ public class ServerApi
                                 userContext.StreetAddress,
                                 userContext.State,
                                 userContext.JobTitle,
-                                userContext.Emails,
+                                userContext.Email,
                                 userContext.Tenant,
                                 userContext.IsApplication,
                                 userContext.IsAuthenticated

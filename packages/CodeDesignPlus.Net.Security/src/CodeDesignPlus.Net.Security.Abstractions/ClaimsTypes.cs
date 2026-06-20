@@ -16,7 +16,7 @@ public static class ClaimTypes
     /// <summary>
     /// This is the principal about which the token asserts information, such as the user of an app. This value is immutable and cannot be reassigned or reused. It can be used to perform authorization checks safely, such as when the token is used to access a resource. By default, the subject claim is populated with the object ID of the user in the directory. To learn more, see Azure Active Directory B2C: Token, session, and single sign-on configuration.
     /// </summary>
-    public const string Subject = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier";
+    public const string Subject = "sub";
     /// <summary>
     /// An audience claim identifies the intended recipient of the token. For Azure AD B2C, the audience is your app's Application ID, as assigned to your app in the app registration portal. Your app should validate this value and reject the token if it does not match.
     /// </summary>
@@ -40,7 +40,7 @@ public static class ClaimTypes
     /// <summary>
     /// The immutable identifier for the user account in the tenant. It can be used to perform authorization checks safely and as a key in database tables. This ID uniquely identifies the user across applications - two different applications signing in the same user will receive the same value in the oid claim. This means that it can be used when making queries to Microsoft online services, such as the Microsoft Graph. The Microsoft Graph will return this ID as the id property for a given user account.
     /// </summary>
-    public const string ObjectIdentifier = "http://schemas.microsoft.com/identity/claims/objectidentifier";
+    public const string ObjectIdentifier = "oid";
     /// <summary>
     /// The city in which the user is located.
     /// </summary>
@@ -52,15 +52,19 @@ public static class ClaimTypes
     /// <summary>
     /// The user's given name (also known as first name).
     /// </summary>
-    public const string FirstName = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname";
+    public const string FirstName = "givenName";
     /// <summary>
     /// The user's surname (also known as last name).
     /// </summary>
-    public const string LastName = "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname";
+    public const string LastName = "surname";
     /// <summary>
     /// The user's full name in displayable form including all name parts, possibly including titles and suffixes.
     /// </summary>
     public const string Name = "name";
+    /// <summary>
+    /// The display name
+    /// </summary>
+    public const string DisplayName = "displayName";
     /// <summary>
     /// The postal code of the user's address.
     /// </summary>
@@ -80,7 +84,7 @@ public static class ClaimTypes
     /// <summary>
     /// Email addresses of the user. These are mutable and might change over time. Therefore, they are not suitable for identifying the user in other databases or applications. The oid or sub claim should be used instead.
     /// </summary>
-    public const string Emails = "emails";
+    public const string Email = "email";
     /// <summary>
     /// This is the name of the policy that was used to acquire the token.
     /// </summary>
@@ -97,5 +101,15 @@ public static class ClaimTypes
     /// The user's unique identifier in the application context, which is often used to identify the user across sessions.
     /// </summary>
     public const string UserId = "userId";
+
+    /// <summary>
+    /// Represents the standard 'preferred_username' claim.
+    /// Provides a human-readable identifier for displaying the user's login name, such as an email address or alias.
+    /// </summary>
+    /// <remarks>
+    /// This value is mutable and can change if the user updates their profile. 
+    /// Do not use it as a primary key or unique identifier in databases; use 'sub' or 'oid' instead.
+    /// </remarks>
+    public const string PreferredUsername = "preferred_username";
 
 }

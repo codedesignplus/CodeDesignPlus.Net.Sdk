@@ -31,7 +31,7 @@ public class UserContextTest
             User = new ClaimsPrincipal(new ClaimsIdentity([
                 new("userId", idUserExpected.ToString()),
                 new(Abstractions.ClaimTypes.Name, nameExpected),
-                new(Abstractions.ClaimTypes.Emails, emailExpected),
+                new(Abstractions.ClaimTypes.Email, emailExpected),
                 new(Abstractions.ClaimTypes.Audience, applicationExpected),
             ]))
         };
@@ -52,7 +52,7 @@ public class UserContextTest
         Assert.Equal(idUserExpected, idUser);
         Assert.Equal(idUserExpected, userContext.IdUser);
         Assert.Equal(nameExpected, userContext.Name);
-        Assert.Contains(emailExpected, userContext.Emails);
+        Assert.Contains(emailExpected, userContext.Email);
         Assert.Equal(tenantExpected, userContext.Tenant.ToString());
         Assert.True(userContext.IsApplication);
         Assert.False(userContext.IsAuthenticated);

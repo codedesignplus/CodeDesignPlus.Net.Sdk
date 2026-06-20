@@ -25,7 +25,7 @@ public class AuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options, I
             new Claim(Claims.ClaimTypes.UserId, Guid.NewGuid().ToString()),
             new Claim(Claims.ClaimTypes.Audience, "TestAudience"),
             new Claim(Claims.ClaimTypes.Name, "CodeDesignPlus"),
-            new Claim(Claims.ClaimTypes.Emails, "codedesignplus@codedesignplus.com"),
+            new Claim(Claims.ClaimTypes.Email, "codedesignplus@codedesignplus.com"),
             new Claim(Claims.ClaimTypes.FirstName, "Code"),
             new Claim(Claims.ClaimTypes.LastName, "DesignPlus"),
             new Claim(Claims.ClaimTypes.City, "Mexico City"),

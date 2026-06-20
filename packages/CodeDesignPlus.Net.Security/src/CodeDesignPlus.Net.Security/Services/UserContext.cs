@@ -55,6 +55,11 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     public Guid IdUser => this.GetClaim<Guid>(ClaimTypes.UserId);
 
     /// <summary>
+    /// Gets the prefreed username
+    /// </summary>
+    public string PreferredUsername => this.GetClaim<string>(ClaimTypes.PreferredUsername);
+
+    /// <summary>
     /// Gets the object identifier (OID) of the user of Identity Provider.
     /// </summary>
     public string Oid => this.GetClaim<string>(ClaimTypes.ObjectIdentifier);
@@ -70,9 +75,14 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     public string Name => this.GetClaim<string>(ClaimTypes.Name);
 
     /// <summary>
+    /// Gets the user's name.
+    /// </summary>
+    public string DisplayName => this.GetClaim<string>(ClaimTypes.DisplayName);
+
+    /// <summary>
     /// Gets the user's email addresses.
     /// </summary>
-    public string[] Emails => this.GetClaim<string[]>(ClaimTypes.Emails);
+    public string Email => this.GetClaim<string>(ClaimTypes.Email);
 
     /// <summary>
     /// Gets the tenant ID from the request headers.

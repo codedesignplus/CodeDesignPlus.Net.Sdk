@@ -105,6 +105,8 @@ public static class ServiceCollectionExtensions
                 JwtBearerDefaults.AuthenticationScheme,
                 x =>
                 {
+                    x.MapInboundClaims = false; 
+
                     if (!string.IsNullOrEmpty(securityOptions.Authority))
                         x.Authority = securityOptions.Authority;
 

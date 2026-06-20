@@ -32,6 +32,11 @@ public interface IUserContext
     /// Gets the user ID used internally in the application.
     /// </summary>
     Guid IdUser { get; }
+  
+    /// <summary>
+    /// Gets the prefreed username
+    /// </summary>
+    string PreferredUsername => this.GetClaim<string>(ClaimTypes.PreferredUsername);
 
     /// <summary>
     /// Gets the object identifier (OID) of the user of Identity Provider.
@@ -91,7 +96,7 @@ public interface IUserContext
     /// <summary>
     /// Gets the email addresses of the current user.
     /// </summary>
-    string[] Emails { get; }
+    string Email { get; }
 
     /// <summary>
     /// Gets the roles of the current user.
