@@ -30,7 +30,7 @@ public class FakeUserContext : IUserContext
 
     public string JobTitle => "Software Developer";
 
-    public string[] Emails => ["john.doe@codedesignplus.com"];
+    public string Emails => ["john.doe@codedesignplus.com"];
 
     public Guid Tenant => Guid.Parse("2f4eac7b-4b3b-4b3b-8b3b-4b3b4b3b4b3b");
 

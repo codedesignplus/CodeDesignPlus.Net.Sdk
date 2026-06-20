@@ -27,8 +27,6 @@ public class UserContext : IUserContext
 
     public string? JobTitle { get; set; }
 
-    public string[]? Email { get; set; }
-
     public Guid Tenant { get; set; }
 
     public ClaimsPrincipal? User { get; set; }

@@ -33,7 +33,7 @@ public class UserContext : IUserContext
 
     public string JobTitle { get; } = "Chemistry Teacher";
 
-    public string[] Emails { get; } = ["white.walter@outlook.com"];
+    public string Emails { get; } = ["white.walter@outlook.com"];
 
     public Guid Tenant { get; } = Guid.NewGuid();
 
