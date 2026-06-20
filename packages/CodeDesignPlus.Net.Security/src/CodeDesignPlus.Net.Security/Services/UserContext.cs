@@ -135,6 +135,16 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     public string JobTitle => this.GetClaim<string>(ClaimTypes.JobTitle);
 
     /// <summary>
+    /// Gets the document number of the current user.
+    /// </summary>
+    public string DocumentNumber => this.GetClaim<string>(ClaimTypes.DocumentNumber);
+
+    /// <summary>
+    /// Gets the phone of the current user.
+    /// </summary>
+    public string Phone => this.GetClaim<string>(ClaimTypes.Phone);
+
+    /// <summary>
     /// Gets the user's roles.
     /// </summary>
     public string[] Roles => this.GetClaim<string[]>(ClaimTypes.Groups);

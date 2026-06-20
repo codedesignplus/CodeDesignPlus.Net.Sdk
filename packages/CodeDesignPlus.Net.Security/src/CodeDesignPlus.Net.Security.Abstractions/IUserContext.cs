@@ -99,6 +99,16 @@ public interface IUserContext
     string Email { get; }
 
     /// <summary>
+    /// Gets the document number of the current user.
+    /// </summary>
+    string DocumentNumber { get; }
+
+    /// <summary>
+    /// Gets the phone of the current user.
+    /// </summary>
+    string Phone { get; }
+
+    /// <summary>
     /// Gets the roles of the current user.
     /// </summary>
     string[] Roles { get; }

@@ -103,6 +103,16 @@ public static class ClaimTypes
     public const string UserId = "userId";
 
     /// <summary>
+    /// The user's document number.
+    /// </summary>
+    public const string DocumentNumber = "documentNumber";
+
+    /// <summary>
+    /// The user's phone number.
+    /// </summary>
+    public const string Phone = "phone";
+
+    /// <summary>
     /// Represents the standard 'preferred_username' claim.
     /// Provides a human-readable identifier for displaying the user's login name, such as an email address or alias.
     /// </summary>
