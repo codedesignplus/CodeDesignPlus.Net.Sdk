@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.Core.Exceptions;
+using CodeDesignPlus.Net.ValueObjects.Financial;
 using NodaTime;
 
 namespace CodeDesignPlus.Net.xUnit.Microservice.Utils.Reflection;
@@ -33,7 +34,11 @@ public static class TypeExtensions
         { typeof(sbyte), () => (sbyte)1 },
         { typeof(TimeSpan), () => TimeSpan.Zero },
         { typeof(Uri), () => new Uri("https://codedesignplus.com") },
-        { typeof(Stream), () => new MemoryStream() }
+        { typeof(Stream), () => new MemoryStream() },
+        { typeof(Money), () => Money.FromLong(1000L, "COP") },
+        { typeof(PenaltyRule), () => PenaltyRule.CreateFixed(0, "COP") },
+        { typeof(TaxDefinition), () => TaxDefinition.Create("IVA", "Impuesto al Valor Agregado", 1900, false) },
+        { typeof(WithholdingDefinition), () => WithholdingDefinition.Create("RETE_FUENTE", "Retención en la Fuente", 350, 0L, "COP") }
     };
 
     /// <summary>
@@ -66,6 +71,22 @@ public static class TypeExtensions
                 var items = Enum.GetValues(property.ParameterType);
 
                 values.Add(property, items.GetValue(items.Length - 1)!);
+            }
+            else if (property.ParameterType.IsGenericType && property.ParameterType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var elementType = property.ParameterType.GetGenericArguments()[0];
+                var list = (System.Collections.IList)Activator.CreateInstance(property.ParameterType)!;
+
+                if (defaultValues.TryGetValue(elementType, out var elementFactory))
+                {
+                    list.Add(elementFactory());
+                }
+                else if (elementType.IsClass && !elementType.IsAbstract)
+                {
+                    list.Add(elementType.CreateInstance());
+                }
+
+                values.Add(property, list);
             }
             else if (property.ParameterType.IsClass && !property.ParameterType.IsAbstract)
             {
@@ -103,6 +124,9 @@ public static class TypeExtensions
     /// <exception cref="CoreException">The type does not have a static Create method.</exception>
     public static object CreateInstance(this Type type)
     {
+        if (defaultValues.TryGetValue(type, out var factory))
+            return factory();
+
         var constructors = type.GetConstructors(BindingFlags.Public | BindingFlags.Instance);
 
         if (constructors.Length == 0)
@@ -143,9 +167,25 @@ public static class TypeExtensions
 
                 property.SetValue(instance, items.GetValue(items.Length - 1)!);
             }
+            else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
+            {
+                var elementType = property.PropertyType.GetGenericArguments()[0];
+                var list = (System.Collections.IList)Activator.CreateInstance(property.PropertyType)!;
+
+                if (defaultValues.TryGetValue(elementType, out var elementFactory))
+                {
+                    list.Add(elementFactory());
+                }
+                else if (elementType.IsClass && !elementType.IsAbstract)
+                {
+                    list.Add(elementType.CreateInstance());
+                }
+
+                property.SetValue(instance, list);
+            }
             else if (property.PropertyType.IsClass && !property.PropertyType.IsAbstract)
             {
-                property.SetValue(instance,  CreateInstance(property.PropertyType)!);
+                property.SetValue(instance, CreateInstance(property.PropertyType)!);
             }
             else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
             {

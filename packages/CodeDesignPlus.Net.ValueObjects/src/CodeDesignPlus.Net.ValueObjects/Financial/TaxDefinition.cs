@@ -31,19 +31,34 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
     /// </summary>
     public bool IsInclusive { get; private set; }
 
+    /// <summary>
+    /// Gets the minimum transaction base amount (in minor units) required to apply this tax.
+    /// Zero means it applies to all amounts.
+    /// </summary>
+    public long MinimumBase { get; private set; }
+
+    /// <summary>
+    /// Gets the ISO 4217 currency code for the minimum base amount (e.g., "COP", "USD").
+    /// </summary>
+    public string Currency { get; private set; }
+
     [JsonConstructor]
-    private TaxDefinition(string code, string name, int rateBasisPoints, bool isInclusive)
+    private TaxDefinition(string code, string name, int rateBasisPoints, bool isInclusive, long minimumBase = 0, string currency = "COP")
     {
         var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
+        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? "COP";
 
         Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "000 : Code cannot be null or empty.");
         Guard.IsNullOrEmpty(name, Exceptions.Layer.None, "001 : Name cannot be null or empty.");
         Guard.IsNotInRange(rateBasisPoints, 0, 100000, Exceptions.Layer.None, "002 : RateBasisPoints must be between 0 and 100000.");
+        Guard.IsLessThan(minimumBase, 0L, Exceptions.Layer.None, "003 : MinimumBase cannot be negative.");
 
         Code = normalizedCode;
         Name = name;
         RateBasisPoints = rateBasisPoints;
         IsInclusive = isInclusive;
+        MinimumBase = minimumBase;
+        Currency = normalizedCurrency;
     }
 
     /// <summary>
@@ -56,7 +71,22 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
     /// <returns>A new <see cref="TaxDefinition"/> instance.</returns>
     public static TaxDefinition Create(string code, string name, int rateBasisPoints, bool isInclusive)
     {
-        return new TaxDefinition(code, name, rateBasisPoints, isInclusive);
+        return new TaxDefinition(code, name, rateBasisPoints, isInclusive, 0, "COP");
+    }
+
+    /// <summary>
+    /// Creates a new immutable instance of the <see cref="TaxDefinition"/> value object with minimum base threshold.
+    /// </summary>
+    /// <param name="code">The tax code (e.g., "IVA", "VAT"). Normalized to uppercase.</param>
+    /// <param name="name">The human-readable name of the tax.</param>
+    /// <param name="rateBasisPoints">The rate in basis points (e.g., 1900 = 19.00%).</param>
+    /// <param name="isInclusive">Whether the tax is included in the price or added on top.</param>
+    /// <param name="minimumBase">Minimum transaction amount in minor units to apply this tax. Zero = always applies.</param>
+    /// <param name="currency">ISO 4217 currency code for the minimum base.</param>
+    /// <returns>A new <see cref="TaxDefinition"/> instance.</returns>
+    public static TaxDefinition Create(string code, string name, int rateBasisPoints, bool isInclusive, long minimumBase, string currency)
+    {
+        return new TaxDefinition(code, name, rateBasisPoints, isInclusive, minimumBase, currency);
     }
 
     /// <summary>
@@ -73,6 +103,27 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
     public long CalculateTaxAmount(long baseAmountMinorUnits)
     {
         return (long)Math.Round(baseAmountMinorUnits * ToDecimalRate(), MidpointRounding.AwayFromZero);
+    }
+
+    /// <summary>
+    /// Determines whether the tax applies to the given base amount.
+    /// </summary>
+    /// <param name="baseAmountMinorUnits">The transaction base in minor units.</param>
+    /// <returns>True if the base meets the minimum threshold; otherwise, false.</returns>
+    public bool AppliesTo(long baseAmountMinorUnits) => MinimumBase == 0 || baseAmountMinorUnits >= MinimumBase;
+
+    /// <summary>
+    /// Calculates the tax amount for a given base in minor units.
+    /// Returns zero if the base is below the minimum threshold.
+    /// </summary>
+    /// <param name="baseAmountMinorUnits">The base amount in minor units.</param>
+    /// <returns>The calculated tax amount in minor units, or zero if the threshold is not met.</returns>
+    public long CalculateTaxAmountIfApplicable(long baseAmountMinorUnits)
+    {
+        if (!AppliesTo(baseAmountMinorUnits))
+            return 0L;
+
+        return CalculateTaxAmount(baseAmountMinorUnits);
     }
 
     /// <summary>
@@ -107,7 +158,9 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
         return Code == other.Code &&
                Name == other.Name &&
                RateBasisPoints == other.RateBasisPoints &&
-               IsInclusive == other.IsInclusive;
+               IsInclusive == other.IsInclusive &&
+               MinimumBase == other.MinimumBase &&
+               Currency == other.Currency;
     }
 
     /// <summary>
@@ -121,5 +174,5 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
     /// Returns the hash code for this instance.
     /// </summary>
     /// <returns>The hash code.</returns>
-    public override int GetHashCode() => HashCode.Combine(Code, Name, RateBasisPoints, IsInclusive);
+    public override int GetHashCode() => HashCode.Combine(Code, Name, RateBasisPoints, IsInclusive, MinimumBase, Currency);
 }

@@ -46,6 +46,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Security\src\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.ValueObjects\src\CodeDesignPlus.Net.ValueObjects\CodeDesignPlus.Net.ValueObjects.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="EntryPoints\" />
