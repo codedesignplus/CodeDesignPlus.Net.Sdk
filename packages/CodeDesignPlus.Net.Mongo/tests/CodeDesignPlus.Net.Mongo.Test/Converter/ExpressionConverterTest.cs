@@ -528,4 +528,82 @@ public class ExpressionConverterTest
         Assert.Equal("Only constant expressions for values are supported.", exception.InnerException.Message);
     }
 
+    [Fact]
+    public void Convert_WhenExpressionHasNestedProperty_ReturnsBsonDocumentWithDotNotation()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Client.Name=Acme"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ElementCount);
+        Assert.True(result.Contains("Client.Name"));
+        var nameFilter = result["Client.Name"].AsBsonDocument;
+        Assert.True(nameFilter.Contains("$eq"));
+        Assert.Equal("Acme", nameFilter["$eq"].AsString);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionHasNestedGuidProperty_ReturnsBsonDocumentWithDotNotation()
+    {
+        // Arrange
+        var guid = Guid.NewGuid();
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = $"Client.Id={guid}"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ElementCount);
+        Assert.True(result.Contains("Client.Id"));
+        var idFilter = result["Client.Id"].AsBsonDocument;
+        Assert.True(idFilter.Contains("$eq"));
+        Assert.Equal(guid, idFilter["$eq"].AsGuid);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionHasNestedProperty_ForAggregation_ReturnsBsonDocumentWithDotNotation()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Client.Name=Acme"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter, true);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ElementCount);
+        Assert.True(result.Contains("$eq"));
+        Assert.IsType<BsonArray>(result["$eq"]);
+        var eqArray = (BsonArray)result["$eq"];
+        Assert.Equal(2, eqArray.Count);
+        Assert.Equal("$$entity.Client.Name", eqArray[0].AsString);
+        Assert.Equal("Acme", eqArray[1].AsString);
+    }
+
 }

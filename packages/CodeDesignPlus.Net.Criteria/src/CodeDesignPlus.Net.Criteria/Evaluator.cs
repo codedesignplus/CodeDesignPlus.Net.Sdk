@@ -1,4 +1,5 @@
-﻿using NodaTime;
+﻿using System.Reflection;
+using NodaTime;
 using NodaTime.Text;
 
 namespace CodeDesignPlus.Net.Criteria;
@@ -104,10 +105,15 @@ internal static class Evaluator
     private static Expression BuildPropertyExpression(string propertyPath, ParameterExpression parameter)
     {
         Expression propertyExpression = parameter;
+        var currentType = parameter.Type;
 
         foreach (var propertyName in propertyPath.Split('.'))
         {
-            propertyExpression = Expression.Property(propertyExpression, propertyName);
+            var pi = currentType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                ?? throw new CriteriaException($"Instance property '{propertyName}' is not defined for type '{currentType.FullName}' (Parameter 'propertyName')");
+
+            propertyExpression = Expression.Property(propertyExpression, pi);
+            currentType = pi.PropertyType;
         }
 
         return propertyExpression;
@@ -192,7 +198,18 @@ internal static class Evaluator
     public static Expression<Func<T, object>> SortBy<T>(string propertyName)
     {
         var parameter = Expression.Parameter(typeof(T), "x");
-        var property = Expression.Property(parameter, propertyName);
+        Expression property = parameter;
+        var currentType = typeof(T);
+
+        foreach (var part in propertyName.Split('.'))
+        {
+            var pi = currentType.GetProperty(part, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
+                ?? throw new CriteriaException($"Instance property '{part}' is not defined for type '{currentType.FullName}' (Parameter 'propertyName')");
+
+            property = Expression.Property(property, pi);
+            currentType = pi.PropertyType;
+        }
+
         var conversion = Expression.Convert(property, typeof(object));
 
         return Expression.Lambda<Func<T, object>>(conversion, parameter);

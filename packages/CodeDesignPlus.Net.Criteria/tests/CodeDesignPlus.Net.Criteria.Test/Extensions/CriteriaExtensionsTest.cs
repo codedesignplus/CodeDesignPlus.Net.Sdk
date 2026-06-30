@@ -1,4 +1,5 @@
 ﻿using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
+using CodeDesignPlus.Net.Criteria.Exceptions;
 using CodeDesignPlus.Net.Criteria.Test.Helpers;
 
 namespace CodeDesignPlus.Net.Criteria.Test.Extensions;
@@ -254,7 +255,7 @@ public class CriteriaExtensionsTest
         var criteria = new MC.Criteria { Filters = "Name!=Order 1" };
 
         // Act & Assert
-        var exception = Assert.Throws<ArgumentException>(() => criteria.GetFilterExpression<Order>());
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
 
         Assert.Equal("Instance property 'Name!' is not defined for type 'CodeDesignPlus.Net.Criteria.Test.Helpers.Models.Order' (Parameter 'propertyName')", exception.Message);
     }

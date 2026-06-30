@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.Core.Exceptions;
+using CodeDesignPlus.Net.ValueObjects.Common;
 using CodeDesignPlus.Net.ValueObjects.Financial;
 using NodaTime;
 
@@ -71,6 +72,13 @@ public static class TypeExtensions
                 var items = Enum.GetValues(property.ParameterType);
 
                 values.Add(property, items.GetValue(items.Length - 1)!);
+            }
+            else if (property.ParameterType.IsGenericType && property.ParameterType.GetGenericTypeDefinition() == typeof(Item<>))
+            {
+                var valueType = property.ParameterType.GetGenericArguments()[0];
+                object itemValue = defaultValues.TryGetValue(valueType, out var vf) ? vf() : valueType.IsValueType ? Activator.CreateInstance(valueType)! : "Test";
+                var item = Activator.CreateInstance(property.ParameterType, Guid.NewGuid(), itemValue)!;
+                values.Add(property, item);
             }
             else if (property.ParameterType.IsGenericType && property.ParameterType.GetGenericTypeDefinition() == typeof(List<>))
             {
@@ -166,6 +174,13 @@ public static class TypeExtensions
                 var items = Enum.GetValues(property.PropertyType);
 
                 property.SetValue(instance, items.GetValue(items.Length - 1)!);
+            }
+            else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(Item<>))
+            {
+                var valueType = property.PropertyType.GetGenericArguments()[0];
+                object itemValue = defaultValues.TryGetValue(valueType, out var vfp) ? vfp() : valueType.IsValueType ? Activator.CreateInstance(valueType)! : "Test";
+                var item = Activator.CreateInstance(property.PropertyType, Guid.NewGuid(), itemValue)!;
+                property.SetValue(instance, item);
             }
             else if (property.PropertyType.IsGenericType && property.PropertyType.GetGenericTypeDefinition() == typeof(List<>))
             {

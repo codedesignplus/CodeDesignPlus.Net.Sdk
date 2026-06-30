@@ -92,10 +92,19 @@ public class ExpressionConverter(ParameterExpression parameter, bool isAggregati
     /// <exception cref="Exceptions.MongoException">Thrown when the expression is not a member expression.</exception>
     private static string GetFieldName(Expression expression)
     {
-        if (expression is MemberExpression memberExpression)
-            return memberExpression.Member.Name;
+        if (expression is not MemberExpression memberExpression)
+            throw new Exceptions.MongoException("Only member expressions for field names are supported.");
 
-        throw new Exceptions.MongoException("Only member expressions for field names are supported.");
+        var parts = new List<string>();
+
+        while (memberExpression != null)
+        {
+            parts.Add(memberExpression.Member.Name);
+            memberExpression = memberExpression.Expression as MemberExpression;
+        }
+
+        parts.Reverse();
+        return string.Join(".", parts);
     }
 
     /// <summary>
