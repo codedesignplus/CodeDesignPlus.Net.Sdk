@@ -2,6 +2,7 @@
 using CodeDesignPlus.Net.Mongo.Converter;
 using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -67,12 +68,63 @@ public class ExpressionConverterTest
     }
 
     [Fact]
-    public void Convert_WhenExpressionIsNotEqual_ThrowException()
+    public void Convert_WhenExpressionIsNotEqual_ReturnsBsonDocumentWithNeOperator()
     {
         // Arrange
-        var guid = Guid.NewGuid();
         var parameter = Expression.Parameter(typeof(Order), "x");
-        var expression = Expression.NotEqual(Expression.Property(parameter, "Id"), Expression.Constant(guid));
+        var criteria = new Net.Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name!=Order 1"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ElementCount);
+        Assert.True(result.Contains("Name"));
+        var nameFilter = result["Name"].AsBsonDocument;
+        Assert.True(nameFilter.Contains("$ne"));
+        Assert.Equal("Order 1", nameFilter["$ne"].AsString);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionIsNotEqual_ReturnsBsonDocumentWithNeOperator_ForAggregation()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Net.Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name!=Order 1"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter, true);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ElementCount);
+        Assert.True(result.Contains("$ne"));
+        Assert.IsType<BsonArray>(result["$ne"]);
+        var neArray = (BsonArray)result["$ne"];
+        Assert.Equal(2, neArray.Count);
+        Assert.Equal("$$entity.Name", neArray[0].AsString);
+        Assert.Equal("Order 1", neArray[1].AsString);
+    }
+
+    [Fact]
+    public void Convert_WhenUnsupportedOperator_ThrowException()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var expression = Expression.Subtract(Expression.Property(parameter, "Total"), Expression.Constant((decimal)10));
         var converter = new ExpressionConverter(parameter);
 
         // Act
@@ -80,7 +132,7 @@ public class ExpressionConverterTest
 
         // Assert
         Assert.NotNull(exception);
-        Assert.Equal("The operator 'NotEqual' is not supported.", exception.Message);
+        Assert.Equal("The operator 'Subtract' is not supported.", exception.Message);
     }
 
     [Fact]
@@ -606,4 +658,280 @@ public class ExpressionConverterTest
         Assert.Equal("Acme", eqArray[1].AsString);
     }
 
+    [Fact]
+    public void Convert_WhenExpressionContains_ReturnsBsonDocumentWithRegex()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name~=Order"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.ElementCount);
+        Assert.True(result.Contains("Name"));
+        var nameFilter = result["Name"].AsBsonDocument;
+        Assert.True(nameFilter.Contains("$regex"));
+        var regex = nameFilter["$regex"].AsBsonRegularExpression;
+        Assert.Equal("Order", regex.Pattern);
+        Assert.Equal("i", regex.Options);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionContains_ForAggregation_ReturnsBsonDocumentWithRegexMatch()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name~=Order"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter, true);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("$regexMatch"));
+        var regexMatch = result["$regexMatch"].AsBsonDocument;
+        Assert.Equal("$$entity.Name", regexMatch["input"].AsString);
+        Assert.Equal("Order", regexMatch["regex"].AsString);
+        Assert.Equal("i", regexMatch["options"].AsString);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionStartsWith_ReturnsBsonDocumentWithRegex()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name^=Ord"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("Name"));
+        var nameFilter = result["Name"].AsBsonDocument;
+        Assert.True(nameFilter.Contains("$regex"));
+        var regex = nameFilter["$regex"].AsBsonRegularExpression;
+        Assert.Equal("^Ord", regex.Pattern);
+        Assert.Equal("i", regex.Options);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionStartsWith_ForAggregation_ReturnsBsonDocumentWithRegexMatch()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name^=Ord"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter, true);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("$regexMatch"));
+        var regexMatch = result["$regexMatch"].AsBsonDocument;
+        Assert.Equal("$$entity.Name", regexMatch["input"].AsString);
+        Assert.Equal("^Ord", regexMatch["regex"].AsString);
+        Assert.Equal("i", regexMatch["options"].AsString);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionEndsWith_ReturnsBsonDocumentWithRegex()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name$=1"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("Name"));
+        var nameFilter = result["Name"].AsBsonDocument;
+        Assert.True(nameFilter.Contains("$regex"));
+        var regex = nameFilter["$regex"].AsBsonRegularExpression;
+        Assert.Equal("1$", regex.Pattern);
+        Assert.Equal("i", regex.Options);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionEndsWith_ForAggregation_ReturnsBsonDocumentWithRegexMatch()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name$=1"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter, true);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("$regexMatch"));
+        var regexMatch = result["$regexMatch"].AsBsonDocument;
+        Assert.Equal("$$entity.Name", regexMatch["input"].AsString);
+        Assert.Equal("1$", regexMatch["regex"].AsString);
+        Assert.Equal("i", regexMatch["options"].AsString);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionIn_ReturnsBsonDocumentWithInOperator()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Status@=Pending,Completed"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("Status"));
+        var statusFilter = result["Status"].AsBsonDocument;
+        Assert.True(statusFilter.Contains("$in"));
+        var inArray = statusFilter["$in"].AsBsonArray;
+        Assert.Equal(2, inArray.Count);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionIn_ForAggregation_ReturnsBsonDocumentWithInOperator()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Status@=Pending,Completed"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter, true);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("$in"));
+        var inArray = result["$in"].AsBsonArray;
+        Assert.Equal(2, inArray.Count);
+        Assert.Equal("$$entity.Status", inArray[0].AsString);
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionContainsAndEqual_ReturnsBsonDocumentWithAndOperator()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name~=Order|and|Total>50"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("$and"));
+        var andArray = result["$and"].AsBsonArray;
+        Assert.Equal(2, andArray.Count);
+
+        var leftDoc = (BsonDocument)andArray[0];
+        Assert.True(leftDoc.Contains("Name"));
+        var nameFilter = leftDoc["Name"].AsBsonDocument;
+        Assert.True(nameFilter.Contains("$regex"));
+
+        var rightDoc = (BsonDocument)andArray[1];
+        Assert.True(rightDoc.Contains("Total"));
+        var totalFilter = rightDoc["Total"].AsBsonDocument;
+        Assert.True(totalFilter.Contains("$gt"));
+    }
+
+    [Fact]
+    public void Convert_WhenExpressionContainsSpecialRegexChars_EscapesThem()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "Name~=Order (1)"
+        };
+
+        var expression = criteria.GetFilterExpression<Order>();
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(expression);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.Contains("Name"));
+        var nameFilter = result["Name"].AsBsonDocument;
+        var regex = nameFilter["$regex"].AsBsonRegularExpression;
+        Assert.Equal(@"Order\ \(1\)", regex.Pattern);
+    }
+
+    [Fact]
+    public void Convert_WhenMethodCallOnNonMember_ThrowsMongoException()
+    {
+        // Arrange
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var converter = new ExpressionConverter(parameter);
+        var methodCall = Expression.Call(
+            Expression.Constant("test"),
+            typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!,
+            Expression.Constant("t")
+        );
+
+        // Act & Assert
+        var exception = Assert.Throws<Mongo.Exceptions.MongoException>(() => converter.Convert(methodCall));
+        Assert.Contains("requires a member expression", exception.Message);
+    }
 }

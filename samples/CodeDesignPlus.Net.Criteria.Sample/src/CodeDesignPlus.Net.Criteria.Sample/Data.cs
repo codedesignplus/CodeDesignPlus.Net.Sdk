@@ -15,6 +15,8 @@ public class OrdersData
                 Description = "Description Order 1",
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 90,
+                Status = OrderStatus.Pending,
+                IsActive = true,
                 Products =
                 [
                     new Product
@@ -49,6 +51,8 @@ public class OrdersData
                 Description = "Description Order 2",
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 200,
+                Status = OrderStatus.Processing,
+                IsActive = true,
                 Products =
                 [
                     new Product
@@ -80,9 +84,11 @@ public class OrdersData
             new() {
                 Id = Guid.NewGuid(),
                 Name = "Order 3",
-                Description = "Description Order 3",
+                Description = null,
                 CreatedAt = SystemClock.Instance.GetCurrentInstant(),
                 Total = 300,
+                Status = OrderStatus.Cancelled,
+                IsActive = false,
                 Products =
                 [
                     new Product

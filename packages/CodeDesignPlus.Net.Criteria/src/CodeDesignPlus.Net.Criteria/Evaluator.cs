@@ -10,7 +10,7 @@ namespace CodeDesignPlus.Net.Criteria;
 internal static class Evaluator
 {
     private static readonly InstantPattern pattern = InstantPattern.CreateWithInvariantCulture("yyyy-MM-ddTHH:mm:ss'Z'");
-    private static readonly string[] Operators = ["~=", "^=", "$=", "<=", ">=", "=", "<", ">"];
+    private static readonly string[] Operators = ["~=", "^=", "$=", "!=", "@=", "<=", ">=", "=", "<", ">"];
 
     /// <summary>
     /// Evaluates an ASTNode and builds an expression to represent the evaluation.
@@ -54,6 +54,10 @@ internal static class Evaluator
     {
         var (propertyPath, operatorSymbol, value) = SplitCondition(node.Value);
         var property = BuildPropertyExpression(propertyPath, parameter);
+
+        if (operatorSymbol == "@=")
+            return BuildInExpression(property, value);
+
         var constant = CreateConstantExpression(value, property.Type);
 
         return BuildComparisonExpression(property, constant, operatorSymbol);
@@ -129,6 +133,13 @@ internal static class Evaluator
     {
         try
         {
+            if (string.Equals(value, "null", StringComparison.OrdinalIgnoreCase))
+            {
+                return Expression.Constant(null, targetType.IsValueType && Nullable.GetUnderlyingType(targetType) == null
+                    ? typeof(object)
+                    : targetType);
+            }
+
             if (targetType == typeof(Instant))
             {
                 var parseResult = pattern.Parse(value);
@@ -156,7 +167,19 @@ internal static class Evaluator
                 return Expression.Constant(enumValue, targetType);
             }
 
-            var convertedValue = Convert.ChangeType(value, targetType);
+            if (targetType == typeof(bool))
+            {
+                var boolValue = value.ToLowerInvariant() switch
+                {
+                    "true" or "1" => true,
+                    "false" or "0" => false,
+                    _ => throw new FormatException($"Cannot convert '{value}' to Boolean.")
+                };
+
+                return Expression.Constant(boolValue, targetType);
+            }
+
+            var convertedValue = Convert.ChangeType(value, targetType, System.Globalization.CultureInfo.InvariantCulture);
 
             return Expression.Constant(convertedValue, targetType);
         }
@@ -181,12 +204,48 @@ internal static class Evaluator
             "$=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])!, constant),
             "~=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!, constant),
             "=" => Expression.Equal(property, constant),
+            "!=" => Expression.NotEqual(property, constant),
             "<" => Expression.LessThan(property, constant),
             ">" => Expression.GreaterThan(property, constant),
             "<=" => Expression.LessThanOrEqual(property, constant),
             ">=" => Expression.GreaterThanOrEqual(property, constant),
             _ => throw new CriteriaException($"Unsupported operator: {operatorSymbol}")
         };
+    }
+
+    private static Expression BuildInExpression(Expression property, string value)
+    {
+        var values = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        var propertyType = property.Type;
+
+        var convertedValues = values.Select(v =>
+        {
+            if (propertyType.IsEnum)
+                return Enum.Parse(propertyType, v, ignoreCase: true);
+
+            if (propertyType == typeof(Guid))
+                return (object)Guid.Parse(v);
+
+            if (propertyType == typeof(int))
+                return Convert.ChangeType(v, typeof(int), System.Globalization.CultureInfo.InvariantCulture);
+
+            if (propertyType == typeof(long))
+                return Convert.ChangeType(v, typeof(long), System.Globalization.CultureInfo.InvariantCulture);
+
+            return Convert.ChangeType(v, propertyType, System.Globalization.CultureInfo.InvariantCulture);
+        }).ToList();
+
+        var listType = typeof(List<>).MakeGenericType(propertyType);
+        var list = Activator.CreateInstance(listType);
+        var addMethod = listType.GetMethod("Add")!;
+
+        foreach (var item in convertedValues)
+            addMethod.Invoke(list, [item]);
+
+        var containsMethod = listType.GetMethod("Contains", [propertyType])!;
+        var listConstant = Expression.Constant(list, listType);
+
+        return Expression.Call(listConstant, containsMethod, property);
     }
 
     /// <summary>

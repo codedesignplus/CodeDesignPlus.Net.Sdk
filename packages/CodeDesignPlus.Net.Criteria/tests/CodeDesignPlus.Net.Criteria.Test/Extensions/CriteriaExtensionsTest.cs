@@ -249,15 +249,15 @@ public class CriteriaExtensionsTest
     }
 
     [Fact]
-    public void GetFilterExpression_InvalidOperator_ThrowsException()
+    public void GetFilterExpression_InvalidProperty_ThrowsException()
     {
         // Arrange
-        var criteria = new MC.Criteria { Filters = "Name!=Order 1" };
+        var criteria = new MC.Criteria { Filters = "InvalidProperty=Order 1" };
 
         // Act & Assert
         var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
 
-        Assert.Equal("Instance property 'Name!' is not defined for type 'CodeDesignPlus.Net.Criteria.Test.Helpers.Models.Order' (Parameter 'propertyName')", exception.Message);
+        Assert.Contains("Instance property 'InvalidProperty' is not defined", exception.Message);
     }
 
     [Fact]

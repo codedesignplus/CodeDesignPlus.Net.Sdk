@@ -31,11 +31,13 @@ public class ExpressionConverter(ParameterExpression parameter, bool isAggregati
         var left = node.Left;
         var right = node.Right;
 
-
         switch (node.NodeType)
         {
             case ExpressionType.Equal:
                 AddFilterElement("$eq", left, right);
+                break;
+            case ExpressionType.NotEqual:
+                AddFilterElement("$ne", left, right);
                 break;
             case ExpressionType.AndAlso:
                 var leftAnd = new ExpressionConverter(parameter, isAggregation).Convert(left);
@@ -105,6 +107,85 @@ public class ExpressionConverter(ParameterExpression parameter, bool isAggregati
 
         parts.Reverse();
         return string.Join(".", parts);
+    }
+
+    /// <summary>
+    /// Visits method call expressions and converts string methods (Contains, StartsWith, EndsWith) to MongoDB $regex filters,
+    /// and List.Contains to MongoDB $in filters.
+    /// </summary>
+    /// <param name="node">The method call expression to visit.</param>
+    /// <returns>The original expression.</returns>
+    /// <exception cref="Exceptions.MongoException">Thrown when the method is not supported.</exception>
+    protected override Expression VisitMethodCall(MethodCallExpression node)
+    {
+        if (node.Object is ConstantExpression listConstant && node.Method.Name == nameof(string.Contains) && node.Arguments.Count == 1)
+        {
+            return VisitListContains(node, listConstant);
+        }
+
+        if (node.Object is not MemberExpression memberExpression)
+            throw new Exceptions.MongoException($"The method '{node.Method.Name}' is not supported on non-member expressions.");
+
+        var fieldName = GetFieldName(memberExpression);
+        var value = GetConstantValue(node.Arguments[0]);
+
+        var escapedValue = Regex.Escape(value.AsString);
+
+        var regexPattern = node.Method.Name switch
+        {
+            nameof(string.Contains) => escapedValue,
+            nameof(string.StartsWith) => $"^{escapedValue}",
+            nameof(string.EndsWith) => $"{escapedValue}$",
+            _ => throw new Exceptions.MongoException($"The method '{node.Method.Name}' is not supported.")
+        };
+
+        if (isAggregation)
+        {
+            filterDocument.Add("$regexMatch", new BsonDocument
+            {
+                { "input", $"$$entity.{fieldName}" },
+                { "regex", regexPattern },
+                { "options", "i" }
+            });
+        }
+        else
+        {
+            filterDocument.Add(fieldName, new BsonDocument("$regex", new BsonRegularExpression(regexPattern, "i")));
+        }
+
+        return node;
+    }
+
+    /// <summary>
+    /// Handles List&lt;T&gt;.Contains(property) calls and converts them to MongoDB $in filters.
+    /// </summary>
+    private Expression VisitListContains(MethodCallExpression node, ConstantExpression listConstant)
+    {
+        if (node.Arguments[0] is not MemberExpression memberArg)
+            throw new Exceptions.MongoException("The 'in' operator requires a member expression as the argument.");
+
+        var fieldName = GetFieldName(memberArg);
+        var list = (System.Collections.IEnumerable)listConstant.Value!;
+
+        var bsonArray = new BsonArray();
+        foreach (var item in list)
+        {
+            if (item is Guid guidItem)
+                bsonArray.Add(new BsonBinaryData(guidItem, GuidRepresentation.Standard));
+            else
+                bsonArray.Add(BsonValue.Create(item));
+        }
+
+        if (isAggregation)
+        {
+            filterDocument.Add("$in", new BsonArray { $"$$entity.{fieldName}", bsonArray });
+        }
+        else
+        {
+            filterDocument.Add(fieldName, new BsonDocument("$in", bsonArray));
+        }
+
+        return node;
     }
 
     /// <summary>

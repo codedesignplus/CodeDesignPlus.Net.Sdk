@@ -6,7 +6,7 @@
 internal static class Tokenizer
 {
     private static readonly string[] logicalOperators = ["and", "or"];
-    private static readonly string[] comparisonOperators = ["~=", "^=", "$=", "<=", ">=", "=", "<", ">"];
+    private static readonly string[] comparisonOperators = ["~=", "^=", "$=", "!=", "@=", "<=", ">=", "=", "<", ">"];
 
     /// <summary>
     /// Tokenizes the input string.
