@@ -19,6 +19,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
     /// <summary>
     /// Gets the MongoDB collection for the specified entity type.
+    /// This method bypasses automatic tenant and soft-delete filters, providing direct access to all documents.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <returns>The MongoDB collection.</returns>
@@ -243,7 +244,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     }
 
     /// <summary>
-    /// Updates an entity asynchronously.
+    /// Updates an entity asynchronously. Soft-deleted entities (IsDeleted == true) are not updated.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <param name="entity">The entity to update.</param>
@@ -256,6 +257,11 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
         var collection = this.GetCollection<TEntity>();
 
         FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
+
+        if (typeof(IEntity).IsAssignableFrom(typeof(TEntity)))
+        {
+            filter = Builders<TEntity>.Filter.And(filter, Builders<TEntity>.Filter.Eq("IsDeleted", false));
+        }
 
         return collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
     }
@@ -450,9 +456,18 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         var filterCriteria = criteria.GetFilterExpression<TProjection>();
 
-        var filterDefinition = filterCriteria.ToFilterDefinition(true).BuildFilter(tenant);
+        var filterDefinition = filterCriteria.ToFilterDefinition(true);
 
         var bsonFilter = ((BsonDocumentFilterDefinition<TProjection>)filterDefinition).Document;
+
+        if (typeof(IEntity).IsAssignableFrom(typeof(TProjection)))
+        {
+            bsonFilter = new BsonDocument("$and", new BsonArray
+            {
+                bsonFilter,
+                new BsonDocument("$eq", new BsonArray { "$$entity.IsDeleted", false })
+            });
+        }
 
         var pipelineBase = new[]
         {

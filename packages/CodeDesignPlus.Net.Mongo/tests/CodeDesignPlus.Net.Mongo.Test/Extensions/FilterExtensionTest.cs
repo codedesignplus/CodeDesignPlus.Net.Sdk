@@ -9,7 +9,7 @@ public class FilterExtensionTests
 {
 
     [Fact]
-    public void BuildFilter_AggregateRoot_ValidTenant_ReturnsFilterWithTenant()
+    public void BuildFilter_AggregateRoot_ValidTenant_ReturnsFilterWithTenantAndIsDeleted()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
@@ -20,8 +20,11 @@ public class FilterExtensionTests
 
         // Assert
         var expectedFilter = Builders<UserAggregate>.Filter.And(
-            Builders<UserAggregate>.Filter.Empty,
-            Builders<UserAggregate>.Filter.Eq(e => e.Tenant, tenantId)
+            Builders<UserAggregate>.Filter.And(
+                Builders<UserAggregate>.Filter.Empty,
+                Builders<UserAggregate>.Filter.Eq(e => e.Tenant, tenantId)
+            ),
+            Builders<UserAggregate>.Filter.Eq("IsDeleted", false)
         );
 
         Assert.Equal(expectedFilter.ToJson(), result.ToJson());
@@ -38,14 +41,33 @@ public class FilterExtensionTests
         Assert.Throws<Mongo.Exceptions.MongoException>(() => filter.BuildFilter(tenantId));
     }
 
-
     [Fact]
-    public void BuildFilter_NonAggregateRoot_ReturnsOriginalFilter()
+    public void BuildFilter_EntityImplementsIEntity_AddsIsDeletedFalseFilter()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
         var filter = Builders<ProductEntity>.Filter.Empty;
-        var renderArgs = new RenderArgs<ProductEntity>();
+
+        // Act
+        var result = filter.BuildFilter(tenantId);
+
+        // Assert
+        var expectedFilter = Builders<ProductEntity>.Filter.And(
+            Builders<ProductEntity>.Filter.Empty,
+            Builders<ProductEntity>.Filter.Eq("IsDeleted", false)
+        );
+
+        Assert.Equal(expectedFilter.ToJson(), result.ToJson());
+    }
+
+    [Fact]
+    public void BuildFilter_EntityOnlyIEntityBase_DoesNotAddIsDeletedFilter()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        var filter = Builders<SimpleEntity>.Filter.Empty;
+        var renderArgs = new RenderArgs<SimpleEntity>();
+
         // Act
         var result = filter.BuildFilter(tenantId);
 

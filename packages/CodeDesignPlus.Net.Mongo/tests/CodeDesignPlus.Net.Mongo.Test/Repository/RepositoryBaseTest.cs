@@ -818,4 +818,204 @@ public class RepositoryBaseTest
         Assert.Contains(result, c => c.Name == "Bob3");
     }
 
+    [Fact]
+    public async Task FindAsync_WhenEntityIsDeleted_ReturnsNull()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "SoftDeletedClient",
+            IsActive = true,
+            IsDeleted = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.FindAsync<Client>(entity.Id, cancellationToken);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task ExistsAsync_WhenEntityIsDeleted_ReturnsFalse()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "SoftDeletedClient",
+            IsActive = true,
+            IsDeleted = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        var result = await repository.ExistsAsync<Client>(entity.Id, cancellationToken);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_WhenSomeEntitiesAreDeleted_ExcludesDeletedFromResults()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var activeEntity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "ActiveForMatching",
+            IsActive = true,
+            IsDeleted = false
+        };
+
+        var deletedEntity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "DeletedForMatching",
+            IsActive = true,
+            IsDeleted = true
+        };
+
+        await repository.CreateRangeAsync([activeEntity, deletedEntity], cancellationToken);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name~=ForMatching"
+        };
+
+        // Act
+        var result = await repository.MatchingAsync<Client>(criteria, cancellationToken);
+
+        // Assert
+        Assert.Contains(result.Data, x => x.Id == activeEntity.Id);
+        Assert.DoesNotContain(result.Data, x => x.Id == deletedEntity.Id);
+    }
+
+    [Fact]
+    public async Task ChangeStateAsync_WhenEntityIsDeleted_DoesNotModify()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "SoftDeletedForChangeState",
+            IsActive = true,
+            IsDeleted = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        await repository.ChangeStateAsync<Client>(entity.Id, false, cancellationToken);
+
+        // Assert
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
+        Assert.NotNull(result);
+        Assert.True(result.IsActive);
+        Assert.True(result.IsDeleted);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_WhenEntityIsDeleted_DoesNotUpdate()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "OriginalName",
+            IsActive = true,
+            IsDeleted = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        entity.Name = "UpdatedName";
+        await repository.UpdateAsync(entity, cancellationToken);
+
+        // Assert
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
+        Assert.NotNull(result);
+        Assert.Equal("OriginalName", result.Name);
+    }
+
+    [Fact]
+    public async Task UpdateAsync_PersistsSoftDelete_WhenCalledWithIsDeletedTrue()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "EntityToSoftDelete",
+            IsActive = true,
+            IsDeleted = false
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        entity.IsDeleted = true;
+        await repository.UpdateAsync(entity, cancellationToken);
+
+        // Assert
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
+        Assert.NotNull(result);
+        Assert.True(result.IsDeleted);
+    }
+
+    [Fact]
+    public async Task UpsertAsync_WhenEntityIsDeleted_StillOverwrites()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entity = new Client()
+        {
+            Id = Guid.NewGuid(),
+            Name = "DeletedForUpsert",
+            IsActive = true,
+            IsDeleted = true
+        };
+
+        await repository.CreateAsync(entity, cancellationToken);
+
+        // Act
+        entity.Name = "RestoredByUpsert";
+        entity.IsDeleted = false;
+        await repository.UpsertAsync(entity, cancellationToken);
+
+        // Assert
+        var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
+
+        Assert.NotNull(result);
+        Assert.Equal("RestoredByUpsert", result.Name);
+        Assert.False(result.IsDeleted);
+    }
+
 }

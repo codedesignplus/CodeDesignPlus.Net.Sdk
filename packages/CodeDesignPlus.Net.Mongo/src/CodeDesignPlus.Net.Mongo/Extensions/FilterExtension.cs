@@ -6,7 +6,9 @@ namespace CodeDesignPlus.Net.Mongo.Extensions;
 public static class FilterExtension
 {
     /// <summary>
-    /// Build a filter to search for entities that inherit from <see cref="AggregateRoot"/> and have the tenant identifier.
+    /// Builds a composite filter that appends tenant isolation (for <see cref="AggregateRoot"/> entities)
+    /// and soft-delete exclusion (for <see cref="IEntity"/> entities, filtering out records where IsDeleted == true).
+    /// To bypass these automatic filters, use <see cref="Repository.RepositoryBase.GetCollection{TEntity}"/> directly.
     /// </summary>
     /// <typeparam name="TEntity">The type of entity to filter.</typeparam>
     /// <param name="filter">The filter to apply.</param>
@@ -21,6 +23,11 @@ public static class FilterExtension
                 throw new Exceptions.MongoException("The tenant identifier is required for entities that inherit from AggregateRoot.");
 
             filter = Builders<TEntity>.Filter.And(filter, Builders<TEntity>.Filter.Eq(e => (e as AggregateRoot)!.Tenant, tenant));
+        }
+
+        if (typeof(IEntity).IsAssignableFrom(typeof(TEntity)))
+        {
+            filter = Builders<TEntity>.Filter.And(filter, Builders<TEntity>.Filter.Eq("IsDeleted", false));
         }
 
         return filter;
