@@ -68,13 +68,11 @@ public class EventStorePubSubService : IEventStorePubSub
 
         var stream = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        // Use Activity.Current from the current context
-        var activity = Activity.Current;
+        var activity = this.activityService?.StartActivity($"publish {stream}", ActivityKind.Producer);
 
-        // Inject trace context into the domain event metadata before serialization
         this.activityService?.Inject(activity, @event);
 
-        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.system", "eventstore");
         activity?.AddTag("messaging.operation.type", "publish");
         activity?.AddTag("messaging.destination.name", stream);
         activity?.AddTag("event.type", @event.GetType().Name);
@@ -89,6 +87,9 @@ public class EventStorePubSubService : IEventStorePubSub
             Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event.Metadata)));
 
         await connection.AppendToStreamAsync(stream, ExpectedVersion.Any, eventData).ConfigureAwait(false);
+
+        activity?.SetStatus(ActivityStatusCode.Ok);
+        activity?.Stop();
     }
 
     /// <summary>

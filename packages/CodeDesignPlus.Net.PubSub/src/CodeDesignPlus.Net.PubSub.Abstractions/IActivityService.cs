@@ -58,4 +58,18 @@ public interface IActivityService
     /// <param name="domainEvent">The domain event to extract the propagation context from.</param>
     /// <returns>The extracted propagation context.</returns>
     PropagationContext Extract<TDomainEvent>(TDomainEvent domainEvent) where TDomainEvent : IDomainEvent;
+
+    /// <summary>
+    /// Injects the trace context into message transport headers (AMQP, Kafka, etc.).
+    /// </summary>
+    /// <param name="activity">The activity containing the trace context.</param>
+    /// <param name="headers">The headers dictionary to inject trace context into.</param>
+    void InjectToHeaders(Activity activity, IDictionary<string, object> headers);
+
+    /// <summary>
+    /// Extracts the propagation context from message transport headers.
+    /// </summary>
+    /// <param name="headers">The headers dictionary containing trace context.</param>
+    /// <returns>The extracted propagation context.</returns>
+    PropagationContext ExtractFromHeaders(IDictionary<string, object> headers);
 }

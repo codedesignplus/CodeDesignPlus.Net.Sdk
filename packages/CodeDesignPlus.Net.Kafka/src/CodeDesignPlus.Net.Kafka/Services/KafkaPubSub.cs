@@ -31,13 +31,11 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
 
         var topic = domainEventResolver.GetKeyDomainEvent(type);
 
-        // Use Activity.Current from the automatic Kafka instrumentation or current context
-        var activity = Activity.Current;
+        var activity = activityService?.StartActivity($"publish {topic}", ActivityKind.Producer);
 
-        // Inject trace context into the domain event metadata before serialization
         activityService?.Inject(activity, @event);
 
-        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.system", "kafka");
         activity?.AddTag("messaging.operation.type", "publish");
         activity?.AddTag("messaging.destination.name", topic);
         activity?.AddTag("event.type", type.Name);
@@ -65,6 +63,9 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
         var producer = serviceProvider.GetRequiredService<IProducer<string, IDomainEvent>>();
 
         await producer.ProduceAsync(topic, message, cancellationToken).ConfigureAwait(false);
+
+        activity?.SetStatus(ActivityStatusCode.Ok);
+        activity?.Stop();
 
         logger.LogInformation("Event published to Kafka successfully. Event type: {EventType}", @event.GetType().Name);
     }

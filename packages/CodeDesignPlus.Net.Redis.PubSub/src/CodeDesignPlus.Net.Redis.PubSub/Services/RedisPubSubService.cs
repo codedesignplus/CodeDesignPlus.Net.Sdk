@@ -59,13 +59,11 @@ public class RedisPubSubService : IRedisPubSub
 
         var channel = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        // Use Activity.Current from the automatic Redis instrumentation or current context
-        var activity = Activity.Current;
+        var activity = this.activityService?.StartActivity($"publish {channel}", ActivityKind.Producer);
 
-        // Inject trace context into the domain event metadata before serialization
         this.activityService?.Inject(activity, @event);
 
-        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.system", "redis");
         activity?.AddTag("messaging.operation.type", "publish");
         activity?.AddTag("messaging.destination.name", channel);
         activity?.AddTag("event.type", @event.GetType().Name);
@@ -75,6 +73,9 @@ public class RedisPubSubService : IRedisPubSub
         var message = JsonSerializer.Serialize(@event);
 
         var notified = await this.redisService.Subscriber.PublishAsync(RedisChannel.Literal(channel), message);
+
+        activity?.SetStatus(ActivityStatusCode.Ok);
+        activity?.Stop();
 
         this.logger.LogInformation("Event {TEvent} published with {Notified} notifications.", @event.GetType().Name, notified);
     }

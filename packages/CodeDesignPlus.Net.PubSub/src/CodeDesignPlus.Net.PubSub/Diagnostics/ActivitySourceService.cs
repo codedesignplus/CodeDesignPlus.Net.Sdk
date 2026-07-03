@@ -142,4 +142,52 @@ public class ActivitySourceService : IActivityService
     {
         domainEvent.Metadata[key] = value;
     }
+
+    /// <summary>
+    /// Injects the trace context into message transport headers.
+    /// </summary>
+    /// <param name="activity">The activity containing the trace context.</param>
+    /// <param name="headers">The headers dictionary to inject trace context into.</param>
+    public void InjectToHeaders(Activity activity, IDictionary<string, object> headers)
+    {
+        ActivityContext contextToInject = default;
+
+        if (activity != null)
+        {
+            contextToInject = activity.Context;
+        }
+        else if (Activity.Current != null)
+        {
+            contextToInject = Activity.Current.Context;
+        }
+
+        this.propagator.Inject(new PropagationContext(contextToInject, Baggage.Current), headers, (h, key, value) => h[key] = value);
+    }
+
+    /// <summary>
+    /// Extracts the propagation context from message transport headers.
+    /// </summary>
+    /// <param name="headers">The headers dictionary containing trace context.</param>
+    /// <returns>The extracted propagation context.</returns>
+    public PropagationContext ExtractFromHeaders(IDictionary<string, object> headers)
+    {
+        var parentContext = this.propagator.Extract(default, headers, (h, key) =>
+        {
+            if (h.TryGetValue(key, out var value))
+            {
+                return value switch
+                {
+                    byte[] bytes => new[] { Encoding.UTF8.GetString(bytes) },
+                    string str => new[] { str },
+                    _ => Array.Empty<string>()
+                };
+            }
+
+            return Array.Empty<string>();
+        });
+
+        Baggage.Current = parentContext.Baggage;
+
+        return parentContext;
+    }
 }

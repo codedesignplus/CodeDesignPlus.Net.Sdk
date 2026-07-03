@@ -16,6 +16,7 @@ global using CodeDesignPlus.Net.PubSub.Abstractions.Options;
 global using CodeDesignPlus.Net.PubSub.Diagnostics;
 global using CodeDesignPlus.Net.PubSub.Exceptions;
 global using CodeDesignPlus.Net.PubSub.Services;
+global using System.Text;
 global using OpenTelemetry;
 global using OpenTelemetry.Context.Propagation;
 

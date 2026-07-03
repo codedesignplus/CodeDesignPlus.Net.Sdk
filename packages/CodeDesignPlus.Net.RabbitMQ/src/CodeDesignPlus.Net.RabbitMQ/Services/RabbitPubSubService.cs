@@ -88,13 +88,11 @@ public class RabbitPubSubService : IRabbitPubSub
 
         var exchangeName = await this.channelProvider.ExchangeDeclareAsync(@event.GetType(), cancellationToken);
 
-        // Use Activity.Current from the automatic RabbitMQ instrumentation or current context
-        var activity = Activity.Current;
+        var activity = this.activityService?.StartActivity($"publish {exchangeName}", ActivityKind.Producer);
 
-        // Inject trace context into the domain event metadata before serialization
         this.activityService?.Inject(activity, @event);
 
-        // Add semantic tags to the current activity
+        activity?.AddTag("messaging.system", "rabbitmq");
         activity?.AddTag("messaging.operation.type", "publish");
         activity?.AddTag("messaging.destination.name", exchangeName);
         activity?.AddTag("event.type", @event.GetType().Name);
@@ -105,8 +103,12 @@ public class RabbitPubSubService : IRabbitPubSub
 
         var body = Encoding.UTF8.GetBytes(message);
 
+        var headers = new Dictionary<string, object>();
+        this.activityService?.InjectToHeaders(activity, headers);
+
         var properties = new BasicProperties
         {
+            Headers = headers,
             Persistent = true,
             AppId = coreOptions.AppName,
             Type = @event.GetType().Name,
@@ -126,7 +128,10 @@ public class RabbitPubSubService : IRabbitPubSub
             cancellationToken: cancellationToken
         );
 
-        this.logger.LogInformation("Event {TEvent} published ", @event.GetType().Name);
+        activity?.SetStatus(ActivityStatusCode.Ok);
+        activity?.Stop();
+
+        this.logger.LogInformation("Event {TEvent} published", @event.GetType().Name);
     }
 
     /// <summary>
@@ -193,6 +198,9 @@ public class RabbitPubSubService : IRabbitPubSub
             var @event = JsonSerializer.Deserialize<TEvent>(message);
 
             var parentContext = this.activityService?.Extract(@event);
+
+            if (parentContext?.ActivityContext == default && eventArguments.BasicProperties.Headers != null)
+                parentContext = this.activityService?.ExtractFromHeaders(eventArguments.BasicProperties.Headers);
 
             activity = this.activityService?.StartActivity($"consume {typeof(TEvent).Name}", ActivityKind.Consumer, parentContext);
 
