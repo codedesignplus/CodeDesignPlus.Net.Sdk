@@ -101,7 +101,12 @@ public class ExpressionConverter(ParameterExpression parameter, bool isAggregati
 
         while (memberExpression != null)
         {
-            parts.Add(memberExpression.Member.Name);
+            var name = memberExpression.Member.Name;
+
+            if (string.Equals(name, "Id", StringComparison.OrdinalIgnoreCase))
+                name = "_id";
+
+            parts.Add(name);
             memberExpression = memberExpression.Expression as MemberExpression;
         }
 

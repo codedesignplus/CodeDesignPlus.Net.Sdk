@@ -625,8 +625,8 @@ public class ExpressionConverterTest
         // Assert
         Assert.NotNull(result);
         Assert.Equal(1, result.ElementCount);
-        Assert.True(result.Contains("Client.Id"));
-        var idFilter = result["Client.Id"].AsBsonDocument;
+        Assert.True(result.Contains("Client._id"));
+        var idFilter = result["Client._id"].AsBsonDocument;
         Assert.True(idFilter.Contains("$eq"));
         Assert.Equal(guid, idFilter["$eq"].AsGuid);
     }
