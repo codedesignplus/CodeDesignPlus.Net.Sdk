@@ -14,4 +14,12 @@ public interface IPaymentGrpc
     /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     Task<InitiatePaymentResponse> InitiatePaymentAsync(InitiatePaymentRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the current payment status by payment ID.
+    /// </summary>
+    /// <param name="paymentId">The unique identifier of the payment.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns the payment status response.</returns>
+    Task<GetPaymentStatusResponse> GetPaymentStatusAsync(Guid paymentId, CancellationToken cancellationToken);
 }

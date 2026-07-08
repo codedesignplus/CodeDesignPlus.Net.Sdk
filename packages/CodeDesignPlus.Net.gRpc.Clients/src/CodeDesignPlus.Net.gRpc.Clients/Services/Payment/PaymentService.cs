@@ -27,4 +27,23 @@ public class PaymentService(Payment.PaymentClient client, IUserContext userConte
 
         return response;
     }
+
+    /// <summary>
+    /// Gets the current payment status by payment ID.
+    /// </summary>
+    /// <param name="paymentId">The unique identifier of the payment.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns the payment status response.</returns>
+    public async Task<GetPaymentStatusResponse> GetPaymentStatusAsync(Guid paymentId, CancellationToken cancellationToken)
+    {
+        var request = new GetPaymentStatusRequest { Id = paymentId.ToString() };
+
+        var response = await client.GetPaymentStatusAsync(request, new Grpc.Core.Metadata
+        {
+            { "Authorization", $"Bearer {userContext.AccessToken}" },
+            { "X-Tenant", userContext.Tenant.ToString() }
+        }, cancellationToken: cancellationToken);
+
+        return response;
+    }
 }

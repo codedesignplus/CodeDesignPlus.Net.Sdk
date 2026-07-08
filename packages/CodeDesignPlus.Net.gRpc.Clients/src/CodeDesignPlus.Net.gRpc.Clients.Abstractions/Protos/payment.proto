@@ -9,6 +9,7 @@ package Payment;
 
 service Payment {
   rpc InitiatePayment (InitiatePaymentRequest) returns (InitiatePaymentResponse);
+  rpc GetPaymentStatus (GetPaymentStatusRequest) returns (GetPaymentStatusResponse);
 }
 
 message InitiatePaymentRequest {
@@ -109,6 +110,14 @@ message InitiatePaymentResponse {
   bool success = 1;
   string payment_id = 2;
   NextActionType next_action = 3;
-  google.protobuf.StringValue redirect_url = 4; 
-  map<string, google.protobuf.StringValue> metadata = 5; 
+  google.protobuf.StringValue redirect_url = 4;
+  map<string, google.protobuf.StringValue> metadata = 5;
+}
+
+message GetPaymentStatusRequest {
+  string id = 1;
+}
+
+message GetPaymentStatusResponse {
+  PaymentStatus status = 1;
 }
