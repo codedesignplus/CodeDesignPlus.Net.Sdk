@@ -13,6 +13,7 @@ public class RabbitPubSubService : IRabbitPubSub
     private readonly IServiceProvider serviceProvider;
     private readonly IDomainEventResolver domainEventResolverService;
     private readonly CoreOptions coreOptions;
+    private readonly RabbitMQOptions rabbitMQOptions;
     private readonly IChannelProvider channelProvider;
     private readonly Dictionary<string, object> argumentsQueue;
     private readonly IActivityService activityService;
@@ -42,8 +43,9 @@ public class RabbitPubSubService : IRabbitPubSub
         this.coreOptions = coreOptions.Value;
         this.channelProvider = channelProvider;
         this.activityService = activityService;
+        this.rabbitMQOptions = rabbitMQOptions.Value;
 
-        this.argumentsQueue = rabbitMQOptions.Value.QueueArguments.GetArguments();
+        this.argumentsQueue = this.rabbitMQOptions.QueueArguments.GetArguments();
 
         this.logger.LogInformation("RabbitPubSubService initialized.");
     }
@@ -220,20 +222,74 @@ public class RabbitPubSubService : IRabbitPubSub
 
             activity?.SetStatus(ActivityStatusCode.Ok);
         }
-        catch (CodeDesignPlusException ex)
-        {
-            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            this.logger.LogWarning(ex, "Warning processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
-        }
         catch (Exception ex)
         {
-            activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
-            this.logger.LogError(ex, "Error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+            var isBusinessError = ex is CodeDesignPlusException;
+
+            if (isBusinessError)
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                this.logger.LogWarning(ex, "Business error processing event: {TEvent} | {Message}. Sending to DLQ.", typeof(TEvent).Name, ex.Message);
+            }
+            else
+            {
+                activity?.SetStatus(ActivityStatusCode.Error, ex.Message);
+                this.logger.LogError(ex, "Infrastructure error processing event: {TEvent} | {Message}.", typeof(TEvent).Name, ex.Message);
+            }
+
+            var retryCount = GetDeliveryCount(eventArguments.BasicProperties);
+            var maxRetries = this.rabbitMQOptions.MaxRetry;
+
+            if (isBusinessError || retryCount >= maxRetries)
+            {
+                this.logger.LogError(
+                    "Event {TEvent} sent to DLQ. Reason: {Reason}. Delivery count: {RetryCount}/{MaxRetries}.",
+                    typeof(TEvent).Name,
+                    isBusinessError ? "Business error (non-retryable)" : "Max retries exceeded",
+                    retryCount,
+                    maxRetries
+                );
+
+                await channel.BasicNackAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: false, cancellationToken: cancellationToken);
+            }
+            else
+            {
+                this.logger.LogWarning(
+                    "Event {TEvent} will be requeued. Delivery count: {RetryCount}/{MaxRetries}.",
+                    typeof(TEvent).Name,
+                    retryCount + 1,
+                    maxRetries
+                );
+
+                await channel.BasicNackAsync(deliveryTag: eventArguments.DeliveryTag, multiple: false, requeue: true, cancellationToken: cancellationToken);
+            }
         }
         finally
         {
             activity?.Stop();
         }
+    }
+
+    /// <summary>
+    /// Gets the delivery count from the message properties.
+    /// Uses x-delivery-count (quorum queues) or falls back to 0.
+    /// </summary>
+    private static int GetDeliveryCount(IReadOnlyBasicProperties properties)
+    {
+        if (properties.Headers is null)
+            return 0;
+
+        if (properties.Headers.TryGetValue("x-delivery-count", out var value))
+        {
+            return value switch
+            {
+                int intVal => intVal,
+                long longVal => (int)longVal,
+                _ => 0
+            };
+        }
+
+        return 0;
     }
 
     /// <summary>
