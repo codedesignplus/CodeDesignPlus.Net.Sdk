@@ -21,4 +21,11 @@ public interface IUserGrpc
     /// <param name="cancellationToken"> Cancellation token to observe while waiting for the task to complete.</param>
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     Task AddGroupToUser(AddGroupRequest request, CancellationToken cancellationToken);
+    /// <summary>
+    /// Removes a user from a group
+    /// </summary>
+    /// <param name="request">The request containing user and group information.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation.</returns>
+    Task RemoveGroupFromUser(RemoveGroupRequest request, CancellationToken cancellationToken);
 }

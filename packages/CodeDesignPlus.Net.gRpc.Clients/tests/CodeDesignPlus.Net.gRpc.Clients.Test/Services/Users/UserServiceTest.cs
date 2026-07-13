@@ -70,4 +70,33 @@ public class UserServiceTest
         // Assert
         mockClient.Verify(m => m.AddGroupToUserAsync(It.IsAny<AddGroupRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None), Times.Once);
     }
+
+    [Fact]
+    public async Task RemoveGroupFromUser_ShouldRemoveGroup_WhenCalledWithValidRequest()
+    {
+        // Arrange
+        var userContextMock = new Mock<IUserContext>();
+        userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
+        userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
+
+        var mockCall = GrpcUtil.CreateAsyncUnaryCall(new Google.Protobuf.WellKnownTypes.Empty());
+
+        var mockClient = new Mock<gRpc.Clients.Services.User.Users.UsersClient>();
+        mockClient
+            .Setup(m => m.RemoveGroupFromUserAsync(It.IsAny<RemoveGroupRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None))
+            .Returns(mockCall);
+
+        var userService = new UserService(mockClient.Object, userContextMock.Object);
+        var request = new RemoveGroupRequest
+        {
+            Id = Guid.NewGuid().ToString(),
+            Role = "administrator"
+        };
+
+        // Act
+        await userService.RemoveGroupFromUser(request, CancellationToken.None);
+
+        // Assert
+        mockClient.Verify(m => m.RemoveGroupFromUserAsync(It.IsAny<RemoveGroupRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None), Times.Once);
+    }
 }

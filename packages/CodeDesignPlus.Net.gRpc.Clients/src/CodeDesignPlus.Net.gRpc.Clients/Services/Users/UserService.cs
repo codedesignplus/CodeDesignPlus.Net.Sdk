@@ -43,4 +43,20 @@ public class UserService(User.Users.UsersClient client, IUserContext userContext
         }, cancellationToken: cancellationToken);
     }
 
+    /// <summary>
+    /// Removes a group from a user.
+    /// </summary>
+    /// <param name="request">The request containing user and group information.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Returns a task representing the asynchronous operation.</returns>
+    /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
+    public async Task RemoveGroupFromUser(RemoveGroupRequest request, CancellationToken cancellationToken)
+    {
+        await client.RemoveGroupFromUserAsync(request, new Grpc.Core.Metadata
+        {
+            { "Authorization", $"Bearer {userContext.AccessToken}" },
+            { "X-Tenant", userContext.Tenant.ToString() }
+        }, cancellationToken: cancellationToken);
+    }
+
 }

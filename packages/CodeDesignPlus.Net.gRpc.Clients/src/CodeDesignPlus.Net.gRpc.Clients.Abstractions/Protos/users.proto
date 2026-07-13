@@ -12,9 +12,15 @@ package Users;
 service Users {
   rpc AddTenantToUser (AddTenantRequest) returns (google.protobuf.Empty);
   rpc AddGroupToUser (AddGroupRequest) returns (google.protobuf.Empty);
+  rpc RemoveGroupFromUser (RemoveGroupRequest) returns (google.protobuf.Empty);
 }
 
 message AddGroupRequest {
+  string Id = 1;
+  string Role = 2;
+}
+
+message RemoveGroupRequest {
   string Id = 1;
   string Role = 2;
 }
