@@ -56,8 +56,6 @@ public static class ServiceCollectionExtensions
         });
         services.TryAddSingleton<IChannelProvider, ChannelProvider>();
 
-        if (options.DeclareExchangesInitially)
-
         if (options.RegisterHealthCheck)
         {
             services.AddHealthChecks()
@@ -70,7 +68,8 @@ public static class ServiceCollectionExtensions
                     },
                     name: "RabbitMQ",
                     tags: ["ready"]
-                );
+                )
+                .AddCheck<SubscriptionReadinessHealthCheck>("RabbitMQ-Consumers", tags: ["ready"]);
         }
 
         return services;

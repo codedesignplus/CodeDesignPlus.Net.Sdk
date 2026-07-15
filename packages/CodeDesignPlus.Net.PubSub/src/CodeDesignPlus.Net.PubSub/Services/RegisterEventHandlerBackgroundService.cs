@@ -1,56 +1,81 @@
-﻿namespace CodeDesignPlus.Net.PubSub.Services;
+namespace CodeDesignPlus.Net.PubSub.Services;
 
 /// <summary>
 /// Provides a background service for handling events with a specified event handler.
 /// </summary>
 /// <typeparam name="TEventHandler">The type of the event handler.</typeparam>
 /// <typeparam name="TEvent">The type of the event.</typeparam>
-public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent> : BackgroundService
+public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent>(
+    IMessage message,
+    ISubscriptionTracker subscriptionTracker,
+    ILogger<RegisterEventHandlerBackgroundService<TEventHandler, TEvent>> logger
+) : BackgroundService
     where TEventHandler : IEventHandler<TEvent>
     where TEvent : IDomainEvent
 {
-    private readonly ILogger<RegisterEventHandlerBackgroundService<TEventHandler, TEvent>> logger;
-    private readonly IMessage message;
+    private const int MaxRetries = 10;
+    private const int BaseDelayMs = 2000;
+    private const int MaxDelayMs = 60_000;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="RegisterEventHandlerBackgroundService{TEventHandler, TEvent}"/> class.
-    /// </summary>
-    /// <param name="message">Service for managing events.</param>
-    /// <param name="logger">Service for logging.</param>
-    /// <exception cref="ArgumentNullException">Thrown when any of the parameters are null.</exception>
-    public RegisterEventHandlerBackgroundService(IMessage message, ILogger<RegisterEventHandlerBackgroundService<TEventHandler, TEvent>> logger)
-    {
-        ArgumentNullException.ThrowIfNull(message);
-        ArgumentNullException.ThrowIfNull(logger);
-
-        this.message = message;
-        this.logger = logger;
-
-        this.logger.LogInformation("RegisterEventHandlerBackgroundService for EventHandler: {TEventHandler} and Event: {TEvent} has been initialized.", typeof(TEventHandler).Name, typeof(TEvent).Name);
-    }
-
-    /// <summary>
-    /// Executes the background service task.
+    /// Executes the background service task with retry logic.
     /// </summary>
     /// <param name="stoppingToken">Triggered when the host is performing a graceful shutdown.</param>
     /// <returns>A <see cref="Task"/> representing the asynchronous operation.</returns>
-    protected override Task ExecuteAsync(CancellationToken stoppingToken)
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        logger.LogInformation("Starting execution of {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
+        var handlerName = typeof(TEventHandler).Name;
+        var eventName = typeof(TEvent).Name;
 
-        Task.Run(() =>
+        logger.LogInformation("Starting subscription of {TEventHandler} for event type {TEvent}.", handlerName, eventName);
+
+        var retryCount = 0;
+
+        while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken).ConfigureAwait(false);
+                await message.SubscribeAsync<TEvent, TEventHandler>(stoppingToken);
+
+                subscriptionTracker.MarkSubscribed(handlerName);
+
+                logger.LogInformation("Successfully subscribed {TEventHandler} for event type {TEvent}.", handlerName, eventName);
+
+                return;
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                logger.LogInformation("Subscription cancelled for {TEventHandler}/{TEvent} due to shutdown.", handlerName, eventName);
+                return;
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "An error occurred while registering the event handler {TEventHandler} for event type {TEvent}.", typeof(TEventHandler).Name, typeof(TEvent).Name);
+                retryCount++;
+
+                var delay = Math.Min(BaseDelayMs * (int)Math.Pow(2, retryCount - 1), MaxDelayMs);
+
+                logger.LogError(ex, "Failed to subscribe {TEventHandler} for {TEvent}. Attempt {Attempt}/{Max}. Retrying in {Delay}ms.",
+                    handlerName, eventName, retryCount, MaxRetries, delay);
+
+                if (retryCount >= MaxRetries)
+                {
+                    subscriptionTracker.MarkFailed(handlerName);
+
+                    logger.LogCritical("Max retries ({Max}) exceeded for {TEventHandler}/{TEvent}. Handler will NOT consume events until pod restart.",
+                        MaxRetries, handlerName, eventName);
+
+                    return;
+                }
+
+                try
+                {
+                    await Task.Delay(delay, stoppingToken);
+                }
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+                {
+                    return;
+                }
             }
-
-        }, stoppingToken);
-
-        return Task.CompletedTask;
+        }
     }
 }

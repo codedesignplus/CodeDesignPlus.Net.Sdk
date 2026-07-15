@@ -95,10 +95,13 @@ public static class ServiceCollectionExtensions
     /// <returns>The IServiceCollection with event handlers added.</returns>
     private static IServiceCollection AddEventsHandlers(this IServiceCollection services, bool registerAutomaticHandlers)
     {
+        services.TryAddSingleton<ISubscriptionTracker, SubscriptionTracker>();
+
         if (!registerAutomaticHandlers)
             return services;
 
         var eventsHandlers = PubSubExtensions.GetEventHandlers();
+        var handlerCount = 0;
 
         foreach (var eventHandler in eventsHandlers)
         {
@@ -113,7 +116,11 @@ public static class ServiceCollectionExtensions
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), eventHandlerBackgroundType));
 
             services.TryAddScoped(eventHandler);
+            handlerCount++;
         }
+
+        services.Configure<SubscriptionTrackerInitializer>(x => x.ExpectedCount = handlerCount);
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, SubscriptionTrackerInitializerService>());
 
         return services;
     }
