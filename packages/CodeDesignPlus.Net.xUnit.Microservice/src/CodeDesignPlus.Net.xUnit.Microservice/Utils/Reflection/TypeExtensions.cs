@@ -38,7 +38,7 @@ public static class TypeExtensions
         { typeof(Stream), () => new MemoryStream() },
         { typeof(Money), () => Money.FromLong(1000L, "COP") },
         { typeof(PenaltyRule), () => PenaltyRule.CreateFixed(0, "COP") },
-        { typeof(TaxDefinition), () => TaxDefinition.Create("IVA", "Impuesto al Valor Agregado", 1900, false) },
+        { typeof(TaxDefinition), () => TaxDefinition.Create("IVA", "Impuesto al Valor Agregado", 1900, false, 0L, "COP") },
         { typeof(WithholdingDefinition), () => WithholdingDefinition.Create("RETE_FUENTE", "Retención en la Fuente", 350, 0L, "COP") }
     };
 

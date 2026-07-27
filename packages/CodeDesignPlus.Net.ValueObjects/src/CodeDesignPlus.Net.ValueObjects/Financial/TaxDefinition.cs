@@ -43,15 +43,17 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
     public string Currency { get; private set; }
 
     [JsonConstructor]
-    private TaxDefinition(string code, string name, int rateBasisPoints, bool isInclusive, long minimumBase = 0, string currency = "COP")
+    private TaxDefinition(string code, string name, int rateBasisPoints, bool isInclusive, long minimumBase, string currency)
     {
         var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? "COP";
+        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
 
         Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "000 : Code cannot be null or empty.");
         Guard.IsNullOrEmpty(name, Exceptions.Layer.None, "001 : Name cannot be null or empty.");
         Guard.IsNotInRange(rateBasisPoints, 0, 100000, Exceptions.Layer.None, "002 : RateBasisPoints must be between 0 and 100000.");
         Guard.IsLessThan(minimumBase, 0L, Exceptions.Layer.None, "003 : MinimumBase cannot be negative.");
+        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, "004 : Currency cannot be null or empty.");
+        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, "005 : Currency must be exactly 3 characters (ISO 4217).");
 
         Code = normalizedCode;
         Name = name;
@@ -59,19 +61,6 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
         IsInclusive = isInclusive;
         MinimumBase = minimumBase;
         Currency = normalizedCurrency;
-    }
-
-    /// <summary>
-    /// Creates a new immutable instance of the <see cref="TaxDefinition"/> value object.
-    /// </summary>
-    /// <param name="code">The tax code (e.g., "IVA", "VAT"). Normalized to uppercase.</param>
-    /// <param name="name">The human-readable name of the tax.</param>
-    /// <param name="rateBasisPoints">The rate in basis points (e.g., 1900 = 19.00%).</param>
-    /// <param name="isInclusive">Whether the tax is included in the price or added on top.</param>
-    /// <returns>A new <see cref="TaxDefinition"/> instance.</returns>
-    public static TaxDefinition Create(string code, string name, int rateBasisPoints, bool isInclusive)
-    {
-        return new TaxDefinition(code, name, rateBasisPoints, isInclusive, 0, "COP");
     }
 
     /// <summary>
