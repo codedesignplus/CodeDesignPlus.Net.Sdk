@@ -10,11 +10,18 @@ namespace CodeDesignPlus.Net.Security.Abstractions;
 public interface ITenant
 {
     /// <summary>
-    /// Set the tenant information.
+    /// Loads the tenant information from <see cref="ITenantDirectory"/>. Safe to call repeatedly
+    /// within the same scope, which is what a recurring job iterating over tenants needs.
     /// </summary>
     /// <param name="id">The identifier of the tenant.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Return a <see cref="Task"/> representing the asynchronous operation.</returns>
-    Task SetTenantAsync(Guid id);
+    /// <exception cref="Exceptions.SecurityException">Thrown when the tenant cannot be resolved from any level.</exception>
+    Task SetAsync(Guid id, CancellationToken cancellationToken = default);
+    /// <summary>
+    /// Gets a value indicating whether a tenant has been loaded into the current scope.
+    /// </summary>
+    bool IsLoaded { get; }
     /// <summary>
     /// Set the tenant information.
     /// </summary>

@@ -189,6 +189,8 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
 
                 context.SetCurrentDomainEvent(value.Message.Value);
 
+                await scope.ServiceProvider.InitializeEventScopeAsync(value.Message.Value, cancellationToken).ConfigureAwait(false);
+
                 var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
                 await eventHandler.HandleAsync(value.Message.Value, cancellationToken).ConfigureAwait(false);

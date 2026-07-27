@@ -14,14 +14,14 @@ namespace CodeDesignPlus.Net.Security.Test.Services;
 public class TenantTest
 {
     private readonly Mock<ILogger<Tenant>> loggerMock;
-    private readonly Mock<ICacheManager> cacheManagerMock;
+    private readonly Mock<ITenantDirectory> directoryMock;
     private readonly Tenant tenantService;
 
     public TenantTest()
     {
         loggerMock = new Mock<ILogger<Tenant>>();
-        cacheManagerMock = new Mock<ICacheManager>();
-        tenantService = new Tenant(loggerMock.Object, cacheManagerMock.Object);
+        directoryMock = new Mock<ITenantDirectory>();
+        tenantService = new Tenant(loggerMock.Object, directoryMock.Object);
     }
 
     private static Currency CreateCurrency(string code = "USD", short numericCode = 840) =>
@@ -54,35 +54,65 @@ public class TenantTest
         );
 
     [Fact]
-    public async Task SetTenantAsync_TenantExists_SetsTenant()
+    public async Task SetAsync_TenantExists_SetsTenant()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
         var tenant = new M.Tenant { Id = tenantId };
-        cacheManagerMock.Setup(cm => cm.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
-        cacheManagerMock.Setup(cm => cm.GetAsync<M.Tenant>(It.IsAny<string>())).ReturnsAsync(tenant);
+        directoryMock.Setup(d => d.GetSnapshotAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
 
         // Act
-        await tenantService.SetTenantAsync(tenantId);
+        await tenantService.SetAsync(tenantId);
 
         // Assert
-        cacheManagerMock.Verify(cm => cm.ExistsAsync($"Tenant:{tenantId}"), Times.Once);
-        cacheManagerMock.Verify(cm => cm.GetAsync<M.Tenant>($"Tenant:{tenantId}"), Times.Once);
+        Assert.True(tenantService.IsLoaded);
+        directoryMock.Verify(d => d.GetSnapshotAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
         loggerMock.VerifyLogging($"Tenant loaded: {tenantId}", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
-    public async Task SetTenantAsync_TenantDoesNotExist_ThrowsSecurityException()
+    public async Task SetAsync_TenantCannotBeResolved_ThrowsSecurityException()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
-        cacheManagerMock.Setup(cm => cm.ExistsAsync(It.IsAny<string>())).ReturnsAsync(false);
+        directoryMock.Setup(d => d.GetSnapshotAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((M.Tenant)null!);
 
         // Act & Assert
-        var exception = await Assert.ThrowsAsync<SecurityException>(() => tenantService.SetTenantAsync(tenantId));
+        var exception = await Assert.ThrowsAsync<SecurityException>(() => tenantService.SetAsync(tenantId));
 
-        Assert.Equal("The tenant specified does not exist at the level of the cache.", exception.Message);
-        cacheManagerMock.Verify(cm => cm.ExistsAsync($"Tenant:{tenantId}"), Times.Once);
+        Assert.Equal($"The tenant {tenantId} could not be resolved.", exception.Message);
+        Assert.False(tenantService.IsLoaded);
+    }
+
+    [Fact]
+    public async Task SetAsync_CalledRepeatedly_ReplacesTheLoadedTenant()
+    {
+        // Arrange: es el caso de un job recurrente que itera tenants dentro del mismo scope.
+        var first = Guid.NewGuid();
+        var second = Guid.NewGuid();
+        directoryMock.Setup(d => d.GetSnapshotAsync(first, It.IsAny<CancellationToken>())).ReturnsAsync(new M.Tenant { Id = first });
+        directoryMock.Setup(d => d.GetSnapshotAsync(second, It.IsAny<CancellationToken>())).ReturnsAsync(new M.Tenant { Id = second });
+
+        // Act
+        await tenantService.SetAsync(first);
+        await tenantService.SetAsync(second);
+
+        // Assert
+        Assert.True(tenantService.IsLoaded);
+        directoryMock.Verify(d => d.GetSnapshotAsync(first, It.IsAny<CancellationToken>()), Times.Once);
+        directoryMock.Verify(d => d.GetSnapshotAsync(second, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public void Members_WithoutLoadedTenant_ThrowSecurityException()
+    {
+        // Act & Assert
+        Assert.False(tenantService.IsLoaded);
+        Assert.Throws<SecurityException>(() => tenantService.Country);
+        Assert.Throws<SecurityException>(() => tenantService.Currency);
+        Assert.Throws<SecurityException>(() => tenantService.Metadata);
+        Assert.Throws<SecurityException>(() => tenantService.Modules);
+        Assert.Throws<SecurityException>(() => tenantService.LicenseIsValid());
     }
 
     [Fact]

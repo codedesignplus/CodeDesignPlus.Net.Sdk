@@ -61,6 +61,12 @@ message License {
   string startDate = 3; // ISO 8601 string
   string endDate = 4;   // ISO 8601 string
   map<string, string> metadata = 5;
+  repeated LicenseModule modules = 6;
+}
+
+message LicenseModule {
+  string id = 1;
+  string name = 2;
 }
 
 message Location {

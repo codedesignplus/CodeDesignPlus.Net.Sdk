@@ -390,6 +390,121 @@ public class RedisCacheManagerTest
         databaseMock.Verify(x => x.StringSetAsync(GetKey(expected), JsonSerializer.Serialize(data), redisCacheOptions.Expiration, false, When.Always, CommandFlags.None), Times.Once());
     }
 
+    [Fact]
+    public async Task SetGlobalAsync_KeyIsNotNamespacedByApplication()
+    {
+        // Arrange
+        var key = "CodeDesignPlus:shared:Tenant:" + Guid.NewGuid();
+        var data = "Acme Corp";
+        var (cacheManager, databaseMock, _, redisCacheOptions) = BuildCacheManager();
+
+        // Act
+        await cacheManager.SetGlobalAsync(key, data);
+
+        // Assert
+        databaseMock.Verify(x => x.StringSetAsync(key, JsonSerializer.Serialize(data), redisCacheOptions.Expiration, false, When.Always, CommandFlags.None), Times.Once());
+        databaseMock.Verify(x => x.StringSetAsync(GetKey(key), It.IsAny<RedisValue>(), It.IsAny<TimeSpan?>(), It.IsAny<bool>(), It.IsAny<When>(), It.IsAny<CommandFlags>()), Times.Never());
+    }
+
+    [Fact]
+    public async Task GetGlobalAsync_KeyExists_ReturnsDeserializedValue()
+    {
+        // Arrange
+        var key = "CodeDesignPlus:shared:Tenant:" + Guid.NewGuid();
+        var data = "Acme Corp";
+        var (cacheManager, databaseMock, _, _) = BuildCacheManager();
+
+        databaseMock.Setup(x => x.StringGetAsync(key, CommandFlags.None)).ReturnsAsync(JsonSerializer.Serialize(data));
+
+        // Act
+        var result = await cacheManager.GetGlobalAsync<string>(key);
+
+        // Assert
+        Assert.Equal(data, result);
+    }
+
+    [Fact]
+    public async Task GetGlobalAsync_KeyDoesNotExist_ReturnsDefault()
+    {
+        // Arrange
+        var key = "CodeDesignPlus:shared:Tenant:" + Guid.NewGuid();
+        var (cacheManager, databaseMock, _, _) = BuildCacheManager();
+
+        databaseMock.Setup(x => x.StringGetAsync(key, CommandFlags.None)).ReturnsAsync(RedisValue.Null);
+
+        // Act
+        var result = await cacheManager.GetGlobalAsync<string>(key);
+
+        // Assert
+        Assert.Null(result);
+    }
+
+    [Fact]
+    public async Task GlobalSet_AddRemoveAndRead_UseTheRawKey()
+    {
+        // Arrange
+        const string key = "CodeDesignPlus:shared:Tenants:Active";
+        var tenant = Guid.NewGuid().ToString();
+        var (cacheManager, databaseMock, _, _) = BuildCacheManager();
+
+        databaseMock.Setup(x => x.SetMembersAsync(key, CommandFlags.None)).ReturnsAsync([tenant]);
+
+        // Act
+        await cacheManager.AddToGlobalSetAsync(key, tenant);
+        await cacheManager.RemoveFromGlobalSetAsync(key, tenant);
+        var members = await cacheManager.GetGlobalSetMembersAsync(key);
+
+        // Assert
+        databaseMock.Verify(x => x.SetAddAsync(key, tenant, CommandFlags.None), Times.Once());
+        databaseMock.Verify(x => x.SetRemoveAsync(key, tenant, CommandFlags.None), Times.Once());
+        Assert.Equal([tenant], members);
+    }
+
+    [Fact]
+    public async Task GlobalOperations_DatabaseIsNull_DegradeWithoutThrowing()
+    {
+        // Arrange
+        const string key = "CodeDesignPlus:shared:Tenants:Active";
+        var loggerMock = new Mock<ILogger<RedisCacheManager>>();
+        var options = Microsoft.Extensions.Options.Options.Create(new RedisCacheOptions());
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
+
+        redisServiceMock.SetupGet(x => x.Database).Returns((IDatabaseAsync)null!);
+        redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
+
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
+
+        // Act
+        var value = await cacheManager.GetGlobalAsync<string>(key);
+        var members = await cacheManager.GetGlobalSetMembersAsync(key);
+        await cacheManager.SetGlobalAsync(key, "Acme Corp");
+        await cacheManager.RemoveGlobalAsync(key);
+        await cacheManager.AddToGlobalSetAsync(key, Guid.NewGuid().ToString());
+        await cacheManager.RemoveFromGlobalSetAsync(key, Guid.NewGuid().ToString());
+
+        // Assert
+        Assert.Null(value);
+        Assert.Empty(members);
+    }
+
+    private (RedisCacheManager, Mock<IDatabase>, Mock<ILogger<RedisCacheManager>>, RedisCacheOptions) BuildCacheManager()
+    {
+        var loggerMock = new Mock<ILogger<RedisCacheManager>>();
+        var redisCacheOptions = new RedisCacheOptions();
+        var options = Microsoft.Extensions.Options.Options.Create(redisCacheOptions);
+        var redisFactoryMock = new Mock<IRedisFactory>();
+        var redisServiceMock = new Mock<Redis.Abstractions.IRedis>();
+        var databaseMock = new Mock<IDatabase>();
+
+        redisServiceMock.SetupGet(x => x.Database).Returns(databaseMock.Object);
+        redisFactoryMock.Setup(x => x.Create(FactoryConst.RedisCore)).Returns(redisServiceMock.Object);
+
+        var cacheManager = new RedisCacheManager(redisFactoryMock.Object, loggerMock.Object, options, coreOptions);
+
+        return (cacheManager, databaseMock, loggerMock, redisCacheOptions);
+    }
+
     private string GetKey(string key)
     {
         return $"{core.Business}:{core.AppName}:{key}";

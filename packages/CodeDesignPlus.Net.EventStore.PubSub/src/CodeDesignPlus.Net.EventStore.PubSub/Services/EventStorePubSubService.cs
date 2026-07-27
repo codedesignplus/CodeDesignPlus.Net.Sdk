@@ -182,6 +182,8 @@ public class EventStorePubSubService : IEventStorePubSub
 
             context.SetCurrentDomainEvent(domainEvent);
 
+            await scope.ServiceProvider.InitializeEventScopeAsync(domainEvent, cancellationToken).ConfigureAwait(false);
+
             var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
             await eventHandler.HandleAsync(domainEvent, cancellationToken).ConfigureAwait(false);

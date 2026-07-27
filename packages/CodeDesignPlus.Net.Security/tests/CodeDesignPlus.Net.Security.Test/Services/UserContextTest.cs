@@ -511,4 +511,98 @@ public class UserContextTest
         Assert.Empty(result);
     }
 
+    [Fact]
+    public void User_WithoutHttpContext_ReturnsAnonymousPrincipal()
+    {
+        // Arrange
+        var userContext = BuildWithoutHttpContext(Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.User;
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotNull(result.Identity);
+        Assert.False(result.Identity.IsAuthenticated);
+        Assert.False(userContext.IsAuthenticated);
+    }
+
+    [Fact]
+    public void Claims_WithoutHttpContext_ReturnDefaultInsteadOfThrowing()
+    {
+        // Arrange
+        var userContext = BuildWithoutHttpContext(Mock.Of<IEventContext>());
+
+        // Act & Assert
+        Assert.Equal(Guid.Empty, userContext.IdUser);
+        Assert.Null(userContext.Name);
+        Assert.Null(userContext.Email);
+        Assert.Null(userContext.AccessToken);
+        Assert.Empty(userContext.Roles);
+        Assert.False(userContext.IsApplication);
+        Assert.Equal(default, userContext.GetClaim<Guid>("userId"));
+        Assert.Null(userContext.GetHeader<string>("X-Tenant"));
+    }
+
+    [Fact]
+    public void Tenant_WithoutHttpContext_FallsBackToEventContext()
+    {
+        // Arrange
+        var expected = Guid.NewGuid();
+        var eventContext = new Mock<IEventContext>();
+        eventContext.SetupGet(x => x.Tenant).Returns(expected);
+
+        var userContext = BuildWithoutHttpContext(eventContext.Object);
+
+        // Act
+        var result = userContext.Tenant;
+
+        // Assert
+        Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public void GetClaim_ValueIsNotParseableToGuid_ReturnsEmpty()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([new("userId", "not-a-guid")]))
+        };
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.GetClaim<Guid>("userId");
+
+        // Assert
+        Assert.Equal(Guid.Empty, result);
+    }
+
+    [Fact]
+    public void GetHeader_PresentButEmpty_ReturnsDefault()
+    {
+        // Arrange
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Headers.Append("X-Tenant", string.Empty);
+
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = httpContext };
+        var options = OptionsUtil.SecurityOptions;
+        var userContext = new UserContext(httpContextAccessor, O.Options.Create(options), Mock.Of<IEventContext>());
+
+        // Act
+        var result = userContext.GetHeader<Guid>("X-Tenant");
+
+        // Assert
+        Assert.Equal(Guid.Empty, result);
+    }
+
+    private static UserContext BuildWithoutHttpContext(IEventContext eventContext)
+    {
+        var httpContextAccessor = new HttpContextAccessor { HttpContext = null };
+
+        return new UserContext(httpContextAccessor, O.Options.Create(OptionsUtil.SecurityOptions), eventContext);
+    }
+
 }

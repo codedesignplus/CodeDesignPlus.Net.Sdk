@@ -1,6 +1,4 @@
-
 using Microsoft.Extensions.Logging;
-using CodeDesignPlus.Net.Cache.Abstractions;
 using Models = CodeDesignPlus.Net.Security.Abstractions.Models;
 using CodeDesignPlus.Net.ValueObjects.Location;
 using CodeDesignPlus.Net.ValueObjects.Financial;
@@ -8,121 +6,115 @@ using CodeDesignPlus.Net.ValueObjects.Financial;
 namespace CodeDesignPlus.Net.Security.Services;
 
 /// <summary>
-/// Tenant service to manage the tenant information. 
+/// Holds the tenant loaded into the current scope. Resolving the snapshot is the responsibility of
+/// <see cref="ITenantDirectory"/>.
 /// </summary>
-public class Tenant : ITenant
+/// <param name="logger">The logger service.</param>
+/// <param name="directory">The tenant directory.</param>
+public class Tenant(ILogger<Tenant> logger, ITenantDirectory directory) : ITenant
 {
     private Models.Tenant tenant;
-    private readonly ILogger<Tenant> logger;
-    private readonly ICacheManager cacheManager;
 
-    /// <summary>
-    /// Create a new instance of <see cref="Tenant"/>.
-    /// </summary>
-    /// <param name="logger">The logger service.</param>
-    /// <param name="cacheManager">The cache manager service.</param>
-    public Tenant(ILogger<Tenant> logger, ICacheManager cacheManager)
+    /// <inheritdoc/>
+    public bool IsLoaded => this.tenant is not null;
+
+    /// <inheritdoc/>
+    public async Task SetAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        this.logger = logger;
-        this.cacheManager = cacheManager;
+        this.tenant = await directory.GetSnapshotAsync(id, cancellationToken)
+            ?? throw new SecurityException($"The tenant {id} could not be resolved.");
 
-        this.logger.LogInformation("TenantService initialized");
+        logger.LogDebug("Tenant loaded: {TenantId}", id);
     }
 
-    /// <summary>
-    /// Set the tenant information.
-    /// </summary>
-    /// <param name="id">The identifier of the tenant.</param>
-    /// <returns>Return a <see cref="Task"/> representing the asynchronous operation.</returns>
-    public async Task SetTenantAsync(Guid id)
-    {
-        var exist = await cacheManager.ExistsAsync($"Tenant:{id}");
-
-        if (!exist)
-            throw new SecurityException("The tenant specified does not exist at the level of the cache.");
-
-        this.tenant = await cacheManager.GetAsync<Models.Tenant>($"Tenant:{id}");
-
-        this.logger.LogDebug("Tenant loaded: {TenantId}", id);
-    }
-
-    /// <summary>
-    /// Set the tenant information.
-    /// </summary>
-    /// <returns>Return true if the license is valid; otherwise, false.</returns>
+    /// <inheritdoc/>
     public bool LicenseIsValid()
     {
+        this.EnsureLoaded();
+
         var now = NodaTime.SystemClock.Instance.GetCurrentInstant();
 
         var isValid = this.tenant.License.StartDate < now && this.tenant.License.ExpirationDate > now;
 
-        this.logger.LogDebug("The license with id {LicenseId} is valid: {IsValid}, StartDate: {StartDate}, ExpirationDate: {ExpirationDate}", this.tenant.License.Id, isValid, this.tenant.License.StartDate, this.tenant.License.ExpirationDate);
+        logger.LogDebug("The license with id {LicenseId} is valid: {IsValid}, StartDate: {StartDate}, ExpirationDate: {ExpirationDate}", this.tenant.License.Id, isValid, this.tenant.License.StartDate, this.tenant.License.ExpirationDate);
 
         return isValid;
     }
 
-    /// <summary>
-    /// Get the metadata value by key.
-    /// </summary>
-    /// <param name="key">The key to search in the metadata.</param>
-    /// <returns>Return the value of the metadata.</returns>
+    /// <inheritdoc/>
     public string GetMetadata(string key)
     {
+        this.EnsureLoaded();
+
         return this.tenant.Metadata[key];
     }
 
-    /// <summary>
-    /// Get the metadata value by key.
-    /// </summary>
-    /// <typeparam name="TValue">The type of the value to return.</typeparam>
-    /// <param name="key">The key to search in the metadata.</param>
-    /// <returns>Return the value of the metadata.</returns>
+    /// <inheritdoc/>
     public TValue GetMetadata<TValue>(string key)
     {
+        this.EnsureLoaded();
+
         var value = this.tenant.Metadata[key] ?? throw new KeyNotFoundException($"The key {key} does not exist in the metadata.");
-        
+
         return (TValue)Convert.ChangeType(value, typeof(TValue));
     }
 
-    /// <summary>
-    /// Get the country information.
-    /// </summary>
-    public Country Country => this.tenant.Location.Country;
-    /// <summary>
-    /// Get the state information.
-    /// </summary>
-    public State State => this.tenant.Location.State;
-    /// <summary>
-    /// Get the city information.
-    /// </summary>
-    public City City => this.tenant.Location.City;
-    /// <summary>
-    /// Get the locality information.
-    /// </summary>
-    public Locality Locality => this.tenant.Location.Locality;
-    /// <summary>
-    /// Get the neighborhood information.
-    /// </summary>
-    public Neighborhood Neighborhood => this.tenant.Location.Neighborhood;
-    /// <summary>
-    /// Get the time zone.
-    /// </summary>
-    public string TimeZone => this.tenant.Location.City.Timezone ?? this.tenant.Location.Country.Timezone;
-    /// <summary>
-    /// Get the currency.
-    /// </summary>
-    public Currency Currency => this.tenant.Location.Country.Currency;
-    /// <summary>
-    /// Get the metadata.
-    /// </summary>
-    public Dictionary<string, string> Metadata => this.tenant.Metadata;
-    /// <summary>
-    /// Get the license modules purchased by the tenant.
-    /// </summary>
-    public IReadOnlyList<Models.LicenseModule> Modules => this.tenant.License.Modules;
-    /// <summary>
-    /// Returns true if the tenant's license includes the module with the given ID.
-    /// </summary>
-    /// <param name="moduleId">The module identifier to check.</param>
-    public bool HasModule(Guid moduleId) => this.tenant.License.Modules.Any(m => m.Id == moduleId);
+    /// <inheritdoc/>
+    public Country Country => this.GetLocation().Country;
+
+    /// <inheritdoc/>
+    public State State => this.GetLocation().State;
+
+    /// <inheritdoc/>
+    public City City => this.GetLocation().City;
+
+    /// <inheritdoc/>
+    public Locality Locality => this.GetLocation().Locality;
+
+    /// <inheritdoc/>
+    public Neighborhood Neighborhood => this.GetLocation().Neighborhood;
+
+    /// <inheritdoc/>
+    public string TimeZone => this.GetLocation().City.Timezone ?? this.GetLocation().Country.Timezone;
+
+    /// <inheritdoc/>
+    public Currency Currency => this.GetLocation().Country.Currency;
+
+    /// <inheritdoc/>
+    public Dictionary<string, string> Metadata
+    {
+        get
+        {
+            this.EnsureLoaded();
+
+            return this.tenant.Metadata;
+        }
+    }
+
+    /// <inheritdoc/>
+    public IReadOnlyList<Models.LicenseModule> Modules
+    {
+        get
+        {
+            this.EnsureLoaded();
+
+            return this.tenant.License.Modules;
+        }
+    }
+
+    /// <inheritdoc/>
+    public bool HasModule(Guid moduleId) => this.Modules.Any(module => module.Id == moduleId);
+
+    private Location GetLocation()
+    {
+        this.EnsureLoaded();
+
+        return this.tenant.Location;
+    }
+
+    private void EnsureLoaded()
+    {
+        if (this.tenant is null)
+            throw new SecurityException("No tenant has been loaded in the current scope. Call SetAsync first.");
+    }
 }

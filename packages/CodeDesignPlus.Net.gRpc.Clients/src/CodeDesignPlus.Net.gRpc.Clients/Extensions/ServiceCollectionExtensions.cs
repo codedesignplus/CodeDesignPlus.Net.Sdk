@@ -135,8 +135,10 @@ public static class ServiceCollectionExtensions
             services.AddScoped<IEmailGrpc, EmailService>();
         }
 
-        if (!string.IsNullOrEmpty(options!.Tenant) && !string.IsNullOrEmpty(options!.License))
-            services.AddScoped<ITenantCacheLoader, TenantCacheLoader>();
+        // El snapshot lo publica ms-tenants, que es dueño de todo el contenido: alcanza con su
+        // endpoint para reconstruirlo cuando el cache compartido no puede servirlo.
+        if (!string.IsNullOrEmpty(options!.Tenant))
+            services.AddScoped<ITenantSnapshotFallback, TenantSnapshotFallback>();
 
         return services;
     }

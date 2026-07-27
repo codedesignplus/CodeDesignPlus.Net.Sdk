@@ -14,6 +14,7 @@ namespace CodeDesignPlus.Net.Security.Services;
 /// <param name="eventContext">The event context.</param>
 public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<SecurityOptions> options, IEventContext eventContext) : IUserContext
 {
+    private static readonly System.Security.Claims.ClaimsPrincipal Anonymous = new(new System.Security.Claims.ClaimsIdentity());
 
     /// <summary>
     /// Gets the access token from the request headers.
@@ -90,9 +91,10 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     public Guid Tenant => this.GetTenant();
 
     /// <summary>
-    /// Gets the current user's claims principal.
+    /// Gets the current user's claims principal. Returns an anonymous principal when there is no
+    /// HTTP context, which is the case in background workers and recurring jobs.
     /// </summary>
-    public System.Security.Claims.ClaimsPrincipal User => httpContextAccessor.HttpContext.User;
+    public System.Security.Claims.ClaimsPrincipal User => httpContextAccessor.HttpContext?.User ?? Anonymous;
 
     /// <summary>
     /// Gets the user's first name.
@@ -176,10 +178,13 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <returns>The converted claim value.</returns>
     private static TValue ConvertTo<TValue>(string claimValue)
     {
-        if (typeof(TValue) == typeof(Guid) && Guid.TryParse(claimValue, out var guidValue))
-        {
-            return (TValue)(object)guidValue;
-        }
+        // Convert.ChangeType lanza InvalidCastException con un valor nulo o vacio hacia un tipo de
+        // valor, asi que se corta antes: sin claim el resultado es default, no una excepcion.
+        if (string.IsNullOrEmpty(claimValue))
+            return default;
+
+        if (typeof(TValue) == typeof(Guid))
+            return Guid.TryParse(claimValue, out var guidValue) ? (TValue)(object)guidValue : default;
 
         return (TValue)Convert.ChangeType(claimValue, typeof(TValue));
     }
@@ -197,14 +202,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
 
         if (httpContextAccessor.HttpContext.Request.Headers.TryGetValue(header, out var values))
         {
-            var headerValue = values.FirstOrDefault();
-
-            if (typeof(TValue) == typeof(Guid) && Guid.TryParse(headerValue, out var guidValue))
-            {
-                return (TValue)(object)guidValue;
-            }
-
-            return (TValue)Convert.ChangeType(headerValue, typeof(TValue));
+            return ConvertTo<TValue>(values.FirstOrDefault());
         }
 
         return default;

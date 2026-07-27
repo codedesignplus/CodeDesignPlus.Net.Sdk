@@ -154,11 +154,121 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
         return this.redis.Database.StringSetAsync(internalKey, JsonSerializer.Serialize(value), expiration);
     }
 
+    /// <inheritdoc/>
+    public async Task<T> GetGlobalAsync<T>(string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        if (this.redis.Database == null)
+        {
+            logger.LogWarning("The global key {Key} could not be retrieved because the connection to the Redis server could not be established", key);
+
+            return default;
+        }
+
+        var data = await this.redis.Database.StringGetAsync(key);
+
+        if (data.IsNullOrEmpty)
+        {
+            logger.LogDebug("The global key {Key} does not exist in the cache", key);
+
+            return default;
+        }
+
+        return JsonSerializer.Deserialize<T>(data);
+    }
+
+    /// <inheritdoc/>
+    public Task SetGlobalAsync<T>(string key, T value, TimeSpan? expiration = null)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        ArgumentNullException.ThrowIfNull(value);
+
+        if (this.redis.Database == null)
+        {
+            logger.LogWarning("The global key {Key} could not be stored because the connection to the Redis server could not be established", key);
+
+            return Task.CompletedTask;
+        }
+
+        expiration ??= cacheOptions.Value.Expiration;
+
+        logger.LogDebug("The global key {Key} will be stored in the cache for {Seconds} seconds", key, expiration.Value.TotalSeconds);
+
+        return this.redis.Database.StringSetAsync(key, JsonSerializer.Serialize(value), expiration);
+    }
+
+    /// <inheritdoc/>
+    public Task RemoveGlobalAsync(string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        if (this.redis.Database == null)
+        {
+            logger.LogWarning("The global key {Key} could not be removed because the connection to the Redis server could not be established", key);
+
+            return Task.CompletedTask;
+        }
+
+        logger.LogDebug("The global key {Key} will be removed from the cache", key);
+
+        return this.redis.Database.KeyDeleteAsync(key);
+    }
+
+    /// <inheritdoc/>
+    public Task AddToGlobalSetAsync(string key, string value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        ArgumentException.ThrowIfNullOrEmpty(value);
+
+        if (this.redis.Database == null)
+        {
+            logger.LogWarning("The member could not be added to the global set {Key} because the connection to the Redis server could not be established", key);
+
+            return Task.CompletedTask;
+        }
+
+        return this.redis.Database.SetAddAsync(key, value);
+    }
+
+    /// <inheritdoc/>
+    public Task RemoveFromGlobalSetAsync(string key, string value)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+        ArgumentException.ThrowIfNullOrEmpty(value);
+
+        if (this.redis.Database == null)
+        {
+            logger.LogWarning("The member could not be removed from the global set {Key} because the connection to the Redis server could not be established", key);
+
+            return Task.CompletedTask;
+        }
+
+        return this.redis.Database.SetRemoveAsync(key, value);
+    }
+
+    /// <inheritdoc/>
+    public async Task<string[]> GetGlobalSetMembersAsync(string key)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(key);
+
+        if (this.redis.Database == null)
+        {
+            logger.LogWarning("The global set {Key} could not be read because the connection to the Redis server could not be established", key);
+
+            return [];
+        }
+
+        var members = await this.redis.Database.SetMembersAsync(key);
+
+        return [.. members.Select(member => member.ToString())];
+    }
+
     /// <summary>
-    /// Retrieves a value from the Redis cache based on the provided key.
+    /// Builds the key namespaced by business and application name.
     /// </summary>
-    /// <param name="key">The key of the value to retrieve.</param>
-    /// <returns>A <see cref="Task{TResult}"/> representing the asynchronous operation, returning the value associated with the key if found, otherwise <c>default</c>.</returns>
+    /// <param name="key">The key of the value.</param>
+    /// <returns>The namespaced key.</returns>
     private string GetKey(string key)
     {
         return $"{coreOptions.Value.Business}:{coreOptions.Value.AppName}:{key}";

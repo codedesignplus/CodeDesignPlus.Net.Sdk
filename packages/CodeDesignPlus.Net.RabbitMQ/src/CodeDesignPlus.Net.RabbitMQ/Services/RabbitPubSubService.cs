@@ -214,6 +214,8 @@ public class RabbitPubSubService : IRabbitPubSub
 
             context.SetCurrentDomainEvent(@event);
 
+            await scope.ServiceProvider.InitializeEventScopeAsync(@event, cancellationToken).ConfigureAwait(false);
+
             var eventHandler = scope.ServiceProvider.GetRequiredService<TEventHandler>();
 
             await eventHandler.HandleAsync(@event, cancellationToken).ConfigureAwait(false);

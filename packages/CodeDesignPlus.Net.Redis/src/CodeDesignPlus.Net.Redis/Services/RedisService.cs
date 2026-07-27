@@ -25,7 +25,7 @@ public class RedisService : Abstractions.IRedis
     /// <summary>
     /// Gets a value indicating whether the Redis connection is connected.
     /// </summary>
-    public bool IsConnected => this.Connection.IsConnected;
+    public bool IsConnected => this.Connection is not null && this.Connection.IsConnected;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="RedisService"/> class.
@@ -49,12 +49,12 @@ public class RedisService : Abstractions.IRedis
 
         this.Connection = ConnectionMultiplexer.Connect(configuration);
 
-        if (this.Connection.IsConnected)
-        {
-            this.RegisterEvents();
-            this.Subscriber = this.Connection.GetSubscriber();
-            this.Database = this.Connection.GetDatabase();
-        }
+        // Los handles son baratos y sin estado: se obtienen siempre, incluso si en este instante no
+        // hay conexion. Condicionarlos por IsConnected los dejaba en null de forma permanente,
+        // porque el factory cachea la instancia y ConnectionRestored no los reasigna.
+        this.RegisterEvents();
+        this.Subscriber = this.Connection.GetSubscriber();
+        this.Database = this.Connection.GetDatabase();
     }
 
     /// <summary>
