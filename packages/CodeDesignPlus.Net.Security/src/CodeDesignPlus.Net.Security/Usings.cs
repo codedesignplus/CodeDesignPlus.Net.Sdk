@@ -9,6 +9,7 @@ global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Options;
 global using Microsoft.IdentityModel.JsonWebTokens;
 global using Microsoft.IdentityModel.Tokens;
+global using CodeDesignPlus.Net.Observability.Abstractions;
 global using CodeDesignPlus.Net.Security.Abstractions;
 global using CodeDesignPlus.Net.Security.Abstractions.Options;
 global using CodeDesignPlus.Net.Security.Exceptions;

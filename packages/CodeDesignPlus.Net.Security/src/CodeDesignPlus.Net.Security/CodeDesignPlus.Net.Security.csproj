@@ -35,6 +35,8 @@
   <ItemGroup>
     <ProjectReference Include="..\CodeDesignPlus.Net.Security.Abstractions\CodeDesignPlus.Net.Security.Abstractions.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub.Abstractions\CodeDesignPlus.Net.PubSub.Abstractions.csproj" />
+    <!-- Para publicar el tenant en Baggage: es quien lo conoce, asi que es quien lo siembra. -->
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Observability\src\CodeDesignPlus.Net.Observability.Abstractions\CodeDesignPlus.Net.Observability.Abstractions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.31.1" />

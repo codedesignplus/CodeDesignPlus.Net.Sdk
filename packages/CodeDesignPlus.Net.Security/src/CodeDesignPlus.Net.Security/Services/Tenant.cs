@@ -18,6 +18,11 @@ public class Tenant(ILogger<Tenant> logger, ITenantDirectory directory) : ITenan
     /// <inheritdoc/>
     public bool IsLoaded => this.tenant is not null;
 
+    // A diferencia del resto de propiedades, esta no llama a EnsureLoaded: su unico consumidor es la
+    // telemetria, y que una traza salga sin nombre es preferible a que tumbe la peticion.
+    /// <inheritdoc/>
+    public string Name => this.tenant?.Name;
+
     /// <inheritdoc/>
     public async Task SetAsync(Guid id, CancellationToken cancellationToken = default)
     {

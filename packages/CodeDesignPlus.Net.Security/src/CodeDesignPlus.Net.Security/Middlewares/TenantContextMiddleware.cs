@@ -49,6 +49,10 @@ public class TenantContextMiddleware(RequestDelegate next)
             return;
         }
 
+        // Con el tenant ya cargado, publicarlo para la telemetria no cuesta ninguna consulta extra:
+        // el nombre viene en el mismo snapshot.
+        TenantTelemetry.Seed(tenantId, tenant.Name);
+
         await _next(context);
     }
 }

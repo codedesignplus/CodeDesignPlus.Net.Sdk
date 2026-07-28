@@ -2,6 +2,7 @@
 using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.Observability.Abstractions.Options;
 using CodeDesignPlus.Net.Observability.Exceptions;
+using CodeDesignPlus.Net.Observability.Processors;
 using Confluent.Kafka.Extensions.OpenTelemetry;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -133,6 +134,10 @@ public static class ServiceCollectionExtensions
             tracing.AddTraceCodeDesignPlusSdkInstrumentation(observabilityOptions.Trace.CodeDesignPlusSdk);
             tracing.AddTraceRedisInstrumentation(observabilityOptions.Trace.Redis);
             tracing.AddTraceKafkaInstrumentation(observabilityOptions.Trace.Kafka);
+
+            // Antes del exportador a proposito: los processors corren en orden de registro, asi que
+            // registrarlo despues significaria exportar el span antes de haberlo etiquetado.
+            tracing.AddProcessor(new TenantEnrichmentProcessor());
 
             tracing.AddOtlpExporter(x =>
             {

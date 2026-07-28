@@ -23,6 +23,15 @@ public interface ITenant
     /// </summary>
     bool IsLoaded { get; }
     /// <summary>
+    /// Gets the display name of the tenant.
+    /// </summary>
+    /// <remarks>
+    /// Comes from the snapshot <see cref="SetAsync"/> already loads, so reading it costs nothing. It
+    /// is exposed so telemetry can label a tenant with something a human recognises: an observability
+    /// backend has no way to join a GUID against anything.
+    /// </remarks>
+    string Name { get; }
+    /// <summary>
     /// Set the tenant information.
     /// </summary>
     /// <returns>Return true if the license is valid; otherwise, false.</returns>

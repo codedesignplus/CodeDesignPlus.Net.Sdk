@@ -26,6 +26,10 @@ public class TenantEventScopeInitializer(IEventContext eventContext, ITenant ten
         try
         {
             await tenant.SetAsync(eventContext.Tenant, cancellationToken);
+
+            // El equivalente al middleware para el camino asincrono: sin esto, todo lo que hace un
+            // worker al consumir un evento saldria en las trazas sin tenant.
+            TenantTelemetry.Seed(eventContext.Tenant, tenant.Name);
         }
         catch (SecurityException exception)
         {
