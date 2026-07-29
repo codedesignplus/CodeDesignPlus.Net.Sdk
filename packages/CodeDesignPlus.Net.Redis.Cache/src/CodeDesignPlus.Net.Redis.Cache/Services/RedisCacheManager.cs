@@ -36,7 +36,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
 
         logger.LogWarning("The cache will be cleared");
 
-        return this.redis.Database.ExecuteAsync("FLUSHDB");
+        return WriteAsync("FLUSHDB", () => this.redis.Database.ExecuteAsync("FLUSHDB"));
     }
 
     /// <summary>
@@ -59,7 +59,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
             return Task.FromResult(false);
         }
 
-        return this.redis.Database.KeyExistsAsync(internalKey);
+        return ReadAsync(internalKey, () => this.redis.Database.KeyExistsAsync(internalKey), false);
     }
 
     /// <summary>
@@ -83,7 +83,9 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
             return default;
         }
 
-        var data = await this.redis.Database.StringGetAsync(internalKey);
+        // Solo la E/S va envuelta: un fallo al deserializar no es indisponibilidad, es un defecto,
+        // y debe seguir propagandose.
+        var data = await ReadAsync(internalKey, () => this.redis.Database.StringGetAsync(internalKey), StackExchange.Redis.RedisValue.Null);
 
         if (data.IsNullOrEmpty)
         {
@@ -117,7 +119,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
 
         logger.LogDebug("The key {InternalKey} will be removed from the cache", internalKey);
 
-        return this.redis.Database.KeyDeleteAsync(internalKey);
+        return WriteAsync(internalKey, () => this.redis.Database.KeyDeleteAsync(internalKey));
     }
 
     /// <summary>
@@ -151,7 +153,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
 
         logger.LogDebug("The key {InternalKey} will be stored in the cache for {Expiration_Value_TotalSeconds} seconds", internalKey, expiration.Value.TotalSeconds);
 
-        return this.redis.Database.StringSetAsync(internalKey, JsonSerializer.Serialize(value), expiration);
+        return WriteAsync(internalKey, () => this.redis.Database.StringSetAsync(internalKey, JsonSerializer.Serialize(value), expiration));
     }
 
     /// <inheritdoc/>
@@ -166,7 +168,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
             return default;
         }
 
-        var data = await this.redis.Database.StringGetAsync(key);
+        var data = await ReadAsync(key, () => this.redis.Database.StringGetAsync(key), StackExchange.Redis.RedisValue.Null);
 
         if (data.IsNullOrEmpty)
         {
@@ -195,7 +197,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
 
         logger.LogDebug("The global key {Key} will be stored in the cache for {Seconds} seconds", key, expiration.Value.TotalSeconds);
 
-        return this.redis.Database.StringSetAsync(key, JsonSerializer.Serialize(value), expiration);
+        return WriteAsync(key, () => this.redis.Database.StringSetAsync(key, JsonSerializer.Serialize(value), expiration));
     }
 
     /// <inheritdoc/>
@@ -212,7 +214,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
 
         logger.LogDebug("The global key {Key} will be removed from the cache", key);
 
-        return this.redis.Database.KeyDeleteAsync(key);
+        return WriteAsync(key, () => this.redis.Database.KeyDeleteAsync(key));
     }
 
     /// <inheritdoc/>
@@ -228,7 +230,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
             return Task.CompletedTask;
         }
 
-        return this.redis.Database.SetAddAsync(key, value);
+        return WriteAsync(key, () => this.redis.Database.SetAddAsync(key, value));
     }
 
     /// <inheritdoc/>
@@ -244,7 +246,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
             return Task.CompletedTask;
         }
 
-        return this.redis.Database.SetRemoveAsync(key, value);
+        return WriteAsync(key, () => this.redis.Database.SetRemoveAsync(key, value));
     }
 
     /// <inheritdoc/>
@@ -259,7 +261,7 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
             return [];
         }
 
-        var members = await this.redis.Database.SetMembersAsync(key);
+        var members = await ReadAsync(key, () => this.redis.Database.SetMembersAsync(key), []);
 
         return [.. members.Select(member => member.ToString())];
     }
@@ -274,4 +276,62 @@ public class RedisCacheManager(IRedisFactory factory, ILogger<RedisCacheManager>
         return $"{coreOptions.Value.Business}:{coreOptions.Value.AppName}:{key}";
     }
 
+    /// <summary>
+    /// Tells apart "the cache cannot answer right now" from "there is a bug".
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// A cache that takes its caller down with it is not a cache. Only the failures listed here are
+    /// swallowed: the connection dropping, the server timing out, the multiplexer being disposed on
+    /// shutdown. Anything else —a serialization error, for instance— still propagates, because that
+    /// is a defect and hiding it would be worse than failing.
+    /// </para>
+    /// <para>
+    /// The <c>Database == null</c> guard each method already had only covers a connection that was
+    /// never established. It does nothing for a server that goes away later, which is what actually
+    /// happened: with Redis unreachable, ms-tenants-grpc could not serve a tenant it had sitting in
+    /// MongoDB, because the cache probe threw before the query ever ran.
+    /// </para>
+    /// </remarks>
+    /// <param name="exception">The exception raised by the Redis client.</param>
+    /// <returns><c>true</c> when the cache is merely unavailable.</returns>
+    private static bool IsUnavailable(Exception exception) =>
+        exception is StackExchange.Redis.RedisException or TimeoutException or ObjectDisposedException;
+
+    /// <summary>
+    /// Runs a read against Redis, degrading to a miss when the cache is unavailable.
+    /// </summary>
+    private async Task<T> ReadAsync<T>(string key, Func<Task<T>> operation, T onMiss)
+    {
+        try
+        {
+            return await operation();
+        }
+        catch (Exception exception) when (IsUnavailable(exception))
+        {
+            logger.LogError(exception, "The key {Key} could not be read because the cache is unavailable; continuing as a miss", key);
+
+            return onMiss;
+        }
+    }
+
+    /// <summary>
+    /// Runs a write against Redis, giving up quietly when the cache is unavailable.
+    /// </summary>
+    /// <remarks>
+    /// What is stored here is derived state: losing a write costs a recomputation, never
+    /// correctness. It is logged at error level on purpose — silent is not the same as invisible,
+    /// and a burst of these is worth an alert.
+    /// </remarks>
+    private async Task WriteAsync(string key, Func<Task> operation)
+    {
+        try
+        {
+            await operation();
+        }
+        catch (Exception exception) when (IsUnavailable(exception))
+        {
+            logger.LogError(exception, "The key {Key} could not be written because the cache is unavailable; the value will be recomputed", key);
+        }
+    }
 }
