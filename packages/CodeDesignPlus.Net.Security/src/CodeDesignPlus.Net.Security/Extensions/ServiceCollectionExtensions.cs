@@ -59,10 +59,8 @@ public static class ServiceCollectionExtensions
 
         if (securityOptions.EnableTenantContext)
         {
-            // El directorio es singleton para que su cache L1 se comparta entre scopes; Tenant es
-            // scoped porque guarda el tenant cargado en la operacion en curso.
             services.AddMemoryCache();
-            services.TryAddSingleton<ITenantDirectory, TenantDirectory>();
+            services.TryAddScoped<ITenantDirectory, TenantDirectory>();
             services.TryAddScoped<ITenant, Tenant>();
             services.TryAddEnumerable(ServiceDescriptor.Scoped<IEventScopeInitializer, TenantEventScopeInitializer>());
         }
