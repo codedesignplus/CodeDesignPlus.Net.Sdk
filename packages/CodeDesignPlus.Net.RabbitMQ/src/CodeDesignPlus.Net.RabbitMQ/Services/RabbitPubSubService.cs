@@ -9,6 +9,21 @@ namespace CodeDesignPlus.Net.RabbitMQ.Services;
 /// </summary>
 public class RabbitPubSubService : IRabbitPubSub
 {
+    /// <summary>
+    /// Queue argument that tells the broker how many deliveries of a message it tolerates before dead-lettering it.
+    /// </summary>
+    internal const string HeaderDeliveryLimit = "x-delivery-limit";
+
+    /// <summary>
+    /// Queue argument that selects the queue implementation (classic or quorum).
+    /// </summary>
+    internal const string HeaderQueueType = "x-queue-type";
+
+    /// <summary>
+    /// Message header published by quorum queues with the number of previous deliveries.
+    /// </summary>
+    internal const string HeaderDeliveryCount = "x-delivery-count";
+
     private readonly ILogger<RabbitPubSubService> logger;
     private readonly IServiceProvider serviceProvider;
     private readonly IDomainEventResolver domainEventResolverService;
@@ -46,6 +61,13 @@ public class RabbitPubSubService : IRabbitPubSub
         this.rabbitMQOptions = rabbitMQOptions.Value;
 
         this.argumentsQueue = this.rabbitMQOptions.QueueArguments.GetArguments();
+
+        // El tope de reintentos del consumidor no basta: si el proceso muere antes de decidir, o si la cabecera de
+        // entregas no llega, el mensaje vuelve a la cola sin que nadie lleve la cuenta. El limite de la cola es lo
+        // que corta el bucle. Se pone una entrega por encima de MaxRetry para que decida primero el consumidor,
+        // que es quien sabe distinguir un error de negocio, y el broker quede solo como red de seguridad.
+        if (this.rabbitMQOptions.QueueArguments.IsQuorum && !this.argumentsQueue.ContainsKey(HeaderDeliveryLimit))
+            this.argumentsQueue[HeaderDeliveryLimit] = this.rabbitMQOptions.MaxRetry + 1;
 
         this.logger.LogInformation("RabbitPubSubService initialized.");
     }
@@ -276,17 +298,28 @@ public class RabbitPubSubService : IRabbitPubSub
     /// Gets the delivery count from the message properties.
     /// Uses x-delivery-count (quorum queues) or falls back to 0.
     /// </summary>
+    /// <remarks>
+    /// La cabecera solo la publican las colas quorum, y solo a partir de la segunda entrega. Devolver 0 cuando no
+    /// esta significa "primera entrega", no "no reintentar mas": quien impide el bucle es x-delivery-limit en la cola.
+    /// </remarks>
     private static int GetDeliveryCount(IReadOnlyBasicProperties properties)
     {
         if (properties.Headers is null)
             return 0;
 
-        if (properties.Headers.TryGetValue("x-delivery-count", out var value))
+        if (properties.Headers.TryGetValue(HeaderDeliveryCount, out var value))
         {
+            // El cliente AMQP entrega el entero con el ancho que quepa, no siempre como int: leer solo int y long
+            // dejaba la cuenta en 0 y el tope inalcanzable.
             return value switch
             {
                 int intVal => intVal,
                 long longVal => (int)longVal,
+                uint uintVal => (int)uintVal,
+                ushort ushortVal => ushortVal,
+                short shortVal => shortVal,
+                byte byteVal => byteVal,
+                sbyte sbyteVal => sbyteVal,
                 _ => 0
             };
         }
@@ -317,13 +350,20 @@ public class RabbitPubSubService : IRabbitPubSub
     /// <param name="channel">The RabbitMQ channel.</param>
     /// <param name="queue">The queue name.</param>
     /// <param name="exchangeName">The exchange name.</param>
-    private static async Task ConfigQueueDlxAsync(IChannel channel, string queue, string exchangeName)
+    private async Task ConfigQueueDlxAsync(IChannel channel, string queue, string exchangeName)
     {
         exchangeName = GetExchangeNameDlx(exchangeName);
         queue = GetQueueNameDlx(queue);
 
+        // La DLQ hereda el tipo de cola (si no, quedaria clasica y viviendo en un solo nodo) pero nada mas: ni TTL,
+        // que borraria los mensajes muertos antes de que nadie los mire, ni limite de entregas ni DLX propia.
+        var arguments = new Dictionary<string, object>();
+
+        if (this.argumentsQueue.TryGetValue(HeaderQueueType, out var queueType))
+            arguments.Add(HeaderQueueType, queueType);
+
         await channel.ExchangeDeclareAsync(exchange: exchangeName, type: ExchangeType.Fanout, durable: true);
-        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: null);
+        await channel.QueueDeclareAsync(queue: queue, durable: true, exclusive: false, autoDelete: false, arguments: arguments);
         await channel.QueueBindAsync(queue: queue, exchange: exchangeName, routingKey: string.Empty);
     }
 
