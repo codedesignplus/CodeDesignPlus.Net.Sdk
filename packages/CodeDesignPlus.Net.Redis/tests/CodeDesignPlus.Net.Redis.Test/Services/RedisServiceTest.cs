@@ -256,6 +256,72 @@ public class RedisServiceTest(RedisCollectionFixture fixture)
         Assert.True(result);
     }
 
+    [Fact]
+    public void ConfigureSslIfRequired_SslWithoutCertificate_DoesNotHookCertificateSelection()
+    {
+        // Arrange
+        var instance = new Instance
+        {
+            ConnectionString = "cache.redis.azure.net:10000,password=secret,ssl=True"
+        };
+
+        var configuration = ConfigurationOptions.Parse(instance.ConnectionString);
+        var method = typeof(RedisService).GetMethod("ConfigureSslIfRequired", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        method!.Invoke(null, [instance, configuration]);
+
+        // Assert
+        Assert.Null(GetEventHandler(configuration, "CertificateSelection"));
+    }
+
+    [Fact]
+    public void ConfigureSslIfRequired_SslWithoutCertificate_DoesNotHookCertificateValidation()
+    {
+        // Arrange
+        var instance = new Instance
+        {
+            ConnectionString = "cache.redis.azure.net:10000,password=secret,ssl=True"
+        };
+
+        var configuration = ConfigurationOptions.Parse(instance.ConnectionString);
+        var method = typeof(RedisService).GetMethod("ConfigureSslIfRequired", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        method!.Invoke(null, [instance, configuration]);
+
+        // Assert
+        Assert.Null(GetEventHandler(configuration, "CertificateValidation"));
+    }
+
+    [Fact]
+    public void ConfigureSslIfRequired_SslWithCertificate_HooksCertificateSelection()
+    {
+        // Arrange
+        var instance = new Instance
+        {
+            ConnectionString = "redis.interno:6380,ssl=true",
+            Certificate = "cliente.pfx",
+            PasswordCertificate = "password123"
+        };
+
+        var configuration = ConfigurationOptions.Parse(instance.ConnectionString);
+        var method = typeof(RedisService).GetMethod("ConfigureSslIfRequired", BindingFlags.NonPublic | BindingFlags.Static);
+
+        // Act
+        method!.Invoke(null, [instance, configuration]);
+
+        // Assert
+        Assert.NotNull(GetEventHandler(configuration, "CertificateSelection"));
+    }
+
+    private static Delegate GetEventHandler(ConfigurationOptions configuration, string member)
+    {
+        var field = typeof(ConfigurationOptions).GetField(member, BindingFlags.Instance | BindingFlags.NonPublic);
+
+        return field?.GetValue(configuration) as Delegate;
+    }
+
     private void InvokeHandler<TEventArgs>(Abstractions.IRedis redisService, TEventArgs arguments, string member)
     {
         var typeConnection = redisService.Connection.GetType();

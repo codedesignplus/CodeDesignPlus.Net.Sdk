@@ -58,26 +58,34 @@ public class RedisService : Abstractions.IRedis
     }
 
     /// <summary>
-    /// Configures SSL if required for the Redis connection.
+    /// Configures mutual TLS if the instance supplies a client certificate.
     /// </summary>
     /// <param name="instance">The Redis instance configuration.</param>
     /// <param name="configuration">The Redis configuration options.</param>
+    /// <remarks>
+    /// The handlers are only attached when a certificate has been supplied. Without them,
+    /// StackExchange.Redis performs the standard TLS handshake and validates the server against the
+    /// system certificate authorities, which is what managed services such as Azure Managed Redis
+    /// expect. Attaching them unconditionally would try to load a PFX from an empty path and throw.
+    /// </remarks>
     private static void ConfigureSslIfRequired(Instance instance, ConfigurationOptions configuration)
     {
-        if (configuration.Ssl)
+        if (!configuration.Ssl || string.IsNullOrEmpty(instance.Certificate))
         {
-            configuration.CertificateSelection += (_, _, _, _, _) => CertificateSelection(
-                instance.PasswordCertificate,
-                instance.Certificate
-            );
-
-            configuration.CertificateValidation += (_, _, chain, sslPolicyErrors) => CertificateValidation(
-                chain,
-                sslPolicyErrors,
-                instance.PasswordCertificate,
-                instance.Certificate
-            );
+            return;
         }
+
+        configuration.CertificateSelection += (_, _, _, _, _) => CertificateSelection(
+            instance.PasswordCertificate,
+            instance.Certificate
+        );
+
+        configuration.CertificateValidation += (_, _, chain, sslPolicyErrors) => CertificateValidation(
+            chain,
+            sslPolicyErrors,
+            instance.PasswordCertificate,
+            instance.Certificate
+        );
     }
 
     /// <summary>

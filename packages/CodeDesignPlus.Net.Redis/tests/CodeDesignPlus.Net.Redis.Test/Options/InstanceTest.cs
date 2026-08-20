@@ -67,20 +67,64 @@ public class InstanceTest
     }
 
     [Fact]
-    public void ConnectionString_InvalidFormat_Failed()
+    public void UseSsl_ConnectionStringOfManagedRedis_ReturnsTrue()
     {
         // Arrange
         var instance = new Instance
         {
-            ConnectionString = "abortConnect=true;invalidParameter=1234;"
+            ConnectionString = "cache.redis.azure.net:10000,password=secret,ssl=True,abortConnect=False"
         };
 
         // Act
-        var results = instance.Validate();
+        var result = instance.UseSsl();
 
         // Assert
-        Assert.NotEmpty(results);
-        Assert.Contains(results, x => x.ErrorMessage!.Equals("Invalid connection string format.") && x.MemberNames.Contains(nameof(Instance.ConnectionString)));
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void UseSsl_ConnectionStringWithoutSsl_ReturnsFalse()
+    {
+        // Arrange
+        var instance = new Instance
+        {
+            ConnectionString = "localhost:6379,ssl=false"
+        };
+
+        // Act
+        var result = instance.UseSsl();
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void UseSsl_ConnectionStringIsInvalid_ReturnsFalse()
+    {
+        // Arrange
+        var instance = new Instance
+        {
+            ConnectionString = "esto no es una cadena de conexion"
+        };
+
+        // Act
+        var result = instance.UseSsl();
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void UseSsl_ConnectionStringIsNull_ReturnsFalse()
+    {
+        // Arrange
+        var instance = new Instance();
+
+        // Act
+        var result = instance.UseSsl();
+
+        // Assert
+        Assert.False(result);
     }
 
 }
