@@ -4,8 +4,28 @@ using Microsoft.Extensions.Logging;
 namespace CodeDesignPlus.Net.Vault.Services;
 
 /// <summary>
-/// BackgroundService que renueva periódicamente el token de Vault antes de que expire.
-/// Intenta RenewSelf; si falla (max_ttl alcanzado), re-autentica recreando el VaultClient.
+/// BackgroundService que mantiene viva la autenticacion contra Vault reautenticandose ANTES de
+/// que el token caduque.
+///
+/// POR QUE SE REAUTENTICA EN VEZ DE RENOVAR. La version anterior llamaba a RenewSelf y, si
+/// fallaba, reautenticaba como plan B. En Kubernetes ese plan B era el camino normal, no la
+/// excepcion, y ademas fallaba siempre por el medio:
+///
+///   - El token proyectado del ServiceAccount caduca a los ~3607 s.
+///   - El lease del token de Vault dura 3600 s.
+///   - El intervalo estaba fijado a 1 hora exacta.
+///
+/// Los tres relojes vencian a la vez, asi que al despertar el token de Vault ya estaba muerto,
+/// VaultSharp intentaba reloguearse con el JWT que habia capturado al arrancar —tambien muerto—
+/// y Vault contestaba 403 "token is expired". Luego el plan B leia el fichero de nuevo y todo
+/// seguia. Funcionaba, pero dejaba un error por pod y por hora: 884 de 916 llamadas a Vault
+/// marcadas como fallo, suficiente para enterrar los errores de verdad de la plataforma.
+///
+/// Reautenticarse SIEMPRE elimina la causa entera: VaultClientFactory.Create lee el JWT del disco
+/// en cada llamada, asi que el credencial nunca es viejo. Y hacerlo a una fraccion del TTL REAL
+/// —no de una constante— garantiza que se hace con el token todavia vivo.
+///
+/// El coste es un token nuevo por ciclo. Como el viejo caduca solo, coexisten dos como mucho.
 /// </summary>
 public class VaultTokenRenewalService(
     VaultClientProvider clientProvider,
@@ -14,12 +34,30 @@ public class VaultTokenRenewalService(
 ) : BackgroundService
 {
     /// <summary>
-    /// Intervalo por defecto para renovar el token (cada 1 hora).
+    /// Fraccion del TTL restante tras la cual se reautentica. A 2/3 quedan dos intentos completos
+    /// antes de que el token muera: si uno falla por un corte de red, el siguiente aun llega a
+    /// tiempo. Mas cerca de 1 no deja margen; mas cerca de 0 reautentica sin necesidad.
     /// </summary>
-    private static readonly TimeSpan DefaultRenewalInterval = TimeSpan.FromHours(1);
+    private const double TtlFraction = 2.0 / 3.0;
 
     /// <summary>
-    /// Ejecuta el ciclo de renovación de token de forma periódica hasta que se solicita la cancelación.
+    /// Suelo de espera. Evita un bucle caliente si Vault devolviera un TTL diminuto o cero.
+    /// </summary>
+    private static readonly TimeSpan MinimumDelay = TimeSpan.FromMinutes(1);
+
+    /// <summary>
+    /// Techo de espera. Un token de TTL muy largo no justifica dejar de comprobar durante dias.
+    /// </summary>
+    private static readonly TimeSpan MaximumDelay = TimeSpan.FromHours(12);
+
+    /// <summary>
+    /// Espera cuando no se puede saber el TTL, y tambien entre reintentos tras un fallo.
+    /// Deliberadamente corta: si no sabemos cuanto vive el token, conviene volver pronto.
+    /// </summary>
+    private static readonly TimeSpan FallbackDelay = TimeSpan.FromMinutes(10);
+
+    /// <summary>
+    /// Ejecuta el ciclo de reautenticacion hasta que se solicita la cancelacion.
     /// </summary>
     /// <param name="stoppingToken">Token de cancelación para detener el servicio.</param>
     /// <returns>Tarea que representa la ejecución del servicio en segundo plano.</returns>
@@ -33,18 +71,24 @@ public class VaultTokenRenewalService(
             return;
         }
 
-        logger.LogInformation("Vault token renewal service started. Renewal interval: {Interval}.", DefaultRenewalInterval);
+        logger.LogInformation("Vault token renewal service started using {AuthType}.", vaultOptions.TypeAuth);
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                await Task.Delay(DefaultRenewalInterval, stoppingToken);
+                var delay = await GetDelayAsync();
+
+                logger.LogInformation("Next Vault re-authentication in {Delay}.", delay);
+
+                await Task.Delay(delay, stoppingToken);
 
                 if (stoppingToken.IsCancellationRequested)
                     break;
 
-                await RenewOrReAuthenticateAsync(vaultOptions);
+                clientProvider.ReAuthenticate(vaultOptions);
+
+                logger.LogInformation("Vault client re-authenticated successfully using {AuthType}.", vaultOptions.TypeAuth);
             }
             catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
             {
@@ -52,7 +96,16 @@ public class VaultTokenRenewalService(
             }
             catch (Exception ex)
             {
-                logger.LogError(ex, "Error renewing Vault token. Will retry in {Interval}.", DefaultRenewalInterval);
+                logger.LogError(ex, "Error re-authenticating against Vault. Will retry in {Delay}.", FallbackDelay);
+
+                try
+                {
+                    await Task.Delay(FallbackDelay, stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
             }
         }
 
@@ -60,35 +113,39 @@ public class VaultTokenRenewalService(
     }
 
     /// <summary>
-    /// Intenta renovar el token actual. Si falla, re-autentica creando un nuevo VaultClient.
+    /// Calcula cuanto esperar preguntando a Vault el TTL que le queda al token actual.
     /// </summary>
-    /// <param name="vaultOptions">Opciones de configuración de Vault.</param>
-    /// <returns>Tarea que representa la operación de renovación.</returns>
-    private async Task RenewOrReAuthenticateAsync(VaultOptions vaultOptions)
+    /// <remarks>
+    /// Se pregunta al propio Vault en vez de asumir el TTL porque el valor depende del rol y
+    /// puede cambiarse sin tocar el codigo. Fijarlo aqui es justo el error que se esta corrigiendo.
+    /// </remarks>
+    /// <returns>El tiempo a esperar antes de la siguiente reautenticacion.</returns>
+    private async Task<TimeSpan> GetDelayAsync()
     {
         try
         {
-            var result = await clientProvider.Client.V1.Auth.Token.RenewSelfAsync();
+            var info = await clientProvider.Client.V1.Auth.Token.LookupSelfAsync();
 
-            logger.LogInformation(
-                "Vault token renewed successfully. New TTL: {TTL}s, Accessor: {Accessor}.",
-                result.LeaseDurationSeconds,
-                result.ClientTokenAccessor);
+            var timeToLive = TimeSpan.FromSeconds(info.Data.TimeToLive);
+
+            if (timeToLive <= TimeSpan.Zero)
+                return MinimumDelay;
+
+            var delay = timeToLive * TtlFraction;
+
+            if (delay < MinimumDelay)
+                return MinimumDelay;
+
+            if (delay > MaximumDelay)
+                return MaximumDelay;
+
+            return delay;
         }
         catch (Exception ex)
         {
-            logger.LogWarning(ex, "Token self-renewal failed. Attempting full re-authentication.");
-            ReAuthenticate(vaultOptions);
-        }
-    }
+            logger.LogWarning(ex, "Could not read the Vault token TTL. Falling back to {Delay}.", FallbackDelay);
 
-    /// <summary>
-    /// Recrea el VaultClient con credenciales frescas cuando la renovación del token falla.
-    /// </summary>
-    /// <param name="vaultOptions">Opciones de configuración de Vault.</param>
-    private void ReAuthenticate(VaultOptions vaultOptions)
-    {
-        clientProvider.ReAuthenticate(vaultOptions);
-        logger.LogInformation("Vault client re-authenticated successfully using {AuthType}.", vaultOptions.TypeAuth);
+            return FallbackDelay;
+        }
     }
 }
