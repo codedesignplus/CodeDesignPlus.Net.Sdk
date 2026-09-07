@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Abstractions;
+using CodeDesignPlus.Net.Security.Abstractions;
 using System.Security.Claims;
 
 namespace CodeDesignPlus.Net.EFCore.Test.Helpers.Models;
@@ -13,6 +13,7 @@ public class UserContext : IUserContext
     public required string Email { get; set; }
     public string? FirstName { get; set; }
     public string DocumentNumber { get; set; }
+    public string DocumentType { get; set; }
     public string Phone { get; set; }
 
     public string? LastName { get; set; }

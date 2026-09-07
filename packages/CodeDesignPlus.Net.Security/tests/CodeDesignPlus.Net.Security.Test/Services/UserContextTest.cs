@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Core.Abstractions;
+using CodeDesignPlus.Net.Core.Abstractions;
 using CodeDesignPlus.Net.Security.Test.Helpers.Server;
 using Microsoft.AspNetCore.Http;
 using Moq;
@@ -14,6 +14,54 @@ public class UserContextTest
     public UserContextTest()
     {
         this.serverAuth = new ServerAuth();
+    }
+
+    [Theory]
+    [InlineData("CC")]
+    [InlineData("NIT")]
+    public void DocumentType_ReadsTheCatalogCodeFromTheClaim(string codigo)
+    {
+        // El claim lleva el codigo del catalogo, no el identificador ni el nombre para mostrar:
+        // es la unica mitad que significa algo fuera de la base de datos de la plataforma.
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                // Los nombres van como literales a proposito: son el contrato del token que emite
+                // Entra (la claimsPolicy del service principal), no una eleccion nuestra. Usando la
+                // constante en las dos puntas el test pasa igual aunque se renombre y se rompa en
+                // produccion, que es justo el fallo que hay que cazar.
+                new("documentNumber", "79800700"),
+                new("documentType", codigo),
+            ]))
+        };
+
+        var userContext = new UserContext(
+            new HttpContextAccessor { HttpContext = httpContext },
+            O.Options.Create(OptionsUtil.SecurityOptions),
+            Mock.Of<IEventContext>());
+
+        Assert.Equal(codigo, userContext.DocumentType);
+        Assert.Equal("79800700", userContext.DocumentNumber);
+    }
+
+    [Fact]
+    public void DocumentType_WithoutTheClaim_IsNull()
+    {
+        // El tipo de documento es opcional: quien se registra por SSO no lo trae hasta que
+        // completa su perfil, y leerlo no puede reventar.
+        var httpContext = new DefaultHttpContext
+        {
+            User = new ClaimsPrincipal(new ClaimsIdentity([
+                new("documentNumber", "79800700"),
+            ]))
+        };
+
+        var userContext = new UserContext(
+            new HttpContextAccessor { HttpContext = httpContext },
+            O.Options.Create(OptionsUtil.SecurityOptions),
+            Mock.Of<IEventContext>());
+
+        Assert.Null(userContext.DocumentType);
     }
 
     [Fact]

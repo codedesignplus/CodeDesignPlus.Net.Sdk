@@ -1,4 +1,4 @@
-﻿using System.Reflection.Metadata.Ecma335;
+using System.Reflection.Metadata.Ecma335;
 using CodeDesignPlus.Net.Core.Abstractions;
 
 namespace CodeDesignPlus.Net.Security.Services;
@@ -140,6 +140,11 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// Gets the document number of the current user.
     /// </summary>
     public string DocumentNumber => this.GetClaim<string>(ClaimTypes.DocumentNumber);
+
+    /// <summary>
+    /// Gets the code of the document type of the current user.
+    /// </summary>
+    public string DocumentType => this.GetClaim<string>(ClaimTypes.DocumentType);
 
     /// <summary>
     /// Gets the phone of the current user.

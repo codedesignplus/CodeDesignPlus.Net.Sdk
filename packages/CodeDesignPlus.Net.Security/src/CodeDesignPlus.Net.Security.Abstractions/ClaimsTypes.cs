@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.Security.Abstractions;
+namespace CodeDesignPlus.Net.Security.Abstractions;
 
 /// <summary>
 /// Contains the claim types that are used by Azure AD B2C.
@@ -106,6 +106,15 @@ public static class ClaimTypes
     /// The user's document number.
     /// </summary>
     public const string DocumentNumber = "documentNumber";
+
+    /// <summary>
+    /// The code of the user's document type, e.g. "CC", "NIT", "PP".
+    /// </summary>
+    /// <remarks>
+    /// It carries the catalog code, not the identifier nor the display name: it is the only half
+    /// that means anything outside the platform's own database.
+    /// </remarks>
+    public const string DocumentType = "documentType";
 
     /// <summary>
     /// The user's phone number.

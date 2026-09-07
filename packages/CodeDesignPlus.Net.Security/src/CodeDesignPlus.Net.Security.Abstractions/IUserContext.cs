@@ -104,6 +104,11 @@ public interface IUserContext
     string DocumentNumber { get; }
 
     /// <summary>
+    /// Gets the code of the document type of the current user, e.g. "CC", "NIT", "PP".
+    /// </summary>
+    string DocumentType { get; }
+
+    /// <summary>
     /// Gets the phone of the current user.
     /// </summary>
     string Phone { get; }
