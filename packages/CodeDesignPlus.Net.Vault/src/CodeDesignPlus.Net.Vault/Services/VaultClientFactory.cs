@@ -10,24 +10,28 @@ namespace CodeDesignPlus.Net.Vault.Services;
 public static class VaultClientFactory
 {
     /// <summary>
-    /// UN SOLO HttpClient PARA TODOS LOS CLIENTES QUE SE CREEN, y no es un detalle menor.
+    /// SE COMPARTE EL HANDLER, NO EL HttpClient, y la distincion es la que importa.
     ///
-    /// VaultSharp construye un HttpClient propio dentro de Polymath por cada VaultClient, y
-    /// VaultClient NO implementa IDisposable: no hay forma de liberarlo. Como ahora nos
-    /// reautenticamos periodicamente —y cada reautenticacion es un VaultClient nuevo— sin esto
-    /// el proceso iria acumulando un HttpClient y su pool de conexiones cada pocos minutos,
-    /// durante dias. Compartiendolo, lo que se recrea es solo el envoltorio.
+    /// El handler es quien tiene el pool de sockets; el HttpClient es un envoltorio barato. Como
+    /// ahora nos reautenticamos periodicamente —y cada reautenticacion construye un VaultClient
+    /// nuevo, que ademas NO implementa IDisposable— sin compartir nada el proceso iria acumulando
+    /// un pool de conexiones cada pocos minutos durante dias.
     ///
-    /// PooledConnectionLifetime existe porque un HttpClient de vida infinita no se entera de que
-    /// cambie el DNS: si el Service de Vault pasa a otra IP, las conexiones abiertas seguirian
-    /// apuntando a la vieja. Cinco minutos las recicla sin coste apreciable.
+    /// COMPARTIR EL HttpClient ENTERO NO VALE, y costo una caida: Polymath asigna BaseAddress en
+    /// su constructor, y HttpClient prohibe modificar propiedades una vez ha enviado la primera
+    /// peticion. El primer cliente lo configuraba y lo usaba —el proveedor de configuracion lee
+    /// los secretos al arrancar— y el segundo, el de AddVault sobre IServiceCollection, moria con
+    /// "This instance has already started one or more requests. Properties can only be modified
+    /// before sending the first request." Un HttpClient por VaultClient sobre un handler comun da
+    /// las dos cosas: BaseAddress propio y sockets compartidos.
+    ///
+    /// PooledConnectionLifetime existe porque un pool de vida infinita no se entera de que cambie
+    /// el DNS: si el Service de Vault pasa a otra IP, las conexiones abiertas seguirian apuntando
+    /// a la vieja. Cinco minutos las recicla sin coste apreciable.
     /// </summary>
-    private static readonly HttpClient SharedHttpClient = new(new SocketsHttpHandler
+    private static readonly SocketsHttpHandler SharedHandler = new()
     {
         PooledConnectionLifetime = TimeSpan.FromMinutes(5)
-    })
-    {
-        Timeout = TimeSpan.FromSeconds(30)
     };
 
     /// <summary>
@@ -69,7 +73,7 @@ public static class VaultClientFactory
     }
 
     /// <summary>
-    /// Builds the <see cref="IVaultClient"/> reusing the shared <see cref="HttpClient"/>.
+    /// Builds the <see cref="IVaultClient"/> with its own <see cref="HttpClient"/> over the shared handler.
     /// </summary>
     /// <param name="options">The options used to configure the Vault client.</param>
     /// <param name="authMethod">The authentication method to use.</param>
@@ -78,10 +82,17 @@ public static class VaultClientFactory
     {
         return new VaultClient(new VaultClientSettings(options.Address, authMethod)
         {
+            // disposeHandler: false es obligatorio. El HttpClient no es dueno del handler, lo
+            // toma prestado: si lo liberase al recogerlo el GC, se llevaria por delante el pool
+            // compartido y con el las conexiones de los demas clientes.
+            //
             // Se ignora el handler que propone VaultSharp a proposito: el nuestro ya lleva el
             // PooledConnectionLifetime. Si algun dia se usa PostProcessHttpClientHandlerAction,
             // habra que aplicarlo aqui, porque por esta via no se ejecuta.
-            MyHttpClientProviderFunc = _ => SharedHttpClient
+            MyHttpClientProviderFunc = _ => new HttpClient(SharedHandler, disposeHandler: false)
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            }
         });
     }
 }

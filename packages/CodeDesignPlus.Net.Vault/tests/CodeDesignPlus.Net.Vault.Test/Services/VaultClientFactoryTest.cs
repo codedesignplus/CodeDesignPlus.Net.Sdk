@@ -19,6 +19,44 @@ public class VaultClientFactoryTest()
     }
 
     [Fact]
+    public async Task CreateClient_AfterAnotherClientSentARequest_DoesNotThrow()
+    {
+        // Arrange
+        // Reproduce la caida de produccion: al compartir un HttpClient entre clientes, Polymath
+        // asignaba BaseAddress en el constructor del segundo y HttpClient lo prohibe una vez ha
+        // enviado la primera peticion. Pasaba en cada micro: el proveedor de configuracion lee
+        // los secretos al arrancar y AddVault construye el segundo cliente justo despues.
+        //
+        // El puerto no escucha a proposito: lo que marca el HttpClient como usado es HABER
+        // ENVIADO, no que la peticion tenga exito.
+        var options = new VaultOptions
+        {
+            Address = "http://127.0.0.1:59999",
+            Token = "root",
+            AppName = "app-name"
+        };
+
+        options.Kubernetes.Enable = false;
+
+        var first = VaultClientFactory.Create(options);
+
+        try
+        {
+            await first.V1.System.GetHealthStatusAsync();
+        }
+        catch (Exception)
+        {
+            // La conexion falla y da igual: el HttpClient ya quedo marcado como usado.
+        }
+
+        // Act
+        var second = VaultClientFactory.Create(options);
+
+        // Assert
+        Assert.NotNull(second);
+    }
+
+    [Fact]
     public void CreateClient_KubernetesEnableIsFalse_ReturnVaultClient()
     {
         // Arrange
