@@ -257,17 +257,23 @@ public class ServiceCollectionExtensionTest
         Assert.Equal(expected, result);
     }
 
-    [Fact]
-    public void ConvertToSerilogLevel_NullOrEmpty_ReturnsError()
+    /// <summary>
+    /// No microservice sets Logger:Level, so this fallback is the level the whole platform runs on. With Error,
+    /// every warning was dropped, including the one the REST exception middleware writes with the code of the
+    /// business error it just handled, which left handled failures invisible in the observability backend.
+    /// </summary>
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    public void ConvertToSerilogLevel_NotConfigured_ReturnsWarning(string? input)
     {
         var method = typeof(ServiceCollectionExtension)
             .GetMethod("ConvertToSerilogLevel", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
 
-        var resultNull = (LogEventLevel)method!.Invoke(null, [null])!;
-        var resultEmpty = (LogEventLevel)method.Invoke(null, [""])!;
+        var result = (LogEventLevel)method!.Invoke(null, [input])!;
 
-        Assert.Equal(LogEventLevel.Error, resultNull);
-        Assert.Equal(LogEventLevel.Error, resultEmpty);
+        Assert.Equal(LogEventLevel.Warning, result);
     }
 
     [Fact]

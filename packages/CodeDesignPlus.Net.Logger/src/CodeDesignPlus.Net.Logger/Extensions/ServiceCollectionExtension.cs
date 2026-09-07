@@ -110,13 +110,17 @@ public static class ServiceCollectionExtension
     /// <summary>
     /// Converts a string log level to a Serilog LogEventLevel.
     /// </summary>
+    /// <remarks>
+    /// The default is Warning: falling back to Error silences the warnings the SDK uses to report handled
+    /// business errors, leaving them invisible in the observability backend.
+    /// </remarks>
     /// <param name="logLevel">The string representation of the log level.</param>
     /// <returns>The corresponding Serilog LogEventLevel.</returns>
     private static LogEventLevel ConvertToSerilogLevel(string logLevel)
     {
-        if(string.IsNullOrEmpty(logLevel))
-            return LogEventLevel.Error; 
+        if (string.IsNullOrWhiteSpace(logLevel))
+            return LogEventLevel.Warning;
 
-        return Enum.Parse<LogEventLevel>(logLevel); 
+        return Enum.Parse<LogEventLevel>(logLevel);
     }
 }

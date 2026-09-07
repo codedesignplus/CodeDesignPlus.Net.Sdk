@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.Globalization;
+using System.IO;
 using System.Net;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Exceptions;
@@ -23,11 +25,18 @@ namespace CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Middlewares;
 /// <param name="options">Options for configuring the middleware.</param>
 public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env, IOptions<CoreOptions> options)
 {
-    private readonly Newtonsoft.Json.JsonSerializerSettings serializerSettings = new()
+    /// <summary>
+    /// Serializer settings shared by every error response, built once and never mutated afterwards.
+    /// </summary>
+    /// <remarks> <see cref="Newtonsoft.Json.JsonSerializerSettings.Converters"/> is a
+    /// plain list: mutating it while other requests serialize corrupts it and every later error response in this
+    /// process throws a <see cref="NullReferenceException"/> inside Newtonsoft.
+    /// </remarks>
+    private static readonly Newtonsoft.Json.JsonSerializerSettings serializerSettings = JsonSerializer.CreateSettings(settings =>
     {
-        ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver(),
-        Formatting = Newtonsoft.Json.Formatting.None
-    };
+        settings.ContractResolver = new Newtonsoft.Json.Serialization.CamelCasePropertyNamesContractResolver();
+        settings.Formatting = Newtonsoft.Json.Formatting.None;
+    });
 
     /// <summary>
     /// Invokes the middleware to handle the HTTP context.
@@ -94,7 +103,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
 
         problemDetails.Extensions["invalid_params"] = invalidParams;
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, serializerSettings));
+        return WriteProblemDetailsAsync(context, problemDetails);
     }
 
     /// <summary>
@@ -131,7 +140,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         problemDetails.Extensions["layer"] = exception.Layer.ToString();
         problemDetails.Extensions["error_code"] = exception.Code;
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, serializerSettings));
+        return WriteProblemDetailsAsync(context, problemDetails);
     }
 
 
@@ -163,7 +172,63 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         if (!env.IsProduction())
             problemDetails.Extensions["exception_message"] = exception.Message;
 
-        return context.Response.WriteAsync(JsonSerializer.Serialize(problemDetails, serializerSettings));
+        return WriteProblemDetailsAsync(context, problemDetails);
+    }
+
+    /// <summary>
+    /// Writes the problem details to the response, falling back to a minimal payload if serialization fails.
+    /// </summary>
+    /// <remarks>
+    /// A serialization defect must never turn a handled error into an empty 500: the exception would escape the
+    /// middleware and the caller would get no body at all.
+    /// </remarks>
+    /// <param name="context">The HTTP context.</param>
+    /// <param name="problemDetails">The problem details to write.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    private Task WriteProblemDetailsAsync(HttpContext context, ProblemDetails problemDetails)
+    {
+        string payload;
+
+        try
+        {
+            payload = JsonSerializer.Serialize(problemDetails, serializerSettings);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Failed to serialize the problem details response for {Instance}. Falling back to a minimal payload.", problemDetails.Instance);
+
+            payload = BuildFallbackPayload(problemDetails);
+        }
+
+        return context.Response.WriteAsync(payload);
+    }
+
+    /// <summary>
+    /// Builds a minimal problem details payload without contract resolution or converters.
+    /// </summary>
+    /// <param name="problemDetails">The problem details to write.</param>
+    /// <returns>A JSON string with the essential fields of the problem details.</returns>
+    private static string BuildFallbackPayload(ProblemDetails problemDetails)
+    {
+        var buffer = new StringWriter(CultureInfo.InvariantCulture);
+
+        using (var writer = new Newtonsoft.Json.JsonTextWriter(buffer))
+        {
+            writer.WriteStartObject();
+            writer.WritePropertyName("type");
+            writer.WriteValue(problemDetails.Type);
+            writer.WritePropertyName("title");
+            writer.WriteValue(problemDetails.Title);
+            writer.WritePropertyName("status");
+            writer.WriteValue(problemDetails.Status);
+            writer.WritePropertyName("detail");
+            writer.WriteValue(problemDetails.Detail);
+            writer.WritePropertyName("instance");
+            writer.WriteValue(problemDetails.Instance);
+            writer.WriteEndObject();
+        }
+
+        return buffer.ToString();
     }
 
     /// <summary>
