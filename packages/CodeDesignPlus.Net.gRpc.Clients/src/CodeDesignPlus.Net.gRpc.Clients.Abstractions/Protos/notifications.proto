@@ -57,3 +57,102 @@ message NotificationResponse {
   bool success = 1;
   string message = 2;
 }
+
+import "google/protobuf/timestamp.proto";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Canal efimero. No se persiste, no se replica, no aparece en ninguna bandeja.
+// Si el destinatario no esta conectado, el mensaje se pierde — y esta bien.
+//
+// Antes todo se guardaba: un reparto de cuota extraordinaria de 200 unidades dejaba
+// 200 documentos de progreso en Mongo que nadie leia jamas.
+// ─────────────────────────────────────────────────────────────────────────────
+service LiveChannel {
+  rpc PushToUser  (stream LiveUserPush)  returns (stream PushAck);
+  rpc PushToGroup (stream LiveGroupPush) returns (stream PushAck);
+}
+
+message LiveUserPush {
+  string tenant        = 1;
+  string userId        = 2;
+  //Nombre del evento que el frontend escucha (ej. "charge.generation.progress").
+  string eventName     = 3;
+  string jsonPayload   = 4;
+  //Para correlacionar trazas. No es idempotencia: aqui no hay nada que deduplicar.
+  string correlationId = 5;
+}
+
+message LiveGroupPush {
+  string tenant        = 1;
+  //Nombre del grupo sin calificar: el servidor le antepone "Tenant:{tenant}:".
+  string groupName     = 2;
+  string eventName     = 3;
+  string jsonPayload   = 4;
+  string correlationId = 5;
+}
+
+message PushAck {
+  bool   success = 1;
+  string message = 2;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Avisos durables. Se persisten, entran a la bandeja y sobreviven al reinicio del
+// navegador y del pod. Empujan en vivo ademas, sin que el emisor pida nada.
+//
+// La pregunta que decide cual usar, por cada punto de llamada:
+//   "Le sirve esto a alguien que no estaba mirando la pantalla?"
+//   Si -> Inbox.  No -> LiveChannel.
+// ─────────────────────────────────────────────────────────────────────────────
+service Inbox {
+  rpc Notify (stream NotificationRequest) returns (stream NotifyAck);
+}
+
+message NotificationRequest {
+  //Generado por el emisor. Es la clave de idempotencia frente a reentregas del bus.
+  string   id          = 1;
+  string   tenant      = 2;
+  Audience audience    = 3;
+  //Clave estable del tipo de aviso (ej. "invoice.issued"). Nunca un numero: un identificador
+  //que viaja entre microservicios no puede ser la posicion de un enum.
+  string   kind        = 4;
+  //Respaldo para cuando el frontend no conoce el kind. La verdad es kind + jsonPayload.
+  string   title       = 5;
+  string   body        = 6;
+  //A donde lleva el clic en la bandeja.
+  Resource resource    = 7;
+  string   jsonPayload = 8;
+  string   sentBy      = 9;
+  //Cuando ocurrio el hecho, que no es cuando se guardo el aviso.
+  google.protobuf.Timestamp occurredAt = 10;
+}
+
+message Audience {
+  AudienceKind    kind   = 1;
+  //userIds si kind es USER; nombres de rol si es ROLE; vacio si es TENANT.
+  repeated string values = 2;
+}
+
+//La audiencia se guarda como descriptor y se resuelve al LEER. Resolverla al escribir obligaria
+//a que cada micro supiera los userIds de un rol —ms-frontdesk conoce la unidad, no el usuario—
+//y eso es una llamada cruzada en el path de escritura.
+enum AudienceKind {
+  AUDIENCE_KIND_UNSPECIFIED = 0;
+  AUDIENCE_KIND_USER        = 1;
+  AUDIENCE_KIND_ROLE        = 2;
+  AUDIENCE_KIND_TENANT      = 3;
+}
+
+message Resource {
+  //Modulo dueno del dato. El frontend lo traduce a una ruta: las rutas son suyas y cambian sin
+  //que el backend se entere.
+  string module      = 1;
+  string aggregateId = 2;
+}
+
+message NotifyAck {
+  bool   success        = 1;
+  string message        = 2;
+  //El id que mando el emisor, para que pueda correlacionar el acuse.
+  string notificationId = 3;
+}

@@ -84,6 +84,21 @@ public static class ServiceCollectionExtensions
             });
 
             services.AddSingleton<INotificationGrpc, NotificationService>();
+
+            services.AddGrpcClient<Services.Notification.LiveChannel.LiveChannelClient>(o =>
+            {
+                o.Address = new Uri(options.Notification);
+            });
+
+            services.AddGrpcClient<Services.Notification.Inbox.InboxClient>(o =>
+            {
+                o.Address = new Uri(options.Notification);
+            });
+
+            // Singleton como el Notifier: cada uno mantiene su stream abierto y su cola en memoria, y un
+            // cliente scoped abriria un stream nuevo por peticion.
+            services.AddSingleton<ILiveChannelGrpc, LiveChannelService>();
+            services.AddSingleton<IInboxGrpc, InboxService>();
         }
 
         if (!string.IsNullOrEmpty(options!.Location))

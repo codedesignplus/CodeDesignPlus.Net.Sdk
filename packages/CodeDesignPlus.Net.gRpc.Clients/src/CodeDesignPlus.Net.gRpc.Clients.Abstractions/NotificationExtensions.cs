@@ -21,7 +21,7 @@ public static class NotificationExtensions
     /// <param name="grpc">La instancia del cliente de notificaciones.</param>
     /// <param name="userId">El identificador del usuario destinatario.</param>
     /// <param name="eventName">
-    /// El nombre del evento que el frontend escucha (usar constantes de <see cref="NotificationEventNames"/>).
+    /// El nombre del evento que el frontend escucha (usar constantes de <see cref="NotificationKinds"/>).
     /// </param>
     /// <param name="payload">El objeto que se serializa como payload JSON de la notificación.</param>
     /// <param name="tenant">El identificador del tenant al que pertenece el usuario.</param>
@@ -56,7 +56,7 @@ public static class NotificationExtensions
     /// </summary>
     /// <param name="grpc">La instancia del cliente de notificaciones.</param>
     /// <param name="eventName">
-    /// El nombre del evento que el frontend escucha (usar constantes de <see cref="NotificationEventNames"/>).
+    /// El nombre del evento que el frontend escucha (usar constantes de <see cref="NotificationKinds"/>).
     /// </param>
     /// <param name="payload">El objeto que se serializa como payload JSON de la notificación.</param>
     /// <param name="tenant">El identificador del tenant al que pertenecen los usuarios.</param>
@@ -93,7 +93,7 @@ public static class NotificationExtensions
     /// Debe coincidir con el grupo al que el frontend se unió mediante JoinGroup.
     /// </param>
     /// <param name="eventName">
-    /// El nombre del evento que el frontend escucha (usar constantes de <see cref="NotificationEventNames"/>).
+    /// El nombre del evento que el frontend escucha (usar constantes de <see cref="NotificationKinds"/>).
     /// </param>
     /// <param name="payload">El objeto que se serializa como payload JSON de la notificación.</param>
     /// <param name="tenant">El identificador del tenant.</param>
