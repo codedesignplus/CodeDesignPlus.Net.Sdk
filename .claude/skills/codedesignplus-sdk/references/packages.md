@@ -202,6 +202,35 @@ RabbitMQ transport with dead-letter exchange support.
 
 ---
 
+## CodeDesignPlus.Net.ServiceBus
+
+Azure Service Bus transport for `IPublisher`/`ISubscriber`, over topics and subscriptions.
+
+**Options** — `ServiceBusOptions : PubSubOptions`, section `"ServiceBus"`
+- `Enable` (bool)
+- `FullyQualifiedNamespace` (string) — required unless a `ConnectionString` is given; used with `DefaultAzureCredential`.
+- `ConnectionString` (string) — local development and the emulator only; wins over the namespace.
+- `ManagementConnectionString` (string) — emulator only, which serves the management plane on a separate port.
+- `AutoProvisionEntities` (bool, default `true`) — needs the `Azure Service Bus Data Owner` role.
+- `MaxRetry` (int, default `10`), `RetryIntervalMs` (default `2000`), `MaxRetryIntervalMs` (default `60000`)
+- `MaxConcurrentCalls` (default `4`), `PrefetchCount` (default `0`)
+- `LockDurationSeconds` (default `300`), `MaxAutoLockRenewalMinutes` (default `10`)
+- `MessageTimeToLiveHours` (default `48`), `RegisterHealthCheck` (default `true`)
+
+**Interfaces**
+- `IServiceBusPubSub` — marker over `IMessage`.
+- `IServiceBusClientProvider` — cached `ServiceBusSender` per topic and `ServiceBusProcessor` per subscription.
+- `ISubscriptionNameResolver` — turns the handler's `QueueNameAttribute` into a subscription name of at most 50 characters.
+- `IEntityProvisioner` — creates topics and subscriptions on demand.
+
+**Naming:** the topic is the `EventKey` verbatim (up to 260 chars). The subscription is `{appName}.{action}`, and when that exceeds 50 characters it becomes the first 41 characters plus a hyphen and 8 hexadecimal characters of the SHA-256 of the full logical queue name.
+
+**Retries:** exponential backoff with jitter, awaited in process while the message lock is renewed. A `CodeDesignPlusException` is treated as a business error and dead-lettered on the first delivery; anything else is retried up to `MaxRetry` and then dead-lettered.
+
+**Register:** `services.AddServiceBus<TAssembly>(configuration)`.
+
+---
+
 ## CodeDesignPlus.Net.Redis.PubSub
 
 Redis pub/sub transport.

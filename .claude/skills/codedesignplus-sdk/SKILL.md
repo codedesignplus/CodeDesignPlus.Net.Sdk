@@ -64,6 +64,7 @@ builder.Services
 | Kafka | `Kafka` | `AddKafka` | Kafka transport for PubSub (`IProducer`, `IConsumer`) |
 | RabbitMQ | `RabbitMQ` | `AddRabbitMQ` | `IRabbitConnection`, `IChannelProvider`, `IRabbitPubSubService` |
 | Redis.PubSub | `Redis.PubSub` | `AddRedisPubSub` | `IRedisPubSubService` |
+| ServiceBus | `ServiceBus` | `AddServiceBus` | Azure Service Bus transport for PubSub (topics + subscriptions) |
 | Event.Sourcing | `EventSourcing` | `AddEventSourcing` | `IEventSourcing`, snapshot policy |
 | EventStore | `EventStore` | `AddEventStore` | `IEventStore`, `IEventStoreConnection`, `IEventStoreFactory` |
 | EventStore.PubSub | `EventStore.PubSub` | `AddEventStorePubSub` | Pub/Sub bridge over EventStore |
@@ -80,7 +81,7 @@ builder.Services
 ## Quick decision tree
 
 - **Need persistence?** → `AddEFCore<TDbContext>` (relational) or `AddMongo` (document). Both expose `IRepositoryBase` + `OperationBase`.
-- **Need messaging?** → `AddPubSub` + one transport: `AddRabbitMQ` (default), `AddKafka`, or `AddRedisPubSub`. Implement `IEventHandler<TEvent>` and the handler auto-registers when `RegisterAutomaticHandlers=true`.
+- **Need messaging?** → `AddPubSub` + one transport: `AddRabbitMQ` (default), `AddServiceBus` (Azure), `AddKafka`, or `AddRedisPubSub`. Implement `IEventHandler<TEvent>` and the handler auto-registers when `RegisterAutomaticHandlers=true`.
 - **Need event sourcing?** → `AddEventStore` (wraps `AddEventSourcing`). Inherit from `AggregateRoot` (in Core) and persist via `IEventStore`.
 - **Need caching?** → `AddCache` (from Redis.Cache) → inject `ICacheManager`.
 - **Need auth?** → `AddSecurity` → inject `IUserContext`. Validate tokens via the configured `Authority`/`ValidIssuer`.
@@ -103,6 +104,7 @@ PubSub ──► Core
   ├── Kafka ──► PubSub
   ├── RabbitMQ ──► PubSub
   └── Redis.PubSub ──► Redis, PubSub
+  └── ServiceBus ──► PubSub
 Event.Sourcing ──► Core
   └── EventStore ──► Event.Sourcing
       └── EventStore.PubSub ──► EventStore, PubSub

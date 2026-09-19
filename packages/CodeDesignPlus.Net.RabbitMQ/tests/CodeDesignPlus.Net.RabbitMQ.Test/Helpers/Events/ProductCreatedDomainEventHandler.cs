@@ -1,5 +1,5 @@
 ﻿using CodeDesignPlus.Net.PubSub.Abstractions;
-using CodeDesignPlus.Net.RabbitMQ.Attributes;
+using CodeDesignPlus.Net.PubSub.Abstractions.Attributes;
 using CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Entities;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Helpers.Events;

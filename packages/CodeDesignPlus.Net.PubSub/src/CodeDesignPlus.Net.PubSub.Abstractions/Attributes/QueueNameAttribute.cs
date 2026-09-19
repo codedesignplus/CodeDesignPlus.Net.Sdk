@@ -1,4 +1,4 @@
-﻿namespace CodeDesignPlus.Net.RabbitMQ.Attributes;
+﻿namespace CodeDesignPlus.Net.PubSub.Abstractions.Attributes;
 
 /// <summary>
 /// Attribute to specify the queue name for a class.

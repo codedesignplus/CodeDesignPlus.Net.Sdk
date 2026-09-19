@@ -1,14 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <PublishAot>false</PublishAot>
     <TargetFramework>net9.0</TargetFramework>
-    <ProjectGuid>{5689BC80-9345-4FFC-BDD7-67ECD75A6935}</ProjectGuid>
+    <ProjectGuid>{A7FE430B-47CD-45A8-9F1E-3A8875F04B13}</ProjectGuid>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <Authors>CodeDesignPlus</Authors>
-    <Description>CodeDesignPlus.Net.PubSub provides a robust framework for implementing publish-subscribe patterns in .NET Core applications. This library simplifies the process of publishing and subscribing to messages, enabling developers to build scalable and decoupled event-driven systems.</Description>
+    <Description>CodeDesignPlus.Net.ServiceBus provides a robust framework for integrating Azure Service Bus with .NET Core applications. This library simplifies the process of producing and consuming domain events over topics and subscriptions, with exponential backoff, native dead-lettering and Entra ID authentication, enabling developers to build scalable and reliable event-driven systems.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
-    <PackageId>CodeDesignPlus.Net.PubSub</PackageId>
+    <PackageId>CodeDesignPlus.Net.ServiceBus</PackageId>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
     <PackageProjectUrl>https://www.codedesignplus.com</PackageProjectUrl>
@@ -30,19 +29,18 @@
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.PubSub.xml</DocumentationFile>
+    <DocumentationFile>..\..\docs\CSharp Doc\CodeDesignPlus.Net.ServiceBus.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CodeDesignPlus.Net.PubSub.Abstractions\CodeDesignPlus.Net.PubSub.Abstractions.csproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="8.0.0" PrivateAssets="All" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="9.0.7" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="9.0.7" />
-    <PackageReference Include="OpenTelemetry" Version="1.12.0" />
-    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions" Version="9.0.7" />
+    <PackageReference Include="Azure.Identity" Version="1.14.0" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="9.0.7" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CodeDesignPlus.Net.ServiceBus.Abstractions\CodeDesignPlus.Net.ServiceBus.Abstractions.csproj" />
   </ItemGroup>
 </Project>

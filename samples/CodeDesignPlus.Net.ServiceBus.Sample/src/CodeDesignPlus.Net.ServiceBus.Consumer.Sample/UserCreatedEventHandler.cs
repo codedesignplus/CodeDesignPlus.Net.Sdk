@@ -2,7 +2,7 @@ using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.PubSub.Abstractions.Attributes;
 using CodeDesignPlus.Net.Serializers;
 
-namespace CodeDesignPlus.Net.RabbitMQ.Consumer.Sample;
+namespace CodeDesignPlus.Net.ServiceBus.Consumer.Sample;
 
 [QueueName("userentity", "register-user")]
 public class UserCreatedEventHandler(ILogger<UserCreatedEventHandler> logger) : IEventHandler<UserCreatedDomainEvent>

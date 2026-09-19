@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
-namespace CodeDesignPlus.Net.RabbitMQ.Services;
+namespace CodeDesignPlus.Net.PubSub.Services;
 
 /// <summary>
 /// Health check that verifies all event handler subscriptions are active.

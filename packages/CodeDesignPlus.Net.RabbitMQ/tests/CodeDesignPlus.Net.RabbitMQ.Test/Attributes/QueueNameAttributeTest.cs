@@ -1,4 +1,4 @@
-using CodeDesignPlus.Net.RabbitMQ.Attributes;
+using CodeDesignPlus.Net.PubSub.Abstractions.Attributes;
 
 namespace CodeDesignPlus.Net.RabbitMQ.Test.Attributes;
 

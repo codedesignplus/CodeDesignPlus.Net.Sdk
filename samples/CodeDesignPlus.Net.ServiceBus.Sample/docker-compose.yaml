@@ -1,0 +1,22 @@
+# Emulador oficial de Azure Service Bus. Sirve el plano de datos en 5672 y el de gestion en 5300; Azure
+# atiende ambos en el mismo extremo, por eso el appsettings del sample lleva dos cadenas y el de un entorno
+# real solo lleva el namespace.
+services:
+  servicebus:
+    image: mcr.microsoft.com/azure-messaging/servicebus-emulator:latest
+    volumes:
+      - "./Config.json:/ServiceBus_Emulator/ConfigFiles/Config.json"
+    ports:
+      - "5672:5672"
+      - "5300:5300"
+    environment:
+      ACCEPT_EULA: "Y"
+      SQL_SERVER: sqledge
+      MSSQL_SA_PASSWORD: "Temporal1.Temporal1"
+    depends_on:
+      - sqledge
+  sqledge:
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Temporal1.Temporal1"
