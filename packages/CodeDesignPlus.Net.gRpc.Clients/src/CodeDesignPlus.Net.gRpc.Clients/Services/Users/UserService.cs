@@ -59,4 +59,18 @@ public class UserService(User.Users.UsersClient client, IUserContext userContext
         }, cancellationToken: cancellationToken);
     }
 
+    /// <summary>
+    /// Gets every role of a user, both the platform ones and those of each tenant.
+    /// </summary>
+    /// <param name="request">The request containing the user identifier.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>The roles of the user.</returns>
+    public async Task<GetUserRolesResponse> GetUserRoles(GetUserRolesRequest request, CancellationToken cancellationToken)
+    {
+        return await client.GetUserRolesAsync(request, new Grpc.Core.Metadata
+        {
+            { "Authorization", $"Bearer {userContext.AccessToken}" },
+            { "X-Tenant", userContext.Tenant.ToString() }
+        }, cancellationToken: cancellationToken);
+    }
 }

@@ -13,16 +13,26 @@ service Users {
   rpc AddTenantToUser (AddTenantRequest) returns (google.protobuf.Empty);
   rpc AddGroupToUser (AddGroupRequest) returns (google.protobuf.Empty);
   rpc RemoveGroupFromUser (RemoveGroupRequest) returns (google.protobuf.Empty);
+
+  // Ultimo recurso del directorio de roles, cuando la cache compartida no tiene la instantanea.
+  rpc GetUserRoles (GetUserRolesRequest) returns (GetUserRolesResponse);
 }
 
 message AddGroupRequest {
   string Id = 1;
+  // El identificador del grupo del proveedor de identidad, no el nombre del rol.
   string Role = 2;
+  // La copropiedad en la que el usuario tiene ese rol. Un rol sin copropiedad no existe: solo los
+  // roles de plataforma viven fuera de una, y esos no se asignan por aqui.
+  string Tenant = 3;
 }
 
 message RemoveGroupRequest {
   string Id = 1;
+  // El identificador del grupo del proveedor de identidad, no el nombre del rol.
   string Role = 2;
+  // La copropiedad de la que se retira el rol. Retirarlo de una no lo retira de las demas.
+  string Tenant = 3;
 }
 
 message AddTenantRequest {
@@ -35,3 +45,20 @@ message Tenant {
   string Name = 2;
 }
 
+message GetUserRolesRequest {
+  string Id = 1;
+}
+
+// Todos los roles del usuario de una vez, no los de una copropiedad: la instantanea se guarda por
+// usuario y quien la lee elige la copropiedad que le interesa. Asi un usuario que cambia de
+// copropiedad en la misma sesion no provoca una consulta por cada cambio.
+message GetUserRolesResponse {
+  // Los roles que no cuelgan de ninguna copropiedad.
+  repeated string Platform = 1;
+  repeated TenantRoles Tenants = 2;
+}
+
+message TenantRoles {
+  string Tenant = 1;
+  repeated string Roles = 2;
+}

@@ -21,13 +21,20 @@ public class RbacMiddleware(RequestDelegate next)
     {
         var userContext = context.RequestServices.GetRequiredService<IUserContext>();
         var rbacService = context.RequestServices.GetRequiredService<IRbac>();
+        var roleDirectory = context.RequestServices.GetRequiredService<IRoleDirectory>();
 
         var routeData = context.GetRouteData();
         var controllerName = routeData.Values["controller"].ToString();
         var actionName = routeData.Values["action"].ToString();
         var httpMethod = context.Request.Method;
 
-        var isAuthorized = await rbacService.IsAuthorizedAsync(controllerName, actionName, httpMethod, userContext.Roles);
+        // Los roles salen del directorio y no de userContext.Roles. Ese claim lo llena el proveedor de
+        // identidad con todos los grupos del usuario en todo el directorio, porque el proveedor no sabe
+        // que es una copropiedad: autorizar con el le daria a quien administra una copropiedad los
+        // mismos permisos en todas las demas a las que pertenece.
+        var roles = await roleDirectory.GetRolesAsync(userContext.IdUser, userContext.Tenant, context.RequestAborted);
+
+        var isAuthorized = await rbacService.IsAuthorizedAsync(controllerName, actionName, httpMethod, roles);
 
         if (!isAuthorized)
         {

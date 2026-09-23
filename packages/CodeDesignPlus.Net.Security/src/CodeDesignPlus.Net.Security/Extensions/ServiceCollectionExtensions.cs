@@ -55,12 +55,19 @@ public static class ServiceCollectionExtensions
 
             services.TryAddScoped<IRbac, Rbac>();
             services.AddHostedService<RefreshRbacBackgroundService>();
+
+            // El middleware de RBAC resuelve los roles por copropiedad, no por el claim. Se registra
+            // aqui tambien -y no solo con el contexto de copropiedad- para que encender el RBAC sin el
+            // otro interruptor falle al arrancar y no en la primera peticion.
+            services.AddMemoryCache();
+            services.TryAddScoped<IRoleDirectory, RoleDirectory>();
         }
 
         if (securityOptions.EnableTenantContext)
         {
             services.AddMemoryCache();
             services.TryAddScoped<ITenantDirectory, TenantDirectory>();
+            services.TryAddScoped<IRoleDirectory, RoleDirectory>();
             services.TryAddScoped<ITenant, Tenant>();
             services.TryAddEnumerable(ServiceDescriptor.Scoped<IEventScopeInitializer, TenantEventScopeInitializer>());
         }

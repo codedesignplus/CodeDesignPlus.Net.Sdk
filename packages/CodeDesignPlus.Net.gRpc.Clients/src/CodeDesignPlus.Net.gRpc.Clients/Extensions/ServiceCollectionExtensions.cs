@@ -64,6 +64,10 @@ public static class ServiceCollectionExtensions
             });
 
             services.AddScoped<IUserGrpc, UserService>();
+
+            // Los roles por copropiedad los publica ms-users en la cache compartida; este es el ultimo
+            // recurso cuando esa cache no puede servirlos.
+            services.AddScoped<IRoleSnapshotFallback, RoleSnapshotFallback>();
         }
 
         if (!string.IsNullOrEmpty(options!.Tenant))
