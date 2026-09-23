@@ -115,7 +115,17 @@ public class RoleDirectory(
         }
 
         if (fallback is null)
+        {
+            // Sin ultimo recurso el directorio se queda sin ninguna fuente, porque nadie publica todavia
+            // en la cache compartida: todo el mundo pasa a no tener ningun rol y nada falla. Se grita en
+            // cada peticion y no una sola vez, porque es un error de despliegue y no una situacion de
+            // datos: mientras dure, cada peticion esta devolviendo una respuesta incompleta.
+            logger.LogError(
+                "The role directory has no {Fallback} registered, so nothing can resolve a cache miss and every user is treated as having no roles. Call AddGrpcClients in this entry point.",
+                nameof(IRoleSnapshotFallback));
+
             return null;
+        }
 
         try
         {

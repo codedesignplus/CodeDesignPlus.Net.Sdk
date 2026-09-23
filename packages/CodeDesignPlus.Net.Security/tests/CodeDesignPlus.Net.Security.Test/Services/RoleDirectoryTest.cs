@@ -255,4 +255,31 @@ public class RoleDirectoryTest
 
         public void Advance(TimeSpan delta) => this.now = this.now.Add(delta);
     }
+
+    [Fact]
+    public async Task GetRolesAsync_NoFallbackRegistered_ShoutsInsteadOfStayingQuiet()
+    {
+        // Sin ultimo recurso el directorio se queda sin ninguna fuente, porque nadie publica todavia en la
+        // cache compartida. Devolver vacio es lo correcto -deniega- pero callarselo convierte un error de
+        // despliegue en "la bandeja sale en blanco y no falla nada", que es como se perdio una tarde.
+        var userId = Guid.NewGuid();
+        var logger = new Mock<ILogger<RoleDirectory>>();
+
+        cacheManagerMock
+            .Setup(c => c.GetGlobalAsync<M.UserRoles>(It.IsAny<string>()))
+            .ReturnsAsync((M.UserRoles)null);
+
+        var directory = new RoleDirectory(cacheManagerMock.Object, memoryCache, logger.Object, fallback: null);
+
+        var roles = await directory.GetRolesAsync(userId, Guid.NewGuid());
+
+        Assert.Empty(roles);
+
+        logger.Verify(x => x.Log(
+            LogLevel.Error,
+            It.IsAny<EventId>(),
+            It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(),
+            It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.AtLeastOnce);
+    }
 }
