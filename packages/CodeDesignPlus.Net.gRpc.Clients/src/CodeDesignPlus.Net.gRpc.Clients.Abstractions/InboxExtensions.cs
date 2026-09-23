@@ -54,12 +54,22 @@ public static class InboxExtensions
     /// Manda un aviso durable a quien tenga alguno de esos roles.
     /// </summary>
     /// <remarks>
-    /// Los nombres de rol viajan sin resolver: quien emite conoce la unidad, no al residente, y resolver
-    /// el rol aqui seria una llamada cruzada en el path de escritura. Se resuelve al leer, donde sale
-    /// gratis porque el lector trae sus roles en el JWT.
+    /// <b>Lo que viaja son los identificadores de grupo del proveedor de identidad, no los nombres de los
+    /// roles.</b> El lector trae esos identificadores en el claim <c>groups</c> de su token, y la bandeja
+    /// compara cadenas sin traducir nada por el camino: un aviso dirigido a la cadena "Administrador" se
+    /// guarda bien y no le llega a nadie.
+    /// <para>
+    /// El rol si viaja sin resolver a las personas que lo tienen —quien emite conoce la unidad, no al
+    /// residente, y buscarlas aqui seria una llamada cruzada en el path de escritura—. Lo que se resuelve
+    /// al leer es la pertenencia al grupo, y eso sale gratis porque viene en el token.
+    /// </para>
+    /// <para>
+    /// Los identificadores <b>cambian por entorno</b>, porque cada entorno es un directorio distinto. Quien
+    /// llama los toma de su configuracion, nunca de una constante en el codigo.
+    /// </para>
     /// </remarks>
     /// <param name="grpc">El cliente de la bandeja.</param>
-    /// <param name="roles">Los nombres de rol destinatarios.</param>
+    /// <param name="roles">Los identificadores de los grupos destinatarios, no los nombres de los roles.</param>
     /// <param name="kind">La clave estable del tipo de aviso (use <see cref="NotificationKinds"/>).</param>
     /// <param name="title">Respaldo para cuando el frontend no conoce el <paramref name="kind"/>.</param>
     /// <param name="body">El texto del aviso.</param>
