@@ -21,7 +21,7 @@ namespace CodeDesignPlus.Net.Security.Abstractions;
 public interface IRoleDirectory
 {
     /// <summary>
-    /// Gets the roles of a user in a tenant, as identifiers of the identity provider groups.
+    /// Gets the roles of a user in a tenant, as identifiers of the role catalogue.
     /// </summary>
     /// <param name="userId">The user identifier.</param>
     /// <param name="tenantId">The tenant the roles are asked for.</param>
