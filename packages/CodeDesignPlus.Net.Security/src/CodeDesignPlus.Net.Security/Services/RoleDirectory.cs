@@ -6,9 +6,22 @@ using Models = CodeDesignPlus.Net.Security.Abstractions.Models;
 namespace CodeDesignPlus.Net.Security.Services;
 
 /// <summary>
-/// Reads the roles snapshots published by ms-users, walking L1 (in-process), the shared cache server
-/// and finally <see cref="IRoleSnapshotFallback"/>.
+/// Resolves the roles of a user, walking L1 (in-process), the shared cache server and finally
+/// <see cref="IRoleSnapshotFallback"/>.
 /// </summary>
+/// <remarks>
+/// <b>Nobody publishes to the shared cache yet.</b> The level is read and left in place on purpose: today
+/// every L1 miss reaches ms-users over gRPC, which is one call per user, per pod, per fresh window, and at
+/// the current scale that is cheaper than keeping a second copy coherent. The day it is not, ms-users
+/// starts publishing the snapshot and this code needs no change — which is the whole reason the level is
+/// already here.
+/// <para>
+/// The same reason explains why there is no write-back after a fallback hit: a copy written here would
+/// have to be invalidated when a role changes, and that means ms-users knowing about this key. Reaching
+/// ms-users every minute is the simpler trade while the platform is small, and it is never stale by more
+/// than the fresh window.
+/// </para>
+/// </remarks>
 public class RoleDirectory(
     ICacheManager cacheManager,
     IMemoryCache memoryCache,
