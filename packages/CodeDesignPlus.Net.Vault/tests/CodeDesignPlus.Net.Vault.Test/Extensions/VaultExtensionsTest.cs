@@ -76,7 +76,7 @@ public class VaultExtensionsTest(VaultCollectionFixture fixture)
         // Assert
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var factory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IVaultClient));
+        var factory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(VaultClientProvider));
         var vaultTransit = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IVaultTransit));
         var vaultOptions = serviceProvider.GetRequiredService<IOptions<VaultOptions>>().Value;
 
@@ -113,10 +113,13 @@ public class VaultExtensionsTest(VaultCollectionFixture fixture)
         // Assert
         var serviceProvider = serviceCollection.BuildServiceProvider();
 
-        var factory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IVaultClient));
+        var factory = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(VaultClientProvider));
         var vaultTransit = serviceCollection.FirstOrDefault(x => x.ServiceType == typeof(IVaultTransit));
         var vaultOptions = serviceProvider.GetRequiredService<IOptions<VaultOptions>>().Value;
 
+        // `VaultClientProvider` y no `IVaultClient`: desde que existe el proveedor —que rehace el cliente
+        // cuando hay que volver a autenticarse— el cliente dejo de registrarse suelto en el contenedor, y
+        // esta comprobacion se quedo buscando un servicio que ya nadie registra.
         Assert.NotNull(factory);
 
         Assert.NotNull(vaultTransit);
