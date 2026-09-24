@@ -26,7 +26,7 @@ public class LocalityTest
         var exception = Assert.Throws<CodeDesignPlusException>(() => Locality.Create(Guid.Empty, "El Poblado"));
 
         Assert.Equal(Errors.LocalityIDCannotBeEmpty.Code, exception.Code);
-        Assert.Equal(Errors.LocalityIDCannotBeEmpty.Fallback, exception.Message);
+        Assert.Equal(Errors.LocalityIDCannotBeEmpty.ToEnglish(), exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -40,7 +40,7 @@ public class LocalityTest
         var exception = Assert.Throws<CodeDesignPlusException>(() => Locality.Create(Guid.NewGuid(), name!));
 
         Assert.Equal(Errors.LocalityNameCannotBeNullOrEmpty.Code, exception.Code);
-        Assert.Equal(Errors.LocalityNameCannotBeNullOrEmpty.Fallback, exception.Message);
+        Assert.Equal(Errors.LocalityNameCannotBeNullOrEmpty.ToEnglish(), exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 

@@ -1,0 +1,29 @@
+{
+  "language": "en",
+  "errors": {
+    "201": "The user was not found.",
+    "250": "Cannot decide eligibility: no financial document has been replicated.",
+    "301": "The product {0} is not active.",
+    "999": "There is no translation for this one.",
+    "D-001": "Throw exception when value is null.",
+    "D-002": "Throw exception when value is not null.",
+    "D-003": "Throw exception when value is null or empty.",
+    "D-004": "Throw exception when value is not null or empty.",
+    "D-005": "Throw exception when value is null or white space.",
+    "D-006": "Throw exception when value is not null or white space.",
+    "D-007": "Throw exception when value is true.",
+    "D-008": "Throw exception when value is false.",
+    "D-009": "Throw exception when value is greater than compare.",
+    "D-010": "Throw exception when value is greater or equal to compare",
+    "D-011": "Throw exception when value is less than compare.",
+    "D-012": "Throw exception when value is less or equal to compare.",
+    "D-013": "Throw exception when values are equals.",
+    "D-014": "Throw exception when values are not equals",
+    "D-015": "Throw exception when value is in range of min and max.",
+    "D-016": "Throw exception when value is out of range of min and max.",
+    "D-017": "Throw exception when value is empty.",
+    "D-018": "Thorw exception when value is not empty.",
+    "D-019": "Throw exception when value is empty.",
+    "D-020": "Throw exception when value is not empty."
+  }
+}

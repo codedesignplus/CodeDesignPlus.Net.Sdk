@@ -203,7 +203,7 @@ public class ExceptionMiddlewareTests
     [Fact]
     public void GetDetailMessage_WithCatalogError_ReturnsOnlyTheMessage()
     {
-        var ex = new CodeDesignPlusException(Layer.Application, new Error("239", "Nothing was withheld in that period."));
+        var ex = new CodeDesignPlusException(Layer.Application, new Error("239"));
         var method = typeof(ExceptionMiddleware).GetMethod("GetDetailMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         Assert.NotNull(method);
 

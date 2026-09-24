@@ -193,7 +193,7 @@ public class CountryTest
     private static void AssertGuard(CodeDesignPlusException exception, Error error)
     {
         Assert.Equal(error.Code, exception.Code);
-        Assert.Equal(error.Fallback, exception.Message);
+        Assert.Equal(error.ToEnglish(), exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 }

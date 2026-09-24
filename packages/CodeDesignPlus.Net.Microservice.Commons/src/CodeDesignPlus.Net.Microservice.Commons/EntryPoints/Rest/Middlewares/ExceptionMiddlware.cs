@@ -260,8 +260,10 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         // Con un error del catalogo, el detalle es el mensaje y nada mas. La capa y el codigo ya viajan en
         // `extensions` y en `type`: repetirlos aqui es lo que hacia que el contador leyera en su pantalla
         // «An error occurred in the application layer - 239 (…)». Ver el pendiente 114.
-        if (exception.Error is not null)
-            return exception.Error.GetMessage(language);
+        // `Error` es un tipo por valor, asi que la propiedad es `Error?` y hay que sacar el valor: con
+        // `is not null` a secas el compilador no lo desenvuelve.
+        if (exception.Error is { } error)
+            return error.GetMessage(language);
 
         return exception.Layer switch
         {

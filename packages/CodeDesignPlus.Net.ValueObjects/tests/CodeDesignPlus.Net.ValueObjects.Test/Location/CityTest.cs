@@ -27,7 +27,7 @@ public class CityTest
         var exception = Assert.Throws<CodeDesignPlusException>(() => City.Create(Guid.Empty, "Medellin", "America/Bogota"));
 
         Assert.Equal(Errors.CityIDCannotBeEmpty.Code, exception.Code);
-        Assert.Equal(Errors.CityIDCannotBeEmpty.Fallback, exception.Message);
+        Assert.Equal(Errors.CityIDCannotBeEmpty.ToEnglish(), exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -41,7 +41,7 @@ public class CityTest
         var exception = Assert.Throws<CodeDesignPlusException>(() => City.Create(Guid.NewGuid(), name!, "America/Bogota"));
 
         Assert.Equal(Errors.CityNameCannotBeNullOrEmpty.Code, exception.Code);
-        Assert.Equal(Errors.CityNameCannotBeNullOrEmpty.Fallback, exception.Message);
+        Assert.Equal(Errors.CityNameCannotBeNullOrEmpty.ToEnglish(), exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 

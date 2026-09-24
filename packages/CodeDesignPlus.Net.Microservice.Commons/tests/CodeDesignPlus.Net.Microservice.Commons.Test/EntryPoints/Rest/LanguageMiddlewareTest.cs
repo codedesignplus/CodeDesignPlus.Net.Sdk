@@ -9,8 +9,8 @@ namespace CodeDesignPlus.Net.Microservice.Commons.Test.EntryPoints.Rest;
 /// El idioma de la respuesta sale de la cabecera <c>Accept-Language</c> y solo se acepta si hay traduccion.
 /// </summary>
 /// <remarks>
-/// Este proyecto de pruebas lleva embebido un <c>errors.es.json</c> con un unico codigo, asi que el espanol
-/// es el unico idioma disponible aqui. Todo lo demas tiene que quedarse en ingles.
+/// Este proyecto de pruebas lleva embebidos un <c>errors.en.json</c> y un <c>errors.es.json</c>, asi que
+/// aqui los idiomas disponibles son el ingles y el espanol. Todo lo demas tiene que quedarse en ingles.
 /// </remarks>
 public class LanguageMiddlewareTest
 {
@@ -24,9 +24,27 @@ public class LanguageMiddlewareTest
         Assert.Equal(expected, await RunAsync(header));
     }
 
+    /// <summary>
+    /// El ingles es un idioma que se puede <b>pedir</b>, con su fichero, y no «lo que queda al agotar la
+    /// lista».
+    /// </summary>
+    /// <remarks>
+    /// Mientras vivio en el C# no figuraba entre los disponibles, asi que nunca casaba con la cabecera y el
+    /// turno pasaba al siguiente idioma: el ultimo caso de abajo —un navegador configurado en ingles que
+    /// tambien lleva espanol, que es lo mas comun en Colombia— acababa respondiendo <b>en espanol</b>, y no
+    /// habia forma de pedir ingles. Esto es lo que arregla que tenga su <c>errors.en.json</c>.
+    /// </remarks>
+    [Theory]
+    [InlineData("en", "en")]
+    [InlineData("en-US", "en-US")]
+    [InlineData("en-US,en;q=0.9,es;q=0.8", "en-US")]
+    public async Task InvokeAsync_WhenEnglishIsAsked_HonoursTheWeights(string header, string expected)
+    {
+        Assert.Equal(expected, await RunAsync(header));
+    }
+
     [Theory]
     [InlineData("")]
-    [InlineData("en")]
     [InlineData("de-DE, ja;q=0.8")]
     [InlineData("*")]
     [InlineData("esto-no-es-un-idioma")]
@@ -71,7 +89,7 @@ public class LanguageMiddlewareTest
 
         var middleware = new LanguageMiddleware(_ =>
         {
-            message = new Error("239", "Nothing was withheld in that period.").GetMessage();
+            message = new Error("239").GetMessage();
             return Task.CompletedTask;
         });
 

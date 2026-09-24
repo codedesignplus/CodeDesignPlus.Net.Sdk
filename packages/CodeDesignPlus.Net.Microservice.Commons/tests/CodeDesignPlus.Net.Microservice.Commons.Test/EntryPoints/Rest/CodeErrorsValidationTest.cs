@@ -41,6 +41,18 @@ public class CodeErrorsValidationTest
         Assert.Contains("is still a string instead of an Error", exception.Message, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// El ingles es el ultimo recurso de todos los idiomas. Un codigo sin entrada en <c>errors.en.json</c>
+    /// no tiene nada que decir en ninguna lengua y saldria por pantalla como un numero pelado.
+    /// </summary>
+    [Fact]
+    public void UseCodeErrorsValidation_WithACodeThatHasNoEnglish_Fails()
+    {
+        var exception = Assert.Throws<InvalidOperationException>(Validate);
+
+        Assert.Contains("the code 8004 has no English message", exception.Message, StringComparison.Ordinal);
+    }
+
     private static void Validate()
     {
         var app = new Mock<IApplicationBuilder>();
@@ -52,15 +64,21 @@ public class CodeErrorsValidationTest
 /// <summary>Dos errores con el mismo codigo: la violacion que la prueba de arriba espera.</summary>
 public class ErrorsConCodigoRepetido : IErrorCodes
 {
-    public static readonly Error Primero = new("8001", "The first one.");
+    public static readonly Error Primero = new("8001");
 
-    public static readonly Error Segundo = new("8001", "The second one, with the very same code.");
+    public static readonly Error Segundo = new("8001");
 }
 
 /// <summary>Un catalogo a medio migrar, con una constante todavia dentro.</summary>
 public class ErrorsAMedioMigrar : IErrorCodes
 {
-    public static readonly Error Migrado = new("8002", "This one is already an Error.");
+    public static readonly Error Migrado = new("8002");
 
     public const string SinMigrar = "8003 : This one is still a string.";
+}
+
+/// <summary>Un codigo que no esta en <c>errors.en.json</c>: se quedaria sin mensaje en todos los idiomas.</summary>
+public class ErrorsSinIngles : IErrorCodes
+{
+    public static readonly Error SinMensaje = new("8004");
 }

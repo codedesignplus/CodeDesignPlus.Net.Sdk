@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Exceptions.Guards;
+using CodeDesignPlus.Net.Exceptions.Guards;
 
 namespace CodeDesignPlus.Net.Exceptions.Test.Guards;
 
@@ -10,7 +10,7 @@ public class InfrastructureGuardTest
         // Arrange
         object value = null!;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-001", "Throw exception when value is null.");
+        var error = new Error("D-001");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNull(value, error));
@@ -27,7 +27,7 @@ public class InfrastructureGuardTest
         // Arrange
         object value = new();
         var layer = Layer.Infrastructure;
-        var error = new Error("D-002", "Throw exception when value is not null.");
+        var error = new Error("D-002");
 
         // Act 
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNotNull(value, error));
@@ -44,7 +44,7 @@ public class InfrastructureGuardTest
         // Arrange
         string value = string.Empty;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-003", "Throw exception when value is null or empty.");
+        var error = new Error("D-003");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNullOrEmpty(value, error));
@@ -61,7 +61,7 @@ public class InfrastructureGuardTest
         // Arrange
         string value = "test";
         var layer = Layer.Infrastructure;
-        var error = new Error("D-004", "Throw exception when value is not null or empty.");
+        var error = new Error("D-004");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNotNullOrEmpty(value, error));
@@ -78,7 +78,7 @@ public class InfrastructureGuardTest
         // Arrange
         string value = " ";
         var layer = Layer.Infrastructure;
-        var error = new Error("D-005", "Throw exception when value is null or white space.");
+        var error = new Error("D-005");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNullOrWhiteSpace(value, error));
@@ -95,7 +95,7 @@ public class InfrastructureGuardTest
         // Arrange
         string value = "test";
         var layer = Layer.Infrastructure;
-        var error = new Error("D-006", "Throw exception when value is not null or white space.");
+        var error = new Error("D-006");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNotNullOrWhiteSpace(value, error));
@@ -112,7 +112,7 @@ public class InfrastructureGuardTest
         // Arrange
         bool value = true;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-007", "Throw exception when value is true.");
+        var error = new Error("D-007");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsTrue(value, error));
@@ -129,7 +129,7 @@ public class InfrastructureGuardTest
         // Arrange
         bool value = false;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-008", "Throw exception when value is false.");
+        var error = new Error("D-008");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsFalse(value, error));
@@ -147,7 +147,7 @@ public class InfrastructureGuardTest
         int value = 2;
         int compare = 1;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-009", "Throw exception when value is greater than compare.");
+        var error = new Error("D-009");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsGreaterThan(value, compare, error));
@@ -165,7 +165,7 @@ public class InfrastructureGuardTest
         int value = 2;
         int compare = 2;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-010", "Throw exception when value is greater or equal to compare");
+        var error = new Error("D-010");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsGreaterThanOrEqual(value, compare, error));
@@ -183,7 +183,7 @@ public class InfrastructureGuardTest
         int value = 1;
         int compare = 2;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-011", "Throw exception when value is less than compare.");
+        var error = new Error("D-011");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsLessThan(value, compare, error));
@@ -201,7 +201,7 @@ public class InfrastructureGuardTest
         int value = 2;
         int compare = 2;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-012", "Throw exception when value is less or equal to compare.");
+        var error = new Error("D-012");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsLessThanOrEqual(value, compare, error));
@@ -219,7 +219,7 @@ public class InfrastructureGuardTest
         int value = 2;
         int compare = 2;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-013", "Throw exception when values are equals.");
+        var error = new Error("D-013");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.AreEquals(value, compare, error));
@@ -237,7 +237,7 @@ public class InfrastructureGuardTest
         int value = 2;
         int compare = 1;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-014", "Throw exception when values are not equals");
+        var error = new Error("D-014");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.AreNotEquals(value, compare, error));
@@ -256,7 +256,7 @@ public class InfrastructureGuardTest
         int min = 1;
         int max = 3;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-015", "Throw exception when value is in range of min and max.");
+        var error = new Error("D-015");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsInRange(value, min, max, error));
@@ -275,7 +275,7 @@ public class InfrastructureGuardTest
         int min = 3;
         int max = 6;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-016", "Throw exception when value is out of range of min and max.");
+        var error = new Error("D-016");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNotInRange(value, min, max, error));
@@ -292,7 +292,7 @@ public class InfrastructureGuardTest
         // Arrange
         var value = Array.Empty<int>();
         var layer = Layer.Infrastructure;
-        var error = new Error("D-017", "Throw exception when value is empty.");
+        var error = new Error("D-017");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsEmpty(value, error));
@@ -309,7 +309,7 @@ public class InfrastructureGuardTest
         // Arrange
         var value = new List<int>() { 1, 2, 3 };
         var layer = Layer.Infrastructure;
-        var error = new Error("D-018", "Thorw exception when value is not empty.");
+        var error = new Error("D-018");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.IsNotEmpty(value, error));
@@ -326,7 +326,7 @@ public class InfrastructureGuardTest
         // Arrange
         var value = Guid.Empty;
         var layer = Layer.Infrastructure;
-        var error = new Error("D-019", "Throw exception when value is empty.");
+        var error = new Error("D-019");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.GuidIsEmpty(value, error));
@@ -343,7 +343,7 @@ public class InfrastructureGuardTest
         // Arrange
         var value = Guid.NewGuid();
         var layer = Layer.Infrastructure;
-        var error = new Error("D-020", "Throw exception when value is not empty.");
+        var error = new Error("D-020");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => InfrastructureGuard.GuidIsNotEmpty(value, error));

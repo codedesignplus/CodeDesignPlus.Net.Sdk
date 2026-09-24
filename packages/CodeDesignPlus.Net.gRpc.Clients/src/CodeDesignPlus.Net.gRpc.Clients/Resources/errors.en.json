@@ -1,0 +1,14 @@
+{
+  "language": "en",
+  "errors": {
+    "9200": "Country not found.",
+    "9201": "Invalid country ID.",
+    "9202": "Invalid country code.",
+    "9203": "Invalid currency ID.",
+    "9210": "Currency not found.",
+    "9211": "Invalid currency ID.",
+    "9212": "Invalid currency code.",
+    "9213": "Invalid currency numeric code.",
+    "9214": "Invalid currency decimal digits."
+  }
+}

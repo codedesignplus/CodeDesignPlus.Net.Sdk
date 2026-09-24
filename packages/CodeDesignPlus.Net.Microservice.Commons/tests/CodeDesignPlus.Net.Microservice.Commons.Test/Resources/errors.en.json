@@ -1,0 +1,9 @@
+{
+  "language": "en",
+  "errors": {
+    "101": "Custom error message",
+    "239": "Nothing was withheld in that period.",
+    "8001": "The one with the duplicated code.",
+    "8002": "This one is already an Error."
+  }
+}

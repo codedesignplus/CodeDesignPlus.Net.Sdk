@@ -93,6 +93,7 @@ public static class MiddlewareExtensions
 
         var problems = FindDuplicatedCodes(catalog)
             .Concat(FindLegacyConstants())
+            .Concat(FindMissingEnglish(catalog))
             .Concat(FindDeadTranslations(catalog))
             .Concat(FindPlaceholderMismatches(catalog))
             .ToList();
@@ -142,16 +143,48 @@ public static class MiddlewareExtensions
     }
 
     /// <summary>
+    /// El ingles es el ultimo recurso de todos los idiomas: si a un codigo le falta, ese error no tiene
+    /// nada que decir en ninguna lengua y saldria por pantalla como un numero pelado.
+    /// </summary>
+    /// <remarks>
+    /// El primer caso —el catalogo ingles entero vacio— es el que cierra la trampa de MSBuild: como
+    /// <c>errors.en.json</c> no lleva cultura en el nombre no genera satelite, pero si alguien copia el
+    /// <c>csproj</c> sin el <c>EmbeddedResource</c>, el microservicio arrancaba tan campante y respondia
+    /// codigos en vez de mensajes. Ahora no arranca.
+    /// </remarks>
+    private static IEnumerable<string> FindMissingEnglish(IEnumerable<CatalogEntry> catalog)
+    {
+        if (catalog.Any() && ErrorCatalog.Count(ErrorCatalog.English) == 0)
+        {
+            yield return "the English catalog is empty: check that the csproj embeds Resources\\errors.*.json with WithCulture=\"false\"";
+
+            yield break;
+        }
+
+        foreach (var entry in catalog.Where(entry => ErrorCatalog.Find(entry.Error.Code, ErrorCatalog.English) is null))
+            yield return $"the code {entry.Error.Code} has no English message";
+    }
+
+    /// <summary>
     /// Si el ingles tiene <c>{0}</c> y la traduccion no, ese dato desaparece en ese idioma.
     /// </summary>
     private static IEnumerable<string> FindPlaceholderMismatches(IEnumerable<CatalogEntry> catalog)
     {
         foreach (var entry in catalog)
         {
-            var expected = Placeholders(entry.Error.Fallback);
+            var english = ErrorCatalog.Find(entry.Error.Code, ErrorCatalog.English);
+
+            // Que falte el ingles lo denuncia FindMissingEnglish; aqui no hay contra que comparar.
+            if (english is null)
+                continue;
+
+            var expected = Placeholders(english);
 
             foreach (var language in ErrorCatalog.Languages)
             {
+                if (language.Equals(ErrorCatalog.English, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
                 var translation = ErrorCatalog.Find(entry.Error.Code, language);
 
                 if (translation is null)

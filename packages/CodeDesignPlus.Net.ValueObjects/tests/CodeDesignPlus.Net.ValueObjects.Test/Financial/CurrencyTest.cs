@@ -55,7 +55,7 @@ public class CurrencyTest
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.Empty, Name, Code, Symbol, 2, 170));
 
         Assert.Equal(Errors.CurrencyIdIsEmpty.Code, exception.Code);
-        Assert.Equal(Errors.CurrencyIdIsEmpty.Fallback, exception.Message);
+        Assert.Equal(Errors.CurrencyIdIsEmpty.ToEnglish(), exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -68,7 +68,7 @@ public class CurrencyTest
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), name!, Code, Symbol, 2, 170));
 
         Assert.Equal(Errors.NameIsRequired.Code, exception.Code);
-        Assert.Equal(Errors.NameIsRequired.Fallback, exception.Message);
+        Assert.Equal(Errors.NameIsRequired.ToEnglish(), exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 

@@ -1,0 +1,18 @@
+{
+  "language": "en",
+  "errors": {
+    "100": "Id is invalid.",
+    "101": "Tenant is invalid.",
+    "102": "Client is null.",
+    "103": "Id client is invalid.",
+    "104": "Name client is invalid.",
+    "105": "Product is null.",
+    "106": "Id product is invalid.",
+    "107": "Name product is invalid.",
+    "108": "Price product is invalid.",
+    "109": "Quantity product is invalid.",
+    "110": "Product not found in the order.",
+    "111": "Order already completed.",
+    "112": "Order already cancelled."
+  }
+}

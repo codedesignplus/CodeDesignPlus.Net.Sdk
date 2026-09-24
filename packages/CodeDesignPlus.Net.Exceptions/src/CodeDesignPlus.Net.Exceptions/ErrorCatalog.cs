@@ -9,8 +9,10 @@ namespace CodeDesignPlus.Net.Exceptions;
 /// que cada ensamblado lleva embebidos.
 /// </summary>
 /// <remarks>
-/// El ingles no esta aqui: vive en el propio <see cref="Error"/>, es obligatorio y es lo que se devuelve
-/// cuando no hay traduccion. Anadir un idioma es anadir un fichero, sin tocar C#.
+/// El ingles esta aqui como un idioma mas, en su <c>errors.en.json</c>. Es obligatorio —es lo que se
+/// devuelve cuando no hay traduccion— pero es tambien un idioma que se puede <b>pedir</b>: si viviera en el
+/// C# no figuraria entre los disponibles y un <c>Accept-Language: en-US,en;q=0.9,es;q=0.8</c> acabaria
+/// respondiendo en espanol. Anadir un idioma es anadir un fichero, sin tocar C#.
 /// <para>
 /// Es estatico y sin inyeccion porque un <see cref="Error"/> se declara en un campo estatico del dominio,
 /// donde no hay contenedor al que pedirle nada. El coste es una sola carga al arrancar: unos pocos KiB
@@ -27,6 +29,11 @@ public static class ErrorCatalog
     private const string Prefix = "errors.";
     private const string Extension = ".json";
 
+    /// <summary>
+    /// El idioma obligatorio y ultimo recurso. Todo codigo tiene que tener entrada aqui.
+    /// </summary>
+    public const string English = "en";
+
     private static readonly ConcurrentDictionary<string, Dictionary<string, string>> Catalogs =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -35,7 +42,7 @@ public static class ErrorCatalog
     private static int assembliesLoaded;
 
     /// <summary>
-    /// Los idiomas para los que hay traduccion, sin contar el ingles.
+    /// Los idiomas para los que hay traduccion, incluido el ingles.
     /// </summary>
     public static IReadOnlyCollection<string> Languages
     {
@@ -51,7 +58,7 @@ public static class ErrorCatalog
     /// </summary>
     /// <remarks>
     /// Prueba primero el idioma completo —<c>es-CO</c>— y luego el neutro —<c>es</c>—. Si no hay ninguno
-    /// devuelve <c>null</c> y quien llama se queda con el ingles del <see cref="Error"/>.
+    /// devuelve <c>null</c> y quien llama vuelve a preguntar por <see cref="English"/>.
     /// </remarks>
     /// <param name="code">El codigo del error.</param>
     /// <param name="language">El codigo de idioma pedido; <c>null</c> equivale a no pedir ninguno.</param>
