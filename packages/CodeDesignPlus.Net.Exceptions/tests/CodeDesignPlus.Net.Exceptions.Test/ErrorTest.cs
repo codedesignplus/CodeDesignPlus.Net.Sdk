@@ -14,10 +14,10 @@ namespace CodeDesignPlus.Net.Exceptions.Test;
 /// </remarks>
 public class ErrorTest
 {
-    private static readonly CultureInfo Spanish = CultureInfo.GetCultureInfo("es");
-    private static readonly CultureInfo SpanishColombia = CultureInfo.GetCultureInfo("es-CO");
-    private static readonly CultureInfo FrenchCanada = CultureInfo.GetCultureInfo("fr-CA");
-    private static readonly CultureInfo French = CultureInfo.GetCultureInfo("fr");
+    private const string Spanish = "es";
+    private const string SpanishColombia = "es-CO";
+    private const string FrenchCanada = "fr-CA";
+    private const string French = "fr";
 
     [Fact]
     public void Constructor_SplitsCodeAndMessage()
@@ -80,7 +80,7 @@ public class ErrorTest
     {
         var error = new Error("201", "The user was not found.");
 
-        Assert.Equal("The user was not found.", error.GetMessage(CultureInfo.GetCultureInfo("de")));
+        Assert.Equal("The user was not found.", error.GetMessage("de"));
     }
 
     [Fact]

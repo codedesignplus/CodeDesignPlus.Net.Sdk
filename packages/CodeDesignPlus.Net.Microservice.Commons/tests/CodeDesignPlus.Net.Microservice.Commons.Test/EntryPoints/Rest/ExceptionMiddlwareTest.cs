@@ -192,7 +192,7 @@ public class ExceptionMiddlewareTests
         var method = typeof(ExceptionMiddleware).GetMethod("GetDetailMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         Assert.NotNull(method);
 
-        var result = method.Invoke(null, new object[] { ex, CultureInfo.InvariantCulture });
+        var result = method.Invoke(null, [ex, null]);
         Assert.Equal(expected, result);
     }
 
@@ -207,7 +207,7 @@ public class ExceptionMiddlewareTests
         var method = typeof(ExceptionMiddleware).GetMethod("GetDetailMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         Assert.NotNull(method);
 
-        var result = method.Invoke(null, new object[] { ex, CultureInfo.InvariantCulture });
+        var result = method.Invoke(null, [ex, null]);
 
         Assert.Equal("Nothing was withheld in that period.", result);
     }

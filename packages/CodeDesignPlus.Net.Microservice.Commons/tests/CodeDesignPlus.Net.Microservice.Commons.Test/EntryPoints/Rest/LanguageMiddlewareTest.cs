@@ -21,9 +21,7 @@ public class LanguageMiddlewareTest
     [InlineData("en;q=0.5,es;q=0.9", "es")]
     public async Task InvokeAsync_WithATranslatedLanguage_SetsIt(string header, string expected)
     {
-        var culture = await RunAsync(header);
-
-        Assert.Equal(expected, culture.Name);
+        Assert.Equal(expected, await RunAsync(header));
     }
 
     [Theory]
@@ -32,19 +30,15 @@ public class LanguageMiddlewareTest
     [InlineData("de-DE, ja;q=0.8")]
     [InlineData("*")]
     [InlineData("esto-no-es-un-idioma")]
-    public async Task InvokeAsync_WithoutATranslatedLanguage_LeavesTheCultureAlone(string header)
+    public async Task InvokeAsync_WithoutATranslatedLanguage_AnswersInEnglish(string header)
     {
-        var original = CultureInfo.CurrentUICulture;
-
-        var culture = await RunAsync(header);
-
-        Assert.Equal(original.Name, culture.Name);
+        Assert.Null(await RunAsync(header));
     }
 
     /// <summary>
-    /// El idioma manda sobre los textos y <b>no</b> sobre los numeros: cambiar tambien
-    /// <see cref="CultureInfo.CurrentCulture"/> haria que un importe se serializara con coma decimal segun
-    /// el navegador de quien llame.
+    /// El idioma manda sobre los textos y <b>no</b> sobre los numeros: los entrypoints corren con
+    /// globalizacion invariante, y ademas tocar la cultura de formato haria que un importe se serializara
+    /// con coma decimal segun el navegador de quien llame.
     /// </summary>
     [Fact]
     public async Task InvokeAsync_DoesNotTouchTheFormattingCulture()
@@ -89,13 +83,13 @@ public class LanguageMiddlewareTest
         Assert.Equal("En ese periodo no se retuvo nada.", message);
     }
 
-    private static async Task<CultureInfo> RunAsync(string header)
+    private static async Task<string?> RunAsync(string header)
     {
-        CultureInfo? seen = null;
+        string? seen = null;
 
         var middleware = new LanguageMiddleware(_ =>
         {
-            seen = CultureInfo.CurrentUICulture;
+            seen = ErrorLanguage.Current;
             return Task.CompletedTask;
         });
 
@@ -106,6 +100,6 @@ public class LanguageMiddlewareTest
 
         await middleware.InvokeAsync(context);
 
-        return seen!;
+        return seen;
     }
 }

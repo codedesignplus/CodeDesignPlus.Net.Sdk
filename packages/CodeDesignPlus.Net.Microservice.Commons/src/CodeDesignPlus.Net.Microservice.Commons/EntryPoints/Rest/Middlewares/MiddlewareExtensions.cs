@@ -61,10 +61,10 @@ public static class MiddlewareExtensions
 
             // El catalogo se publica en el idioma que pida el cliente, para que diga lo mismo que dicen
             // los errores del API. Sin `Accept-Language` sale el ingles, que es el obligatorio.
-            var culture = CultureInfo.CurrentUICulture;
+            var language = ErrorLanguage.Current;
 
             var errors = GetCatalog()
-                .Select(entry => new ErrorDetail(entry.Error.Code, null!, entry.Error.GetMessage(culture))
+                .Select(entry => new ErrorDetail(entry.Error.Code, null!, entry.Error.GetMessage(language))
                 {
                     Layer = entry.Layer,
                 });
@@ -152,7 +152,7 @@ public static class MiddlewareExtensions
 
             foreach (var language in ErrorCatalog.Languages)
             {
-                var translation = ErrorCatalog.Find(entry.Error.Code, CultureInfo.GetCultureInfo(language));
+                var translation = ErrorCatalog.Find(entry.Error.Code, language);
 
                 if (translation is null)
                     continue;

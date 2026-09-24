@@ -1,5 +1,4 @@
 using System.Collections.Concurrent;
-using System.Globalization;
 using System.Reflection;
 using System.Text.Json;
 
@@ -55,23 +54,23 @@ public static class ErrorCatalog
     /// devuelve <c>null</c> y quien llama se queda con el ingles del <see cref="Error"/>.
     /// </remarks>
     /// <param name="code">El codigo del error.</param>
-    /// <param name="culture">El idioma pedido; <c>null</c> equivale a no pedir ninguno.</param>
+    /// <param name="language">El codigo de idioma pedido; <c>null</c> equivale a no pedir ninguno.</param>
     /// <returns>La plantilla traducida, o <c>null</c> si no hay.</returns>
-    public static string? Find(string code, CultureInfo? culture)
+    public static string? Find(string code, string? language)
     {
-        if (culture is null || string.IsNullOrWhiteSpace(code))
+        if (string.IsNullOrWhiteSpace(language) || string.IsNullOrWhiteSpace(code))
             return null;
 
         EnsureLoaded();
 
-        if (Catalogs.TryGetValue(culture.Name, out var exact) && exact.TryGetValue(code, out var message))
+        if (Catalogs.TryGetValue(language, out var exact) && exact.TryGetValue(code, out var message))
             return message;
 
-        var neutral = culture.TwoLetterISOLanguageName;
+        var dash = language.IndexOf('-');
 
-        if (!culture.Name.Equals(neutral, StringComparison.OrdinalIgnoreCase)
-            && Catalogs.TryGetValue(neutral, out var fallback)
-            && fallback.TryGetValue(code, out message))
+        if (dash > 0
+            && Catalogs.TryGetValue(language[..dash], out var neutral)
+            && neutral.TryGetValue(code, out message))
             return message;
 
         return null;

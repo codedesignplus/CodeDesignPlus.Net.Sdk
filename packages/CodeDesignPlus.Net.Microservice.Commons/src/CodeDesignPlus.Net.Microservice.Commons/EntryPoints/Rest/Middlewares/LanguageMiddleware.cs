@@ -15,10 +15,11 @@ namespace CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Middlewares;
 /// <c>errors.&lt;idioma&gt;.json</c>, que es justamente lo que se buscaba. Aqui se admite cualquier idioma
 /// del que exista traduccion, y el resto cae al ingles.
 /// <para>
-/// Solo toca <see cref="CultureInfo.CurrentUICulture"/> —el idioma de los textos— y <b>no</b>
-/// <see cref="CultureInfo.CurrentCulture"/>, que es el que decide como se formatean numeros y fechas.
-/// Cambiar ese seria un desastre silencioso: un importe se serializaria con coma decimal segun el navegador
-/// de quien llame.
+/// Fija un <b>codigo de idioma</b> en <see cref="ErrorLanguage"/> y no una
+/// <see cref="CultureInfo"/>: los entrypoints se compilan con globalizacion invariante —para no arrastrar
+/// ICU al contenedor— y ahi construir una cultura lanza excepcion. Ademas asi no se toca el formateo de
+/// numeros y fechas, que cambiarlo segun el navegador de quien llame serializaria un importe con coma
+/// decimal.
 /// </para>
 /// </remarks>
 /// <param name="next">The next middleware in the pipeline.</param>
@@ -33,10 +34,7 @@ public class LanguageMiddleware(RequestDelegate next)
     /// <returns>A task representing the asynchronous operation.</returns>
     public Task InvokeAsync(HttpContext context)
     {
-        var language = Resolve(context.Request.Headers[Header]);
-
-        if (language is not null)
-            CultureInfo.CurrentUICulture = language;
+        ErrorLanguage.Current = Resolve(context.Request.Headers[Header]);
 
         return next(context);
     }
@@ -45,8 +43,8 @@ public class LanguageMiddleware(RequestDelegate next)
     /// Elige el primer idioma pedido del que haya traduccion, respetando las preferencias del cliente.
     /// </summary>
     /// <param name="header">El valor crudo de <c>Accept-Language</c>, por ejemplo <c>fr-CA, es;q=0.8</c>.</param>
-    /// <returns>El idioma a usar, o <c>null</c> para dejar el ingles.</returns>
-    internal static CultureInfo? Resolve(string? header)
+    /// <returns>El codigo de idioma a usar, o <c>null</c> para responder en ingles.</returns>
+    internal static string? Resolve(string? header)
     {
         if (string.IsNullOrWhiteSpace(header))
             return null;
@@ -69,7 +67,7 @@ public class LanguageMiddleware(RequestDelegate next)
                 ?? available.FirstOrDefault(language => language.Equals(Neutral(candidate!), StringComparison.OrdinalIgnoreCase));
 
             if (match is not null)
-                return Build(candidate!);
+                return candidate;
         }
 
         return null;
@@ -102,17 +100,4 @@ public class LanguageMiddleware(RequestDelegate next)
         return dash < 0 ? language : language[..dash];
     }
 
-    private static CultureInfo? Build(string language)
-    {
-        try
-        {
-            return CultureInfo.GetCultureInfo(language);
-        }
-        catch (CultureNotFoundException)
-        {
-            // Un cliente puede mandar cualquier cosa en la cabecera; que no sea una cultura valida no es
-            // motivo para fallar la peticion, se sigue en ingles.
-            return null;
-        }
-    }
 }

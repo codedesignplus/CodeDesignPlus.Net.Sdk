@@ -75,17 +75,21 @@ public sealed class Error
     public string GetCode() => this.Code;
 
     /// <summary>
-    /// El mensaje en el idioma de <see cref="CultureInfo.CurrentUICulture"/>.
+    /// El mensaje en el idioma de la peticion en curso, o en ingles si no hay ninguno.
     /// </summary>
-    public string GetMessage() => this.GetMessage(CultureInfo.CurrentUICulture);
+    public string GetMessage() => this.GetMessage(ErrorLanguage.Current);
 
     /// <summary>
     /// El mensaje en el idioma indicado, cayendo al ingles si no hay traduccion.
     /// </summary>
-    /// <param name="culture">El idioma pedido.</param>
-    public string GetMessage(CultureInfo? culture)
+    /// <param name="language">El codigo de idioma pedido, por ejemplo <c>es</c> o <c>fr-CA</c>.</param>
+    /// <remarks>
+    /// Recibe una cadena y no una <see cref="CultureInfo"/> porque los entrypoints se compilan con
+    /// globalizacion invariante y ahi construir una cultura lanza excepcion. Ver <see cref="ErrorLanguage"/>.
+    /// </remarks>
+    public string GetMessage(string? language)
     {
-        var template = ErrorCatalog.Find(this.Code, culture) ?? this.Fallback;
+        var template = ErrorCatalog.Find(this.Code, language) ?? this.Fallback;
 
         if (this.Arguments.Count == 0)
             return template;
