@@ -53,4 +53,7 @@
     <Folder Include="Payment/" />
     <Folder Include="User/" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\errors.*.json" LogicalName="%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
 </Project>

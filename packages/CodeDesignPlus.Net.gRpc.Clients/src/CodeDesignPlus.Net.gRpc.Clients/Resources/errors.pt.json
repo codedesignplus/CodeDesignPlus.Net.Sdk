@@ -1,0 +1,14 @@
+{
+  "language": "pt",
+  "errors": {
+    "9200": "Não encontramos esse país.",
+    "9201": "O identificador do país é inválido.",
+    "9202": "O código do país é inválido.",
+    "9203": "O identificador da moeda é inválido.",
+    "9210": "Não encontramos essa moeda.",
+    "9211": "O identificador da moeda é inválido.",
+    "9212": "O código da moeda é inválido.",
+    "9213": "O código numérico da moeda é inválido.",
+    "9214": "As casas decimais da moeda são inválidas."
+  }
+}

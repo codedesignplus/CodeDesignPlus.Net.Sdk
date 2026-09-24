@@ -1,0 +1,14 @@
+{
+  "language": "es",
+  "errors": {
+    "9200": "No encontramos ese país.",
+    "9201": "El identificador del país no es válido.",
+    "9202": "El código del país no es válido.",
+    "9203": "El identificador de la moneda no es válido.",
+    "9210": "No encontramos esa moneda.",
+    "9211": "El identificador de la moneda no es válido.",
+    "9212": "El código de la moneda no es válido.",
+    "9213": "El código numérico de la moneda no es válido.",
+    "9214": "Los decimales de la moneda no son válidos."
+  }
+}

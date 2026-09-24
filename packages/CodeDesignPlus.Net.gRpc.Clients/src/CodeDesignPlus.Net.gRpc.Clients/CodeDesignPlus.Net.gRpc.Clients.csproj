@@ -52,4 +52,7 @@
 	  <Folder Include="Services\Currencies\" />
 	  <Folder Include="Services\Notifications\" />
 	</ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\errors.*.json" LogicalName="%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
 </Project>

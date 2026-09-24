@@ -1,0 +1,14 @@
+{
+  "language": "fr",
+  "errors": {
+    "9200": "Ce pays est introuvable.",
+    "9201": "L'identifiant du pays est invalide.",
+    "9202": "Le code du pays est invalide.",
+    "9203": "L'identifiant de la devise est invalide.",
+    "9210": "Cette devise est introuvable.",
+    "9211": "L'identifiant de la devise est invalide.",
+    "9212": "Le code de la devise est invalide.",
+    "9213": "Le code numérique de la devise est invalide.",
+    "9214": "Le nombre de décimales de la devise est invalide."
+  }
+}
