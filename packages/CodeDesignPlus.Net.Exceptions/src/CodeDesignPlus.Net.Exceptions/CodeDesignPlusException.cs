@@ -16,6 +16,16 @@ public class CodeDesignPlusException : Exception
     public string Code { get; set; }
 
     /// <summary>
+    /// Gets the catalog error that caused the exception, when there is one.
+    /// </summary>
+    /// <remarks>
+    /// El objeto viaja entero hasta el borde a proposito: el <see cref="Exception.Message"/> se queda en
+    /// ingles —que es lo que se lee en un log— y el middleware traduce este al idioma que pida el cliente.
+    /// Resolver el idioma al lanzar mezclaria los logs segun quien estuviera usando la aplicacion.
+    /// </remarks>
+    public Error? Error { get; }
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="CodeDesignPlusException"/> class with the specified layer and error code.
     /// </summary>
     /// <param name="layer">The layer where the exception occurred.</param>
@@ -24,6 +34,31 @@ public class CodeDesignPlusException : Exception
     {
         this.Code = code;
         this.Layer = layer;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CodeDesignPlusException"/> class from a catalog error.
+    /// </summary>
+    /// <param name="layer">The layer where the exception occurred.</param>
+    /// <param name="error">The catalog error that caused the exception.</param>
+    public CodeDesignPlusException(Layer layer, Error error) : base(error.Fallback)
+    {
+        this.Code = error.Code;
+        this.Layer = layer;
+        this.Error = error;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="CodeDesignPlusException"/> class from a catalog error and an inner exception.
+    /// </summary>
+    /// <param name="layer">The layer where the exception occurred.</param>
+    /// <param name="error">The catalog error that caused the exception.</param>
+    /// <param name="innerException">The exception that is the cause of the current exception.</param>
+    public CodeDesignPlusException(Layer layer, Error error, Exception innerException) : base(error.Fallback, innerException)
+    {
+        this.Code = error.Code;
+        this.Layer = layer;
+        this.Error = error;
     }
 
     /// <summary>

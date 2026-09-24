@@ -10,11 +10,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNull([NotNull] object? value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNull([NotNull] object? value, Layer layer, Error error)
     {
         if (value is null)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -22,11 +22,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNotNull(object? value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNotNull(object? value, Layer layer, Error error)
     {
         if (value is not null)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -34,11 +34,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNullOrEmpty(string? value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNullOrEmpty(string? value, Layer layer, Error error)
     {
         if (string.IsNullOrEmpty(value))
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -46,11 +46,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNotNullOrEmpty(string? value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNotNullOrEmpty(string? value, Layer layer, Error error)
     {
         if (!string.IsNullOrEmpty(value))
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -58,11 +58,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNullOrWhiteSpace(string? value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNullOrWhiteSpace(string? value, Layer layer, Error error)
     {
         if (string.IsNullOrWhiteSpace(value))
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -70,11 +70,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The string to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNotNullOrWhiteSpace(string? value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNotNullOrWhiteSpace(string? value, Layer layer, Error error)
     {
         if (!string.IsNullOrWhiteSpace(value))
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -82,11 +82,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsTrue(bool value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsTrue(bool value, Layer layer, Error error)
     {
         if (value)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -94,11 +94,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The value to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsFalse(bool value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsFalse(bool value, Layer layer, Error error)
     {
         if (!value)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -108,11 +108,11 @@ public static class Guard
     /// <param name="value">The value to check.</param>
     /// <param name="compare">The comparison value.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsGreaterThan<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsGreaterThan<T>(T value, T compare, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) > 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -122,11 +122,11 @@ public static class Guard
     /// <param name="value">The value to check.</param>
     /// <param name="compare">The comparison value.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsGreaterThanOrEqual<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsGreaterThanOrEqual<T>(T value, T compare, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) >= 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -136,11 +136,11 @@ public static class Guard
     /// <param name="value">The value to check.</param>
     /// <param name="compare">The comparison value.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsLessThan<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsLessThan<T>(T value, T compare, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) < 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -150,11 +150,11 @@ public static class Guard
     /// <param name="value">The value to check.</param>
     /// <param name="compare">The comparison value.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsLessThanOrEqual<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsLessThanOrEqual<T>(T value, T compare, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) <= 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -164,11 +164,11 @@ public static class Guard
     /// <param name="value">The value to check.</param>
     /// <param name="compare">The comparison value.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void AreEquals<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void AreEquals<T>(T value, T compare, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) == 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -178,11 +178,11 @@ public static class Guard
     /// <param name="value">The value to check.</param>
     /// <param name="compare">The comparison value.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void AreNotEquals<T>(T value, T compare, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void AreNotEquals<T>(T value, T compare, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(compare) != 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -193,11 +193,11 @@ public static class Guard
     /// <param name="min">The minimum value of the range.</param>
     /// <param name="max">The maximum value of the range.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsInRange<T>(T value, T min, T max, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsInRange<T>(T value, T min, T max, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(min) >= 0 && value.CompareTo(max) <= 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -208,11 +208,11 @@ public static class Guard
     /// <param name="min">The minimum value of the range.</param>
     /// <param name="max">The maximum value of the range.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNotInRange<T>(T value, T min, T max, Layer layer, string error) where T : IComparable<T>
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNotInRange<T>(T value, T min, T max, Layer layer, Error error) where T : IComparable<T>
     {
         if (value.CompareTo(min) < 0 || value.CompareTo(max) > 0)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -221,11 +221,11 @@ public static class Guard
     /// <typeparam name="T">The type of the value to check.</typeparam>
     /// <param name="value">The value to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsEmpty<T>(IEnumerable<T> value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsEmpty<T>(IEnumerable<T> value, Layer layer, Error error)
     {
         if (value is null || !value.Any())
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -234,11 +234,11 @@ public static class Guard
     /// <typeparam name="T">The type of the value to check.</typeparam>
     /// <param name="value">The value to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void IsNotEmpty<T>(IEnumerable<T> value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void IsNotEmpty<T>(IEnumerable<T> value, Layer layer, Error error)
     {
         if (value is not null && value.Any())
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -246,11 +246,11 @@ public static class Guard
     /// </summary>
     /// <param name="value">The GUID to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void GuidIsEmpty(Guid value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void GuidIsEmpty(Guid value, Layer layer, Error error)
     {
         if (value == Guid.Empty)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 
     /// <summary>
@@ -258,10 +258,10 @@ public static class Guard
     /// </summary>
     /// <param name="value">The GUID to check.</param>
     /// <param name="layer">The layer where the exception occurred.</param>
-    /// <param name="error">The error message to include in the exception.</param>
-    public static void GuidIsNotEmpty(Guid value, Layer layer, string error)
+    /// <param name="error">The catalog error to include in the exception.</param>
+    public static void GuidIsNotEmpty(Guid value, Layer layer, Error error)
     {
         if (value != Guid.Empty)
-            throw new CodeDesignPlusException(layer, error.GetCode(), error.GetMessage());
+            throw new CodeDesignPlusException(layer, error);
     }
 }

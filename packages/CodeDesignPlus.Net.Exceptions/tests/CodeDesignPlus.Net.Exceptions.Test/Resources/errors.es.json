@@ -1,0 +1,8 @@
+{
+  "language": "es",
+  "errors": {
+    "201": "No encontramos ese usuario.",
+    "250": "No se puede decidir la elegibilidad: no hay ningun documento replicado.",
+    "301": "El producto {0} no esta activo."
+  }
+}

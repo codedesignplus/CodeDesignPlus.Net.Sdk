@@ -124,7 +124,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
 
         var messageTemplate = GetMessageTemplate(exception);
 
-        var detailMessage = GetDetailMessage(exception);
+        var detailMessage = GetDetailMessage(exception, CultureInfo.CurrentUICulture);
 
         var layerName = exception.Layer.ToString().ToLowerInvariant();
 
@@ -252,8 +252,15 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
     /// </summary>
     /// <param name="exception">The CodeDesignPlusException to get the detail message for.</param>
     /// <returns>A string containing the detail message.</returns>
-    private static string GetDetailMessage(CodeDesignPlusException exception)
+    /// <param name="culture">The language asked for by the client, from <c>Accept-Language</c>.</param>
+    private static string GetDetailMessage(CodeDesignPlusException exception, CultureInfo culture)
     {
+        // Con un error del catalogo, el detalle es el mensaje y nada mas. La capa y el codigo ya viajan en
+        // `extensions` y en `type`: repetirlos aqui es lo que hacia que el contador leyera en su pantalla
+        // «An error occurred in the application layer - 239 (…)». Ver el pendiente 114.
+        if (exception.Error is not null)
+            return exception.Error.GetMessage(culture);
+
         return exception.Layer switch
         {
             Layer.Domain => $"An error occurred in the domain layer - {exception.Code} ({exception.Message})",

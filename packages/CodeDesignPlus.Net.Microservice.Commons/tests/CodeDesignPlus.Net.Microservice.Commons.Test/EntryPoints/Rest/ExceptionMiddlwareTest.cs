@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Hosting;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Middlewares;
@@ -191,8 +192,24 @@ public class ExceptionMiddlewareTests
         var method = typeof(ExceptionMiddleware).GetMethod("GetDetailMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         Assert.NotNull(method);
 
-        var result = method.Invoke(null, new object[] { ex });
+        var result = method.Invoke(null, new object[] { ex, CultureInfo.InvariantCulture });
         Assert.Equal(expected, result);
+    }
+
+    /// <summary>
+    /// Con un error del catalogo el detalle es el mensaje y nada mas: ni la capa ni el codigo, que ya viajan
+    /// en `extensions` y en `type`. Es el pendiente 114.
+    /// </summary>
+    [Fact]
+    public void GetDetailMessage_WithCatalogError_ReturnsOnlyTheMessage()
+    {
+        var ex = new CodeDesignPlusException(Layer.Application, new Error("239", "Nothing was withheld in that period."));
+        var method = typeof(ExceptionMiddleware).GetMethod("GetDetailMessage", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
+        Assert.NotNull(method);
+
+        var result = method.Invoke(null, new object[] { ex, CultureInfo.InvariantCulture });
+
+        Assert.Equal("Nothing was withheld in that period.", result);
     }
 
     [Theory]
