@@ -54,9 +54,23 @@ public static class ClaimTypes
     /// </summary>
     public const string FirstName = "givenName";
     /// <summary>
+    /// El mismo dato con el nombre estandar de OIDC.
+    /// </summary>
+    /// <remarks>
+    /// Hacen falta los dos. Con <c>MapInboundClaims = false</c> los claims llegan tal cual los emite el
+    /// proveedor, y no todos usan el mismo nombre: los flujos de Entra que copian atributos del directorio
+    /// mandan <c>givenName</c>, mientras que un token OIDC corriente manda <c>given_name</c>. Al fijar solo
+    /// el primero, <see cref="Abstractions.IUserContext.FirstName"/> quedaba nulo con el segundo.
+    /// </remarks>
+    public const string FirstNameStandard = "given_name";
+    /// <summary>
     /// The user's surname (also known as last name).
     /// </summary>
     public const string LastName = "surname";
+    /// <summary>
+    /// El mismo dato con el nombre estandar de OIDC. Ver <see cref="FirstNameStandard"/>.
+    /// </summary>
+    public const string LastNameStandard = "family_name";
     /// <summary>
     /// The user's full name in displayable form including all name parts, possibly including titles and suffixes.
     /// </summary>
@@ -85,6 +99,11 @@ public static class ClaimTypes
     /// Email addresses of the user. These are mutable and might change over time. Therefore, they are not suitable for identifying the user in other databases or applications. The oid or sub claim should be used instead.
     /// </summary>
     public const string Email = "email";
+    /// <summary>
+    /// El mismo dato con el nombre que usa Azure AD B2C, que lo emite en plural. Ver
+    /// <see cref="FirstNameStandard"/>.
+    /// </summary>
+    public const string EmailB2C = "emails";
     /// <summary>
     /// This is the name of the policy that was used to acquire the token.
     /// </summary>

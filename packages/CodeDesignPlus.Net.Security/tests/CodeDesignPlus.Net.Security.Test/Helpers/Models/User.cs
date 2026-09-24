@@ -17,5 +17,9 @@ public class User
     public string? StreetAddress { get; set; }
     public string? State { get; set; }
     public string? JobTitle { get; set; }
-    public List<string> Emails { get; set; } = [];
+
+    // `Email`, en singular: `IUserContext` dejo de exponer una lista y el endpoint de pruebas serializa
+    // `userContext.Email`. Con `Emails` aqui, la deserializacion no encontraba esa propiedad y la lista
+    // llegaba siempre vacia, asi que la comprobacion del correo no comprobaba nada.
+    public string? Email { get; set; }
 }

@@ -83,7 +83,7 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <summary>
     /// Gets the user's email addresses.
     /// </summary>
-    public string Email => this.GetClaim<string>(ClaimTypes.Email);
+    public string Email => this.GetFirstClaim(ClaimTypes.Email, ClaimTypes.EmailB2C);
 
     /// <summary>
     /// Gets the tenant ID from the request headers.
@@ -99,12 +99,12 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <summary>
     /// Gets the user's first name.
     /// </summary>
-    public string FirstName => this.GetClaim<string>(ClaimTypes.FirstName);
+    public string FirstName => this.GetFirstClaim(ClaimTypes.FirstName, ClaimTypes.FirstNameStandard);
 
     /// <summary>
     /// Gets the user's last name.
     /// </summary>
-    public string LastName => this.GetClaim<string>(ClaimTypes.LastName);
+    public string LastName => this.GetFirstClaim(ClaimTypes.LastName, ClaimTypes.LastNameStandard);
 
     /// <summary>
     /// Gets the user's city.
@@ -162,6 +162,28 @@ public class UserContext(IHttpContextAccessor httpContextAccessor, IOptions<Secu
     /// <typeparam name="TValue">The type of the claim value.</typeparam>
     /// <param name="claimType">The claim type.</param>
     /// <returns>The claim value.</returns>
+    /// <summary>
+    /// El valor del primer claim que venga informado, de entre varios nombres para el mismo dato.
+    /// </summary>
+    /// <remarks>
+    /// Existe porque un mismo dato llega con nombres distintos segun el proveedor —<c>givenName</c> o
+    /// <c>given_name</c>— y con <c>MapInboundClaims = false</c> nadie los unifica por nosotros. Si no hay
+    /// ninguno, el resultado es el mismo que daria pedir el primero: sin claim no hay valor.
+    /// </remarks>
+    /// <param name="claimTypes">Los nombres a probar, en orden de preferencia.</param>
+    private string GetFirstClaim(params string[] claimTypes)
+    {
+        foreach (var claimType in claimTypes)
+        {
+            var value = this.User.FindFirst(claimType)?.Value;
+
+            if (!string.IsNullOrWhiteSpace(value))
+                return value;
+        }
+
+        return this.GetClaim<string>(claimTypes[0]);
+    }
+
     public TValue GetClaim<TValue>(string claimType)
     {
 
