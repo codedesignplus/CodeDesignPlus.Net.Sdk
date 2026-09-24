@@ -1,20 +1,20 @@
 {
   "language": "fr",
   "errors": {
-    "400": "{PropertyName} est obligatoire.",
-    "401": "{PropertyName} ne peut pas dépasser {MaxLength} caractères ; vous en avez saisi {TotalLength}.",
-    "402": "{PropertyName} doit comporter entre {MinLength} et {MaxLength} caractères ; vous en avez saisi {TotalLength}.",
-    "403": "{PropertyName} doit être supérieur à {ComparisonValue}.",
-    "404": "{PropertyName} doit être supérieur ou égal à {ComparisonValue}.",
-    "405": "{PropertyName} doit être inférieur à {ComparisonValue}.",
-    "406": "{PropertyName} doit être inférieur ou égal à {ComparisonValue}.",
-    "407": "{PropertyName} ne peut pas être {ComparisonValue}.",
-    "408": "{PropertyName} doit être compris entre {From} et {To}.",
-    "409": "{PropertyName} ne fait pas partie des valeurs autorisées.",
-    "410": "{PropertyName} n'a pas un format d'adresse e-mail valide.",
-    "411": "{PropertyName} n'a pas le format attendu.",
-    "412": "{PropertyName} n'est pas valide.",
-    "413": "Erreur de validation.",
-    "414": "Un ou plusieurs champs n'ont pas passé la validation."
+    "9300": "{PropertyName} est obligatoire.",
+    "9301": "{PropertyName} ne peut pas dépasser {MaxLength} caractères ; vous en avez saisi {TotalLength}.",
+    "9302": "{PropertyName} doit comporter entre {MinLength} et {MaxLength} caractères ; vous en avez saisi {TotalLength}.",
+    "9303": "{PropertyName} doit être supérieur à {ComparisonValue}.",
+    "9304": "{PropertyName} doit être supérieur ou égal à {ComparisonValue}.",
+    "9305": "{PropertyName} doit être inférieur à {ComparisonValue}.",
+    "9306": "{PropertyName} doit être inférieur ou égal à {ComparisonValue}.",
+    "9307": "{PropertyName} ne peut pas être {ComparisonValue}.",
+    "9308": "{PropertyName} doit être compris entre {From} et {To}.",
+    "9309": "{PropertyName} ne fait pas partie des valeurs autorisées.",
+    "9310": "{PropertyName} n'a pas un format d'adresse e-mail valide.",
+    "9311": "{PropertyName} n'a pas le format attendu.",
+    "9312": "{PropertyName} n'est pas valide.",
+    "9313": "Erreur de validation.",
+    "9314": "Un ou plusieurs champs n'ont pas passé la validation."
   }
 }

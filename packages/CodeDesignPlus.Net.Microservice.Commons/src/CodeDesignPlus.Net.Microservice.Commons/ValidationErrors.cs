@@ -4,12 +4,17 @@ using CodeDesignPlus.Net.Exceptions;
 namespace CodeDesignPlus.Net.Microservice.Commons;
 
 /// <summary>
-/// Los errores de validacion de formulario, con la centena <b>4xx</b> reservada para ellos.
+/// Los errores de validacion de formulario, en el rango <b>9300-9314</b>.
 /// </summary>
 /// <remarks>
-/// Un microservicio usa 1xx para el dominio, 2xx para la aplicacion y 3xx para la infraestructura, y el
-/// SDK 9000 en adelante. La centena 4xx estaba libre, y ahora quiere decir «esto es un problema de lo que
-/// se escribio en el formulario, no una regla de negocio»: se sabe sin abrir nada.
+/// Van en el 9xxx, que es el del SDK: 9000 los objetos de valor, 9200 los clientes gRPC y 9300 estos.
+/// <para>
+/// <b>No van en la centena 4xx</b>, aunque parezca la natural. Los microservicios reparten sus codigos por
+/// capa —1xx dominio, 2xx aplicacion, 3xx infraestructura— pero eso es una convencion, no un limite: hay
+/// catalogos que pasaron de 399 y siguieron contando. <c>ms-notification</c> usa del 400 al 406, asi que una
+/// tabla del SDK en 4xx chocaba con la suya y el microservicio <b>no arrancaba</b>. El 9xxx es el unico
+/// rango que solo usa el SDK.
+/// </para>
 /// <para>
 /// <b>Por que hacen falta.</b> FluentValidation trae sus mensajes en varios idiomas y los elige mirando
 /// <c>CurrentUICulture</c>, pero los entrypoints se compilan con globalizacion invariante —para no
@@ -25,40 +30,40 @@ namespace CodeDesignPlus.Net.Microservice.Commons;
 public class ValidationErrors : IErrorCodes
 {
     /// <summary>El campo no puede ir vacio. Cubre <c>NotEmpty</c> y <c>NotNull</c>.</summary>
-    public static readonly Error Required = new("400");
+    public static readonly Error Required = new("9300");
 
     /// <summary>El texto supera el maximo de caracteres.</summary>
-    public static readonly Error TooLong = new("401");
+    public static readonly Error TooLong = new("9301");
 
     /// <summary>El texto se sale del rango de longitud permitido.</summary>
-    public static readonly Error LengthOutOfRange = new("402");
+    public static readonly Error LengthOutOfRange = new("9302");
 
     /// <summary>El valor tiene que ser mayor que otro.</summary>
-    public static readonly Error MustBeGreaterThan = new("403");
+    public static readonly Error MustBeGreaterThan = new("9303");
 
     /// <summary>El valor tiene que ser mayor o igual que otro.</summary>
-    public static readonly Error MustBeGreaterThanOrEqualTo = new("404");
+    public static readonly Error MustBeGreaterThanOrEqualTo = new("9304");
 
     /// <summary>El valor tiene que ser menor que otro.</summary>
-    public static readonly Error MustBeLessThan = new("405");
+    public static readonly Error MustBeLessThan = new("9305");
 
     /// <summary>El valor tiene que ser menor o igual que otro.</summary>
-    public static readonly Error MustBeLessThanOrEqualTo = new("406");
+    public static readonly Error MustBeLessThanOrEqualTo = new("9306");
 
     /// <summary>El valor no puede ser el indicado.</summary>
-    public static readonly Error MustNotEqual = new("407");
+    public static readonly Error MustNotEqual = new("9307");
 
     /// <summary>El valor se sale del intervalo permitido.</summary>
-    public static readonly Error OutOfRange = new("408");
+    public static readonly Error OutOfRange = new("9308");
 
     /// <summary>El valor no esta entre los admitidos.</summary>
-    public static readonly Error NotAllowedValue = new("409");
+    public static readonly Error NotAllowedValue = new("9309");
 
     /// <summary>El correo no tiene un formato valido.</summary>
-    public static readonly Error InvalidEmail = new("410");
+    public static readonly Error InvalidEmail = new("9310");
 
     /// <summary>El valor no sigue el formato esperado.</summary>
-    public static readonly Error InvalidFormat = new("411");
+    public static readonly Error InvalidFormat = new("9311");
 
     /// <summary>
     /// El valor no cumple una condicion propia de la regla.
@@ -68,13 +73,13 @@ public class ValidationErrors : IErrorCodes
     /// met»— no dice nada ni traducido. Esas reglas deberian llevar su propio <c>WithMessage</c> con una
     /// entrada del catalogo del microservicio; hasta que la lleven, al menos dicen que campo fallo.
     /// </remarks>
-    public static readonly Error ConditionNotMet = new("412");
+    public static readonly Error ConditionNotMet = new("9312");
 
     /// <summary>El titulo del sobre cuando la peticion no pasa la validacion.</summary>
-    public static readonly Error ValidationTitle = new("413");
+    public static readonly Error ValidationTitle = new("9313");
 
     /// <summary>El resumen del sobre cuando la peticion no pasa la validacion.</summary>
-    public static readonly Error ValidationSummary = new("414");
+    public static readonly Error ValidationSummary = new("9314");
 
     /// <summary>
     /// Traduce el codigo que pone FluentValidation al del catalogo.

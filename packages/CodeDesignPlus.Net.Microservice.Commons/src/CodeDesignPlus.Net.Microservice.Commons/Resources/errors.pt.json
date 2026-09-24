@@ -1,20 +1,20 @@
 {
   "language": "pt",
   "errors": {
-    "400": "{PropertyName} é obrigatório.",
-    "401": "{PropertyName} não pode ter mais de {MaxLength} caracteres; você digitou {TotalLength}.",
-    "402": "{PropertyName} deve ter entre {MinLength} e {MaxLength} caracteres; você digitou {TotalLength}.",
-    "403": "{PropertyName} deve ser maior que {ComparisonValue}.",
-    "404": "{PropertyName} deve ser maior ou igual a {ComparisonValue}.",
-    "405": "{PropertyName} deve ser menor que {ComparisonValue}.",
-    "406": "{PropertyName} deve ser menor ou igual a {ComparisonValue}.",
-    "407": "{PropertyName} não pode ser {ComparisonValue}.",
-    "408": "{PropertyName} deve estar entre {From} e {To}.",
-    "409": "{PropertyName} não é um dos valores permitidos.",
-    "410": "{PropertyName} não tem um formato de e-mail válido.",
-    "411": "{PropertyName} não tem o formato esperado.",
-    "412": "{PropertyName} não é válido.",
-    "413": "Erro de validação.",
-    "414": "Um ou mais campos não passaram na validação."
+    "9300": "{PropertyName} é obrigatório.",
+    "9301": "{PropertyName} não pode ter mais de {MaxLength} caracteres; você digitou {TotalLength}.",
+    "9302": "{PropertyName} deve ter entre {MinLength} e {MaxLength} caracteres; você digitou {TotalLength}.",
+    "9303": "{PropertyName} deve ser maior que {ComparisonValue}.",
+    "9304": "{PropertyName} deve ser maior ou igual a {ComparisonValue}.",
+    "9305": "{PropertyName} deve ser menor que {ComparisonValue}.",
+    "9306": "{PropertyName} deve ser menor ou igual a {ComparisonValue}.",
+    "9307": "{PropertyName} não pode ser {ComparisonValue}.",
+    "9308": "{PropertyName} deve estar entre {From} e {To}.",
+    "9309": "{PropertyName} não é um dos valores permitidos.",
+    "9310": "{PropertyName} não tem um formato de e-mail válido.",
+    "9311": "{PropertyName} não tem o formato esperado.",
+    "9312": "{PropertyName} não é válido.",
+    "9313": "Erro de validação.",
+    "9314": "Um ou mais campos não passaram na validação."
   }
 }

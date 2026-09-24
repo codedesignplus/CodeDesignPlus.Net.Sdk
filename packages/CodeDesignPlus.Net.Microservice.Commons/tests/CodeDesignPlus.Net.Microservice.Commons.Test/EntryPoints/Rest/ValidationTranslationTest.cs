@@ -46,7 +46,7 @@ public class ValidationTranslationTest
         var error = ValidationErrors.FromFluentValidation(fallo.ErrorCode);
 
         Assert.NotNull(error);
-        Assert.Equal("400", error!.Value.Code);
+        Assert.Equal("9300", error!.Value.Code);
         Assert.Equal(esperado, Rellenar(error.Value.GetMessage(idioma), fallo));
     }
 
@@ -60,7 +60,7 @@ public class ValidationTranslationTest
 
         var error = ValidationErrors.FromFluentValidation(fallo.ErrorCode);
 
-        Assert.Equal("401", error!.Value.Code);
+        Assert.Equal("9301", error!.Value.Code);
         Assert.Equal(
             "Nombre no puede superar los 3 caracteres; escribiste 50.",
             Rellenar(error.Value.GetMessage("es"), fallo));
@@ -73,7 +73,7 @@ public class ValidationTranslationTest
 
         var error = ValidationErrors.FromFluentValidation(fallo.ErrorCode);
 
-        Assert.Equal("403", error!.Value.Code);
+        Assert.Equal("9303", error!.Value.Code);
         Assert.Equal("Cantidad debe ser mayor que 10.", Rellenar(error.Value.GetMessage("es"), fallo));
     }
 
