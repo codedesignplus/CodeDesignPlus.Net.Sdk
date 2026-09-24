@@ -102,7 +102,17 @@ public class KafkaPubSub(ILogger<KafkaPubSub> logger, IDomainEventResolver domai
 
         await WaitTopicCreatedAsync<TEvent>(topic, cancellationToken).ConfigureAwait(false);
 
-        await SubscribeTopicAsync<TEvent, TEventHandler>(topic, cancellationToken).ConfigureAwait(false);
+        // En un hilo propio, no en uno del pool. `Consumer.Consume` es bloqueante: se queda dentro de
+        // librdkafka hasta que llega un mensaje, asi que cada suscripcion retenia un hilo del pool para
+        // siempre. Con varios manejadores eso deja al microservicio compitiendo consigo mismo —el pool solo
+        // inyecta un hilo nuevo por segundo— y las peticiones HTTP se quedan esperando. En las pruebas se
+        // veia como un cuelgue: la suite de Kafka sola pasaba en 30 s y dentro de la tanda completa no
+        // terminaba nunca.
+        await Task.Factory.StartNew(
+            () => SubscribeTopicAsync<TEvent, TEventHandler>(topic, cancellationToken),
+            cancellationToken,
+            TaskCreationOptions.LongRunning,
+            TaskScheduler.Default).Unwrap().ConfigureAwait(false);
     }
 
     /// <summary>
