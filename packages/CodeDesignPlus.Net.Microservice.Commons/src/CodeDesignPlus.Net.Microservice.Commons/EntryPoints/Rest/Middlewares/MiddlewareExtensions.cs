@@ -201,7 +201,15 @@ public static class MiddlewareExtensions
         return [.. PlaceholderPattern.Matches(template).Select(match => match.Groups[1].Value)];
     }
 
-    private static readonly Regex PlaceholderPattern = new(@"\{(\d+)\}", RegexOptions.Compiled);
+    /// <summary>
+    /// Los marcadores de una plantilla, tanto por posicion —<c>{0}</c>— como por nombre —<c>{MaxLength}</c>—.
+    /// </summary>
+    /// <remarks>
+    /// Los de nombre son los de las plantillas de validacion, que se rellenan con lo que trae FluentValidation.
+    /// Mirando solo los numericos, una traduccion que se dejara el <c>{MaxLength}</c> por el camino pasaba el
+    /// arranque y luego decia «no puede superar los caracteres», sin el numero.
+    /// </remarks>
+    private static readonly Regex PlaceholderPattern = new(@"\{(\w+)\}", RegexOptions.Compiled);
 
     /// <summary>
     /// Un error del catalogo junto a la capa que lo declara.

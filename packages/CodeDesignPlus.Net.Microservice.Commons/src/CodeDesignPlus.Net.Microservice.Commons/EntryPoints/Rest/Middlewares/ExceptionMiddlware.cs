@@ -4,11 +4,13 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Net;
+using System.Text.RegularExpressions;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.Exceptions.Models;
 using CodeDesignPlus.Net.Serializers;
 using FluentValidation;
+using FluentValidation.Results;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Hosting;
@@ -87,26 +89,96 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
 
         var traceId = GetTraceId(context);
 
+        var language = ErrorLanguage.Current;
+
         var problemDetails = new ProblemDetails
         {
             Type = $"{options.Value.ApiDocumentationBaseUrl}validation-error",
-            Title = "Error de validación.",
+            Title = ValidationErrors.ValidationTitle.GetMessage(language),
             Status = context.Response.StatusCode,
-            Detail = "Uno o más campos no pasaron la validación.",
+            Detail = ValidationErrors.ValidationSummary.GetMessage(language),
             Instance = traceId
         };
 
         var invalidParams = exception.Errors
-            .Select(e => new InvalidParamDetail(
-                ToCamelCase(e.PropertyName),
-                e.ErrorMessage,
-                e.ErrorCode
-            )).ToList();
+            .Select(e => Translate(e, language))
+            .ToList();
 
         problemDetails.Extensions["invalid_params"] = invalidParams;
 
         return WriteProblemDetailsAsync(context, problemDetails);
     }
+
+    /// <summary>
+    /// Pasa un fallo de FluentValidation al catalogo, para que salga en el idioma de la peticion.
+    /// </summary>
+    /// <remarks>
+    /// El detalle no se pierde: <c>FormattedMessagePlaceholderValues</c> trae los valores con los que
+    /// FluentValidation compuso su mensaje —<c>MaxLength</c>, <c>ComparisonValue</c>, <c>From</c>…— y la
+    /// plantilla traducida los coloca por nombre. Sin eso, un «no puede superar los 50 caracteres» se
+    /// quedaria en un «es demasiado largo» que no dice cuanto.
+    /// <para>
+    /// Un validador que no este en la tabla conserva su mensaje original en ingles y su codigo de
+    /// FluentValidation: es preferible un texto sin traducir a uno que diga otra cosa.
+    /// </para>
+    /// </remarks>
+    private static InvalidParamDetail Translate(ValidationFailure failure, string? language)
+    {
+        var name = ToCamelCase(failure.PropertyName);
+        var error = Resolve(failure.ErrorCode);
+
+        if (error is not { } known)
+            return new InvalidParamDetail(name, failure.ErrorMessage, failure.ErrorCode);
+
+        var template = known.GetMessage(language);
+
+        return new InvalidParamDetail(name, Fill(template, failure), known.Code);
+    }
+
+    /// <summary>
+    /// Que entrada del catalogo le corresponde a un fallo de validacion.
+    /// </summary>
+    /// <remarks>
+    /// Primero se mira si la regla trae un codigo propio puesto con <c>WithErrorCode</c>. Eso es lo que
+    /// permite que una regla diga algo que la plantilla generica no sabe decir —el formato exacto de un
+    /// telefono, o que hay que indicar la torre <b>o</b> el bloque— <b>y ademas</b> se traduzca: con un
+    /// <c>WithMessage</c> el texto queda cableado en el validador y no hay idioma que valga.
+    /// <para>
+    /// Si el codigo no esta en ningun catalogo cargado no se inventa nada: se sigue con la tabla de
+    /// FluentValidation, y si tampoco, con el mensaje original.
+    /// </para>
+    /// </remarks>
+    private static Error? Resolve(string? errorCode)
+    {
+        var propio = !string.IsNullOrWhiteSpace(errorCode)
+            && errorCode.All(char.IsDigit)
+            && ErrorCatalog.Find(errorCode, ErrorCatalog.English) is not null;
+
+        return propio ? new Error(errorCode!) : ValidationErrors.FromFluentValidation(errorCode);
+    }
+
+    /// <summary>
+    /// Sustituye los <c>{Nombre}</c> de la plantilla por los valores del fallo.
+    /// </summary>
+    /// <remarks>
+    /// Se hace a mano y no con <c>string.Format</c> porque los marcadores van por nombre y no por posicion:
+    /// una plantilla traducida puede necesitarlos en otro orden, y con posiciones bastaria con que alguien
+    /// los cambiara de sitio para que el mensaje dijera una cosa por otra.
+    /// </remarks>
+    private static string Fill(string template, ValidationFailure failure)
+    {
+        var values = failure.FormattedMessagePlaceholderValues;
+
+        if (values is null || values.Count == 0)
+            return template;
+
+        return PlaceholderPattern.Replace(template, match =>
+            values.TryGetValue(match.Groups[1].Value, out var value)
+                ? Convert.ToString(value, CultureInfo.InvariantCulture) ?? string.Empty
+                : match.Value);
+    }
+
+    private static readonly Regex PlaceholderPattern = new(@"\{(\w+)\}", RegexOptions.Compiled);
 
     /// <summary>
     /// Handles CodeDesignPlus exceptions.

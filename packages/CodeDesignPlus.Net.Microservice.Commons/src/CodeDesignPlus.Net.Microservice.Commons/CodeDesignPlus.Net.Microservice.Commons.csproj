@@ -68,4 +68,7 @@
   <ItemGroup>
     <Protobuf Include="EntryPoints\Rest\Resources\Protos\service.proto" GrpcServices="Client" />
   </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\errors.*.json" LogicalName="%(Filename)%(Extension)" WithCulture="false" />
+  </ItemGroup>
 </Project>
