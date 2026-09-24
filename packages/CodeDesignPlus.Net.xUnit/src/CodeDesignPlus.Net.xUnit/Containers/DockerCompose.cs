@@ -59,7 +59,17 @@ public abstract class DockerCompose
 
             if (EnableGetPort && !string.IsNullOrEmpty(this.ContainerName))
             {
-                var container = this.CompositeService.Containers.FirstOrDefault(x => x.Name.StartsWith(this.ContainerName));
+                // El nombre real lo compone docker como `<proyecto>-<servicio>-<indice>`, y el proyecto lleva
+                // delante un identificador para que dos pruebas no se pisen. Por eso se busca el nombre del
+                // servicio en cualquier posicion y no solo al principio: con `StartsWith` no encontraba nada,
+                // y lo que se veia era un NullReferenceException dentro de FluentDocker que no decia de que
+                // contenedor hablaba.
+                var container = this.CompositeService.Containers
+                    .FirstOrDefault(x => x.Name.Contains(this.ContainerName, StringComparison.OrdinalIgnoreCase))
+                    ?? throw new InvalidOperationException(
+                        $"No container matching '{this.ContainerName}' was started. Containers: " +
+                        $"[{string.Join(", ", this.CompositeService.Containers.Select(x => x.Name))}].");
+
                 var endpoint = container.ToHostExposedEndpoint($"{this.InternalPort}/tcp");
 
                 this.Ip = endpoint.Address.ToString();

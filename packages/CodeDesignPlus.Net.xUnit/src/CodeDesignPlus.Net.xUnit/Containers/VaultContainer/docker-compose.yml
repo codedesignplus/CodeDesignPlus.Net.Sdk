@@ -17,7 +17,12 @@ services:
       - ./resources/entrypoint.sh:/resources/entrypoint.sh
     cap_add:
       - IPC_LOCK
-    entrypoint: /bin/sh -c "chmod +x /resources/entrypoint.sh && chmod +x /resources/config.sh && /resources/entrypoint.sh" 
+    # Se invoca con `sh` en vez de dar permiso de ejecucion: los scripts vienen de un bind mount y en un
+    # host Windows `chmod` falla con «Operation not permitted», la cadena `&&` se cortaba y el contenedor
+    # moria al instante. Lo unico que se veia era un NullReferenceException dentro de FluentDocker al pedir
+    # el puerto de un contenedor que nunca existio. `sh fichero` no necesita el bit de ejecucion, y
+    # `entrypoint.sh` ya llamaba asi a `config.sh`.
+    entrypoint: /bin/sh -c "sh /resources/entrypoint.sh"
 
 
   mongo:
