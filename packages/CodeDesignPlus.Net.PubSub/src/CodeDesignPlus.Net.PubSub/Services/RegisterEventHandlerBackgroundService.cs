@@ -13,9 +13,35 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent>(
     where TEventHandler : IEventHandler<TEvent>
     where TEvent : IDomainEvent
 {
-    private const int MaxRetries = 10;
+    private const int MaxRetriesDefault = 10;
     private const int BaseDelayMs = 2000;
     private const int MaxDelayMs = 60_000;
+
+    /// <summary>
+    /// Cuantos intentos se hacen antes de dar la suscripcion por perdida.
+    /// </summary>
+    protected virtual int MaxRetries => MaxRetriesDefault;
+
+    /// <summary>
+    /// La espera antes del siguiente intento: exponencial desde 2 s, con techo de 60 s.
+    /// </summary>
+    /// <remarks>
+    /// Es <c>virtual</c> para que se pueda probar el comportamiento sin esperar el reloj real. Agotar los
+    /// diez intentos con la espera de produccion lleva mas de cinco minutos, asi que la prueba que
+    /// comprobaba que se marca el fallo estaba escrita contra una ventana de 25 segundos donde solo caben
+    /// <b>cuatro</b> intentos, y fallaba siempre.
+    /// <para>
+    /// El calculo va en <c>double</c> a proposito: <c>2^(n-1)</c> en <c>int</c> se desborda a partir del
+    /// intento 32, que hoy no ocurre porque el maximo son diez, pero si alguien sube el tope.
+    /// </para>
+    /// </remarks>
+    /// <param name="retryCount">El numero de intento fallido, empezando en 1.</param>
+    protected virtual TimeSpan GetDelay(int retryCount)
+    {
+        var delay = Math.Min(BaseDelayMs * Math.Pow(2, retryCount - 1), MaxDelayMs);
+
+        return TimeSpan.FromMilliseconds(delay);
+    }
 
     /// <summary>
     /// Executes the background service task with retry logic.
@@ -52,17 +78,17 @@ public class RegisterEventHandlerBackgroundService<TEventHandler, TEvent>(
             {
                 retryCount++;
 
-                var delay = Math.Min(BaseDelayMs * (int)Math.Pow(2, retryCount - 1), MaxDelayMs);
+                var delay = this.GetDelay(retryCount);
 
                 logger.LogError(ex, "Failed to subscribe {TEventHandler} for {TEvent}. Attempt {Attempt}/{Max}. Retrying in {Delay}ms.",
-                    handlerName, eventName, retryCount, MaxRetries, delay);
+                    handlerName, eventName, retryCount, this.MaxRetries, delay.TotalMilliseconds);
 
-                if (retryCount >= MaxRetries)
+                if (retryCount >= this.MaxRetries)
                 {
                     subscriptionTracker.MarkFailed(handlerName);
 
                     logger.LogCritical("Max retries ({Max}) exceeded for {TEventHandler}/{TEvent}. Handler will NOT consume events until pod restart.",
-                        MaxRetries, handlerName, eventName);
+                        this.MaxRetries, handlerName, eventName);
 
                     return;
                 }

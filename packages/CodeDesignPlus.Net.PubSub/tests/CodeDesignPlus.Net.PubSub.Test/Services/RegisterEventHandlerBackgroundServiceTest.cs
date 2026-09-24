@@ -46,6 +46,14 @@ public class RegisterEventHandlerBackgroundServiceTest
             LogLevel.Information);
     }
 
+    /// <summary>
+    /// Agotados los diez intentos, la suscripcion se da por perdida y el tracker lo refleja.
+    /// </summary>
+    /// <remarks>
+    /// La espera se sustituye por una simbolica. Con la de produccion —exponencial desde 2 s— el decimo
+    /// intento cae pasados mas de cinco minutos, asi que esta prueba esperaba 25 segundos y exigia diez
+    /// intentos cuando en esa ventana solo caben cuatro: fallaba siempre, no de vez en cuando.
+    /// </remarks>
     [Fact]
     public async Task ExecuteAsync_FailsAllRetries_MarksTrackerFailed()
     {
@@ -54,19 +62,31 @@ public class RegisterEventHandlerBackgroundServiceTest
             .Setup(x => x.SubscribeAsync<UserRegisteredEvent, UserRegisteredEventHandler>(It.IsAny<CancellationToken>()))
             .ThrowsAsync(new Exception("Connection refused"));
 
-        var service = new RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(
-            mockMessage.Object, mockTracker.Object, mockLogger.Object);
+        var service = new ServiceWithoutWaiting(mockMessage.Object, mockTracker.Object, mockLogger.Object);
 
         using var cts = new CancellationTokenSource(TimeSpan.FromSeconds(30));
 
         // Act
         await service.StartAsync(cts.Token);
-        await Task.Delay(TimeSpan.FromSeconds(25), cts.Token).ContinueWith(_ => { });
+        await service.ExecuteTask!;
 
         // Assert
         mockMessage.Verify(x => x.SubscribeAsync<UserRegisteredEvent, UserRegisteredEventHandler>(It.IsAny<CancellationToken>()), Times.Exactly(10));
         mockTracker.Verify(x => x.MarkFailed(typeof(UserRegisteredEventHandler).Name), Times.Once);
         mockTracker.Verify(x => x.MarkSubscribed(It.IsAny<string>()), Times.Never);
+    }
+
+    /// <summary>
+    /// El mismo servicio, pero sin esperar entre intentos: lo que se comprueba es cuantas veces reintenta y
+    /// que marca el fallo, no el reloj.
+    /// </summary>
+    private sealed class ServiceWithoutWaiting(
+        IMessage message,
+        ISubscriptionTracker subscriptionTracker,
+        ILogger<RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>> logger
+    ) : RegisterEventHandlerBackgroundService<UserRegisteredEventHandler, UserRegisteredEvent>(message, subscriptionTracker, logger)
+    {
+        protected override TimeSpan GetDelay(int retryCount) => TimeSpan.Zero;
     }
 
     [Fact]
