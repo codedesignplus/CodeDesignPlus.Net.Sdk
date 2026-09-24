@@ -1,0 +1,13 @@
+# Los scripts de shell van SIEMPRE con finales de linea LF, aunque se editen en Windows.
+#
+# Con CRLF, un script montado dentro de un contenedor Linux se ejecuta con un `\r` pegado al final de
+# cada linea: `export VAULT_ADDR="http://0.0.0.0:8200"\r` deja la variable con el retorno de carro
+# dentro y todo lo que viene detras falla. Y falla **en silencio**, sin una sola linea en el log: asi
+# estuvo el fixture de Vault, que en el CI —checkout Linux, LF— funcionaba y en cualquier maquina
+# Windows no.
+*.sh text eol=lf
+
+# Lo mismo para lo que se monta en contenedores o lo interpreta una imagen Linux.
+*.hcl text eol=lf
+Dockerfile text eol=lf
+docker-compose*.yml text eol=lf
