@@ -23,11 +23,11 @@ public class ErrorsAttribute<TAssemblyScan> : DataAttribute
 
         foreach (var errorClass in errorClasses)
         {
-            // Acepta las dos formas: el `Error` del catalogo nuevo y la constante `"201 : mensaje"` de los
-            // microservicios que todavia no se han migrado. El `ToString()` de `Error` devuelve esa misma
-            // forma, asi que la prueba de formato de cada micro sigue valiendo sin tocarla.
+            // Solo `Error`. Una constante que sobreviva no se cuela aqui: la denuncia `UseCodeErrorsValidation`
+            // al arrancar. El `ToString()` de `Error` devuelve la forma `"201 : mensaje"`, asi que la prueba
+            // de formato que cada microservicio ya tiene sigue valiendo sin tocarla.
             var errors = errorClass.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                .Where(x => x.FieldType == typeof(string) || x.FieldType == typeof(Error))
+                .Where(x => x.FieldType == typeof(Error))
                 .ToList();
 
             foreach (var error in errors)

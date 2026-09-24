@@ -45,17 +45,17 @@ public sealed class Currency : IEquatable<Currency>
     {
         var normalizedCode = code.Trim().ToUpperInvariant() ?? string.Empty;
 
-        Guard.GuidIsEmpty(currencyId, Exceptions.Layer.None, "000 : CurrencyId is empty");
-        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, "001 : Name is required");
+        Guard.GuidIsEmpty(currencyId, Exceptions.Layer.None, Errors.CurrencyIdIsEmpty);
+        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, Errors.NameIsRequired);
         
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, $"002 : Code is required for {name}-{code}");
-        Guard.IsFalse(normalizedCode.Length == 3, Exceptions.Layer.None, $"003 : Code length is invalid for {name}-{code}"); 
+        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.CurrencyCodeIsRequired.With(name, code));
+        Guard.IsFalse(normalizedCode.Length == 3, Exceptions.Layer.None, Errors.CurrencyCodeLengthIsInvalid.With(name, code)); 
         
-        Guard.IsNullOrEmpty(symbol, Exceptions.Layer.None, $"004 : Symbol is required for {name}-{code}");
+        Guard.IsNullOrEmpty(symbol, Exceptions.Layer.None, Errors.CurrencySymbolIsRequired.With(name, code));
 
-        Guard.IsNotInRange(numericCode, 1, 999, Exceptions.Layer.None, $"005 : Numeric code is invalid for {name}-{code}");
+        Guard.IsNotInRange(numericCode, 1, 999, Exceptions.Layer.None, Errors.CurrencyNumericCodeIsInvalid.With(name, code));
 
-        Guard.IsLessThan(decimalDigits, 0, Exceptions.Layer.None, $"006 : Decimal digits is invalid for {name}-{code}");
+        Guard.IsLessThan(decimalDigits, 0, Exceptions.Layer.None, Errors.CurrencyDecimalDigitsAreInvalid.With(name, code));
 
         this.CurrencyId = currencyId;
         this.Name = name;

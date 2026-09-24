@@ -72,12 +72,12 @@ public sealed class LineItem : IEquatable<LineItem>
     {
         var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
 
-        Guard.GuidIsEmpty(productId, Exceptions.Layer.None, "000 : ProductId cannot be empty.");
-        Guard.IsNullOrEmpty(description, Exceptions.Layer.None, "001 : Description cannot be null or empty.");
-        Guard.IsLessThan(quantity, 1, Exceptions.Layer.None, "002 : Quantity must be at least 1.");
-        Guard.IsLessThan(unitPrice, 0L, Exceptions.Layer.None, "003 : UnitPrice cannot be negative.");
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, "004 : Currency cannot be null or empty.");
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, "005 : Currency must be exactly 3 characters (ISO 4217).");
+        Guard.GuidIsEmpty(productId, Exceptions.Layer.None, Errors.ProductIdCannotBeEmpty);
+        Guard.IsNullOrEmpty(description, Exceptions.Layer.None, Errors.DescriptionCannotBeNullOrEmpty);
+        Guard.IsLessThan(quantity, 1, Exceptions.Layer.None, Errors.QuantityMustBeAtLeast1);
+        Guard.IsLessThan(unitPrice, 0L, Exceptions.Layer.None, Errors.UnitPriceCannotBeNegative);
+        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
+        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
 
         ProductId = productId;
         Description = description;

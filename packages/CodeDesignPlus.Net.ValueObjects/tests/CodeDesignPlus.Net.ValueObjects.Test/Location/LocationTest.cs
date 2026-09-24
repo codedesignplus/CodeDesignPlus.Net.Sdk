@@ -38,7 +38,7 @@ public class LocationTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(null!, State, City, Locality, Neighborhood, Address, PostalCode));
 
-        AssertGuard(exception, "000", "Country cannot be null.");
+        AssertGuard(exception, Errors.CountryCannotBeNull);
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public class LocationTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, null!, City, Locality, Neighborhood, Address, PostalCode));
 
-        AssertGuard(exception, "001", "State cannot be null.");
+        AssertGuard(exception, Errors.StateCannotBeNull);
     }
 
     [Fact]
@@ -56,7 +56,7 @@ public class LocationTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, null!, Locality, Neighborhood, Address, PostalCode));
 
-        AssertGuard(exception, "002", "City cannot be null.");
+        AssertGuard(exception, Errors.CityCannotBeNull);
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class LocationTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, City, null!, Neighborhood, Address, PostalCode));
 
-        AssertGuard(exception, "003", "Locality cannot be null.");
+        AssertGuard(exception, Errors.LocalityCannotBeNull);
     }
 
     [Fact]
@@ -74,7 +74,7 @@ public class LocationTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, City, Locality, null!, Address, PostalCode));
 
-        AssertGuard(exception, "004", "Neighborhood cannot be null.");
+        AssertGuard(exception, Errors.NeighborhoodCannotBeNull);
     }
 
     [Theory]
@@ -86,7 +86,7 @@ public class LocationTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, City, Locality, Neighborhood, address!, PostalCode));
 
-        AssertGuard(exception, "005", "Address cannot be null or empty.");
+        AssertGuard(exception, Errors.AddressCannotBeNullOrEmpty);
     }
 
     [Theory]
@@ -98,7 +98,7 @@ public class LocationTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, City, Locality, Neighborhood, Address, postalCode!));
 
-        AssertGuard(exception, "006", "Postal code cannot be null or empty.");
+        AssertGuard(exception, Errors.PostalCodeCannotBeNullOrEmpty);
     }
 
     [Fact]
@@ -148,10 +148,14 @@ public class LocationTest
         Assert.False(location == null);
     }
 
-    private static void AssertGuard(CodeDesignPlusException exception, string code, string message)
+    /// <summary>
+    /// Compara contra la entrada del catalogo, no contra un numero escrito a mano: el codigo puede
+    /// renumerarse y la prueba tiene que seguir diciendo la verdad.
+    /// </summary>
+    private static void AssertGuard(CodeDesignPlusException exception, Error error)
     {
-        Assert.Equal(code, exception.Code);
-        Assert.Equal(message, exception.Message);
+        Assert.Equal(error.Code, exception.Code);
+        Assert.Equal(error.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 }

@@ -27,10 +27,10 @@ public class CountriesService(CountryService.CountryServiceClient client, IMemor
         
         var response = await client.GetCountryAsync(request, cancellationToken: cancellationToken);
 
-        Guard.IsNull(response, Net.Exceptions.Layer.None, "000 : Country not found.");
-        Guard.IsFalse(Guid.TryParse(response.Id, out var countryId), Net.Exceptions.Layer.None, "001 : Invalid country ID.");        
-        Guard.IsFalse(ushort.TryParse(response.Code, out var countryCode), Net.Exceptions.Layer.None, "002 : Invalid country code.");
-        Guard.IsFalse(Guid.TryParse(response.Currency.Id, out var currencyId), Net.Exceptions.Layer.None, "003 : Invalid currency ID.");
+        Guard.IsNull(response, Net.Exceptions.Layer.None, Errors.CountryNotFound);
+        Guard.IsFalse(Guid.TryParse(response.Id, out var countryId), Net.Exceptions.Layer.None, Errors.InvalidCountryId);        
+        Guard.IsFalse(ushort.TryParse(response.Code, out var countryCode), Net.Exceptions.Layer.None, Errors.InvalidCountryCode);
+        Guard.IsFalse(Guid.TryParse(response.Currency.Id, out var currencyId), Net.Exceptions.Layer.None, Errors.InvalidCountryCurrencyId);
 
         var currency = ValueObjects.Financial.Currency.Create(currencyId, response.Currency.Name, response.Currency.Code, response.Currency.Symbol, (short)response.Currency.DecimalDigits, (short)response.Currency.NumericCode);
 

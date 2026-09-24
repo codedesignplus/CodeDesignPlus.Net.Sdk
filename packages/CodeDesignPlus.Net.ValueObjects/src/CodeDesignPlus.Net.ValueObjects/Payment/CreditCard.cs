@@ -56,16 +56,16 @@ public sealed partial class CreditCard : IEquatable<CreditCard>
         var normalizedSecurityCode = securityCode?.Trim() ?? string.Empty;
         var normalizedInstallmentsNumber = installmentsNumber ?? 1;
 
-        Guard.IsNullOrEmpty(normalizedToken, Exceptions.Layer.None, "000 : Credit Card Token cannot be null or empty");
+        Guard.IsNullOrEmpty(normalizedToken, Exceptions.Layer.None, Errors.CreditCardTokenCannotBeNullOrEmpty);
 
-        Guard.IsNullOrEmpty(normalizedLast4, Exceptions.Layer.None, "001 : Credit Card Last 4 digits cannot be null or empty");
-        Guard.IsFalse(Last4DigitsRegex().IsMatch(normalizedLast4), Exceptions.Layer.None, "002 : Credit Card Last 4 digits must be exactly 4 digits");
+        Guard.IsNullOrEmpty(normalizedLast4, Exceptions.Layer.None, Errors.CreditCardLast4DigitsCannotBeNull);
+        Guard.IsFalse(Last4DigitsRegex().IsMatch(normalizedLast4), Exceptions.Layer.None, Errors.CreditCardLast4DigitsMustBeExactly);
 
-        Guard.IsNullOrEmpty(normalizedExpirationDate, Exceptions.Layer.None, "003 : Credit Card Expiration Date cannot be null or empty");
-        Guard.IsFalse(ExpirationDateRegex().IsMatch(normalizedExpirationDate), Exceptions.Layer.None, "004 : Credit Card Expiration Date must be in valid format");
+        Guard.IsNullOrEmpty(normalizedExpirationDate, Exceptions.Layer.None, Errors.CreditCardExpirationDateCannotBeNullOr);
+        Guard.IsFalse(ExpirationDateRegex().IsMatch(normalizedExpirationDate), Exceptions.Layer.None, Errors.CreditCardExpirationDateMustBeInValid);
 
-        Guard.IsNullOrEmpty(normalizedCardHolderName, Exceptions.Layer.None, "005 : Credit Card Holder Name cannot be null or empty");
-        Guard.IsNullOrEmpty(normalizedSecurityCode, Exceptions.Layer.None, "006 : Credit Card Security Code cannot be null or empty");
+        Guard.IsNullOrEmpty(normalizedCardHolderName, Exceptions.Layer.None, Errors.CreditCardHolderNameCannotBeNullOr);
+        Guard.IsNullOrEmpty(normalizedSecurityCode, Exceptions.Layer.None, Errors.CreditCardSecurityCodeCannotBeNullOr);
 
         this.Token = normalizedToken;
         this.Last4Digits = normalizedLast4;

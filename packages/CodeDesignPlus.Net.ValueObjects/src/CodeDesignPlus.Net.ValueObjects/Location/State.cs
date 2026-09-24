@@ -29,9 +29,9 @@ public sealed class State : IEquatable<State>
         var normalizedName = name?.Trim() ?? string.Empty;
         var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, "001 : State ID cannot be empty.");
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "002 : State name cannot be null or empty.");
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "003 : State code cannot be null or empty.");
+        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.StateIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.StateNameCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.StateCodeCannotBeNullOrEmpty);
 
         this.Id = id;
         this.Name = normalizedName;

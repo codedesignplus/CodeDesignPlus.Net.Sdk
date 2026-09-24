@@ -54,8 +54,8 @@ public class CurrencyTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.Empty, Name, Code, Symbol, 2, 170));
 
-        Assert.Equal("000", exception.Code);
-        Assert.Equal("CurrencyId is empty", exception.Message);
+        Assert.Equal(Errors.CurrencyIdIsEmpty.Code, exception.Code);
+        Assert.Equal(Errors.CurrencyIdIsEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -67,8 +67,8 @@ public class CurrencyTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), name!, Code, Symbol, 2, 170));
 
-        Assert.Equal("001", exception.Code);
-        Assert.Equal("Name is required", exception.Message);
+        Assert.Equal(Errors.NameIsRequired.Code, exception.Code);
+        Assert.Equal(Errors.NameIsRequired.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -78,7 +78,7 @@ public class CurrencyTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), Name, string.Empty, Symbol, 2, 170));
 
-        Assert.Equal("002", exception.Code);
+        Assert.Equal(Errors.CurrencyCodeIsRequired.Code, exception.Code);
         Assert.Equal($"Code is required for {Name}-", exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
@@ -91,7 +91,7 @@ public class CurrencyTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), Name, code, Symbol, 2, 170));
 
-        Assert.Equal("003", exception.Code);
+        Assert.Equal(Errors.CurrencyCodeLengthIsInvalid.Code, exception.Code);
         Assert.Equal($"Code length is invalid for {Name}-{code}", exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
@@ -104,7 +104,7 @@ public class CurrencyTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), Name, Code, symbol!, 2, 170));
 
-        Assert.Equal("004", exception.Code);
+        Assert.Equal(Errors.CurrencySymbolIsRequired.Code, exception.Code);
         Assert.Equal($"Symbol is required for {Name}-{Code}", exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
@@ -117,7 +117,7 @@ public class CurrencyTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), Name, Code, Symbol, 2, numericCode));
 
-        Assert.Equal("005", exception.Code);
+        Assert.Equal(Errors.CurrencyNumericCodeIsInvalid.Code, exception.Code);
         Assert.Equal($"Numeric code is invalid for {Name}-{Code}", exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
@@ -128,7 +128,7 @@ public class CurrencyTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), Name, Code, Symbol, -1, 170));
 
-        Assert.Equal("006", exception.Code);
+        Assert.Equal(Errors.CurrencyDecimalDigitsAreInvalid.Code, exception.Code);
         Assert.Equal($"Decimal digits is invalid for {Name}-{Code}", exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }

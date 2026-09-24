@@ -130,27 +130,27 @@ public sealed partial class Payer : IEquatable<Payer>
         var normalizedFullName = fullName?.Trim() ?? string.Empty;
         var normalizedDocument = documentNumber?.Trim() ?? string.Empty;
 
-        Guard.IsNullOrEmpty(normalizedFullName, Exceptions.Layer.None, "000 : Full name cannot be null or empty");
-        Guard.IsGreaterThan(normalizedFullName.Length, 150, Exceptions.Layer.None, "001 : Full name cannot be greater than 150 characters");
+        Guard.IsNullOrEmpty(normalizedFullName, Exceptions.Layer.None, Errors.FullNameCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedFullName.Length, 150, Exceptions.Layer.None, Errors.FullNameCannotBeGreaterThan150Characters);
 
-        Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, "008 : Document number cannot be null or empty");
-        Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, "009 : Document number cannot be greater than 20 characters");
+        Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, Errors.DocumentNumberCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, Errors.DocumentNumberCannotBeGreaterThan20Characters);
 
         // Optional fields validation - only validate if provided
         if (emailAddress != null)
         {
             var normalizedEmail = emailAddress.Trim().ToLowerInvariant();
-            Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, "002 : Email address cannot be empty when provided");
-            Guard.IsGreaterThan(normalizedEmail.Length, 255, Exceptions.Layer.None, "003 : Email address cannot be greater than 255 characters");
-            Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, "004 : Email address format is invalid");
+            Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, Errors.EmailAddressCannotBeEmptyWhenProvided);
+            Guard.IsGreaterThan(normalizedEmail.Length, 255, Exceptions.Layer.None, Errors.EmailAddressCannotBeGreaterThan255Characters);
+            Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailAddressFormatIsInvalid);
             this.EmailAddress = normalizedEmail;
         }
 
         if (contactPhone != null)
         {
             var normalizedPhone = contactPhone.Trim();
-            Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, "005 : Contact phone cannot be empty when provided");
-            Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, "006 : Contact phone format is invalid");
+            Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, Errors.ContactPhoneCannotBeEmptyWhenProvided);
+            Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.ContactPhoneFormatIsInvalid);
             this.ContactPhone = normalizedPhone;
         }
 

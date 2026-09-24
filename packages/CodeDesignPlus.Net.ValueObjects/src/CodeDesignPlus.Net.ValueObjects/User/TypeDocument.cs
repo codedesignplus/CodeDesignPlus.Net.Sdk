@@ -25,10 +25,10 @@ public sealed class TypeDocument : IEquatable<TypeDocument>
         var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
         var normalizedName = name?.Trim() ?? string.Empty;
 
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "000 : Code cannot be null or empty");
-        Guard.IsGreaterThan(normalizedCode.Length, 3, Exceptions.Layer.None, "000 : Code cannot be greater than 3 characters");
+        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty2);
+        Guard.IsGreaterThan(normalizedCode.Length, 3, Exceptions.Layer.None, Errors.CodeCannotBeGreaterThan3Characters);
         
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "000 : Name cannot be null or empty");
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty2);
 
         this.Code = normalizedCode;
         this.Name = normalizedName;

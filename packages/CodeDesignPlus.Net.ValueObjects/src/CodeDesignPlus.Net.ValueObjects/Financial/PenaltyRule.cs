@@ -49,17 +49,17 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
         var normalizedType = type?.Trim().ToUpperInvariant() ?? string.Empty;
         var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
 
-        Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, "000 : Type cannot be null or empty.");
+        Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, Errors.TypeCannotBeNullOrEmpty);
         Guard.IsFalse(
             normalizedType is "DAILY_RATE" or "FIXED" or "PERCENTAGE",
             Exceptions.Layer.None,
-            "001 : Type must be DAILY_RATE, FIXED, or PERCENTAGE.");
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, "002 : Currency cannot be null or empty.");
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, "003 : Currency must be exactly 3 characters (ISO 4217).");
-        Guard.IsLessThan(rateBasisPoints, 0, Exceptions.Layer.None, "004 : RateBasisPoints cannot be negative.");
-        Guard.IsLessThan(fixedAmount, 0L, Exceptions.Layer.None, "005 : FixedAmount cannot be negative.");
-        Guard.IsLessThan(graceDays, 0, Exceptions.Layer.None, "006 : GraceDays cannot be negative.");
-        Guard.IsLessThan(maxPenaltyAmount, 0L, Exceptions.Layer.None, "007 : MaxPenaltyAmount cannot be negative.");
+            Errors.TypeMustBeDAILYRATEFIXEDOrPERCENTAGE);
+        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
+        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
+        Guard.IsLessThan(rateBasisPoints, 0, Exceptions.Layer.None, Errors.RateBasisPointsCannotBeNegative);
+        Guard.IsLessThan(fixedAmount, 0L, Exceptions.Layer.None, Errors.FixedAmountCannotBeNegative);
+        Guard.IsLessThan(graceDays, 0, Exceptions.Layer.None, Errors.GraceDaysCannotBeNegative);
+        Guard.IsLessThan(maxPenaltyAmount, 0L, Exceptions.Layer.None, Errors.MaxPenaltyAmountCannotBeNegative);
 
         Type = normalizedType;
         RateBasisPoints = rateBasisPoints;

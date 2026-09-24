@@ -102,26 +102,26 @@ public sealed partial class Buyer : IEquatable<Buyer>
     [JsonConstructor]
     private Buyer(Guid buyerId, string name, string phone, string email, TypeDocument? typeDocument, string? document, Address? shippingAddress)
     {
-        Guard.GuidIsEmpty(buyerId, Exceptions.Layer.None, "000 : BuyerId cannot be empty");
+        Guard.GuidIsEmpty(buyerId, Exceptions.Layer.None, Errors.BuyerIdCannotBeEmpty);
 
         var normalizedName = name?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "001 : Name cannot be null or empty");
-        Guard.IsGreaterThan(normalizedName.Length, 124, Exceptions.Layer.None, "002 : Name cannot be greater than 124 characters");
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty2);
+        Guard.IsGreaterThan(normalizedName.Length, 124, Exceptions.Layer.None, Errors.NameCannotBeGreaterThan124Characters);
 
         var normalizedPhone = phone?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, "003 : Phone cannot be null or empty");
-        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, "004 : Phone contains invalid characters");
+        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, Errors.PhoneCannotBeNullOrEmpty);
+        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.PhoneContainsInvalidCharacters);
 
         var normalizedEmail = email?.Trim().ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, "005 : Email cannot be null or empty");
-        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, "006 : Email contains invalid characters");
+        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, Errors.EmailCannotBeNullOrEmpty);
+        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailContainsInvalidCharacters);
 
         // Optional fields validation - only validate if provided
         if (document != null)
         {
             var normalizedDocument = document.Trim();
-            Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, "008 : Document cannot be empty when provided");
-            Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, "009 : Document cannot be greater than 20 characters");
+            Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, Errors.DocumentCannotBeEmptyWhenProvided);
+            Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, Errors.DocumentCannotBeGreaterThan20Characters);
             this.Document = normalizedDocument;
         }
 

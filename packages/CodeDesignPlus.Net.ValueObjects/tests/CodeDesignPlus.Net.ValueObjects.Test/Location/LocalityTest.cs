@@ -25,8 +25,8 @@ public class LocalityTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Locality.Create(Guid.Empty, "El Poblado"));
 
-        Assert.Equal("001", exception.Code);
-        Assert.Equal("Locality ID cannot be empty.", exception.Message);
+        Assert.Equal(Errors.LocalityIDCannotBeEmpty.Code, exception.Code);
+        Assert.Equal(Errors.LocalityIDCannotBeEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -39,8 +39,8 @@ public class LocalityTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Locality.Create(Guid.NewGuid(), name!));
 
-        Assert.Equal("002", exception.Code);
-        Assert.Equal("Locality name cannot be null or empty.", exception.Message);
+        Assert.Equal(Errors.LocalityNameCannotBeNullOrEmpty.Code, exception.Code);
+        Assert.Equal(Errors.LocalityNameCannotBeNullOrEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 

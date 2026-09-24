@@ -30,8 +30,8 @@ public sealed class City : IEquatable<City>
         var normalizedName = name?.Trim() ?? string.Empty;
         var normalizedTimezone = timezone?.Trim();
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, "001 : City ID cannot be empty.");
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "002 : City name cannot be null or empty.");
+        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.CityIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.CityNameCannotBeNullOrEmpty);
 
         this.Id = id;
         this.Name = normalizedName;

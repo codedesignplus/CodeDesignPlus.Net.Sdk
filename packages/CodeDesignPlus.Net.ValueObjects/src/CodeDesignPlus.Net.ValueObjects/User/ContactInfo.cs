@@ -40,26 +40,26 @@ public sealed partial class ContactInfo : IEquatable<ContactInfo>
     private ContactInfo(string phone, string email, string? alternatePhone, string? alternateEmail)
     {
         var normalizedPhone = phone?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, "000 : Phone cannot be null or empty.");
-        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, "001 : Phone format is invalid.");
+        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, Errors.PhoneCannotBeNullOrEmpty2);
+        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.PhoneFormatIsInvalid);
 
         var normalizedEmail = email?.Trim().ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, "002 : Email cannot be null or empty.");
-        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, "003 : Email format is invalid.");
+        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, Errors.EmailCannotBeNullOrEmpty2);
+        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailFormatIsInvalid);
 
         if (alternatePhone is not null)
         {
             var normalizedAltPhone = alternatePhone.Trim();
-            Guard.IsNullOrEmpty(normalizedAltPhone, Exceptions.Layer.None, "004 : AlternatePhone cannot be empty when provided.");
-            Guard.IsFalse(PhoneRegex().IsMatch(normalizedAltPhone), Exceptions.Layer.None, "005 : AlternatePhone format is invalid.");
+            Guard.IsNullOrEmpty(normalizedAltPhone, Exceptions.Layer.None, Errors.AlternatePhoneCannotBeEmptyWhenProvided);
+            Guard.IsFalse(PhoneRegex().IsMatch(normalizedAltPhone), Exceptions.Layer.None, Errors.AlternatePhoneFormatIsInvalid);
             AlternatePhone = normalizedAltPhone;
         }
 
         if (alternateEmail is not null)
         {
             var normalizedAltEmail = alternateEmail.Trim().ToLowerInvariant();
-            Guard.IsNullOrEmpty(normalizedAltEmail, Exceptions.Layer.None, "006 : AlternateEmail cannot be empty when provided.");
-            Guard.IsFalse(EmailRegex().IsMatch(normalizedAltEmail), Exceptions.Layer.None, "007 : AlternateEmail format is invalid.");
+            Guard.IsNullOrEmpty(normalizedAltEmail, Exceptions.Layer.None, Errors.AlternateEmailCannotBeEmptyWhenProvided);
+            Guard.IsFalse(EmailRegex().IsMatch(normalizedAltEmail), Exceptions.Layer.None, Errors.AlternateEmailFormatIsInvalid);
             AlternateEmail = normalizedAltEmail;
         }
 

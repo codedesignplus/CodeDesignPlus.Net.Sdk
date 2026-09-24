@@ -57,22 +57,22 @@ public sealed class Country : IEquatable<Country>
         var normalizedAlpha2 = alpha2?.Trim().ToUpperInvariant() ?? string.Empty;
         var normalizedAlpha3 = alpha3?.Trim().ToUpperInvariant() ?? string.Empty;
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, "000 : Country ID cannot be empty.");
-        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, "001 : Country name cannot be empty.");
+        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.CountryIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, Errors.CountryNameCannotBeEmpty);
 
-        Guard.IsNullOrEmpty(normalizedAlpha2, Exceptions.Layer.None, "002 : Country Alpha2 code cannot be empty.");
-        Guard.IsFalse(normalizedAlpha2.Length == 2, Exceptions.Layer.None, "003 : Country Alpha2 code length is invalid.");
+        Guard.IsNullOrEmpty(normalizedAlpha2, Exceptions.Layer.None, Errors.CountryAlpha2CodeCannotBeEmpty);
+        Guard.IsFalse(normalizedAlpha2.Length == 2, Exceptions.Layer.None, Errors.CountryAlpha2CodeLengthIsInvalid);
 
-        Guard.IsNullOrEmpty(normalizedAlpha3, Exceptions.Layer.None, "004 : Country Alpha3 code cannot be empty.");
-        Guard.IsFalse(normalizedAlpha3.Length == 3, Exceptions.Layer.None, "005 : Country Alpha3 code length is invalid.");
+        Guard.IsNullOrEmpty(normalizedAlpha3, Exceptions.Layer.None, Errors.CountryAlpha3CodeCannotBeEmpty);
+        Guard.IsFalse(normalizedAlpha3.Length == 3, Exceptions.Layer.None, Errors.CountryAlpha3CodeLengthIsInvalid);
 
-        Guard.IsNotInRange(code, 1, 999, Exceptions.Layer.None, "006 : Country numeric code is invalid.");
+        Guard.IsNotInRange(code, 1, 999, Exceptions.Layer.None, Errors.CountryNumericCodeIsInvalid);
 
-        Guard.IsNullOrEmpty(phoneCode, Exceptions.Layer.None, "007 : Country phone code cannot be empty.");
+        Guard.IsNullOrEmpty(phoneCode, Exceptions.Layer.None, Errors.CountryPhoneCodeCannotBeEmpty);
 
-        Guard.IsNullOrEmpty(timezone, Exceptions.Layer.None, "008 : Country timezone cannot be empty.");
+        Guard.IsNullOrEmpty(timezone, Exceptions.Layer.None, Errors.CountryTimezoneCannotBeEmpty);
 
-        Guard.IsNull(currency, Exceptions.Layer.None, "009 : Country currency is required.");
+        Guard.IsNull(currency, Exceptions.Layer.None, Errors.CountryCurrencyIsRequired);
 
         this.Id = id;
         this.Name = name;

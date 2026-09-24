@@ -25,8 +25,8 @@ public class NeighborhoodTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Neighborhood.Create(Guid.Empty, "Provenza"));
 
-        Assert.Equal("001", exception.Code);
-        Assert.Equal("Neighborhood ID cannot be empty.", exception.Message);
+        Assert.Equal(Errors.NeighborhoodIDCannotBeEmpty.Code, exception.Code);
+        Assert.Equal(Errors.NeighborhoodIDCannotBeEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -39,8 +39,8 @@ public class NeighborhoodTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Neighborhood.Create(Guid.NewGuid(), name!));
 
-        Assert.Equal("002", exception.Code);
-        Assert.Equal("Neighborhood name cannot be null or empty.", exception.Message);
+        Assert.Equal(Errors.NeighborhoodNameCannotBeNullOrEmpty.Code, exception.Code);
+        Assert.Equal(Errors.NeighborhoodNameCannotBeNullOrEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 

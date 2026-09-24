@@ -89,6 +89,17 @@ public static class ErrorCatalog
     }
 
     /// <summary>
+    /// Los codigos traducidos en un idioma, para comprobar al arrancar que ninguno se quedo huerfano.
+    /// </summary>
+    /// <param name="language">El idioma, por ejemplo <c>es</c>.</param>
+    public static IReadOnlyCollection<string> Codes(string language)
+    {
+        EnsureLoaded();
+
+        return Catalogs.TryGetValue(language, out var catalog) ? [.. catalog.Keys] : [];
+    }
+
+    /// <summary>
     /// Vuelve a leer los ficheros embebidos. Solo para pruebas.
     /// </summary>
     public static void Reset()

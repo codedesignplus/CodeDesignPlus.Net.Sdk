@@ -43,7 +43,7 @@ public sealed record PenaltyRuleInput(
         Guard.IsFalse(
             normalizedType is "DAILY_RATE" or "FIXED" or "PERCENTAGE",
             Exceptions.Layer.None,
-            "001 : Type must be DAILY_RATE, FIXED, or PERCENTAGE.");
+            Errors.TypeMustBeDAILYRATEFIXEDOrPERCENTAGE);
 
         var rateBasisPoints = BasisPoints.FromPercentage(RatePercentage);
         var maxPenaltyMinor = Money.FromDecimal(MaxPenaltyAmount, Currency, decimalPlaces).Amount;

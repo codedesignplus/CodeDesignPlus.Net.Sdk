@@ -94,6 +94,22 @@ public sealed class Error
     }
 
     /// <summary>
+    /// El mensaje en ingles <b>con sus argumentos ya puestos</b>.
+    /// </summary>
+    /// <remarks>
+    /// Es lo que va al <see cref="Exception.Message"/> y por tanto al log. Sin esto el log guardaria la
+    /// plantilla cruda —«Code is required for {0}-{1}»— y quien leyera el fallo no sabria de que moneda
+    /// hablaba.
+    /// </remarks>
+    public string ToEnglish()
+    {
+        if (this.Arguments.Count == 0)
+            return this.Fallback;
+
+        return string.Format(CultureInfo.InvariantCulture, this.Fallback, [.. this.Arguments]);
+    }
+
+    /// <summary>
     /// La forma antigua, <c>"codigo : mensaje"</c>.
     /// </summary>
     /// <remarks>
@@ -103,32 +119,28 @@ public sealed class Error
     public override string ToString() => $"{this.Code} : {this.Fallback}";
 
     /// <summary>
-    /// Convierte la forma antigua <c>"codigo : mensaje"</c> en un <see cref="Error"/>.
+    /// Construye un error desde la forma antigua <c>"codigo : mensaje"</c>.
     /// </summary>
     /// <remarks>
-    /// Es lo que permite que un microservicio todavia no migrado compile y se comporte igual que antes con
-    /// esta version del SDK. Sin ella habria que migrar los 37 a la vez.
+    /// <b>No hay conversion implicita desde <c>string</c> a proposito.</b> La habria si se quisiera migrar
+    /// microservicio a microservicio, pero se decidio migrarlos todos a la vez, y sin ella el compilador
+    /// obliga a que todo guard reciba una entrada del catalogo: una cadena suelta —un mensaje escrito a
+    /// mano en el sitio— deja de compilar en vez de colarse como un error sin codigo.
     /// <para>
-    /// Parte por el <b>primer</b> <c>:</c>, no por el ultimo: el <c>GetMessage()</c> de la extension partia
-    /// por el ultimo y truncaba cualquier mensaje que llevara dos puntos dentro.
+    /// Esto se conserva solo para el barrido de migracion y para leer catalogos ajenos. Parte por el
+    /// <b>primer</b> <c>:</c>, no por el ultimo: el <c>GetMessage()</c> de la extension partia por el ultimo
+    /// y truncaba cualquier mensaje que llevara dos puntos dentro.
     /// </para>
     /// </remarks>
     /// <param name="legacy">La constante con la forma <c>"201 : The user was not found."</c>.</param>
-    public static implicit operator Error(string legacy)
+    public static Error FromString(string legacy)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(legacy);
 
         var separator = legacy.IndexOf(':');
 
-        if (separator < 0)
-            return new Error(legacy, legacy);
-
-        return new Error(legacy[..separator], legacy[(separator + 1)..]);
+        return separator < 0
+            ? new Error(legacy, legacy)
+            : new Error(legacy[..separator], legacy[(separator + 1)..]);
     }
-
-    /// <summary>
-    /// Construye un error desde la forma antigua. Equivale al operador implicito, para quien prefiera verlo.
-    /// </summary>
-    /// <param name="legacy">La constante con la forma <c>"201 : The user was not found."</c>.</param>
-    public static Error FromString(string legacy) => legacy;
 }

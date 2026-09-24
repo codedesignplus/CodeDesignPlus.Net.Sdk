@@ -27,9 +27,9 @@ public sealed class DateRange : IEquatable<DateRange>
     [JsonConstructor]
     private DateRange(DateTimeOffset start, DateTimeOffset end)
     {
-        Guard.IsTrue(start == default, Exceptions.Layer.None, "000 : Start cannot be the default value.");
-        Guard.IsTrue(end == default, Exceptions.Layer.None, "001 : End cannot be the default value.");
-        Guard.IsTrue(end <= start, Exceptions.Layer.None, "002 : End must be after Start.");
+        Guard.IsTrue(start == default, Exceptions.Layer.None, Errors.StartCannotBeTheDefaultValue);
+        Guard.IsTrue(end == default, Exceptions.Layer.None, Errors.EndCannotBeTheDefaultValue);
+        Guard.IsTrue(end <= start, Exceptions.Layer.None, Errors.EndMustBeAfterStart);
 
         Start = start.ToUniversalTime();
         End = end.ToUniversalTime();
@@ -69,7 +69,7 @@ public sealed class DateRange : IEquatable<DateRange>
     /// <returns>True if the ranges overlap; otherwise, false.</returns>
     public bool Overlaps(DateRange other)
     {
-        Guard.IsNull(other, Exceptions.Layer.None, "003 : Other range cannot be null.");
+        Guard.IsNull(other, Exceptions.Layer.None, Errors.OtherRangeCannotBeNull);
         return Start < other.End && End > other.Start;
     }
 
@@ -80,7 +80,7 @@ public sealed class DateRange : IEquatable<DateRange>
     /// <returns>True if this range contains the other; otherwise, false.</returns>
     public bool Contains(DateRange other)
     {
-        Guard.IsNull(other, Exceptions.Layer.None, "004 : Other range cannot be null.");
+        Guard.IsNull(other, Exceptions.Layer.None, Errors.OtherRangeCannotBeNull);
         return Start <= other.Start && End >= other.End;
     }
 

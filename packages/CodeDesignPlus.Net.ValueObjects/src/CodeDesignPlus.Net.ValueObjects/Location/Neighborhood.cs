@@ -23,8 +23,8 @@ public sealed class Neighborhood : IEquatable<Neighborhood>
     {
         var normalizedName = name?.Trim() ?? string.Empty;
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, "001 : Neighborhood ID cannot be empty.");
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "002 : Neighborhood name cannot be null or empty.");
+        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.NeighborhoodIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NeighborhoodNameCannotBeNullOrEmpty);
 
         this.Id = id;
         this.Name = normalizedName;

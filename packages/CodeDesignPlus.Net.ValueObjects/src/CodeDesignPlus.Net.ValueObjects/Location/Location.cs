@@ -49,14 +49,14 @@ public sealed class Location : IEquatable<Location>
         var normalizedAddress = address?.Trim() ?? string.Empty;
         var normalizedPostalCode = postalCode?.Trim() ?? string.Empty;
 
-        Guard.IsNull(country, Exceptions.Layer.None, "000 : Country cannot be null.");
-        Guard.IsNull(state, Exceptions.Layer.None, "001 : State cannot be null.");
-        Guard.IsNull(city, Exceptions.Layer.None, "002 : City cannot be null.");
-        Guard.IsNull(locality, Exceptions.Layer.None, "003 : Locality cannot be null.");
-        Guard.IsNull(neighborhood, Exceptions.Layer.None, "004 : Neighborhood cannot be null.");
+        Guard.IsNull(country, Exceptions.Layer.None, Errors.CountryCannotBeNull);
+        Guard.IsNull(state, Exceptions.Layer.None, Errors.StateCannotBeNull);
+        Guard.IsNull(city, Exceptions.Layer.None, Errors.CityCannotBeNull);
+        Guard.IsNull(locality, Exceptions.Layer.None, Errors.LocalityCannotBeNull);
+        Guard.IsNull(neighborhood, Exceptions.Layer.None, Errors.NeighborhoodCannotBeNull);
 
-        Guard.IsNullOrEmpty(normalizedAddress, Exceptions.Layer.None, "005 : Address cannot be null or empty.");
-        Guard.IsNullOrEmpty(normalizedPostalCode, Exceptions.Layer.None, "006 : Postal code cannot be null or empty.");
+        Guard.IsNullOrEmpty(normalizedAddress, Exceptions.Layer.None, Errors.AddressCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(normalizedPostalCode, Exceptions.Layer.None, Errors.PostalCodeCannotBeNullOrEmpty);
 
         this.Country = country;
         this.State = state;

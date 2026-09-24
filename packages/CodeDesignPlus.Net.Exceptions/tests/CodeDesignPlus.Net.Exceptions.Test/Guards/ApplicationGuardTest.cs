@@ -10,7 +10,7 @@ public class ApplicationGuardTest
         // Arrange
         object value = null!;
         var layer = Layer.Application;
-        var error = "D-001 : Throw exception when value is null.";
+        var error = new Error("D-001", "Throw exception when value is null.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNull(value, error));
@@ -27,7 +27,7 @@ public class ApplicationGuardTest
         // Arrange
         object value = new();
         var layer = Layer.Application;
-        var error = "D-002 : Throw exception when value is not null.";
+        var error = new Error("D-002", "Throw exception when value is not null.");
 
         // Act 
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNotNull(value, error));
@@ -44,7 +44,7 @@ public class ApplicationGuardTest
         // Arrange
         string value = string.Empty;
         var layer = Layer.Application;
-        var error = "D-003 : Throw exception when value is null or empty.";
+        var error = new Error("D-003", "Throw exception when value is null or empty.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNullOrEmpty(value, error));
@@ -61,7 +61,7 @@ public class ApplicationGuardTest
         // Arrange
         string value = "test";
         var layer = Layer.Application;
-        var error = "D-004 : Throw exception when value is not null or empty.";
+        var error = new Error("D-004", "Throw exception when value is not null or empty.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNotNullOrEmpty(value, error));
@@ -78,7 +78,7 @@ public class ApplicationGuardTest
         // Arrange
         string value = " ";
         var layer = Layer.Application;
-        var error = "D-005 : Throw exception when value is null or white space.";
+        var error = new Error("D-005", "Throw exception when value is null or white space.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNullOrWhiteSpace(value, error));
@@ -95,7 +95,7 @@ public class ApplicationGuardTest
         // Arrange
         string value = "test";
         var layer = Layer.Application;
-        var error = "D-006 : Throw exception when value is not null or white space.";
+        var error = new Error("D-006", "Throw exception when value is not null or white space.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNotNullOrWhiteSpace(value, error));
@@ -112,7 +112,7 @@ public class ApplicationGuardTest
         // Arrange
         bool value = true;
         var layer = Layer.Application;
-        var error = "D-007 : Throw exception when value is true.";
+        var error = new Error("D-007", "Throw exception when value is true.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsTrue(value, error));
@@ -129,7 +129,7 @@ public class ApplicationGuardTest
         // Arrange
         bool value = false;
         var layer = Layer.Application;
-        var error = "D-008 : Throw exception when value is false.";
+        var error = new Error("D-008", "Throw exception when value is false.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsFalse(value, error));
@@ -147,7 +147,7 @@ public class ApplicationGuardTest
         int value = 2;
         int compare = 1;
         var layer = Layer.Application;
-        var error = "D-009 : Throw exception when value is greater than compare.";
+        var error = new Error("D-009", "Throw exception when value is greater than compare.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsGreaterThan(value, compare, error));
@@ -165,7 +165,7 @@ public class ApplicationGuardTest
         int value = 2;
         int compare = 2;
         var layer = Layer.Application;
-        var error = "D-010 : Throw exception when value is greater or equal to compare";
+        var error = new Error("D-010", "Throw exception when value is greater or equal to compare");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsGreaterThanOrEqual(value, compare, error));
@@ -183,7 +183,7 @@ public class ApplicationGuardTest
         int value = 1;
         int compare = 2;
         var layer = Layer.Application;
-        var error = "D-011 : Throw exception when value is less than compare.";
+        var error = new Error("D-011", "Throw exception when value is less than compare.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsLessThan(value, compare, error));
@@ -201,7 +201,7 @@ public class ApplicationGuardTest
         int value = 2;
         int compare = 2;
         var layer = Layer.Application;
-        var error = "D-012 : Throw exception when value is less or equal to compare.";
+        var error = new Error("D-012", "Throw exception when value is less or equal to compare.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsLessThanOrEqual(value, compare, error));
@@ -219,7 +219,7 @@ public class ApplicationGuardTest
         int value = 2;
         int compare = 2;
         var layer = Layer.Application;
-        var error = "D-013 : Throw exception when values are equals.";
+        var error = new Error("D-013", "Throw exception when values are equals.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.AreEquals(value, compare, error));
@@ -237,7 +237,7 @@ public class ApplicationGuardTest
         int value = 2;
         int compare = 1;
         var layer = Layer.Application;
-        var error = "D-014 : Throw exception when values are not equals";
+        var error = new Error("D-014", "Throw exception when values are not equals");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.AreNotEquals(value, compare, error));
@@ -256,7 +256,7 @@ public class ApplicationGuardTest
         int min = 1;
         int max = 3;
         var layer = Layer.Application;
-        var error = "D-015 : Throw exception when value is in range of min and max.";
+        var error = new Error("D-015", "Throw exception when value is in range of min and max.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsInRange(value, min, max, error));
@@ -275,7 +275,7 @@ public class ApplicationGuardTest
         int min = 3;
         int max = 6;
         var layer = Layer.Application;
-        var error = "D-016 : Throw exception when value is out of range of min and max.";
+        var error = new Error("D-016", "Throw exception when value is out of range of min and max.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNotInRange(value, min, max, error));
@@ -292,7 +292,7 @@ public class ApplicationGuardTest
         // Arrange
         var value = Array.Empty<int>();
         var layer = Layer.Application;
-        var error = "D-017 : Throw exception when value is empty.";
+        var error = new Error("D-017", "Throw exception when value is empty.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsEmpty(value, error));
@@ -309,7 +309,7 @@ public class ApplicationGuardTest
         // Arrange
         var value = new List<int>() { 1, 2, 3 };
         var layer = Layer.Application;
-        var error = "D-018 : Thorw exception when value is not empty.";
+        var error = new Error("D-018", "Thorw exception when value is not empty.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.IsNotEmpty(value, error));
@@ -326,7 +326,7 @@ public class ApplicationGuardTest
         // Arrange
         var value = Guid.Empty;
         var layer = Layer.Application;
-        var error = "D-019 : Throw exception when value is empty.";
+        var error = new Error("D-019", "Throw exception when value is empty.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.GuidIsEmpty(value, error));
@@ -343,7 +343,7 @@ public class ApplicationGuardTest
         // Arrange
         var value = Guid.NewGuid();
         var layer = Layer.Application;
-        var error = "D-020 : Throw exception when value is not empty.";
+        var error = new Error("D-020", "Throw exception when value is not empty.");
 
         // Act
         var exception = Assert.Throws<CodeDesignPlusException>(() => ApplicationGuard.GuidIsNotEmpty(value, error));

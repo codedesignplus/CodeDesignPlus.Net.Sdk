@@ -26,8 +26,8 @@ public class StateTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => State.Create(Guid.Empty, "Antioquia", "ANT"));
 
-        Assert.Equal("001", exception.Code);
-        Assert.Equal("State ID cannot be empty.", exception.Message);
+        Assert.Equal(Errors.StateIDCannotBeEmpty.Code, exception.Code);
+        Assert.Equal(Errors.StateIDCannotBeEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -40,8 +40,8 @@ public class StateTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => State.Create(Guid.NewGuid(), name!, "ANT"));
 
-        Assert.Equal("002", exception.Code);
-        Assert.Equal("State name cannot be null or empty.", exception.Message);
+        Assert.Equal(Errors.StateNameCannotBeNullOrEmpty.Code, exception.Code);
+        Assert.Equal(Errors.StateNameCannotBeNullOrEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 
@@ -54,8 +54,8 @@ public class StateTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => State.Create(Guid.NewGuid(), "Antioquia", code!));
 
-        Assert.Equal("003", exception.Code);
-        Assert.Equal("State code cannot be null or empty.", exception.Message);
+        Assert.Equal(Errors.StateCodeCannotBeNullOrEmpty.Code, exception.Code);
+        Assert.Equal(Errors.StateCodeCannotBeNullOrEmpty.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 

@@ -25,13 +25,13 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
     private PaymentMethod(string type, Pse? pse, CreditCard? creditCard)
     {
         var normalizedType = type?.Trim().ToUpperInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, "006 : Type of the payment method cannot be null or empty");
+        Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, Errors.TypeOfThePaymentMethodCannotBeNull);
 
         bool bothAreNull = pse == null && creditCard == null;
-        Guard.IsTrue(bothAreNull, Exceptions.Layer.None, "007 : Payment method details cannot be null");
+        Guard.IsTrue(bothAreNull, Exceptions.Layer.None, Errors.PaymentMethodDetailsCannotBeNull);
 
         bool bothAreProvided = pse != null && creditCard != null;
-        Guard.IsTrue(bothAreProvided, Exceptions.Layer.None, "008 : Only one payment method is allowed");
+        Guard.IsTrue(bothAreProvided, Exceptions.Layer.None, Errors.OnlyOnePaymentMethodIsAllowed);
 
         this.Type = normalizedType;
         this.Pse = pse;

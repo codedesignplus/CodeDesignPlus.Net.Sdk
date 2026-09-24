@@ -42,11 +42,11 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
         var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
         var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
 
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, "000 : Code cannot be null or empty.");
-        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, "001 : Name cannot be null or empty.");
-        Guard.IsNotInRange(rateBasisPoints, 0, 100000, Exceptions.Layer.None, "002 : RateBasisPoints must be between 0 and 100000.");
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, "004 : Currency cannot be null or empty.");
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, "005 : Currency must be exactly 3 characters (ISO 4217).");
+        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
+        Guard.IsNotInRange(rateBasisPoints, 0, 100000, Exceptions.Layer.None, Errors.RateBasisPointsMustBeBetween0And100000);
+        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
+        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
 
         Code = normalizedCode;
         Name = name;

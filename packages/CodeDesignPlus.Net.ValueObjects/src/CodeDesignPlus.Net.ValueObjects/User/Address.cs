@@ -47,29 +47,29 @@ public sealed partial class Address : IEquatable<Address>
         var normalizedCountry = country?.Trim().ToUpperInvariant() ?? string.Empty;
         var normalizedCity = city?.Trim() ?? string.Empty;
 
-        Guard.IsNullOrEmpty(normalizedStreet, Exceptions.Layer.None, "000 : Street cannot be null or empty");
-        Guard.IsGreaterThan(normalizedStreet.Length, 100, Exceptions.Layer.None, "001 : Street cannot be greater than 100 characters");
+        Guard.IsNullOrEmpty(normalizedStreet, Exceptions.Layer.None, Errors.StreetCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedStreet.Length, 100, Exceptions.Layer.None, Errors.StreetCannotBeGreaterThan100Characters);
 
-        Guard.IsNullOrEmpty(normalizedCountry, Exceptions.Layer.None, "002 : Country cannot be null or empty");
-        Guard.IsFalse(CountryRegex().IsMatch(normalizedCountry), Exceptions.Layer.None, "003 : Country must be a valid ISO 3166-1 Alpha-2 code");
+        Guard.IsNullOrEmpty(normalizedCountry, Exceptions.Layer.None, Errors.CountryCannotBeNullOrEmpty);
+        Guard.IsFalse(CountryRegex().IsMatch(normalizedCountry), Exceptions.Layer.None, Errors.CountryMustBeAValidISO31661);
 
-        Guard.IsNullOrEmpty(normalizedCity, Exceptions.Layer.None, "006 : City cannot be null or empty");
-        Guard.IsGreaterThan(normalizedCity.Length, 50, Exceptions.Layer.None, "007 : City cannot be greater than 50 characters");
+        Guard.IsNullOrEmpty(normalizedCity, Exceptions.Layer.None, Errors.CityCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedCity.Length, 50, Exceptions.Layer.None, Errors.CityCannotBeGreaterThan50Characters);
 
         // Optional fields validation - only validate if provided
         if (state != null)
         {
             var normalizedState = state.Trim();
-            Guard.IsNullOrEmpty(normalizedState, Exceptions.Layer.None, "004 : State cannot be empty when provided");
-            Guard.IsGreaterThan(normalizedState.Length, 40, Exceptions.Layer.None, "005 : State cannot be greater than 40 characters");
+            Guard.IsNullOrEmpty(normalizedState, Exceptions.Layer.None, Errors.StateCannotBeEmptyWhenProvided);
+            Guard.IsGreaterThan(normalizedState.Length, 40, Exceptions.Layer.None, Errors.StateCannotBeGreaterThan40Characters);
             this.State = normalizedState;
         }
 
         if (postalCode != null)
         {
             var normalizedPostalCode = postalCode.Trim();
-            Guard.IsNullOrEmpty(normalizedPostalCode, Exceptions.Layer.None, "008 : Postal code cannot be empty when provided");
-            Guard.IsFalse(PostalCodeRegex().IsMatch(normalizedPostalCode), Exceptions.Layer.None, "009 : Postal code must contain only digits (1-8 characters)");
+            Guard.IsNullOrEmpty(normalizedPostalCode, Exceptions.Layer.None, Errors.PostalCodeCannotBeEmptyWhenProvided);
+            Guard.IsFalse(PostalCodeRegex().IsMatch(normalizedPostalCode), Exceptions.Layer.None, Errors.PostalCodeMustContainOnlyDigits18);
             this.PostalCode = normalizedPostalCode;
         }
 

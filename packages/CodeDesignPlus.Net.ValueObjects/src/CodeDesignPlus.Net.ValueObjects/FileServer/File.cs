@@ -42,25 +42,25 @@ public sealed class File : IEquatable<File>
     [JsonConstructor]
     private File(Guid id, string target, string name, string extension, string mimeType, long size)
     {
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, "000 : File Id cannot be empty.");
+        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.FileIdCannotBeEmpty);
 
         var normalizedTarget = target?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedTarget, Exceptions.Layer.None, "001 : Target cannot be null or empty.");
-        Guard.IsGreaterThan(normalizedTarget.Length, 512, Exceptions.Layer.None, "002 : Target cannot exceed 512 characters.");
+        Guard.IsNullOrEmpty(normalizedTarget, Exceptions.Layer.None, Errors.TargetCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedTarget.Length, 512, Exceptions.Layer.None, Errors.TargetCannotExceed512Characters);
 
         var normalizedName = name?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "003 : Name cannot be null or empty.");
-        Guard.IsGreaterThan(normalizedName.Length, 255, Exceptions.Layer.None, "004 : Name cannot exceed 255 characters.");
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedName.Length, 255, Exceptions.Layer.None, Errors.NameCannotExceed255Characters);
 
         var normalizedExtension = extension?.Trim().TrimStart('.').ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedExtension, Exceptions.Layer.None, "005 : Extension cannot be null or empty.");
-        Guard.IsGreaterThan(normalizedExtension.Length, 20, Exceptions.Layer.None, "006 : Extension cannot exceed 20 characters.");
+        Guard.IsNullOrEmpty(normalizedExtension, Exceptions.Layer.None, Errors.ExtensionCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedExtension.Length, 20, Exceptions.Layer.None, Errors.ExtensionCannotExceed20Characters);
 
         var normalizedMimeType = mimeType?.Trim().ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedMimeType, Exceptions.Layer.None, "007 : MimeType cannot be null or empty.");
-        Guard.IsGreaterThan(normalizedMimeType.Length, 127, Exceptions.Layer.None, "008 : MimeType cannot exceed 127 characters.");
+        Guard.IsNullOrEmpty(normalizedMimeType, Exceptions.Layer.None, Errors.MimeTypeCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedMimeType.Length, 127, Exceptions.Layer.None, Errors.MimeTypeCannotExceed127Characters);
 
-        Guard.IsLessThan(size, 0L, Exceptions.Layer.None, "009 : Size cannot be negative.");
+        Guard.IsLessThan(size, 0L, Exceptions.Layer.None, Errors.SizeCannotBeNegative);
 
         Id = id;
         Target = normalizedTarget;

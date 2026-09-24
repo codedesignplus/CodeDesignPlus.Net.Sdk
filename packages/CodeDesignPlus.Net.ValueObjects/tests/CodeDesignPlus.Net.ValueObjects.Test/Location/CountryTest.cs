@@ -45,7 +45,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.Empty, "Colombia", "CO", "COL", 170, "+57", "America/Bogota", Currency));
 
-        AssertGuard(exception, "000", "Country ID cannot be empty.");
+        AssertGuard(exception, Errors.CountryIDCannotBeEmpty);
     }
 
     [Theory]
@@ -56,7 +56,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), name!, "CO", "COL", 170, "+57", "America/Bogota", Currency));
 
-        AssertGuard(exception, "001", "Country name cannot be empty.");
+        AssertGuard(exception, Errors.CountryNameCannotBeEmpty);
     }
 
     [Theory]
@@ -68,7 +68,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", alpha2!, "COL", 170, "+57", "America/Bogota", Currency));
 
-        AssertGuard(exception, "002", "Country Alpha2 code cannot be empty.");
+        AssertGuard(exception, Errors.CountryAlpha2CodeCannotBeEmpty);
     }
 
     [Theory]
@@ -79,7 +79,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", alpha2, "COL", 170, "+57", "America/Bogota", Currency));
 
-        AssertGuard(exception, "003", "Country Alpha2 code length is invalid.");
+        AssertGuard(exception, Errors.CountryAlpha2CodeLengthIsInvalid);
     }
 
     [Theory]
@@ -91,7 +91,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", "CO", alpha3!, 170, "+57", "America/Bogota", Currency));
 
-        AssertGuard(exception, "004", "Country Alpha3 code cannot be empty.");
+        AssertGuard(exception, Errors.CountryAlpha3CodeCannotBeEmpty);
     }
 
     [Theory]
@@ -102,7 +102,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", "CO", alpha3, 170, "+57", "America/Bogota", Currency));
 
-        AssertGuard(exception, "005", "Country Alpha3 code length is invalid.");
+        AssertGuard(exception, Errors.CountryAlpha3CodeLengthIsInvalid);
     }
 
     [Theory]
@@ -113,7 +113,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", code, "+57", "America/Bogota", Currency));
 
-        AssertGuard(exception, "006", "Country numeric code is invalid.");
+        AssertGuard(exception, Errors.CountryNumericCodeIsInvalid);
     }
 
     [Theory]
@@ -124,7 +124,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, phoneCode!, "America/Bogota", Currency));
 
-        AssertGuard(exception, "007", "Country phone code cannot be empty.");
+        AssertGuard(exception, Errors.CountryPhoneCodeCannotBeEmpty);
     }
 
     [Theory]
@@ -135,7 +135,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "+57", timezone!, Currency));
 
-        AssertGuard(exception, "008", "Country timezone cannot be empty.");
+        AssertGuard(exception, Errors.CountryTimezoneCannotBeEmpty);
     }
 
     [Fact]
@@ -144,7 +144,7 @@ public class CountryTest
         // Act & Assert
         var exception = Assert.Throws<CodeDesignPlusException>(() => Country.Create(Guid.NewGuid(), "Colombia", "CO", "COL", 170, "+57", "America/Bogota", null!));
 
-        AssertGuard(exception, "009", "Country currency is required.");
+        AssertGuard(exception, Errors.CountryCurrencyIsRequired);
     }
 
     [Fact]
@@ -186,10 +186,14 @@ public class CountryTest
         Assert.False(country == null);
     }
 
-    private static void AssertGuard(CodeDesignPlusException exception, string code, string message)
+    /// <summary>
+    /// Compara contra la entrada del catalogo, no contra un numero escrito a mano: el codigo puede
+    /// renumerarse y la prueba tiene que seguir diciendo la verdad.
+    /// </summary>
+    private static void AssertGuard(CodeDesignPlusException exception, Error error)
     {
-        Assert.Equal(code, exception.Code);
-        Assert.Equal(message, exception.Message);
+        Assert.Equal(error.Code, exception.Code);
+        Assert.Equal(error.Fallback, exception.Message);
         Assert.Equal(Layer.None, exception.Layer);
     }
 }

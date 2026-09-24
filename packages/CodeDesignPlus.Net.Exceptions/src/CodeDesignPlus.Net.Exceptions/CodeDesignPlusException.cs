@@ -41,7 +41,7 @@ public class CodeDesignPlusException : Exception
     /// </summary>
     /// <param name="layer">The layer where the exception occurred.</param>
     /// <param name="error">The catalog error that caused the exception.</param>
-    public CodeDesignPlusException(Layer layer, Error error) : base(error.Fallback)
+    public CodeDesignPlusException(Layer layer, Error error) : base(error.ToEnglish())
     {
         this.Code = error.Code;
         this.Layer = layer;
@@ -54,7 +54,7 @@ public class CodeDesignPlusException : Exception
     /// <param name="layer">The layer where the exception occurred.</param>
     /// <param name="error">The catalog error that caused the exception.</param>
     /// <param name="innerException">The exception that is the cause of the current exception.</param>
-    public CodeDesignPlusException(Layer layer, Error error, Exception innerException) : base(error.Fallback, innerException)
+    public CodeDesignPlusException(Layer layer, Error error, Exception innerException) : base(error.ToEnglish(), innerException)
     {
         this.Code = error.Code;
         this.Layer = layer;

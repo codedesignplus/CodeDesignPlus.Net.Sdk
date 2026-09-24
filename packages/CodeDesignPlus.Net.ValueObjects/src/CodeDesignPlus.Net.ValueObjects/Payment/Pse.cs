@@ -31,15 +31,15 @@ public sealed partial class Pse : IEquatable<Pse>
         var normalizedTypePerson = typePerson?.Trim().ToUpperInvariant() ?? string.Empty; 
         var normalizedUrl = pseResponseUrl?.Trim() ?? string.Empty;
 
-        Guard.IsNullOrEmpty(normalizedPseCode, Exceptions.Layer.None, "000 : PseCode cannot be null or empty");
-        Guard.IsGreaterThan(normalizedPseCode.Length, 34, Exceptions.Layer.None, "001 : PseCode cannot be greater than 34 characters");
+        Guard.IsNullOrEmpty(normalizedPseCode, Exceptions.Layer.None, Errors.PseCodeCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedPseCode.Length, 34, Exceptions.Layer.None, Errors.PseCodeCannotBeGreaterThan34Characters);
 
-        Guard.IsNullOrEmpty(normalizedTypePerson, Exceptions.Layer.None, "002 : TypePerson cannot be null or empty");
-        Guard.IsGreaterThan(normalizedTypePerson.Length, 1, Exceptions.Layer.None, "003 : TypePerson cannot be greater than 1 character"); 
+        Guard.IsNullOrEmpty(normalizedTypePerson, Exceptions.Layer.None, Errors.TypePersonCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedTypePerson.Length, 1, Exceptions.Layer.None, Errors.TypePersonCannotBeGreaterThan1Character); 
 
-        Guard.IsNullOrEmpty(normalizedUrl, Exceptions.Layer.None, "004 : PseResponseUrl cannot be null or empty");
-        Guard.IsGreaterThan(normalizedUrl.Length, 200, Exceptions.Layer.None, "005 : PseResponseUrl cannot be greater than 200 characters");
-        Guard.IsFalse(UrlRegex().IsMatch(normalizedUrl), Exceptions.Layer.None, "006 : PseResponseUrl must be a valid format");
+        Guard.IsNullOrEmpty(normalizedUrl, Exceptions.Layer.None, Errors.PseResponseUrlCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(normalizedUrl.Length, 200, Exceptions.Layer.None, Errors.PseResponseUrlCannotBeGreaterThan200Characters);
+        Guard.IsFalse(UrlRegex().IsMatch(normalizedUrl), Exceptions.Layer.None, Errors.PseResponseUrlMustBeAValidFormat);
 
         this.PseCode = normalizedPseCode;
         this.TypePerson = normalizedTypePerson;

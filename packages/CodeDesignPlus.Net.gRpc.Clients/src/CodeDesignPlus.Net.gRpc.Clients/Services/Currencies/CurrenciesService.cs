@@ -27,8 +27,8 @@ public class CurrenciesService(CurrencyService.CurrencyServiceClient client, IMe
         
         var response = await client.GetCurrencyAsync(request, cancellationToken: cancellationToken);
 
-        Guard.IsNull(response, Net.Exceptions.Layer.None, "000 : Currency not found.");
-        Guard.IsFalse(Guid.TryParse(response.Id, out var currencyId), Net.Exceptions.Layer.None, "001 : Invalid currency ID.");
+        Guard.IsNull(response, Net.Exceptions.Layer.None, Errors.CurrencyNotFound);
+        Guard.IsFalse(Guid.TryParse(response.Id, out var currencyId), Net.Exceptions.Layer.None, Errors.InvalidCurrencyId);
 
         var currency = Currency.Create(currencyId, response.Name, response.Code, response.Symbol, (short)response.DecimalDigits, (short)response.NumericCode);
 

@@ -23,8 +23,8 @@ public sealed class Locality : IEquatable<Locality>
     {
         var normalizedName = name?.Trim() ?? string.Empty;
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, "001 : Locality ID cannot be empty.");
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, "002 : Locality name cannot be null or empty.");
+        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.LocalityIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.LocalityNameCannotBeNullOrEmpty);
 
         this.Id = id;
         this.Name = normalizedName;
