@@ -124,10 +124,15 @@ public class ErrorTest
         Assert.Equal("Cannot decide eligibility: no financial document has been replicated.", error.Fallback);
     }
 
+    /// <summary>
+    /// <c>FromString</c> sigue existiendo para el barrido de migracion, pero <b>no hay conversion implicita</b>:
+    /// una cadena suelta en un guard tiene que dejar de compilar, que es lo que obliga a que todo error salga
+    /// del catalogo.
+    /// </summary>
     [Fact]
-    public void ImplicitOperator_KeepsAnUnmigratedMicroserviceWorking()
+    public void FromString_ReadsTheOldShape()
     {
-        Error error = "201 : The user was not found.";
+        var error = Error.FromString("201 : The user was not found.");
 
         Assert.Equal("201", error.GetCode());
         Assert.Equal("No encontramos ese usuario.", error.GetMessage(Spanish));
