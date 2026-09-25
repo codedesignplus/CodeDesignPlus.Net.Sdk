@@ -1,3 +1,5 @@
+using CodeDesignPlus.Net.Exceptions;
+using CodeDesignPlus.Net.Exceptions.Guards;
 using Microsoft.Extensions.Logging;
 using Models = CodeDesignPlus.Net.Security.Abstractions.Models;
 using CodeDesignPlus.Net.ValueObjects.Location;
@@ -26,7 +28,13 @@ public class Tenant(ILogger<Tenant> logger, ITenantDirectory directory) : ITenan
     /// <inheritdoc/>
     public async Task SetAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        this.tenant = await directory.GetSnapshotAsync(id, cancellationToken)
+        var lookup = await directory.LookupAsync(id, cancellationToken);
+
+        // Un tenant que no existe es una peticion mal hecha (400, en el idioma de la peticion); uno que no se
+        // pudo consultar es una caida (503). Antes los dos salian como 503 (pendings/028).
+        Guard.IsTrue(lookup.Status == Models.TenantLookupStatus.NotFound, Layer.None, Errors.TenantNotFound);
+
+        this.tenant = lookup.Snapshot
             ?? throw new SecurityException($"The tenant {id} could not be resolved.");
 
         logger.LogDebug("Tenant loaded: {TenantId}", id);

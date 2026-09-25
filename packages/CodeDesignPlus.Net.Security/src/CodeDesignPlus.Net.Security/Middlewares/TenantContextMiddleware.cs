@@ -1,4 +1,6 @@
 using System.Net;
+using CodeDesignPlus.Net.Exceptions;
+using CodeDesignPlus.Net.Exceptions.Guards;
 using Microsoft.Extensions.Logging;
 
 namespace CodeDesignPlus.Net.Security.Middlewares;
@@ -20,6 +22,12 @@ public class TenantContextMiddleware(RequestDelegate next)
     /// <returns>Returns a <see cref="Task"/> representing the asynchronous operation.</returns>
     public async Task InvokeAsync(HttpContext context)
     {
+        // X-Tenant siempre es un GUID. Antes, una cabecera como "abc" se leia como Guid.Empty y la peticion
+        // seguia sin tenant, en silencio: ahora es 400 (pendings/028).
+        var header = context.Request.Headers["X-Tenant"].ToString();
+
+        Guard.IsTrue(!string.IsNullOrWhiteSpace(header) && !Guid.TryParse(header, out _), Layer.None, Errors.InvalidTenantHeader);
+
         var userContext = context.RequestServices.GetRequiredService<IUserContext>();
         var tenantId = userContext.Tenant;
 
@@ -38,6 +46,8 @@ public class TenantContextMiddleware(RequestDelegate next)
         {
             await tenant.SetAsync(tenantId, context.RequestAborted);
         }
+        // Solo llega aqui un tenant que NO se pudo consultar: el que no existe sale del directorio como
+        // CodeDesignPlusException (Errors.TenantNotFound) y el ExceptionMiddleware lo responde como 400.
         catch (SecurityException exception)
         {
             var logger = context.RequestServices.GetRequiredService<ILogger<TenantContextMiddleware>>();

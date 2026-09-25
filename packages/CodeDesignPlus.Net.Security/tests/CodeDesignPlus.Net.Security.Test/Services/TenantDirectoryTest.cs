@@ -160,6 +160,100 @@ public class TenantDirectoryTest
         cacheManagerMock.Verify(c => c.GetGlobalAsync<M.Tenant>(TenantCacheKeys.Snapshot(tenantId)), Times.Exactly(2));
     }
 
+    // ─── LookupAsync: distinguir "no existe" de "no disponible" (pendings/028) ───────────────────────────────
+
+    [Fact]
+    public async Task LookupAsync_FallbackSaysItDoesNotExist_ReturnsNotFound()
+    {
+        // Arrange: el contrato del respaldo devuelve null solo cuando ms-tenants confirma que no existe.
+        var tenantId = Guid.NewGuid();
+        cacheManagerMock.Setup(c => c.GetGlobalAsync<M.Tenant>(It.IsAny<string>())).ReturnsAsync((M.Tenant)null!);
+        fallbackMock.Setup(f => f.GetAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((M.Tenant)null!);
+
+        // Act
+        var result = await BuildDirectory().LookupAsync(tenantId);
+
+        // Assert
+        Assert.Equal(M.TenantLookupStatus.NotFound, result.Status);
+        Assert.Null(result.Snapshot);
+    }
+
+    [Fact]
+    public async Task LookupAsync_FallbackFails_ReturnsUnavailable()
+    {
+        // Arrange: ms-tenants no respondio. No se sabe si existe: es una caida, no un tenant inexistente.
+        var tenantId = Guid.NewGuid();
+        cacheManagerMock.Setup(c => c.GetGlobalAsync<M.Tenant>(It.IsAny<string>())).ReturnsAsync((M.Tenant)null!);
+        fallbackMock.Setup(f => f.GetAsync(tenantId, It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("ms-tenants is down"));
+
+        // Act
+        var result = await BuildDirectory().LookupAsync(tenantId);
+
+        // Assert
+        Assert.Equal(M.TenantLookupStatus.Unavailable, result.Status);
+    }
+
+    [Fact]
+    public async Task LookupAsync_WithoutFallback_AMissIsUnavailableNotNotFound()
+    {
+        // Arrange: sin respaldo nadie puede confirmar que no existe; que no este publicado no basta.
+        var tenantId = Guid.NewGuid();
+        cacheManagerMock.Setup(c => c.GetGlobalAsync<M.Tenant>(It.IsAny<string>())).ReturnsAsync((M.Tenant)null!);
+        var directory = new TenantDirectory(cacheManagerMock.Object, memoryCache, Mock.Of<ILogger<TenantDirectory>>());
+
+        // Act
+        var result = await directory.LookupAsync(tenantId);
+
+        // Assert
+        Assert.Equal(M.TenantLookupStatus.Unavailable, result.Status);
+    }
+
+    [Fact]
+    public async Task LookupAsync_NotFound_IsRememberedAndDoesNotAskAgain()
+    {
+        // Arrange: un cliente que insiste con un tenant inexistente no puede golpear ms-tenants en cada peticion.
+        var tenantId = Guid.NewGuid();
+        cacheManagerMock.Setup(c => c.GetGlobalAsync<M.Tenant>(It.IsAny<string>())).ReturnsAsync((M.Tenant)null!);
+        fallbackMock.Setup(f => f.GetAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((M.Tenant)null!);
+        var clock = new AdjustableTimeProvider();
+        var directory = new TenantDirectory(cacheManagerMock.Object, memoryCache, Mock.Of<ILogger<TenantDirectory>>(), fallbackMock.Object, clock);
+
+        // Act
+        var first = await directory.LookupAsync(tenantId);
+        var second = await directory.LookupAsync(tenantId);
+        clock.Advance(TimeSpan.FromMinutes(2));
+        var afterTheWindow = await directory.LookupAsync(tenantId);
+
+        // Assert: dentro de la ventana no se pregunta; pasada, se vuelve a preguntar una vez.
+        Assert.Equal(M.TenantLookupStatus.NotFound, first.Status);
+        Assert.Equal(M.TenantLookupStatus.NotFound, second.Status);
+        Assert.Equal(M.TenantLookupStatus.NotFound, afterTheWindow.Status);
+        fallbackMock.Verify(f => f.GetAsync(tenantId, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
+    [Fact]
+    public async Task LookupAsync_TenantWasDeleted_DoesNotServeTheRetainedCopy()
+    {
+        // Arrange: habia una copia retenida, pero ms-tenants dice que ya no existe. La copia no se sirve.
+        var tenantId = Guid.NewGuid();
+        var clock = new AdjustableTimeProvider();
+        var directory = new TenantDirectory(cacheManagerMock.Object, memoryCache, Mock.Of<ILogger<TenantDirectory>>(), fallbackMock.Object, clock);
+
+        cacheManagerMock.Setup(c => c.GetGlobalAsync<M.Tenant>(It.IsAny<string>())).ReturnsAsync(new M.Tenant { Id = tenantId });
+        await directory.LookupAsync(tenantId);
+
+        clock.Advance(TimeSpan.FromMinutes(5));
+        cacheManagerMock.Setup(c => c.GetGlobalAsync<M.Tenant>(It.IsAny<string>())).ReturnsAsync((M.Tenant)null!);
+        fallbackMock.Setup(f => f.GetAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((M.Tenant)null!);
+
+        // Act
+        var result = await directory.LookupAsync(tenantId);
+
+        // Assert
+        Assert.Equal(M.TenantLookupStatus.NotFound, result.Status);
+        Assert.Null(await directory.GetSnapshotAsync(tenantId));
+    }
+
     [Fact]
     public async Task GetActiveTenantsAsync_ReturnsParsedIdentifiers()
     {

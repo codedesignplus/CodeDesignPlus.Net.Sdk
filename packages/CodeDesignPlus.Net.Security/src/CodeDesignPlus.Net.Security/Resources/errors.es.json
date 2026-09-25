@@ -1,0 +1,7 @@
+{
+  "language": "es",
+  "errors": {
+    "9400": "La cabecera X-Tenant no es un identificador válido.",
+    "9401": "La copropiedad indicada no existe."
+  }
+}

@@ -18,6 +18,16 @@ public interface ITenantDirectory
     Task<Models.Tenant> GetSnapshotAsync(Guid tenantId, CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Looks up a tenant telling apart a tenant that does not exist from one that could not be resolved.
+    /// Use it wherever the two must be answered differently, as the request pipeline does: an unknown
+    /// tenant is a wrong request (4xx), an unreachable one is an outage (503).
+    /// </summary>
+    /// <param name="tenantId">The tenant identifier.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The result of the lookup.</returns>
+    Task<Models.TenantLookup> LookupAsync(Guid tenantId, CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Gets the identifiers of the active tenants. Intended for recurring jobs, which have no
     /// ambient tenant and need to iterate over all of them.
     /// </summary>

@@ -86,6 +86,53 @@ public class TenantContextMiddlewareTest
         Assert.Equal((int)HttpStatusCode.ServiceUnavailable, context.Response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("abc")]
+    [InlineData("1234")]
+    [InlineData("not-a-guid-at-all")]
+    public async Task InvokeAsync_TenantHeaderIsNotAGuid_RejectsTheRequest(string header)
+    {
+        // Arrange: X-Tenant siempre es un GUID. Antes se leia como Guid.Empty y la peticion seguia sin tenant
+        // (pendings/028).
+        var tenantMock = new Mock<ITenant>();
+        var context = BuildContext(tenantMock, Guid.Empty);
+        context.Request.Headers["X-Tenant"] = header;
+        var nextCalled = false;
+
+        Task next(HttpContext ctx)
+        {
+            nextCalled = true;
+            return Task.CompletedTask;
+        }
+
+        var middleware = new TenantContextMiddleware((RequestDelegate)next);
+
+        // Act & Assert: sale como error de catalogo, que el ExceptionMiddleware responde con 400.
+        var exception = await Assert.ThrowsAsync<CodeDesignPlus.Net.Exceptions.CodeDesignPlusException>(() => middleware.InvokeAsync(context));
+
+        Assert.Equal(Errors.InvalidTenantHeader.GetCode(), exception.Code);
+        Assert.False(nextCalled);
+        tenantMock.Verify(t => t.SetAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_TenantHeaderIsAGuid_IsAccepted()
+    {
+        // Arrange: el mismo GUID en la cabecera y en el contexto, que es lo que manda el frontend.
+        var tenantId = Guid.NewGuid();
+        var tenantMock = new Mock<ITenant>();
+        var context = BuildContext(tenantMock, tenantId);
+        context.Request.Headers["X-Tenant"] = tenantId.ToString();
+
+        var middleware = new TenantContextMiddleware(_ => Task.CompletedTask);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        tenantMock.Verify(t => t.SetAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private static DefaultHttpContext BuildContext(Mock<ITenant> tenantMock, Guid tenantId)
     {
         var userContextMock = new Mock<IUserContext>();

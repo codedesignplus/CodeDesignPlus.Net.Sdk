@@ -1,0 +1,7 @@
+{
+  "language": "pt",
+  "errors": {
+    "9400": "O cabeçalho X-Tenant não é um identificador válido.",
+    "9401": "O condomínio indicado não existe."
+  }
+}

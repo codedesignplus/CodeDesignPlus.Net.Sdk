@@ -1,0 +1,7 @@
+{
+  "language": "fr",
+  "errors": {
+    "9400": "L'en-tête X-Tenant n'est pas un identifiant valide.",
+    "9401": "La copropriété indiquée n'existe pas."
+  }
+}

@@ -59,23 +59,23 @@ public class TenantTest
         // Arrange
         var tenantId = Guid.NewGuid();
         var tenant = new M.Tenant { Id = tenantId };
-        directoryMock.Setup(d => d.GetSnapshotAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(tenant);
+        directoryMock.Setup(d => d.LookupAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(M.TenantLookup.Found(tenant));
 
         // Act
         await tenantService.SetAsync(tenantId);
 
         // Assert
         Assert.True(tenantService.IsLoaded);
-        directoryMock.Verify(d => d.GetSnapshotAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
+        directoryMock.Verify(d => d.LookupAsync(tenantId, It.IsAny<CancellationToken>()), Times.Once);
         loggerMock.VerifyLogging($"Tenant loaded: {tenantId}", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
     public async Task SetAsync_TenantCannotBeResolved_ThrowsSecurityException()
     {
-        // Arrange
+        // Arrange: no se pudo consultar. Es una caida, y el middleware la responde con 503.
         var tenantId = Guid.NewGuid();
-        directoryMock.Setup(d => d.GetSnapshotAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync((M.Tenant)null!);
+        directoryMock.Setup(d => d.LookupAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(M.TenantLookup.Unavailable);
 
         // Act & Assert
         var exception = await Assert.ThrowsAsync<SecurityException>(() => tenantService.SetAsync(tenantId));
@@ -85,13 +85,27 @@ public class TenantTest
     }
 
     [Fact]
+    public async Task SetAsync_TenantDoesNotExist_ThrowsTenantNotFoundInsteadOfAnOutage()
+    {
+        // Arrange: ms-tenants confirmo que no existe. Es una peticion mal hecha (400), no una caida (pendings/028).
+        var tenantId = Guid.NewGuid();
+        directoryMock.Setup(d => d.LookupAsync(tenantId, It.IsAny<CancellationToken>())).ReturnsAsync(M.TenantLookup.NotFound);
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<CodeDesignPlus.Net.Exceptions.CodeDesignPlusException>(() => tenantService.SetAsync(tenantId));
+
+        Assert.Equal(Errors.TenantNotFound.GetCode(), exception.Code);
+        Assert.False(tenantService.IsLoaded);
+    }
+
+    [Fact]
     public async Task SetAsync_CalledRepeatedly_ReplacesTheLoadedTenant()
     {
         // Arrange: es el caso de un job recurrente que itera tenants dentro del mismo scope.
         var first = Guid.NewGuid();
         var second = Guid.NewGuid();
-        directoryMock.Setup(d => d.GetSnapshotAsync(first, It.IsAny<CancellationToken>())).ReturnsAsync(new M.Tenant { Id = first });
-        directoryMock.Setup(d => d.GetSnapshotAsync(second, It.IsAny<CancellationToken>())).ReturnsAsync(new M.Tenant { Id = second });
+        directoryMock.Setup(d => d.LookupAsync(first, It.IsAny<CancellationToken>())).ReturnsAsync(M.TenantLookup.Found(new M.Tenant { Id = first }));
+        directoryMock.Setup(d => d.LookupAsync(second, It.IsAny<CancellationToken>())).ReturnsAsync(M.TenantLookup.Found(new M.Tenant { Id = second }));
 
         // Act
         await tenantService.SetAsync(first);
@@ -99,8 +113,8 @@ public class TenantTest
 
         // Assert
         Assert.True(tenantService.IsLoaded);
-        directoryMock.Verify(d => d.GetSnapshotAsync(first, It.IsAny<CancellationToken>()), Times.Once);
-        directoryMock.Verify(d => d.GetSnapshotAsync(second, It.IsAny<CancellationToken>()), Times.Once);
+        directoryMock.Verify(d => d.LookupAsync(first, It.IsAny<CancellationToken>()), Times.Once);
+        directoryMock.Verify(d => d.LookupAsync(second, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]

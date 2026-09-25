@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.PubSub.Abstractions;
 using Microsoft.Extensions.Logging;
 using IDomainEvent = CodeDesignPlus.Net.Core.Abstractions.IDomainEvent;
@@ -31,7 +32,7 @@ public class TenantEventScopeInitializer(IEventContext eventContext, ITenant ten
             // worker al consumir un evento saldria en las trazas sin tenant.
             TenantTelemetry.Seed(eventContext.Tenant, tenant.Name);
         }
-        catch (SecurityException exception)
+        catch (Exception exception) when (exception is SecurityException or CodeDesignPlusException)
         {
             logger.LogError(exception, "The tenant {TenantId} could not be loaded while consuming {EventType}", eventContext.Tenant, domainEvent?.GetType().Name);
 

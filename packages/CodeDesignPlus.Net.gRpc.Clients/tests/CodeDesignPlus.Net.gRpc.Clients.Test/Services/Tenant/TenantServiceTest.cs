@@ -260,4 +260,57 @@ public class TenantServiceTest
 
         Assert.NotNull(response);
     }
+
+    // Las lecturas por id no reenvian X-Tenant: el tenant buscado va en el cuerpo. Con la cabecera, un tenant
+    // inexistente hacia que ms-tenants se llamara a si mismo hasta agotar el plazo (pendings/028).
+    [Fact]
+    public async Task GetTenantByIdAsync_DoesNotSendTheCurrentTenantHeader()
+    {
+        // Arrange
+        var userContextMock = new Mock<IUserContext>();
+        userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
+        userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
+
+        Grpc.Core.Metadata? sent = null;
+        var mockClient = new Mock<gRpc.Clients.Services.Tenant.Tenant.TenantClient>();
+        mockClient
+            .Setup(m => m.GetTenantAsync(It.IsAny<GetTenantRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None))
+            .Callback<GetTenantRequest, Grpc.Core.Metadata, DateTime?, CancellationToken>((_, headers, _, _) => sent = headers)
+            .Returns(GrpcUtil.CreateAsyncUnaryCall(new GetTenantResponse { Id = Guid.NewGuid().ToString() }));
+
+        var tenantService = new TenantService(mockClient.Object, userContextMock.Object);
+
+        // Act
+        await tenantService.GetTenantByIdAsync(new GetTenantRequest { Id = Guid.NewGuid().ToString() }, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(sent);
+        Assert.DoesNotContain(sent!, entry => string.Equals(entry.Key, "X-Tenant", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(sent!, entry => entry.Key == "authorization");
+    }
+
+    [Fact]
+    public async Task ExistTenantAsync_DoesNotSendTheCurrentTenantHeader()
+    {
+        // Arrange
+        var userContextMock = new Mock<IUserContext>();
+        userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
+        userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
+
+        Grpc.Core.Metadata? sent = null;
+        var mockClient = new Mock<gRpc.Clients.Services.Tenant.Tenant.TenantClient>();
+        mockClient
+            .Setup(m => m.ExistTenantAsync(It.IsAny<ExistTenantRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None))
+            .Callback<ExistTenantRequest, Grpc.Core.Metadata, DateTime?, CancellationToken>((_, headers, _, _) => sent = headers)
+            .Returns(GrpcUtil.CreateAsyncUnaryCall(new Google.Protobuf.WellKnownTypes.BoolValue { Value = true }));
+
+        var tenantService = new TenantService(mockClient.Object, userContextMock.Object);
+
+        // Act
+        await tenantService.ExistTenantAsync(Guid.NewGuid(), CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(sent);
+        Assert.DoesNotContain(sent!, entry => string.Equals(entry.Key, "X-Tenant", StringComparison.OrdinalIgnoreCase));
+    }
 }

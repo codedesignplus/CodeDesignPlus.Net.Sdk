@@ -19,8 +19,19 @@ public class TenantSnapshotFallback(ITenantGrpc tenantGrpc, ILogger<TenantSnapsh
     {
         logger.LogWarning("Tenant {TenantId} is not available in the shared cache; falling back to ms-tenants", tenantId);
 
-        var response = await tenantGrpc.GetTenantByIdAsync(
-            new TenantProto.GetTenantRequest { Id = tenantId.ToString() }, cancellationToken);
+        TenantProto.GetTenantResponse response;
+
+        try
+        {
+            response = await tenantGrpc.GetTenantByIdAsync(
+                new TenantProto.GetTenantRequest { Id = tenantId.ToString() }, cancellationToken);
+        }
+        catch (Grpc.Core.RpcException exception) when (exception.StatusCode == Grpc.Core.StatusCode.NotFound)
+        {
+            // ms-tenants confirma que el tenant no existe: es lo unico que el contrato devuelve como null. Cualquier
+            // otro fallo se propaga, para que el directorio lo trate como no disponible y no como inexistente.
+            return null;
+        }
 
         if (response is null)
             return null;

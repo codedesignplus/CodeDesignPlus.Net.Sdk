@@ -86,10 +86,13 @@ public class TenantService(Tenant.Tenant.TenantClient client, IUserContext userC
     /// <exception cref="InvalidOperationException">Thrown when the authorization header is missing.</exception>
     public async Task<GetTenantResponse> GetTenantByIdAsync(GetTenantRequest request, CancellationToken cancellationToken)
     {
+        // Sin X-Tenant, a proposito: el tenant que se busca va en el cuerpo, y el de la peticion en curso no pinta
+        // nada. Con la cabecera, un X-Tenant inexistente hacia que ms-tenants, al resolver su propio contexto, se
+        // llamara a si mismo una y otra vez hasta agotar el plazo: una peticion se convertia en miles
+        // (pendings/028).
         var response = await client.GetTenantAsync(request, new Grpc.Core.Metadata
         {
-            { "Authorization", $"Bearer {userContext.AccessToken}" },
-            { "X-Tenant", userContext.Tenant.ToString() }
+            { "Authorization", $"Bearer {userContext.AccessToken}" }
         }, deadline: DateTime.UtcNow.Add(ReadDeadline), cancellationToken: cancellationToken);
 
         return response;
@@ -108,10 +111,13 @@ public class TenantService(Tenant.Tenant.TenantClient client, IUserContext userC
             Id = id.ToString()
         };
 
+        // Sin X-Tenant, a proposito: el tenant que se busca va en el cuerpo, y el de la peticion en curso no pinta
+        // nada. Con la cabecera, un X-Tenant inexistente hacia que ms-tenants, al resolver su propio contexto, se
+        // llamara a si mismo una y otra vez hasta agotar el plazo: una peticion se convertia en miles
+        // (pendings/028).
         var response = await client.ExistTenantAsync(request, new Grpc.Core.Metadata
         {
-            { "Authorization", $"Bearer {userContext.AccessToken}" },
-            { "X-Tenant", userContext.Tenant.ToString() }
+            { "Authorization", $"Bearer {userContext.AccessToken}" }
         }, deadline: DateTime.UtcNow.Add(ReadDeadline), cancellationToken: cancellationToken);
 
         return response.Value;

@@ -44,6 +44,23 @@ public class ErrorInterceptorTest
         Assert.Equal(StatusCode.FailedPrecondition, exception.StatusCode);
     }
 
+    [Theory]
+    [InlineData(StatusCode.NotFound)]
+    [InlineData(StatusCode.Unavailable)]
+    public async Task UnaryServerHandler_RpcException_KeepsItsStatus(StatusCode status)
+    {
+        // Arrange: una RpcException ya trae su estado; envolverla en Internal borraba el NotFound con el que
+        // ms-tenants dice que un tenant no existe (pendings/028).
+        var request = new Mock<object>().Object;
+        var context = new Mock<ServerCallContext>().Object;
+        var continuation = new Mock<UnaryServerMethod<object, object>>();
+        continuation.Setup(c => c(request, context)).ThrowsAsync(new RpcException(new Status(status, "detail")));
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<RpcException>(() => _interceptor.UnaryServerHandler(request, context, continuation.Object));
+        Assert.Equal(status, exception.StatusCode);
+    }
+
     [Fact]
     public async Task UnaryServerHandler_ShouldHandleGeneralException()
     {

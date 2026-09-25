@@ -125,6 +125,10 @@ public class ErrorInterceptor(ILogger<ErrorInterceptor> logger) : Interceptor
     {
         return exception switch
         {
+            // Una RpcException ya trae su estado: la lanzo el servicio a proposito (NotFound para un tenant que no
+            // existe, pendings/028) o la devolvio otro micro al que se llamo. Envolverla en Internal borraba justo
+            // lo que el cliente necesita para decidir, asi que pasa tal cual.
+            RpcException ex => ex,
             ValidationException ex => HandleValidationException(ex),
             CodeDesignPlusException ex => HandleCodeDesignPlusException(ex),
             _ => HandleGeneralException(exception),

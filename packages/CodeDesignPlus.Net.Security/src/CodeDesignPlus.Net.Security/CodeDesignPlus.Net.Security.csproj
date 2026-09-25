@@ -37,6 +37,11 @@
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.PubSub\src\CodeDesignPlus.Net.PubSub.Abstractions\CodeDesignPlus.Net.PubSub.Abstractions.csproj" />
     <!-- Para publicar el tenant en Baggage: es quien lo conoce, asi que es quien lo siembra. -->
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Observability\src\CodeDesignPlus.Net.Observability.Abstractions\CodeDesignPlus.Net.Observability.Abstractions.csproj" />
+    <!-- El catalogo de errores (9400-): un tenant inexistente o una cabecera X-Tenant que no es un GUID. -->
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\errors.*.json" LogicalName="%(Filename)%(Extension)" WithCulture="false" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.31.1" />
