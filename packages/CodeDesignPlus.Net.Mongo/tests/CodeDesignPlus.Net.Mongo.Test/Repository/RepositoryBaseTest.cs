@@ -592,11 +592,11 @@ public class RepositoryBaseTest
         }, cancellationToken);
 
         // Assert
+        // Se compara el total, que es lo que ordena. Comparar el Id dependia de que ninguna otra prueba hubiera
+        // insertado antes otra copia de los mismos pedidos (mismo total, otro Id) en la base compartida.
         var result = data.Data.First();
-        var order = orders.First();
-        Assert.NotNull(order);
         Assert.NotNull(result);
-        Assert.Equal(result.Id, order.Id);
+        Assert.Equal(orders.Min(x => x.Total), result.Total);
     }
 
     [Fact]
@@ -666,6 +666,64 @@ public class RepositoryBaseTest
         Assert.NotNull(result);
         Assert.NotEmpty(result.Data);
         Assert.Contains(result.Data, x => x.Id == product.Id);
+    }
+
+    // La pagina devuelta tiene que decir lo que se pidio. Skip y Limit son distintos a proposito: si se cruzan al
+    // construir la Pagination (paso desde que existe, pendings/023), la prueba falla.
+    [Fact]
+    public async Task MatchingAsync_WhenCriteriaHasPaging_ReturnsTheRequestedSkipAndLimit()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new OrderRepository(serviceProvider, this.options, new Mock<ILogger<OrderRepository>>().Object);
+
+        // Sin datos propios: lo que se comprueba es la pagina que se devuelve, no las filas.
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria { Filters = "name^=Order", Skip = 1, Limit = 2 };
+
+        // Act
+        var result = await repository.MatchingAsync<Order>(criteria, cancellationToken);
+
+        // Assert
+        Assert.Equal(1, result.Skip);
+        Assert.Equal(2, result.Limit);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_WithProjection_WhenCriteriaHasPaging_ReturnsTheRequestedSkipAndLimit()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new OrderRepository(serviceProvider, this.options, new Mock<ILogger<OrderRepository>>().Object);
+
+        // Sin datos propios: lo que se comprueba es la pagina que se devuelve, no las filas.
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria { Filters = "name^=Order", Skip = 1, Limit = 2 };
+
+        // Act
+        var result = await repository.MatchingAsync<Order, Order>(criteria, x => new Order { Id = x.Id, Name = x.Name }, cancellationToken);
+
+        // Assert
+        Assert.Equal(1, result.Skip);
+        Assert.Equal(2, result.Limit);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_WithSubCollection_WhenCriteriaHasPaging_ReturnsTheRequestedSkipAndLimit()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new OrderRepository(serviceProvider, this.options, new Mock<ILogger<OrderRepository>>().Object);
+        var orders = OrderData.GetOrders();
+        await repository.CreateRangeAsync(orders, cancellationToken);
+        var order = orders.First(x => x.Name == "Order 1");
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria { Filters = "name^=Product", Skip = 1, Limit = 2 };
+
+        // Act
+        var result = await repository.MatchingAsync<Order, ProductEntity>(order.Id, criteria, x => x.Products, cancellationToken);
+
+        // Assert
+        Assert.Equal(1, result.Skip);
+        Assert.Equal(2, result.Limit);
     }
 
     [Fact]

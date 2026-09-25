@@ -376,7 +376,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
         var query = Query<TEntity>(criteria, tenant);
         var data = await query.ToListAsync(cancellationToken);
 
-        return Pagination<TEntity>.Create(data, totalCount, criteria.Skip, criteria.Limit);
+        return Pagination<TEntity>.Create(data, totalCount, limit: criteria.Limit, skip: criteria.Skip);
     }
 
     /// <summary>
@@ -414,7 +414,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
         var query = Query<TEntity>(criteria, tenant);
         var data = await query.Project(projection).ToListAsync(cancellationToken);
 
-        return Pagination<TResult>.Create(data, totalCount, criteria.Skip, criteria.Limit);
+        return Pagination<TResult>.Create(data, totalCount, limit: criteria.Limit, skip: criteria.Skip);
     }
 
 
@@ -515,7 +515,7 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         var data = resultList.Select(doc => BsonSerializer.Deserialize<TProjection>(doc)).ToList();
 
-        return Pagination<TProjection>.Create(data, totalCount, criteria.Skip, criteria.Limit);
+        return Pagination<TProjection>.Create(data, totalCount, limit: criteria.Limit, skip: criteria.Skip);
     }
 
     /// <summary>
