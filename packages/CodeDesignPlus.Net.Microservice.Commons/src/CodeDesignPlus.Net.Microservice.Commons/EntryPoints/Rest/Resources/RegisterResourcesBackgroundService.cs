@@ -17,7 +17,14 @@ namespace CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Resources;
 /// <param name="options">The options of the microservice.</param>
 /// <param name="logger">The logger of the microservice.</param>
 /// <param name="client">The client to communicate with the service registry.</param>
-public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck healthCheck, IOptions<CoreOptions> options, ILogger<RegisterResourcesBackgroundService<TProgram>> logger, Service.ServiceClient client) : BackgroundService
+/// <param name="resourcesOptions">The resources options: how long to wait between registration attempts.</param>
+/// <remarks>
+/// A failed registration must not stop the microservice: it is administrative data for the service catalog, and the
+/// microservice can serve requests without it. Before, the exception escaped <see cref="ExecuteAsync"/>, the host
+/// stopped (exit code 0) and Kubernetes restarted the pod in a loop. Now it logs the error and retries with an
+/// increasing wait; the <see cref="ResourceHealtCheck"/> stays unhealthy until the registration succeeds.
+/// </remarks>
+public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck healthCheck, IOptions<CoreOptions> options, ILogger<RegisterResourcesBackgroundService<TProgram>> logger, Service.ServiceClient client, IOptions<ResourcesOptions> resourcesOptions) : BackgroundService
     where TProgram : class
 {
     /// <summary>
@@ -68,11 +75,40 @@ public class RegisterResourcesBackgroundService<TProgram>(ResourceHealtCheck hea
             Service = microservice
         };
 
-        await client.CreateServiceAsync(request, cancellationToken: stoppingToken);
+        var delay = resourcesOptions.Value.RetryInitialDelay;
 
-        logger.LogInformation("Resources registered in the service registry.");
+        for (var attempt = 1; !stoppingToken.IsCancellationRequested; attempt++)
+        {
+            try
+            {
+                await client.CreateServiceAsync(request, cancellationToken: stoppingToken);
 
-        healthCheck.RegisterResourcesCompleted = true;
+                logger.LogInformation("Resources registered in the service registry.");
+
+                healthCheck.RegisterResourcesCompleted = true;
+
+                return;
+            }
+            catch (Exception) when (stoppingToken.IsCancellationRequested)
+            {
+                return;
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "The resources of {AppName} could not be registered in the service registry (attempt {Attempt}). Retrying in {Delay}.", options.Value.AppName, attempt, delay);
+            }
+
+            try
+            {
+                await Task.Delay(delay, stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            delay = TimeSpan.FromTicks(Math.Min(delay.Ticks * 2, resourcesOptions.Value.RetryMaxDelay.Ticks));
+        }
     }
 
     /// <summary>

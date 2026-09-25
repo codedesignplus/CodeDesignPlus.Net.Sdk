@@ -17,5 +17,13 @@ public class ResourcesOptions
     /// Gets or sets the server address where the resources are registered.
     /// </summary>
     public Uri Server { get; set; }
-
+    /// <summary>
+    /// Gets or sets the wait before the first retry when the registration fails. It doubles on each failed attempt up
+    /// to <see cref="RetryMaxDelay"/>.
+    /// </summary>
+    public TimeSpan RetryInitialDelay { get; set; } = TimeSpan.FromSeconds(5);
+    /// <summary>
+    /// Gets or sets the longest wait between two registration attempts.
+    /// </summary>
+    public TimeSpan RetryMaxDelay { get; set; } = TimeSpan.FromMinutes(5);
 }
