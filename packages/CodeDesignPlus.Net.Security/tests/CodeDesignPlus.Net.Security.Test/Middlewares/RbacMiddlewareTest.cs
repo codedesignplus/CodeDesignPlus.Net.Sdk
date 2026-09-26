@@ -35,6 +35,40 @@ public class RbacMiddlewareTest
         httpContext.GetRouteData().Values["action"] = "TestAction";
     }
 
+    /// <summary>
+    /// /health/live no es de ningun controller: no tiene recurso que autorizar. Antes lanzaba
+    /// NullReferenceException y la sonda de arranque dejaba el pod sin arrancar (plan 036 de pendings).
+    /// </summary>
+    [Fact]
+    public async Task InvokeAsync_RutaSinController_PasaSinAutorizar()
+    {
+        var context = new DefaultHttpContext { RequestServices = httpContext.RequestServices };
+        context.Request.Path = "/health/live";
+
+        await new RbacMiddleware(nextMock.Object).InvokeAsync(context);
+
+        nextMock.Verify(x => x(context), Times.Once);
+        rbacServiceMock.Verify(x => x.IsAuthorizedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()), Times.Never);
+        Assert.NotEqual((int)HttpStatusCode.Forbidden, context.Response.StatusCode);
+    }
+
+    /// <summary>
+    /// Una accion [AllowAnonymous] es publica por diseno: el RBAC no decide sobre ella.
+    /// </summary>
+    [Fact]
+    public async Task InvokeAsync_AccionAnonima_PasaSinAutorizar()
+    {
+        httpContext.SetEndpoint(new Endpoint(_ => Task.CompletedTask, new EndpointMetadataCollection(new Microsoft.AspNetCore.Authorization.AllowAnonymousAttribute()), "publico"));
+        rbacServiceMock
+            .Setup(x => x.IsAuthorizedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>()))
+            .ReturnsAsync(false);
+
+        await new RbacMiddleware(nextMock.Object).InvokeAsync(httpContext);
+
+        nextMock.Verify(x => x(httpContext), Times.Once);
+        Assert.NotEqual((int)HttpStatusCode.Forbidden, httpContext.Response.StatusCode);
+    }
+
     [Fact]
     public async Task InvokeAsync_UserNotAuthorized_ReturnsForbidden()
     {
