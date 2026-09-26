@@ -15,6 +15,8 @@
     "9311": "{PropertyName} does not have the expected format.",
     "9312": "{PropertyName} is not valid.",
     "9313": "Validation error.",
-    "9314": "One or more fields did not pass validation."
+    "9314": "One or more fields did not pass validation.",
+    "9315": "{PropertyName} must be {MaxLength} characters long; you entered {TotalLength}.",
+    "9316": "{PropertyName} must be at least {MinLength} characters long; you entered {TotalLength}."
   }
 }

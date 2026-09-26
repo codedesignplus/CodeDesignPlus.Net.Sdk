@@ -4,7 +4,7 @@ using CodeDesignPlus.Net.Exceptions;
 namespace CodeDesignPlus.Net.Microservice.Commons;
 
 /// <summary>
-/// Los errores de validacion de formulario, en el rango <b>9300-9314</b>.
+/// Los errores de validacion de formulario, en el rango <b>9300-9316</b>.
 /// </summary>
 /// <remarks>
 /// Van en el 9xxx, que es el del SDK: 9000 los objetos de valor, 9200 los clientes gRPC y 9300 estos.
@@ -35,7 +35,7 @@ public class ValidationErrors : IErrorCodes
     /// <summary>El texto supera el maximo de caracteres.</summary>
     public static readonly Error TooLong = new("9301");
 
-    /// <summary>El texto se sale del rango de longitud permitido.</summary>
+    /// <summary>El texto se sale del rango de longitud permitido. Cubre <c>Length(min, max)</c>.</summary>
     public static readonly Error LengthOutOfRange = new("9302");
 
     /// <summary>El valor tiene que ser mayor que otro.</summary>
@@ -82,6 +82,24 @@ public class ValidationErrors : IErrorCodes
     public static readonly Error ValidationSummary = new("9314");
 
     /// <summary>
+    /// El texto no tiene la longitud exacta. Cubre <c>Length(n)</c>.
+    /// </summary>
+    /// <remarks>
+    /// Compartia la plantilla de <see cref="LengthOutOfRange"/> y un codigo de moneda de dos letras respondia
+    /// «Currency Code debe tener entre 3 y 3 caracteres» (pendings/075).
+    /// </remarks>
+    public static readonly Error ExactLength = new("9315");
+
+    /// <summary>
+    /// El texto no llega al minimo de caracteres. Cubre <c>MinimumLength(n)</c>.
+    /// </summary>
+    /// <remarks>
+    /// Con la plantilla de <see cref="LengthOutOfRange"/> habria dicho «entre 5 y -1»: este validador no tiene
+    /// maximo y FluentValidation lo informa como -1.
+    /// </remarks>
+    public static readonly Error TooShort = new("9316");
+
+    /// <summary>
     /// Traduce el codigo que pone FluentValidation al del catalogo.
     /// </summary>
     /// <remarks>
@@ -94,7 +112,9 @@ public class ValidationErrors : IErrorCodes
     {
         "NotEmptyValidator" or "NotNullValidator" => Required,
         "MaximumLengthValidator" => TooLong,
-        "LengthValidator" or "MinimumLengthValidator" or "ExactLengthValidator" => LengthOutOfRange,
+        "LengthValidator" => LengthOutOfRange,
+        "ExactLengthValidator" => ExactLength,
+        "MinimumLengthValidator" => TooShort,
         "GreaterThanValidator" => MustBeGreaterThan,
         "GreaterThanOrEqualValidator" => MustBeGreaterThanOrEqualTo,
         "LessThanValidator" => MustBeLessThan,

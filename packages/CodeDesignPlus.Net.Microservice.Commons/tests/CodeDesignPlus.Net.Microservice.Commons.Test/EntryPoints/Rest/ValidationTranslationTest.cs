@@ -34,6 +34,46 @@ public class ValidationTranslationTest
         public LargoValidator() => RuleFor(x => x.Nombre).MaximumLength(3);
     }
 
+    private class ExactLengthValidator : AbstractValidator<Muestra>
+    {
+        public ExactLengthValidator() => RuleFor(x => x.Nombre).Length(3);
+    }
+
+    private class MinimumLengthValidator : AbstractValidator<Muestra>
+    {
+        public MinimumLengthValidator() => RuleFor(x => x.Nombre).MinimumLength(5);
+    }
+
+    /// <summary>
+    /// Un codigo de moneda de dos letras respondia «debe tener entre 3 y 3 caracteres» (pendings/075).
+    /// </summary>
+    [Theory]
+    [InlineData("es", "Nombre debe tener 3 caracteres; escribiste 2.")]
+    [InlineData("en", "Nombre must be 3 characters long; you entered 2.")]
+    public void ExactLength_SaysTheExactLength(string language, string expected)
+    {
+        var failure = Validar(new Muestra { Nombre = "CO" }, new ExactLengthValidator(), "Nombre");
+
+        var error = ValidationErrors.FromFluentValidation(failure.ErrorCode);
+
+        Assert.Equal("9315", error!.Value.Code);
+        Assert.Equal(expected, Rellenar(error.Value.GetMessage(language), failure));
+    }
+
+    /// <summary>
+    /// Con la plantilla de rango habria dicho «entre 5 y -1»: el validador de minimo no tiene maximo.
+    /// </summary>
+    [Fact]
+    public void MinimumLength_SaysOnlyTheMinimum()
+    {
+        var failure = Validar(new Muestra { Nombre = "ab" }, new MinimumLengthValidator(), "Nombre");
+
+        var error = ValidationErrors.FromFluentValidation(failure.ErrorCode);
+
+        Assert.Equal("9316", error!.Value.Code);
+        Assert.Equal("Nombre debe tener al menos 5 caracteres; escribiste 2.", Rellenar(error.Value.GetMessage("es"), failure));
+    }
+
     [Theory]
     [InlineData("es", "Nombre es obligatorio.")]
     [InlineData("pt", "Nombre é obrigatório.")]
