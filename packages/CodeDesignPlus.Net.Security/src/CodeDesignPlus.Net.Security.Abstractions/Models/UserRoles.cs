@@ -4,8 +4,10 @@ namespace CodeDesignPlus.Net.Security.Abstractions.Models;
 /// Every role of a user, as published by ms-users.
 /// </summary>
 /// <remarks>
-/// A role is identified by the group id of the identity provider, never by its name: that is what the
-/// token carries in the <c>groups</c> claim and what the notification audience stores.
+/// A role is identified by its id in the ms-roles catalog (<c>20000000-…</c>, the same in every environment), never by
+/// its name and never by the identity provider's group id. The group id is only what the token carries in the
+/// <c>groups</c> claim for the frontend; ms-microsoftgraph translates between both. The RBAC permissions that ms-rbac
+/// serves carry the same catalog id, so both sides compare ids with ids.
 /// <para>
 /// The snapshot holds the whole map and not the roles of a single tenant, so that a user switching
 /// tenant within a session does not cause one lookup per switch.
