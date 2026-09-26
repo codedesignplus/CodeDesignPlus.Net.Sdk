@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.PubSub.Abstractions;
 using CodeDesignPlus.Net.Security.Middlewares;
 using CodeDesignPlus.Net.Security.MIddlewares;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -53,7 +53,8 @@ public static class ServiceCollectionExtensions
                 o.Address = securityOptions.ServerRbac;
             });
 
-            services.TryAddScoped<IRbac, Rbac>();
+            // Singleton: la carga (RefreshRbacBackgroundService) y la consulta (RbacMiddleware) comparten la lista.
+            services.TryAddSingleton<IRbac, Rbac>();
             services.AddHostedService<RefreshRbacBackgroundService>();
 
             // El middleware de RBAC resuelve los roles por copropiedad, no por el claim. Se registra

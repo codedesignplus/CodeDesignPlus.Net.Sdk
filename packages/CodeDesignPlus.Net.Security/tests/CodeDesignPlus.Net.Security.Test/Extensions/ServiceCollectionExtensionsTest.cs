@@ -1,4 +1,4 @@
-﻿using CodeDesignPlus.Net.Security.Extensions;
+using CodeDesignPlus.Net.Security.Extensions;
 using CodeDesignPlus.Net.Security.Middlewares;
 using CodeDesignPlus.Net.Security.MIddlewares;
 using CodeDesignPlus.Net.Security.Test.Helpers.Server;
@@ -240,8 +240,12 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(rbacClient);
 
         Assert.NotNull(rbacService);
-        Assert.Equal(ServiceLifetime.Scoped, rbacService.Lifetime);
+        // Singleton: la carga en segundo plano y el middleware tienen que ver la misma lista (plan 031 de pendings).
+        Assert.Equal(ServiceLifetime.Singleton, rbacService.Lifetime);
         Assert.Equal(typeof(Rbac), rbacService.ImplementationType);
+        using var scopeA = serviceProvider.CreateScope();
+        using var scopeB = serviceProvider.CreateScope();
+        Assert.Same(scopeA.ServiceProvider.GetRequiredService<IRbac>(), scopeB.ServiceProvider.GetRequiredService<IRbac>());
     }
 
     private static AuthenticationFailedContext CreateAuthenticationFailedContext(HttpContext httpContext, Exception exception)

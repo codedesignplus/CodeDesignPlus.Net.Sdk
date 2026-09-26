@@ -36,7 +36,7 @@ public class RbacTest
         await rbacService.LoadRbacAsync(CancellationToken.None);
 
         // Assert
-        var resources = rbacService.GetType().GetField("resources", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(rbacService) as ConcurrentBag<RbacResource>;
+        var resources = rbacService.GetType().GetField("resources", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(rbacService) as IReadOnlyList<RbacResource>;
 
         Assert.NotNull(resources);
         Assert.NotEmpty(resources);
@@ -56,11 +56,11 @@ public class RbacTest
         await rbacService.LoadRbacAsync(CancellationToken.None);
 
         // Act
-        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "Get", roles);
+        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "GET", roles);
 
         // Assert
         Assert.True(result);
-        loggerMock.VerifyLogging("Role 'Admin' is authorized to access the resource 'TestController/TestAction' with the method 'Get'", LogLevel.Debug, Times.Once());
+        loggerMock.VerifyLogging("Role 'Admin' is authorized to access the resource 'TestController/TestAction' with the method 'GET'", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
@@ -72,11 +72,11 @@ public class RbacTest
         ConfigResponseMock();
 
         // Act
-        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "Get", roles);
+        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "GET", roles);
 
         // Assert
         Assert.False(result);
-        loggerMock.VerifyLogging("Role 'User' is not authorized to access the resource 'TestController/TestAction' with the method 'Get'", LogLevel.Debug, Times.Once());
+        loggerMock.VerifyLogging("Role 'User' is not authorized to access the resource 'TestController/TestAction' with the method 'GET'", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
@@ -88,11 +88,11 @@ public class RbacTest
         ConfigResponseMock();
 
         // Act
-        var result = await rbacService.IsAuthorizedAsync("TestController", "NonExistentAction", "Get", roles);
+        var result = await rbacService.IsAuthorizedAsync("TestController", "NonExistentAction", "GET", roles);
 
         // Assert
         Assert.False(result);
-        loggerMock.VerifyLogging("Role 'Admin' is not authorized to access the resource 'TestController/NonExistentAction' with the method 'Get'", LogLevel.Debug, Times.Once());
+        loggerMock.VerifyLogging("Role 'Admin' is not authorized to access the resource 'TestController/NonExistentAction' with the method 'GET'", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
@@ -104,11 +104,11 @@ public class RbacTest
         ConfigResponseMock();
 
         // Act
-        var result = await rbacService.IsAuthorizedAsync("NonExistentController", "TestAction", "Get", roles);
+        var result = await rbacService.IsAuthorizedAsync("NonExistentController", "TestAction", "GET", roles);
 
         // Assert
         Assert.False(result);
-        loggerMock.VerifyLogging("Role 'Admin' is not authorized to access the resource 'NonExistentController/TestAction' with the method 'Get'", LogLevel.Debug, Times.Once());
+        loggerMock.VerifyLogging("Role 'Admin' is not authorized to access the resource 'NonExistentController/TestAction' with the method 'GET'", LogLevel.Debug, Times.Once());
     }
 
     [Fact]
@@ -137,11 +137,11 @@ public class RbacTest
         ConfigResponseMock();
 
         // Act
-        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "Get", roles);
+        var result = await rbacService.IsAuthorizedAsync("TestController", "TestAction", "GET", roles);
 
         // Assert
         Assert.False(result);
-        loggerMock.VerifyLogging("Role 'InvalidRole' is not authorized to access the resource 'TestController/TestAction' with the method 'Get'", LogLevel.Debug, Times.Once());
+        loggerMock.VerifyLogging("Role 'InvalidRole' is not authorized to access the resource 'TestController/TestAction' with the method 'GET'", LogLevel.Debug, Times.Once());
     }
 
     [Fact]    
@@ -160,22 +160,33 @@ public class RbacTest
         loggerMock.VerifyLogging("Role 'InvalidRole' is not authorized to access the resource 'InvalidController/InvalidAction' with the method 'InvalidMethod'", LogLevel.Debug, Times.Once());
     }
 
+    /// <summary>
+    /// ASP.NET entrega el metodo en mayusculas ("GET"). Antes se convertia con un TryParse que distinguia mayusculas y
+    /// "GET" no casaba con Get: todo quedaba en None y no se autorizaba nada (plan 031 de pendings).
+    /// </summary>
     [Theory]
-    [InlineData("Get", gRpc.HttpMethod.Get)]
-    [InlineData("Post", gRpc.HttpMethod.Post)]
-    [InlineData("Put", gRpc.HttpMethod.Put)]
-    [InlineData("Delete", gRpc.HttpMethod.Delete)]
-    [InlineData("InvalidMethod", gRpc.HttpMethod.None)]
+    [InlineData("GET", gRpc.HttpMethod.Get)]
+    [InlineData("get", gRpc.HttpMethod.Get)]
+    [InlineData("POST", gRpc.HttpMethod.Post)]
+    [InlineData("PUT", gRpc.HttpMethod.Put)]
+    [InlineData("PATCH", gRpc.HttpMethod.Patch)]
+    [InlineData("DELETE", gRpc.HttpMethod.Delete)]
+    [InlineData("OPTIONS", gRpc.HttpMethod.None)]
     [InlineData("", gRpc.HttpMethod.None)]
     [InlineData(null!, gRpc.HttpMethod.None)]
-    public void ConvertToEnum_ShouldReturnExpectedEnum(string? input, gRpc.HttpMethod expected)
+    public void ToHttpMethod_TraduceElMetodoDeLaPeticion(string? input, gRpc.HttpMethod expected)
     {
-        var method = typeof(S.Rbac).GetMethod("ConvertToEnum", BindingFlags.NonPublic | BindingFlags.Static);
-        Assert.NotNull(method);
+        Assert.Equal(expected, S.Rbac.ToHttpMethod(input!));
+    }
 
-        var result = (gRpc.HttpMethod)method.Invoke(null, [input])!;
+    [Fact]
+    public async Task IsAuthorizedAsync_AutorizaConElMetodoEnMayusculasComoLlegaDeAspNet()
+    {
+        ConfigResponseMock();
+        await rbacService.LoadRbacAsync(CancellationToken.None);
 
-        Assert.Equal(expected, result);
+        Assert.True(await rbacService.IsAuthorizedAsync("TestController", "TestAction", "GET", ["Admin"]));
+        Assert.False(await rbacService.IsAuthorizedAsync("TestController", "TestAction", "POST", ["Admin"]));
     }
 
     private void ConfigResponseMock()

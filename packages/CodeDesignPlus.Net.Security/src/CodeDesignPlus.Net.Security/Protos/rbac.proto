@@ -30,4 +30,7 @@ enum HttpMethod {
   Put = 2;
   Delete = 3;
   Get = 4;
+  // Anadido al final para no mover los numeros que ya viajan. ms-rbac traduce su enum de dominio a este con un
+  // switch, nunca con un cast: alli GET es 5 y PATCH es 4.
+  Patch = 5;
 }

@@ -63,6 +63,35 @@ public class RefreshRbacBackgroundServiceTest
         mockLogger.VerifyLogging("An error occurred while refreshing the RBAC | Test exception", LogLevel.Error, Times.Once());
     }
 
+    /// <summary>
+    /// Un error de gRPC no puede parar el refresco para siempre: se reintenta (plan 031 de pendings).
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_SigueRefrescandoDespuesDeUnError()
+    {
+        var retryDelay = RefreshRbacBackgroundService.RetryDelay;
+        RefreshRbacBackgroundService.RetryDelay = TimeSpan.FromMilliseconds(50);
+        try
+        {
+            var calls = 0;
+            mockRbacService
+                .Setup(r => r.LoadRbacAsync(It.IsAny<CancellationToken>()))
+                .Returns(() => ++calls == 1 ? Task.FromException(new Exception("ms-rbac no responde")) : Task.CompletedTask);
+
+            using var stoppingTokenSource = new CancellationTokenSource();
+            await service.StartAsync(stoppingTokenSource.Token);
+            await Task.Delay(TimeSpan.FromSeconds(1));
+            await stoppingTokenSource.CancelAsync();
+
+            Assert.True(calls >= 2, $"LoadRbacAsync se llamo {calls} vez; tras el error debia reintentar");
+            mockLogger.VerifyLogging("The RBAC was refreshed successfully", LogLevel.Debug, Times.AtLeastOnce());
+        }
+        finally
+        {
+            RefreshRbacBackgroundService.RetryDelay = retryDelay;
+        }
+    }
+
     [Fact]
     public async Task ExecuteAsync_ShouldLogInformation_WhenServiceIsRunning()
     {

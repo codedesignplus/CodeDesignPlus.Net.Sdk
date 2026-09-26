@@ -1,4 +1,3 @@
-using System.Collections.Concurrent;
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Security.gRpc;
 using Grpc.Net.Client;
@@ -9,9 +8,18 @@ namespace CodeDesignPlus.Net.Security.Services;
 /// <summary>
 /// Service to manage the role-based access control of the application.
 /// </summary>
+/// <remarks>
+/// Se registra como singleton: el servicio en segundo plano carga los permisos y el middleware los consulta en cada
+/// peticion, y los dos tienen que ver la misma instancia. Registrado como scoped, el middleware recibia una instancia
+/// nueva y vacia en cada peticion y negaba todo (plan 031 de pendings).
+/// </remarks>
 public class Rbac : IRbac
 {
-    private readonly ConcurrentBag<RbacResource> resources = [];
+    /// <summary>
+    /// Los permisos cargados. Se reemplaza la lista entera al refrescar, nunca se vacia y se rellena: asi una peticion
+    /// concurrente ve la lista anterior o la nueva, pero nunca una vacia.
+    /// </summary>
+    private volatile IReadOnlyList<RbacResource> resources = [];
     private readonly gRpc.Rbac.RbacClient client;
     private readonly ILogger<Rbac> logger;
     private readonly CoreOptions coreOptions;
@@ -43,20 +51,19 @@ public class Rbac : IRbac
             Microservice = coreOptions.AppName
         }, cancellationToken: cancellationToken);
 
-        resources.Clear();
-
-        foreach (var item in response.Resources)
-        {
-            resources.Add(new RbacResource()
+        var loaded = response.Resources
+            .Select(item => new RbacResource()
             {
                 Controller = item.Controller,
                 Action = item.Action,
                 Method = item.Method,
                 Role = item.Role
-            });
-        }
+            })
+            .ToList();
 
-        this.logger.LogInformation("RbacService loaded, number of resources: {Count}", resources.Count);
+        resources = loaded;
+
+        this.logger.LogInformation("RbacService loaded, number of resources: {Count}", loaded.Count);
     }
     
     /// <summary>
@@ -69,7 +76,7 @@ public class Rbac : IRbac
     /// <returns>Return true if the user has permission to access the controller and action; otherwise, false.</returns>
     public Task<bool> IsAuthorizedAsync(string controller, string action, string httpVerb, string[] roles)
     {
-        var httpMethod = ConvertToEnum(httpVerb);
+        var httpMethod = ToHttpMethod(httpVerb);
 
         var isAuthorized = resources.Any(x => x.Controller == controller && x.Action == action && x.Method == httpMethod && roles.Contains(x.Role));
 
@@ -79,16 +86,19 @@ public class Rbac : IRbac
     }
 
     /// <summary>
-    /// Convert the string to the <see cref="gRpc.HttpMethod"/> enum.
+    /// Traduce el metodo HTTP de la peticion (<c>HttpRequest.Method</c>, en mayusculas: "GET", "POST"...) al enum del
+    /// gRPC. Con <c>Enum.TryParse</c> sin ignorar mayusculas "GET" no casaba con <c>Get</c>, el verbo quedaba en
+    /// <c>None</c> y no se autorizaba nada (plan 031 de pendings).
     /// </summary>
-    /// <param name="value">The string to convert.</param>
-    /// <returns></returns>
-    private static gRpc.HttpMethod ConvertToEnum(string value)
+    /// <param name="httpVerb">El metodo HTTP de la peticion.</param>
+    /// <returns>El valor del enum, o <see cref="gRpc.HttpMethod.None"/> si no es un metodo conocido.</returns>
+    internal static gRpc.HttpMethod ToHttpMethod(string httpVerb) => httpVerb?.ToUpperInvariant() switch
     {
-        if (Enum.TryParse(typeof(gRpc.HttpMethod), value, out var method))
-
-            return (gRpc.HttpMethod)method;
-
-        return gRpc.HttpMethod.None;
-    }
+        "GET" => gRpc.HttpMethod.Get,
+        "POST" => gRpc.HttpMethod.Post,
+        "PUT" => gRpc.HttpMethod.Put,
+        "PATCH" => gRpc.HttpMethod.Patch,
+        "DELETE" => gRpc.HttpMethod.Delete,
+        _ => gRpc.HttpMethod.None
+    };
 }
