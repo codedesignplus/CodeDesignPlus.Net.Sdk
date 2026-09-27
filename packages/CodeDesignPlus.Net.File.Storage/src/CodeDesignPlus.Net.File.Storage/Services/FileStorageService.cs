@@ -40,9 +40,9 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
     /// </summary>
     /// <param name="tenant">The tenant identifier for storage isolation. It cannot be empty.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
-    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <returns>The responses of the enabled providers; a disabled provider does not answer.</returns>
     /// <exception cref="FileStorageException">Thrown when <paramref name="tenant"/> is empty.</exception>
-    public Task<M.Response[]> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default)
+    public async Task<M.Response[]> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default)
     {
         // An empty tenant is a bug upstream, never a request to wipe the storage.
         if (tenant == Guid.Empty)
@@ -52,7 +52,11 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
 
         var tasks = providers.Select(provider => provider.DeleteTenantAsync(tenant, cancellationToken));
 
-        return Task.WhenAll(tasks);
+        var responses = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        // A disabled provider returns null. Handing those nulls to the caller made every consumer that reads
+        // Success throw, and the purge of a tenant was retried until it reached the dead-letter queue.
+        return responses.Where(response => response is not null).ToArray();
     }
 
     /// <summary>

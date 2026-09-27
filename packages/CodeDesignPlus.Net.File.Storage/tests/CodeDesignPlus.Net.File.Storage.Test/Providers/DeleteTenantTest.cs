@@ -78,6 +78,33 @@ public class DeleteTenantTest
     }
 
     [Fact]
+    public async Task DeleteTenantAsync_Service_DisabledProvider_IsLeftOut()
+    {
+        // Arrange
+        var tenant = Guid.NewGuid();
+        var enabled = new Mock<IAzureBlobProvider>().As<IProvider>();
+        var disabled = new Mock<IAzureFileProvider>().As<IProvider>();
+
+        enabled
+            .Setup(x => x.DeleteTenantAsync(tenant, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new M.Response(new M.File(tenant.ToString()), TypeProviders.AzureBlobProvider) { Success = true });
+
+        // A disabled provider answers null: ProviderBase.ProcessAsync does not run it.
+        disabled
+            .Setup(x => x.DeleteTenantAsync(tenant, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((M.Response)null!);
+
+        var service = new FileStorageService([enabled.Object, disabled.Object]);
+
+        // Act
+        var responses = await service.DeleteTenantAsync(tenant);
+
+        // Assert
+        Assert.Single(responses);
+        Assert.All(responses, response => Assert.NotNull(response));
+    }
+
+    [Fact]
     public async Task DeleteTenantAsync_Service_EmptyTenantThrows()
     {
         // Arrange
