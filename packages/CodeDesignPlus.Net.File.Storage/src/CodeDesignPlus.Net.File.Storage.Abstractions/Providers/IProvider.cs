@@ -47,4 +47,12 @@ public interface IProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task<Response> GetSignedUrlAsync(string file, string target, TimeSpan timeSpan, Guid tenant, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Deletes every file stored for the tenant: its container, share or folder, with everything inside.
+    /// </summary>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task<Response> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default);
 }

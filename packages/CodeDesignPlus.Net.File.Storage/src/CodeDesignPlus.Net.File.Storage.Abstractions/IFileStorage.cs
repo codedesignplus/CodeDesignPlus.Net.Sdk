@@ -46,4 +46,12 @@ public interface IFileStorage
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task<Response[]> DeleteAsync(string file, string target, Guid tenant, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes every file stored for the tenant in all providers, used to purge a tenant removed from the platform.
+    /// </summary>
+    /// <param name="tenant">The tenant identifier for storage isolation. It cannot be empty.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task<Response[]> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default);
 }

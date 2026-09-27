@@ -244,6 +244,33 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     }
 
     /// <summary>
+    /// Deletes every document of the entity that belongs to the tenant, in a single operation.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="tenant">The tenant whose documents are deleted. It cannot be empty.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The number of deleted documents.</returns>
+    /// <exception cref="Exceptions.MongoException">Thrown when <paramref name="tenant"/> is empty.</exception>
+    public async Task<long> DeleteByTenantAsync<TEntity>(Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        // An empty tenant would match nothing useful and, on a typo, everything scoped to Guid.Empty: refuse it.
+        if (tenant == Guid.Empty)
+        {
+            throw new Exceptions.MongoException("The tenant cannot be empty.");
+        }
+
+        var collection = this.GetCollection<TEntity>();
+
+        // By field name, not by AggregateRoot.Tenant: some entities declare their own tenant property.
+        var filter = Builders<TEntity>.Filter.Eq("Tenant", tenant);
+
+        var result = await collection.DeleteManyAsync(filter, cancellationToken);
+
+        return result.DeletedCount;
+    }
+
+    /// <summary>
     /// Updates an entity asynchronously. Soft-deleted entities (IsDeleted == true) are not updated.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>

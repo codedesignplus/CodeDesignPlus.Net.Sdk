@@ -36,6 +36,26 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
     }
 
     /// <summary>
+    /// Deletes every file stored for the tenant in all providers.
+    /// </summary>
+    /// <param name="tenant">The tenant identifier for storage isolation. It cannot be empty.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    /// <exception cref="FileStorageException">Thrown when <paramref name="tenant"/> is empty.</exception>
+    public Task<M.Response[]> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default)
+    {
+        // An empty tenant is a bug upstream, never a request to wipe the storage.
+        if (tenant == Guid.Empty)
+        {
+            throw new FileStorageException("Tenant cannot be empty.");
+        }
+
+        var tasks = providers.Select(provider => provider.DeleteTenantAsync(tenant, cancellationToken));
+
+        return Task.WhenAll(tasks);
+    }
+
+    /// <summary>
     /// Downloads a file from the first provider where it exists.
     /// </summary>
     /// <param name="file">The name of the file to download.</param>

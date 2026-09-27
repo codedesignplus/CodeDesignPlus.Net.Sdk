@@ -148,6 +148,30 @@ public class AzureBlobProvider(
     }
 
     /// <summary>
+    /// Deletes the tenant's Blob container, with every file inside.
+    /// </summary>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task<M.Response> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default)
+    {
+        return base.ProcessAsync(factory.Options.AzureBlob.Enable, tenant.ToString(), TypeProviders.AzureBlobProvider, async (file, response) =>
+        {
+            var deleted = await this.factory.GetContainerClient(tenant).DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            // A tenant that never stored a file has no container: nothing to delete is still a success.
+            response.Success = true;
+
+            if (!deleted)
+            {
+                response.Message = $"The container {tenant} does not exist";
+            }
+
+            return response;
+        });
+    }
+
+    /// <summary>
     /// Deletes a file from Azure Blob Storage.
     /// </summary>
     /// <param name="filename">The name of the file to delete.</param>

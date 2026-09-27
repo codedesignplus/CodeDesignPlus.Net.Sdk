@@ -325,6 +325,45 @@ public class RepositoryBaseTest
     }
 
     [Fact]
+    public async Task DeleteByTenantAsync_DocumentsOfSeveralTenants_DeletesOnlyThatTenant()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var purged = Guid.NewGuid();
+        var kept = Guid.NewGuid();
+
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var entities = new List<Client>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Purged 1", IsActive = true, Tenant = purged },
+            new() { Id = Guid.NewGuid(), Name = "Purged 2", IsActive = true, Tenant = purged },
+            new() { Id = Guid.NewGuid(), Name = "Purged 3", IsActive = false, Tenant = purged },
+            new() { Id = Guid.NewGuid(), Name = "Kept", IsActive = true, Tenant = kept },
+        };
+
+        await repository.CreateRangeAsync(entities, cancellationToken);
+
+        // Act
+        var deleted = await repository.DeleteByTenantAsync<Client>(purged, cancellationToken);
+
+        // Assert
+        Assert.Equal(3, deleted);
+        Assert.Equal(0, await collection.CountDocumentsAsync(x => x.Tenant == purged, cancellationToken: cancellationToken));
+        Assert.Equal(1, await collection.CountDocumentsAsync(x => x.Tenant == kept, cancellationToken: cancellationToken));
+    }
+
+    [Fact]
+    public async Task DeleteByTenantAsync_EmptyTenant_Throws()
+    {
+        // Arrange
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<CodeDesignPlus.Net.Mongo.Exceptions.MongoException>(() => repository.DeleteByTenantAsync<Client>(Guid.Empty, CancellationToken.None));
+    }
+
+    [Fact]
     public async Task UpdateAsync_WhenEntityIsValid_ReturnTrue()
     {
         // Arrange

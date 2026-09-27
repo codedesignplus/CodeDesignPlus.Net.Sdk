@@ -126,6 +126,30 @@ public class LocalProvider(
     }
 
     /// <summary>
+    /// Deletes the tenant's folder, with every file inside.
+    /// </summary>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task<M.Response> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default)
+    {
+        return ProcessAsync(Options.Local.Enable, tenant.ToString(), TypeProviders.LocalProvider, (file, response) =>
+        {
+            var path = Path.Combine(Options.Local.Folder, tenant.ToString());
+
+            // A tenant that never stored a file has no folder: nothing to delete is still a success.
+            response.Success = true;
+
+            if (Directory.Exists(path))
+            {
+                Directory.Delete(path, recursive: true);
+            }
+
+            return Task.FromResult(response);
+        });
+    }
+
+    /// <summary>
     /// Gets the full path for the specified target directory and tenant.
     /// </summary>
     /// <param name="target">The target directory.</param>

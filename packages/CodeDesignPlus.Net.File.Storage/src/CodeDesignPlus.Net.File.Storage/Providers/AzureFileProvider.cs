@@ -179,4 +179,28 @@ public class AzureFileProvider(
             return response;
         });
     }
+
+    /// <summary>
+    /// Deletes the tenant's file share, with every file inside.
+    /// </summary>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task<M.Response> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default)
+    {
+        return base.ProcessAsync(factory.Options.AzureFile.Enable, tenant.ToString(), TypeProviders.AzureFileProvider, async (file, response) =>
+        {
+            var deleted = await this.factory.GetContainerClient(tenant).DeleteIfExistsAsync(cancellationToken: cancellationToken).ConfigureAwait(false);
+
+            // A tenant that never stored a file has no share: nothing to delete is still a success.
+            response.Success = true;
+
+            if (!deleted)
+            {
+                response.Message = $"The share {tenant} does not exist";
+            }
+
+            return response;
+        });
+    }
 }
