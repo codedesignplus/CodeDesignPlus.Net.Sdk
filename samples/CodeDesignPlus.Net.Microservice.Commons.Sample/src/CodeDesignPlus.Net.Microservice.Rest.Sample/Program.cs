@@ -12,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddControllers();
 builder.Services.AddCoreSwagger<Program>(builder.Configuration);
 
-builder.Services.AddFluentValidation();
+builder.Services.AddFluentValidation<Startup>();
 builder.Services.AddMediatR<Startup>();
 
 var app = builder.Build();
