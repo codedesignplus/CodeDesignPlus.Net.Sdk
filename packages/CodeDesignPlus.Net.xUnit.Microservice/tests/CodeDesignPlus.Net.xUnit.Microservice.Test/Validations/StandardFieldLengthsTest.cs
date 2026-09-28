@@ -27,7 +27,9 @@ public class StandardFieldLengthsTest
     [InlineData("Phone")]
     [InlineData("NameNative")]
     [InlineData("TermsOfService")]
-    public void ExpectedLength_FieldWithItsOwnFormat_ReturnsNull(string propertyName)
+    [InlineData("")]
+    [InlineData(null)]
+    public void ExpectedLength_FieldWithItsOwnFormat_ReturnsNull(string? propertyName)
     {
         Assert.Null(StandardFieldLengths.ExpectedLength(propertyName));
     }
@@ -62,6 +64,8 @@ public class StandardFieldLengthsTest
             RuleFor(x => x.Description).MaximumLength(512);
             RuleFor(x => x.Title).MaximumLength(FieldLength.Title);
             RuleFor(x => x.Code).MaximumLength(4);
+            // Regla sobre el objeto entero: no tiene propiedad y no debe romper la comprobacion.
+            RuleFor(x => x).Must(x => x.Name != x.Code);
         }
     }
 }

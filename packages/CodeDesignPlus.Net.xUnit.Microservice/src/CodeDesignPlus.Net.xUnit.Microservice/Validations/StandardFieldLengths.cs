@@ -22,8 +22,11 @@ public static class StandardFieldLengths
     /// Devuelve la longitud estándar de una propiedad, o <c>null</c> si no pertenece a ninguna familia.
     /// </summary>
     /// <param name="propertyName">Nombre de la propiedad; si es una ruta (<c>Contact.Name</c>), cuenta el último tramo.</param>
-    public static int? ExpectedLength(string propertyName)
+    public static int? ExpectedLength(string? propertyName)
     {
+        if (string.IsNullOrEmpty(propertyName))
+            return null;
+
         var name = propertyName[(propertyName.LastIndexOf('.') + 1)..];
 
         if (NotesNames.Any(x => name.EndsWith(x, StringComparison.Ordinal)))
@@ -63,6 +66,10 @@ public static class StandardFieldLengths
 
             foreach (var member in descriptor.GetMembersWithValidators())
             {
+                // Una regla sobre el objeto entero (RuleFor(x => x), Must, Custom) no tiene propiedad: no es de ninguna familia.
+                if (string.IsNullOrEmpty(member.Key))
+                    continue;
+
                 var expected = ExpectedLength(member.Key);
 
                 if (expected is null || exceptions.Contains($"{target}.{member.Key}"))
