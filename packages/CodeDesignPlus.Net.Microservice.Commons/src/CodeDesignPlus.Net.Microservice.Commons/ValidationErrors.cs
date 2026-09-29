@@ -82,6 +82,24 @@ public class ValidationErrors : IErrorCodes
     public static readonly Error ValidationSummary = new("9314");
 
     /// <summary>
+    /// El titulo del sobre cuando un microservicio rechaza la peticion por una regla de dominio o de aplicacion.
+    /// </summary>
+    /// <remarks>
+    /// Era el literal «Application Error» (o «Domain Error»), en ingles fuera cual fuera el idioma: la pantalla lo
+    /// pintaba como titulo del aviso encima de un detalle en espanol.
+    /// </remarks>
+    public static readonly Error BusinessErrorTitle = new("9317");
+
+    /// <summary>El titulo del sobre cuando falla la capa de infraestructura, o una capa desconocida.</summary>
+    public static readonly Error InternalProblemTitle = new("9318");
+
+    /// <summary>El titulo del sobre de un error no controlado (500).</summary>
+    public static readonly Error InternalServerErrorTitle = new("9319");
+
+    /// <summary>El detalle del sobre de un error no controlado (500) fuera de desarrollo.</summary>
+    public static readonly Error InternalServerErrorDetail = new("9320");
+
+    /// <summary>
     /// El texto no tiene la longitud exacta. Cubre <c>Length(n)</c>.
     /// </summary>
     /// <remarks>

@@ -135,7 +135,7 @@ public class ExceptionMiddlewareTests
         context.Response.Body.Seek(0, SeekOrigin.Begin);
         var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
         Assert.Contains("internal-error", body);
-        Assert.Contains("Internal Server Error", body);
+        Assert.Contains("Internal server error.", body);
         Assert.Contains("Something went wrong", body);
     }
 
@@ -213,18 +213,53 @@ public class ExceptionMiddlewareTests
     }
 
     [Theory]
-    [InlineData(Layer.Domain, "Domain Error")]
-    [InlineData(Layer.Infrastructure, "Infrastructure Error")]
-    [InlineData(Layer.Application, "Application Error")]
-    [InlineData((Layer)999, "Internal Error Sdk CodeDesignPlus")]
-    public void GetMessageTemplate_ReturnsExpectedTemplate(Layer layer, string expected)
+    [InlineData(Layer.Domain, null, "The operation could not be completed.")]
+    [InlineData(Layer.Application, null, "The operation could not be completed.")]
+    [InlineData(Layer.Infrastructure, null, "An internal problem occurred.")]
+    [InlineData((Layer)999, null, "An internal problem occurred.")]
+    [InlineData(Layer.Application, "es", "No se pudo completar la operación.")]
+    [InlineData(Layer.Domain, "es", "No se pudo completar la operación.")]
+    [InlineData(Layer.Infrastructure, "es", "Ocurrió un problema interno.")]
+    [InlineData(Layer.Application, "pt", "Não foi possível concluir a operação.")]
+    [InlineData(Layer.Application, "fr", "L'opération n'a pas pu être effectuée.")]
+    public void GetMessageTemplate_ReturnsTheTitleInTheRequestLanguage(Layer layer, string? language, string expected)
     {
         var ex = new CodeDesignPlusException(layer, "code", "msg");
         var method = typeof(ExceptionMiddleware).GetMethod("GetMessageTemplate", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static);
         Assert.NotNull(method);
 
-        var result = method.Invoke(null, new object[] { ex });
+        var result = method.Invoke(null, new object?[] { ex, language });
         Assert.Equal(expected, result);
+    }
+
+    [Fact]
+    public async Task InvokeAsync_UnhandledException_TitleAndDetailFollowTheRequestLanguage()
+    {
+        var context = new DefaultHttpContext();
+        context.Response.Body = new MemoryStream();
+
+        static Task next(HttpContext ctx)
+        {
+            ErrorLanguage.Current = "es";
+            throw new Exception("Something went wrong");
+        }
+
+        var middleware = CreateMiddleware(next);
+
+        try
+        {
+            await middleware.InvokeAsync(context);
+        }
+        finally
+        {
+            ErrorLanguage.Current = null;
+        }
+
+        context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        Assert.Contains("Error interno del servidor.", body);
+        Assert.Contains("Inténtalo más tarde o contacta a soporte.", body);
+        Assert.DoesNotContain("Internal", body.Split("exception_message")[0]);
     }
 
 

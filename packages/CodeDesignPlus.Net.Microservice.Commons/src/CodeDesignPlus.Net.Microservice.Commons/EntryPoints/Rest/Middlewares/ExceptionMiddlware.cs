@@ -196,7 +196,7 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
 
         var traceId = GetTraceId(context);
 
-        var messageTemplate = GetMessageTemplate(exception);
+        var messageTemplate = GetMessageTemplate(exception, ErrorLanguage.Current);
 
         var detailMessage = GetDetailMessage(exception, ErrorLanguage.Current);
 
@@ -237,9 +237,9 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
         var problemDetails = new ProblemDetails
         {
             Type = $"{options.Value.ApiDocumentationBaseUrl}internal-error",
-            Title = "Internal Server Error",
+            Title = ValidationErrors.InternalServerErrorTitle.GetMessage(ErrorLanguage.Current),
             Status = context.Response.StatusCode,
-            Detail = "An error occurred while processing your request, please try again later or contact support.",
+            Detail = ValidationErrors.InternalServerErrorDetail.GetMessage(ErrorLanguage.Current),
             Instance = traceId
         };
 
@@ -351,16 +351,21 @@ public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddlewa
     /// This method provides a standardized message template that can be used in the problem details response.
     /// </summary>
     /// <param name="exception">The CodeDesignPlusException to get the message template for.</param>
+    /// <param name="language">The language resolved from Accept-Language; null falls back to English.</param>
     /// <returns>A string containing the message template.</returns>
-    private static string GetMessageTemplate(CodeDesignPlusException exception)
+    /// <remarks>
+    /// The title is read by a person, so it is translated like the detail. The layer still travels, untranslated, in
+    /// the <c>layer</c> extension.
+    /// </remarks>
+    private static string GetMessageTemplate(CodeDesignPlusException exception, string? language)
     {
-        return exception.Layer switch
+        var title = exception.Layer switch
         {
-            Layer.Domain => "Domain Error",
-            Layer.Infrastructure => "Infrastructure Error",
-            Layer.Application => "Application Error",
-            _ => "Internal Error Sdk CodeDesignPlus"
+            Layer.Domain or Layer.Application => ValidationErrors.BusinessErrorTitle,
+            _ => ValidationErrors.InternalProblemTitle
         };
+
+        return title.GetMessage(language);
     }
     
     /// <summary>

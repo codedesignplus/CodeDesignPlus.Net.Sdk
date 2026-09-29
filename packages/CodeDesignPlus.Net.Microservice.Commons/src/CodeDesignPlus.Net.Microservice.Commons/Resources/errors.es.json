@@ -17,6 +17,10 @@
     "9313": "Error de validación.",
     "9314": "Uno o más campos no pasaron la validación.",
     "9315": "{PropertyName} debe tener {MaxLength} caracteres; escribiste {TotalLength}.",
-    "9316": "{PropertyName} debe tener al menos {MinLength} caracteres; escribiste {TotalLength}."
+    "9316": "{PropertyName} debe tener al menos {MinLength} caracteres; escribiste {TotalLength}.",
+    "9317": "No se pudo completar la operación.",
+    "9318": "Ocurrió un problema interno.",
+    "9319": "Error interno del servidor.",
+    "9320": "Ocurrió un error al procesar tu solicitud. Inténtalo más tarde o contacta a soporte."
   }
 }
