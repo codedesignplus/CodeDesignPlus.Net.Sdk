@@ -55,8 +55,6 @@
     "9051": "O país é obrigatório.",
     "9052": "O estado é obrigatório.",
     "9053": "A cidade é obrigatória.",
-    "9054": "A localidade é obrigatória.",
-    "9055": "O bairro é obrigatório.",
     "9056": "O endereço é obrigatório.",
     "9057": "O código postal é obrigatório.",
     "9058": "O identificador do bairro é obrigatório.",
@@ -123,6 +121,7 @@
     "9119": "O tamanho do código é inválido para {0}-{1}.",
     "9120": "O símbolo é obrigatório para {0}-{1}.",
     "9121": "O código numérico é inválido para {0}-{1}.",
-    "9122": "As casas decimais são inválidas para {0}-{1}."
+    "9122": "As casas decimais são inválidas para {0}-{1}.",
+    "9123": "O bairro precisa da sua localidade."
   }
 }

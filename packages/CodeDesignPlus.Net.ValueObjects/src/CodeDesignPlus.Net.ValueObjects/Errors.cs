@@ -125,9 +125,6 @@ public class Errors : IErrorCodes
 
     public static readonly Error CityCannotBeNull = new("9053");
 
-    public static readonly Error LocalityCannotBeNull = new("9054");
-
-    public static readonly Error NeighborhoodCannotBeNull = new("9055");
 
     public static readonly Error AddressCannotBeNullOrEmpty = new("9056");
 
@@ -270,4 +267,10 @@ public class Errors : IErrorCodes
     public static readonly Error CurrencyNumericCodeIsInvalid = new("9121");
 
     public static readonly Error CurrencyDecimalDigitsAreInvalid = new("9122");
+
+    /// <summary>
+    /// Un barrio cuelga de una localidad: la dirección puede no llevar ninguno de los dos (la mayoría de los municipios
+    /// no tiene localidades), pero no un barrio sin su localidad (pendings/130).
+    /// </summary>
+    public static readonly Error NeighborhoodRequiresLocality = new("9123");
 }

@@ -111,13 +111,15 @@ public class TenantSnapshotFallback(ITenantGrpc tenantGrpc, ILogger<TenantSnapsh
             proto.City?.Name ?? string.Empty,
             cityTimezone);
 
-        var locality = VoLocation.Locality.Create(
-            Guid.TryParse(proto.Locality?.Id, out var localityId) ? localityId : Guid.NewGuid(),
-            proto.Locality?.Name ?? string.Empty);
+        // Localidad y barrio son opcionales: la mayoría de los municipios no tiene localidades (pendings/130). Uno
+        // ausente se queda nulo; inventarle un id y un nombre vacío lanzaba al crear el objeto de valor.
+        var locality = Guid.TryParse(proto.Locality?.Id, out var localityId) && localityId != Guid.Empty && !string.IsNullOrWhiteSpace(proto.Locality!.Name)
+            ? VoLocation.Locality.Create(localityId, proto.Locality.Name)
+            : null;
 
-        var neighborhood = VoLocation.Neighborhood.Create(
-            Guid.TryParse(proto.Neighborhood?.Id, out var neighborhoodId) ? neighborhoodId : Guid.NewGuid(),
-            proto.Neighborhood?.Name ?? string.Empty);
+        var neighborhood = locality is not null && Guid.TryParse(proto.Neighborhood?.Id, out var neighborhoodId) && neighborhoodId != Guid.Empty && !string.IsNullOrWhiteSpace(proto.Neighborhood!.Name)
+            ? VoLocation.Neighborhood.Create(neighborhoodId, proto.Neighborhood.Name)
+            : null;
 
         return VoLocation.Location.Create(country, state, city, locality, neighborhood,
             proto.Address ?? string.Empty,

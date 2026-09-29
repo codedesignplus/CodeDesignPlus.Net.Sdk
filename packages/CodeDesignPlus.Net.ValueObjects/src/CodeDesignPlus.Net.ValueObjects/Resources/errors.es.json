@@ -55,8 +55,6 @@
     "9051": "El país es obligatorio.",
     "9052": "El departamento es obligatorio.",
     "9053": "La ciudad es obligatoria.",
-    "9054": "La localidad es obligatoria.",
-    "9055": "El barrio es obligatorio.",
     "9056": "La dirección es obligatoria.",
     "9057": "El código postal es obligatorio.",
     "9058": "El identificador del barrio es obligatorio.",
@@ -123,6 +121,7 @@
     "9119": "La longitud del código no es válida para {0}-{1}.",
     "9120": "El símbolo es obligatorio para {0}-{1}.",
     "9121": "El código numérico no es válido para {0}-{1}.",
-    "9122": "Los decimales no son válidos para {0}-{1}."
+    "9122": "Los decimales no son válidos para {0}-{1}.",
+    "9123": "El barrio necesita su localidad."
   }
 }

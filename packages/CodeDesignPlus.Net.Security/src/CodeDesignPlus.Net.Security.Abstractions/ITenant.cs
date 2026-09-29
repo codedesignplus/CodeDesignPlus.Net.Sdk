@@ -62,13 +62,13 @@ public interface ITenant
     /// </summary>
     City City { get; }
     /// <summary>
-    /// Get the locality information.
+    /// Get the locality information, or null if the tenant's city has no localities.
     /// </summary>
-    Locality Locality { get; }
+    Locality? Locality { get; }
     /// <summary>
-    /// Get the neighborhood information.
+    /// Get the neighborhood information, or null if the tenant's locality has no neighborhoods.
     /// </summary>
-    Neighborhood Neighborhood { get; }
+    Neighborhood? Neighborhood { get; }
     /// <summary>
     /// Get the time zone.
     /// </summary>

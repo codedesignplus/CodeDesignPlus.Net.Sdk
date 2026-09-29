@@ -25,13 +25,15 @@ public sealed class Location : IEquatable<Location>
 
     /// <summary>
     /// Gets the locality or administrative borough (e.g., "Kennedy", "Teusaquillo").
+    /// Null when the city has no localities, which is the case for most municipalities.
     /// </summary>
-    public Locality Locality { get; private set; }
+    public Locality? Locality { get; private set; }
 
     /// <summary>
     /// Gets the specific neighborhood (e.g., "El Tintal", "La Fraguita").
+    /// Null when the locality has no neighborhoods in the catalog. A neighborhood always comes with its locality.
     /// </summary>
-    public Neighborhood Neighborhood { get; private set; }
+    public Neighborhood? Neighborhood { get; private set; }
 
     /// <summary>
     /// Gets the specific street address (e.g., "Carrera 86 # 6-37").
@@ -44,7 +46,7 @@ public sealed class Location : IEquatable<Location>
     public string PostalCode { get; private set; }
 
     [JsonConstructor]
-    private Location(Country country, State state, City city, Locality locality, Neighborhood neighborhood, string address, string postalCode)
+    private Location(Country country, State state, City city, Locality? locality, Neighborhood? neighborhood, string address, string postalCode)
     {
         var normalizedAddress = address?.Trim() ?? string.Empty;
         var normalizedPostalCode = postalCode?.Trim() ?? string.Empty;
@@ -52,8 +54,7 @@ public sealed class Location : IEquatable<Location>
         Guard.IsNull(country, Exceptions.Layer.None, Errors.CountryCannotBeNull);
         Guard.IsNull(state, Exceptions.Layer.None, Errors.StateCannotBeNull);
         Guard.IsNull(city, Exceptions.Layer.None, Errors.CityCannotBeNull);
-        Guard.IsNull(locality, Exceptions.Layer.None, Errors.LocalityCannotBeNull);
-        Guard.IsNull(neighborhood, Exceptions.Layer.None, Errors.NeighborhoodCannotBeNull);
+        Guard.IsTrue(neighborhood is not null && locality is null, Exceptions.Layer.None, Errors.NeighborhoodRequiresLocality);
 
         Guard.IsNullOrEmpty(normalizedAddress, Exceptions.Layer.None, Errors.AddressCannotBeNullOrEmpty);
         Guard.IsNullOrEmpty(normalizedPostalCode, Exceptions.Layer.None, Errors.PostalCodeCannotBeNullOrEmpty);
@@ -73,12 +74,12 @@ public sealed class Location : IEquatable<Location>
     /// <param name="country">The country component of the location.</param>
     /// <param name="state">The state, province, or department.</param>
     /// <param name="city">The city or municipality.</param>
-    /// <param name="locality">The locality or administrative borough.</param>
-    /// <param name="neighborhood">The specific neighborhood.</param>
+    /// <param name="locality">The locality or administrative borough, or null if the city has none.</param>
+    /// <param name="neighborhood">The specific neighborhood, or null if the locality has none. Requires a locality.</param>
     /// <param name="address">The specific street address.</param>
     /// <param name="postalCode">The postal or zip code.</param>
     /// <returns>A new instance of the Location value object.</returns>
-    public static Location Create(Country country, State state, City city, Locality locality, Neighborhood neighborhood, string address, string postalCode)
+    public static Location Create(Country country, State state, City city, Locality? locality, Neighborhood? neighborhood, string address, string postalCode)
     {
         return new Location(country, state, city, locality, neighborhood, address, postalCode);
     }

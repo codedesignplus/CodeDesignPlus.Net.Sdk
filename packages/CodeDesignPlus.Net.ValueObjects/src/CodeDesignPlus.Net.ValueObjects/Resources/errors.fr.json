@@ -55,8 +55,6 @@
     "9051": "Le pays est obligatoire.",
     "9052": "La région est obligatoire.",
     "9053": "La ville est obligatoire.",
-    "9054": "La localité est obligatoire.",
-    "9055": "Le quartier est obligatoire.",
     "9056": "L'adresse est obligatoire.",
     "9057": "Le code postal est obligatoire.",
     "9058": "L'identifiant du quartier est obligatoire.",
@@ -123,6 +121,7 @@
     "9119": "La longueur du code est invalide pour {0}-{1}.",
     "9120": "Le symbole est obligatoire pour {0}-{1}.",
     "9121": "Le code numérique est invalide pour {0}-{1}.",
-    "9122": "Le nombre de décimales est invalide pour {0}-{1}."
+    "9122": "Le nombre de décimales est invalide pour {0}-{1}.",
+    "9123": "Un quartier nécessite sa localité."
   }
 }

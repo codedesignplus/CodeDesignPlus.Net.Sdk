@@ -60,21 +60,59 @@ public class LocationTest
     }
 
     [Fact]
-    public void Create_NullLocality_ThrowsCodeDesignPlusException()
+    public void Create_WithoutLocalityAndNeighborhood_ReturnsLocation()
     {
-        // Act & Assert
-        var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, City, null!, Neighborhood, Address, PostalCode));
+        // Most municipalities have no localities (pendings/130).
+        var location = L.Location.Create(Country, State, City, null, null, Address, PostalCode);
 
-        AssertGuard(exception, Errors.LocalityCannotBeNull);
+        Assert.Null(location.Locality);
+        Assert.Null(location.Neighborhood);
+        Assert.Equal(City, location.City);
     }
 
     [Fact]
-    public void Create_NullNeighborhood_ThrowsCodeDesignPlusException()
+    public void Create_WithLocalityWithoutNeighborhood_ReturnsLocation()
+    {
+        var location = L.Location.Create(Country, State, City, Locality, null, Address, PostalCode);
+
+        Assert.Equal(Locality, location.Locality);
+        Assert.Null(location.Neighborhood);
+    }
+
+    [Fact]
+    public void Create_NeighborhoodWithoutLocality_ThrowsCodeDesignPlusException()
     {
         // Act & Assert
-        var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, City, Locality, null!, Address, PostalCode));
+        var exception = Assert.Throws<CodeDesignPlusException>(() => L.Location.Create(Country, State, City, null, Neighborhood, Address, PostalCode));
 
-        AssertGuard(exception, Errors.NeighborhoodCannotBeNull);
+        AssertGuard(exception, Errors.NeighborhoodRequiresLocality);
+    }
+
+    [Fact]
+    public void Deserialize_WithoutLocalityAndNeighborhood_KeepsThemNull()
+    {
+        // The events and the tenant snapshot travel as JSON: a location without them must read back as it was written.
+        var location = L.Location.Create(Country, State, City, null, null, Address, PostalCode);
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(location);
+        var back = Newtonsoft.Json.JsonConvert.DeserializeObject<L.Location>(json);
+
+        Assert.NotNull(back);
+        Assert.Null(back.Locality);
+        Assert.Null(back.Neighborhood);
+        Assert.Equal(location, back);
+    }
+
+    [Fact]
+    public void Equals_WithoutLocalityAndNeighborhood_ComparesTheRest()
+    {
+        var a = L.Location.Create(Country, State, City, null, null, Address, PostalCode);
+        var b = L.Location.Create(Country, State, City, null, null, Address, PostalCode);
+        var c = L.Location.Create(Country, State, City, Locality, null, Address, PostalCode);
+
+        Assert.Equal(a, b);
+        Assert.Equal(a.GetHashCode(), b.GetHashCode());
+        Assert.NotEqual(a, c);
     }
 
     [Theory]

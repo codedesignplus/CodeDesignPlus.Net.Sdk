@@ -33,6 +33,46 @@ public class TenantSnapshotFallbackTest
         Assert.Null(result);
     }
 
+    [Fact]
+    public async Task GetAsync_LocationWithoutLocalityAndNeighborhood_KeepsThemNull()
+    {
+        // La mayoría de los municipios no tiene localidades ni barrios (pendings/130). Antes el respaldo les inventaba
+        // un id y un nombre vacío, y el objeto de valor lanzaba al crearse.
+        var response = new GetTenantResponse
+        {
+            Id = Guid.NewGuid().ToString(),
+            Name = "Conjunto Chía",
+            Location = new Location
+            {
+                Country = new Country
+                {
+                    Id = Guid.NewGuid().ToString(), Name = "Colombia", Alpha2 = "CO", Alpha3 = "COL", Code = 170,
+                    PhoneCode = "+57", Timezone = "America/Bogota",
+                    Currency = new Currency { Id = Guid.NewGuid().ToString(), Code = "COP", Name = "Peso colombiano", Symbol = "$", DecimalDigits = 2, NumericCode = 170 }
+                },
+                State = new State { Id = Guid.NewGuid().ToString(), Name = "Cundinamarca", Code = "CUN" },
+                City = new City { Id = Guid.NewGuid().ToString(), Name = "Chía" },
+                Address = "Calle 10 # 5-20",
+                PostalCode = "250001"
+            }
+        };
+
+        var grpc = new Mock<ITenantGrpc>();
+        grpc.Setup(g => g.GetTenantByIdAsync(It.IsAny<GetTenantRequest>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(response);
+
+        var fallback = new TenantSnapshotFallback(grpc.Object, Mock.Of<ILogger<TenantSnapshotFallback>>());
+
+        // Act
+        var result = await fallback.GetAsync(Guid.NewGuid());
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal("Chía", result.Location.City.Name);
+        Assert.Null(result.Location.Locality);
+        Assert.Null(result.Location.Neighborhood);
+    }
+
     [Theory]
     [InlineData(StatusCode.Unavailable)]
     [InlineData(StatusCode.DeadlineExceeded)]

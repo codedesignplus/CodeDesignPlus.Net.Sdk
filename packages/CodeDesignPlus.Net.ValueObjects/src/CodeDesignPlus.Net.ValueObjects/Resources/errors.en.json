@@ -55,8 +55,6 @@
     "9051": "Country cannot be null.",
     "9052": "State cannot be null.",
     "9053": "City cannot be null.",
-    "9054": "Locality cannot be null.",
-    "9055": "Neighborhood cannot be null.",
     "9056": "Address cannot be null or empty.",
     "9057": "Postal code cannot be null or empty.",
     "9058": "Neighborhood ID cannot be empty.",
@@ -123,6 +121,7 @@
     "9119": "Code length is invalid for {0}-{1}",
     "9120": "Symbol is required for {0}-{1}",
     "9121": "Numeric code is invalid for {0}-{1}",
-    "9122": "Decimal digits is invalid for {0}-{1}"
+    "9122": "Decimal digits is invalid for {0}-{1}",
+    "9123": "A neighborhood requires its locality."
   }
 }
