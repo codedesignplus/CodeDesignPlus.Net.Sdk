@@ -86,12 +86,14 @@ public static class ServiceCollectionExtension
                         | IncludedData.MessageTemplateTextAttribute
                         | IncludedData.MessageTemplateMD5HashAttribute;
 
-                    options.BatchingOptions.BatchSizeLimit = 10;
-                    options.BatchingOptions.QueueLimit = 10;
+                    // Lotes y cola con los valores del sink (1000 y 100000). Con 10 y 10 cada puñado de
+                    // logs era una llamada gRPC, y una ráfaga de más de diez se perdía.
 
+                    // El mismo service.name que trazas y métricas ({AppName}-{TypeEntryPoint}): con
+                    // solo AppName, SigNoz no cruzaba los logs de un entrypoint con sus trazas.
                     options.ResourceAttributes = new Dictionary<string, object>
                     {
-                        { "service.name", coreOptions.Value.AppName },
+                        { "service.name", $"{coreOptions.Value.AppName}-{coreOptions.Value.TypeEntryPoint}" },
                         { "service.version", coreOptions.Value.Version },
                         { "service.description", coreOptions.Value.Description },
                         { "service.business", coreOptions.Value.Business },

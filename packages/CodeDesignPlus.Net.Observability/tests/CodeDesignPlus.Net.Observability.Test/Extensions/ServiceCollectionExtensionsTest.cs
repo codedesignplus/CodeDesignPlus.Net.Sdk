@@ -192,6 +192,8 @@ public class ServiceCollectionExtensionsTest
 
         // Assert
         Assert.NotEmpty(serviceCollection);
-        Assert.Equal(54, serviceCollection.Count);
+        // 55: cada AddProcessor registra un servicio, y la traza lleva dos (el filtro de ruido y el
+        // del tenant).
+        Assert.Equal(55, serviceCollection.Count);
     }
 }

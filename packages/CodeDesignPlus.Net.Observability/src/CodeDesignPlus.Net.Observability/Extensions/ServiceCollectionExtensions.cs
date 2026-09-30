@@ -136,7 +136,8 @@ public static class ServiceCollectionExtensions
             tracing.AddTraceKafkaInstrumentation(observabilityOptions.Trace.Kafka);
 
             // Antes del exportador a proposito: los processors corren en orden de registro, asi que
-            // registrarlo despues significaria exportar el span antes de haberlo etiquetado.
+            // registrarlos despues significaria exportar el span antes de haberlo etiquetado o descartado.
+            tracing.AddProcessor(new TelemetryNoiseFilterProcessor());
             tracing.AddProcessor(new TenantEnrichmentProcessor());
 
             tracing.AddOtlpExporter(x =>
