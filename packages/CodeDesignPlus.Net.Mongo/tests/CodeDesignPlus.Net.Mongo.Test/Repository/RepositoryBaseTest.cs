@@ -915,6 +915,35 @@ public class RepositoryBaseTest
         Assert.Contains(result, c => c.Name == "Bob3");
     }
 
+    [Theory]
+    [InlineData(Net.Core.Abstractions.Models.Criteria.OrderTypes.Ascending, "NatAsc-", new[] { "101", "102", "904", "1001" })]
+    [InlineData(Net.Core.Abstractions.Models.Criteria.OrderTypes.Descending, "NatDesc-", new[] { "1001", "904", "102", "101" })]
+    public async Task MatchingAsync_SortByTextWithNumbers_OrdersTheNumbersByValue(Net.Core.Abstractions.Models.Criteria.OrderTypes orderType, string prefix, string[] expected)
+    {
+        // Arrange: without the collation, "T1-1001" sorted before "T1-101"
+        var cancellationToken = CancellationToken.None;
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        var clients = new[] { "1001", "101", "904", "102" }
+            .Select(number => new Client { Id = Guid.NewGuid(), Name = $"{prefix}T1-{number}", IsActive = true })
+            .ToList();
+
+        await repository.CreateRangeAsync(clients, cancellationToken);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = $"Name~={prefix}T1-",
+            OrderBy = "Name",
+            OrderType = orderType
+        };
+
+        // Act
+        var result = await repository.MatchingAsync<Client>(criteria, cancellationToken);
+
+        // Assert
+        Assert.Equal(expected.Select(number => $"{prefix}T1-{number}").ToArray(), result.Data.Select(c => c.Name).ToArray());
+    }
+
     [Fact]
     public async Task FindAsync_WhenEntityIsDeleted_ReturnsNull()
     {

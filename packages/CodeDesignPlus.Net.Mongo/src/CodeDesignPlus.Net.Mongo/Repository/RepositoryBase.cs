@@ -546,6 +546,17 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     }
 
     /// <summary>
+    /// Collation used to sort paginated queries: digit runs inside a string compare as numbers.
+    /// </summary>
+    /// <remarks>
+    /// Without it MongoDB compares strings code point by code point, so <c>"T1-1001"</c> sorted before <c>"T1-101"</c>
+    /// and <c>"Torre 10"</c> before <c>"Torre 2"</c>. With <c>numericOrdering</c> the result is the order a person expects:
+    /// T1-101, T1-102, …, T1-904, T1-1001. The Spanish locale also orders accented letters and case the way a Spanish
+    /// reader does.
+    /// </remarks>
+    internal static readonly Collation NaturalOrderCollation = new("es", numericOrdering: true);
+
+    /// <summary>
     /// Sorts the query based on the specified sort expression and order type.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -561,7 +572,11 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         var filter = filterExpression.ToFilterDefinition().BuildFilter(tenant);
 
-        var query = collection.Find(filter);
+        // Only a sorted query carries the collation: a collation also applies to string predicates, and a filter whose
+        // collation differs from its index's cannot use that index.
+        var options = sortBy != null ? new FindOptions { Collation = NaturalOrderCollation } : null;
+
+        var query = collection.Find(filter, options);
 
         if (sortBy != null)
             if (criteria.OrderType == OrderTypes.Ascending)
