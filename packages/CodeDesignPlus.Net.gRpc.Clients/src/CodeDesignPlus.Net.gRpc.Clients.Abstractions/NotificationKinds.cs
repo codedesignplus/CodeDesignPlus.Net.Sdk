@@ -112,6 +112,12 @@ public static class NotificationKinds
     /// <summary>PQRS cerrada. Payload: { pqrsId, code }</summary>
     public const string PqrsClosed = "pqrs.closed";
 
+    /// <summary>PQRS sin respuesta que supero sus horas de respuesta del SLA. Payload: { pqrsId, subject, priority, escalationDeadline }</summary>
+    public const string PqrsResponseOverdue = "pqrs.response.overdue";
+
+    /// <summary>PQRS sin respuesta escalada al superar sus horas de escalamiento del SLA. Payload: { pqrsId, subject, priority }</summary>
+    public const string PqrsSlaEscalated = "pqrs.sla.escalated";
+
     /// <summary>PQRS escalada al comite de convivencia. Payload: { pqrsId, code, reason }</summary>
     public const string PqrsEscalatedToCommittee = "pqrs.escalated.committee";
 
