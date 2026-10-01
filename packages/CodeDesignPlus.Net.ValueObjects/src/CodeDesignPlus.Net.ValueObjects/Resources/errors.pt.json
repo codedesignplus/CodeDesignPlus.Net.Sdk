@@ -30,7 +30,7 @@
     "9026": "Não é possível somar valores em moedas diferentes.",
     "9027": "Não é possível comparar valores em moedas diferentes.",
     "9028": "O tipo é obrigatório.",
-    "9029": "O tipo deve ser DAILY_RATE, FIXED ou PERCENTAGE.",
+    "9029": "O tipo deve ser MONTHLY_RATE, DAILY_RATE, FIXED ou PERCENTAGE.",
     "9030": "Os pontos-base da taxa não podem ser negativos.",
     "9031": "O valor fixo não pode ser negativo.",
     "9032": "Os dias de carência não podem ser negativos.",

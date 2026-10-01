@@ -4,22 +4,34 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 
 /// <summary>
 /// Represents a penalty rule for late payments, damages, or non-compliance.
-/// Supports three penalty types: a daily percentage rate, a fixed amount, or a percentage of the original amount.
+/// Supports four penalty types: a monthly or a daily percentage rate accrued per day, a fixed amount, or a percentage
+/// of the original amount.
 /// Amounts are stored in minor units (e.g., cents) to avoid floating-point precision loss.
 /// </summary>
 public sealed class PenaltyRule : IEquatable<PenaltyRule>
 {
     /// <summary>
-    /// Gets the penalty type. Valid values are "DAILY_RATE", "FIXED", or "PERCENTAGE".
+    /// Gets the penalty type. Valid values are "MONTHLY_RATE", "DAILY_RATE", "FIXED", or "PERCENTAGE".
     /// </summary>
     public string Type { get; private set; }
 
     /// <summary>
     /// Gets the penalty rate in basis points.
-    /// Used when <see cref="Type"/> is "DAILY_RATE" (per day) or "PERCENTAGE" (of original amount).
-    /// e.g., 150 = 1.50% per day, 1000 = 10.00% of original. Zero when Type is "FIXED".
+    /// Used when <see cref="Type"/> is "MONTHLY_RATE" (per 30 days, accrued daily), "DAILY_RATE" (per day) or
+    /// "PERCENTAGE" (of original amount). e.g., 180 = 1.80% per month, 6 = 0.06% per day, 1000 = 10.00% of original.
+    /// Zero when Type is "FIXED".
+    /// <para>
+    /// Late-payment interest is quoted per month, and the daily equivalent of a legal monthly rate (around 0.06 %)
+    /// does not fit in whole basis points: only 0.06 % or 0.07 % can be stored. A monthly rate keeps two decimals of
+    /// precision and is prorated per day as <c>rate / 30</c>.
+    /// </para>
     /// </summary>
     public int RateBasisPoints { get; private set; }
+
+    /// <summary>
+    /// The days a monthly rate is prorated over: a monthly rate accrues <c>rate / 30</c> per day.
+    /// </summary>
+    public const int DaysPerMonth = 30;
 
     /// <summary>
     /// Gets the fixed penalty amount in minor units.
@@ -51,7 +63,7 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
 
         Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, Errors.TypeCannotBeNullOrEmpty);
         Guard.IsFalse(
-            normalizedType is "DAILY_RATE" or "FIXED" or "PERCENTAGE",
+            normalizedType is "MONTHLY_RATE" or "DAILY_RATE" or "FIXED" or "PERCENTAGE",
             Exceptions.Layer.None,
             Errors.TypeMustBeDAILYRATEFIXEDOrPERCENTAGE);
         Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
@@ -68,6 +80,17 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
         GraceDays = graceDays;
         MaxPenaltyAmount = maxPenaltyAmount;
     }
+
+    /// <summary>
+    /// Creates a monthly-rate penalty rule accrued per day (e.g., 1.80% per month after 5 grace days).
+    /// </summary>
+    /// <param name="rateBasisPoints">The monthly rate in basis points (e.g., 180 = 1.80%).</param>
+    /// <param name="currency">The ISO 4217 currency code.</param>
+    /// <param name="graceDays">Number of days before the penalty starts accruing. Defaults to 0.</param>
+    /// <param name="maxPenaltyAmount">Maximum penalty cap in minor units. Zero means no cap. Defaults to 0.</param>
+    /// <returns>A new <see cref="PenaltyRule"/> instance of type "MONTHLY_RATE".</returns>
+    public static PenaltyRule CreateMonthlyRate(int rateBasisPoints, string currency, int graceDays = 0, long maxPenaltyAmount = 0)
+        => new("MONTHLY_RATE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
 
     /// <summary>
     /// Creates a daily-rate penalty rule (e.g., 1.50% per day after 5 grace days).
@@ -115,6 +138,7 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
 
         long penalty = Type switch
         {
+            "MONTHLY_RATE" => (long)Math.Round(baseAmountMinorUnits * (RateBasisPoints / 10000m) * billableDays / DaysPerMonth, MidpointRounding.AwayFromZero),
             "DAILY_RATE" => (long)Math.Round(baseAmountMinorUnits * (RateBasisPoints / 10000m) * billableDays, MidpointRounding.AwayFromZero),
             "FIXED"      => FixedAmount,
             "PERCENTAGE" => (long)Math.Round(baseAmountMinorUnits * (RateBasisPoints / 10000m), MidpointRounding.AwayFromZero),

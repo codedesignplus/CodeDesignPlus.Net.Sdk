@@ -30,7 +30,7 @@
     "9026": "Cannot add amounts with different currencies.",
     "9027": "Cannot compare amounts with different currencies.",
     "9028": "Type cannot be null or empty.",
-    "9029": "Type must be DAILY_RATE, FIXED, or PERCENTAGE.",
+    "9029": "Type must be MONTHLY_RATE, DAILY_RATE, FIXED, or PERCENTAGE.",
     "9030": "RateBasisPoints cannot be negative.",
     "9031": "FixedAmount cannot be negative.",
     "9032": "GraceDays cannot be negative.",

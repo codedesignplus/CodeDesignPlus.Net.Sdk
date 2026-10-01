@@ -15,8 +15,8 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// stores. The client never computes basis points.
 /// </para>
 /// </summary>
-/// <param name="Type">The penalty type. Valid values are "DAILY_RATE", "FIXED", or "PERCENTAGE".</param>
-/// <param name="RatePercentage">The rate as a percentage (e.g., 1.5 = 1.5%). Used for "DAILY_RATE" and "PERCENTAGE".</param>
+/// <param name="Type">The penalty type. Valid values are "MONTHLY_RATE", "DAILY_RATE", "FIXED", or "PERCENTAGE".</param>
+/// <param name="RatePercentage">The rate as a percentage (e.g., 1.8 = 1.8%). Used for "MONTHLY_RATE", "DAILY_RATE" and "PERCENTAGE".</param>
 /// <param name="FixedAmount">The fixed penalty in MAJOR units. Used only when <paramref name="Type"/> is "FIXED".</param>
 /// <param name="Currency">The 3-letter currency code, according to ISO 4217.</param>
 /// <param name="GraceDays">The number of grace days before the penalty starts accruing.</param>
@@ -41,12 +41,15 @@ public sealed record PenaltyRuleInput(
         var normalizedType = Type?.Trim().ToUpperInvariant() ?? string.Empty;
 
         Guard.IsFalse(
-            normalizedType is "DAILY_RATE" or "FIXED" or "PERCENTAGE",
+            normalizedType is "MONTHLY_RATE" or "DAILY_RATE" or "FIXED" or "PERCENTAGE",
             Exceptions.Layer.None,
             Errors.TypeMustBeDAILYRATEFIXEDOrPERCENTAGE);
 
         var rateBasisPoints = BasisPoints.FromPercentage(RatePercentage);
         var maxPenaltyMinor = Money.FromDecimal(MaxPenaltyAmount, Currency, decimalPlaces).Amount;
+
+        if (normalizedType == "MONTHLY_RATE")
+            return PenaltyRule.CreateMonthlyRate(rateBasisPoints, Currency, GraceDays, maxPenaltyMinor);
 
         if (normalizedType == "DAILY_RATE")
             return PenaltyRule.CreateDailyRate(rateBasisPoints, Currency, GraceDays, maxPenaltyMinor);
