@@ -267,6 +267,30 @@ public class AzureBlobProviderTest
     }
 
     [Fact]
+    public async Task GetSignedUrlAsync_SixtyMinutes_ExpiresInAnHour()
+    {
+        // Arrange: TimeSpan.Minutes is 0 for 60 minutes, so the SAS used to be born expired.
+        DateTimeOffset? expiresOn = null;
+        blobClientMock
+            .Setup(x => x.ExistsAsync(It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Azure.Response.FromValue(true, Mock.Of<Azure.Response>()));
+        blobClientMock
+            .Setup(x => x.GenerateSasUri(It.IsAny<Azure.Storage.Sas.BlobSasPermissions>(), It.IsAny<DateTimeOffset>()))
+            .Callback<Azure.Storage.Sas.BlobSasPermissions, DateTimeOffset>((_, expires) => expiresOn = expires)
+            .Returns(new Uri("https://fake.blob.core.windows.net/container/docs/general/FakeDocument.txt?sasToken"));
+
+        var provider = new AzureBlobProvider(factoryMock.Object, loggerMock.Object, environmentMock.Object);
+
+        // Act
+        var result = await provider.GetSignedUrlAsync(filename, target, TimeSpan.FromMinutes(60), tenant, cancellationToken);
+
+        // Assert
+        Assert.NotNull(expiresOn);
+        Assert.True(expiresOn > DateTimeOffset.UtcNow.AddMinutes(59));
+        Assert.True(result.File.Detail.SignedUrlExpiration > DateTime.UtcNow.AddMinutes(59));
+    }
+
+    [Fact]
     public async Task GetSignedUrlAsync_FileDoesNotExist_ReturnsFailure()
     {
         // Arrange

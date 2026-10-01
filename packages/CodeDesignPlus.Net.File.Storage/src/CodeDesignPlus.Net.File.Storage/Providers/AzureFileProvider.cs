@@ -143,9 +143,9 @@ public class AzureFileProvider(
                  return response;
              }
 
-             var sasUri = fileClient.GenerateSasUri(Azure.Storage.Sas.ShareFileSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(timeSpan.TotalMinutes));
+             var sasUri = fileClient.GenerateSasUri(Azure.Storage.Sas.ShareFileSasPermissions.Read, DateTimeOffset.UtcNow.Add(timeSpan));
 
-             file.Detail = new Abstractions.Models.FileDetail(sasUri, DateTime.UtcNow.AddMinutes(timeSpan.Minutes), target, filename, TypeProviders.AzureBlobProvider);
+             file.Detail = new Abstractions.Models.FileDetail(sasUri, DateTime.UtcNow.Add(timeSpan), target, filename, TypeProviders.AzureBlobProvider);
 
              response.Success = true;
 
