@@ -21,7 +21,7 @@ public class LiveChannelExtensionsTest
             .Returns(Task.CompletedTask);
 
         await grpc.Object.PushToUserAsync(
-            Guid.NewGuid(), NotificationKinds.Live.ChargeGenerationProgress, new Payload(37, 200), Guid.NewGuid());
+            Guid.NewGuid(), "job.progress", new Payload(37, 200), Guid.NewGuid());
 
         Assert.Contains("\"processedUnits\"", captured!.JsonPayload);
         Assert.DoesNotContain("\"ProcessedUnits\"", captured.JsonPayload);

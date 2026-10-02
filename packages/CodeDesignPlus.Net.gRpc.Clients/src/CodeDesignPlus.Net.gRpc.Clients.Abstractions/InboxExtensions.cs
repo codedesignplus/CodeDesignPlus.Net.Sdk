@@ -19,7 +19,7 @@ public static class InboxExtensions
     /// </summary>
     /// <param name="grpc">El cliente de la bandeja.</param>
     /// <param name="userIds">Los usuarios destinatarios.</param>
-    /// <param name="kind">La clave estable del tipo de aviso (use <see cref="NotificationKinds"/>).</param>
+    /// <param name="kind">La clave estable del tipo de aviso (la define cada producto: el SDK no conoce los tipos de aviso de nadie).</param>
     /// <param name="title">Respaldo para cuando el frontend no conoce el <paramref name="kind"/>.</param>
     /// <param name="body">El texto del aviso.</param>
     /// <param name="module">El modulo dueño del dato al que lleva el clic, o <c>null</c> si no lleva a ninguna parte.</param>
@@ -70,7 +70,7 @@ public static class InboxExtensions
     /// </remarks>
     /// <param name="grpc">El cliente de la bandeja.</param>
     /// <param name="roles">Los identificadores de los grupos destinatarios, no los nombres de los roles.</param>
-    /// <param name="kind">La clave estable del tipo de aviso (use <see cref="NotificationKinds"/>).</param>
+    /// <param name="kind">La clave estable del tipo de aviso (la define cada producto: el SDK no conoce los tipos de aviso de nadie).</param>
     /// <param name="title">Respaldo para cuando el frontend no conoce el <paramref name="kind"/>.</param>
     /// <param name="body">El texto del aviso.</param>
     /// <param name="module">El modulo dueño del dato al que lleva el clic, o <c>null</c>.</param>
@@ -105,7 +105,7 @@ public static class InboxExtensions
     /// Manda un aviso durable a toda la copropiedad.
     /// </summary>
     /// <param name="grpc">El cliente de la bandeja.</param>
-    /// <param name="kind">La clave estable del tipo de aviso (use <see cref="NotificationKinds"/>).</param>
+    /// <param name="kind">La clave estable del tipo de aviso (la define cada producto: el SDK no conoce los tipos de aviso de nadie).</param>
     /// <param name="title">Respaldo para cuando el frontend no conoce el <paramref name="kind"/>.</param>
     /// <param name="body">El texto del aviso.</param>
     /// <param name="module">El modulo dueño del dato al que lleva el clic, o <c>null</c>.</param>
