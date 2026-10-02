@@ -129,6 +129,12 @@ public static class NotificationKinds
     /// <summary>Paquete recibido en porteria. Payload: { packageId, unitNumber, carrier }</summary>
     public const string PackageReceived = "package.received";
 
+    /// <summary>Turno asignado a un portero en la malla de la porteria. Payload: { scheduleId, assignmentId, shiftType, startTime, endTime, daysOfWeek }</summary>
+    public const string ShiftAssigned = "shift.assigned";
+
+    /// <summary>Turno quitado a un portero de la malla de la porteria. Payload: { scheduleId, assignmentId }</summary>
+    public const string ShiftRemoved = "shift.removed";
+
     // ─── Organos de administracion ───────────────────────────────────────────────
 
     /// <summary>Reunion de consejo cerrada con acta. Payload: { meetingId, date, minutesId }</summary>
