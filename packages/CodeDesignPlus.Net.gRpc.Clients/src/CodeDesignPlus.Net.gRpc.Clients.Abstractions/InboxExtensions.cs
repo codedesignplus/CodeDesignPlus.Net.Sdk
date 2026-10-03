@@ -28,6 +28,11 @@ public static class InboxExtensions
     /// <param name="tenant">La copropiedad a la que pertenece el aviso.</param>
     /// <param name="sentBy">Quien o que origina el aviso.</param>
     /// <param name="occurredAt">Cuando ocurrio el hecho. Por omision, ahora.</param>
+    /// <param name="notificationId">
+    /// El id del aviso. Por omision, uno nuevo. Quien avisa desde un evento debe pasar
+    /// <see cref="NotificationIds.For(Guid, string)"/> con el <c>EventId</c>: asi una reentrega del bus llega con el
+    /// mismo id y la bandeja no guarda un segundo aviso.
+    /// </param>
     /// <param name="cancellationToken">Token para cancelar la operacion.</param>
     /// <returns>Una tarea que representa la operacion asincronica.</returns>
     public static Task NotifyUsersAsync(
@@ -42,12 +47,13 @@ public static class InboxExtensions
         Guid tenant,
         Guid sentBy,
         DateTimeOffset? occurredAt = null,
+        Guid? notificationId = null,
         CancellationToken cancellationToken = default)
     {
         var audience = new Audience { Kind = AudienceKind.User };
         audience.Values.AddRange(userIds.Select(x => x.ToString()));
 
-        return Send(grpc, audience, kind, title, body, module, aggregateId, payload, tenant, sentBy, occurredAt, cancellationToken);
+        return Send(grpc, audience, kind, title, body, module, aggregateId, payload, tenant, sentBy, occurredAt, notificationId, cancellationToken);
     }
 
     /// <summary>
@@ -79,6 +85,11 @@ public static class InboxExtensions
     /// <param name="tenant">La copropiedad a la que pertenece el aviso.</param>
     /// <param name="sentBy">Quien o que origina el aviso.</param>
     /// <param name="occurredAt">Cuando ocurrio el hecho. Por omision, ahora.</param>
+    /// <param name="notificationId">
+    /// El id del aviso. Por omision, uno nuevo. Quien avisa desde un evento debe pasar
+    /// <see cref="NotificationIds.For(Guid, string)"/> con el <c>EventId</c>: asi una reentrega del bus llega con el
+    /// mismo id y la bandeja no guarda un segundo aviso.
+    /// </param>
     /// <param name="cancellationToken">Token para cancelar la operacion.</param>
     /// <returns>Una tarea que representa la operacion asincronica.</returns>
     public static Task NotifyRolesAsync(
@@ -93,12 +104,13 @@ public static class InboxExtensions
         Guid tenant,
         Guid sentBy,
         DateTimeOffset? occurredAt = null,
+        Guid? notificationId = null,
         CancellationToken cancellationToken = default)
     {
         var audience = new Audience { Kind = AudienceKind.Role };
         audience.Values.AddRange(roles);
 
-        return Send(grpc, audience, kind, title, body, module, aggregateId, payload, tenant, sentBy, occurredAt, cancellationToken);
+        return Send(grpc, audience, kind, title, body, module, aggregateId, payload, tenant, sentBy, occurredAt, notificationId, cancellationToken);
     }
 
     /// <summary>
@@ -114,6 +126,11 @@ public static class InboxExtensions
     /// <param name="tenant">La copropiedad destinataria.</param>
     /// <param name="sentBy">Quien o que origina el aviso.</param>
     /// <param name="occurredAt">Cuando ocurrio el hecho. Por omision, ahora.</param>
+    /// <param name="notificationId">
+    /// El id del aviso. Por omision, uno nuevo. Quien avisa desde un evento debe pasar
+    /// <see cref="NotificationIds.For(Guid, string)"/> con el <c>EventId</c>: asi una reentrega del bus llega con el
+    /// mismo id y la bandeja no guarda un segundo aviso.
+    /// </param>
     /// <param name="cancellationToken">Token para cancelar la operacion.</param>
     /// <returns>Una tarea que representa la operacion asincronica.</returns>
     public static Task NotifyTenantAsync(
@@ -127,19 +144,21 @@ public static class InboxExtensions
         Guid tenant,
         Guid sentBy,
         DateTimeOffset? occurredAt = null,
+        Guid? notificationId = null,
         CancellationToken cancellationToken = default)
-        => Send(grpc, new Audience { Kind = AudienceKind.Tenant }, kind, title, body, module, aggregateId, payload, tenant, sentBy, occurredAt, cancellationToken);
+        => Send(grpc, new Audience { Kind = AudienceKind.Tenant }, kind, title, body, module, aggregateId, payload, tenant, sentBy, occurredAt, notificationId, cancellationToken);
 
     private static Task Send(
         IInboxGrpc grpc, Audience audience, string kind, string title, string body,
         string? module, string? aggregateId, object payload, Guid tenant, Guid sentBy,
-        DateTimeOffset? occurredAt, CancellationToken cancellationToken)
+        DateTimeOffset? occurredAt, Guid? notificationId, CancellationToken cancellationToken)
     {
         var request = new NotificationRequest
         {
-            // Lo genera el emisor: es la clave de idempotencia frente a las reentregas del bus. Si lo
-            // generara el servidor, cada reentrega crearia un aviso nuevo y la campana repetiria el hecho.
-            Id = Guid.NewGuid().ToString(),
+            // Lo genera el emisor: es la clave de idempotencia frente a las reentregas del bus. Solo sirve si la
+            // reentrega trae el mismo id, y por eso quien avisa desde un evento lo deriva de el con
+            // NotificationIds.For; uno nuevo en cada llamada repetia el aviso.
+            Id = (notificationId ?? Guid.NewGuid()).ToString(),
             Tenant = tenant.ToString(),
             Audience = audience,
             Kind = kind,

@@ -97,6 +97,49 @@ public class InboxExtensionsTest
         Assert.True(captured.OccurredAt.ToDateTimeOffset() > DateTimeOffset.UtcNow.AddMinutes(-1));
     }
 
+    [Fact]
+    public async Task AGivenNotificationIdTravelsAsTheId()
+    {
+        // Una reentrega del bus vuelve a llamar con el mismo id derivado del evento: tiene que llegar tal cual a
+        // la bandeja, o la bandeja no puede reconocer el repetido (pendings/250).
+        var eventId = Guid.NewGuid();
+        var expected = NotificationIds.For(eventId, "governance.appointed");
+
+        var first = await CaptureAsync(grpc => grpc.NotifyUsersAsync(
+            [Guid.NewGuid()], "governance.appointed", "t", "b", null, null, new { }, Guid.NewGuid(), Guid.Empty,
+            notificationId: NotificationIds.For(eventId, "governance.appointed")));
+        var redelivery = await CaptureAsync(grpc => grpc.NotifyUsersAsync(
+            [Guid.NewGuid()], "governance.appointed", "t", "b", null, null, new { }, Guid.NewGuid(), Guid.Empty,
+            notificationId: NotificationIds.For(eventId, "governance.appointed")));
+
+        Assert.Equal(expected.ToString(), first.Id);
+        Assert.Equal(first.Id, redelivery.Id);
+    }
+
+    [Fact]
+    public async Task WithoutANotificationIdEachCallGetsItsOwn()
+    {
+        var first = await CaptureAsync(grpc => grpc.NotifyTenantAsync(
+            "admin.broadcast", "t", "b", null, null, new { }, Guid.NewGuid(), Guid.Empty));
+        var second = await CaptureAsync(grpc => grpc.NotifyTenantAsync(
+            "admin.broadcast", "t", "b", null, null, new { }, Guid.NewGuid(), Guid.Empty));
+
+        Assert.NotEqual(first.Id, second.Id);
+    }
+
+    [Fact]
+    public void TheDerivedIdIsStableAndDistinguishesSourceAndKind()
+    {
+        var source = Guid.Parse("38baffab-507e-4d35-965a-62c153f10fda");
+
+        var id = NotificationIds.For(source, "governance.appointed");
+
+        Assert.Equal(id, NotificationIds.For(source, "governance.appointed"));
+        Assert.NotEqual(id, NotificationIds.For(source, "governance.removed"));
+        Assert.NotEqual(id, NotificationIds.For(Guid.NewGuid(), "governance.appointed"));
+        Assert.Equal('5', id.ToString()[14]);
+    }
+
     private static async Task<NotificationRequest> CaptureAsync(Func<IInboxGrpc, Task> send)
     {
         NotificationRequest? captured = null;
