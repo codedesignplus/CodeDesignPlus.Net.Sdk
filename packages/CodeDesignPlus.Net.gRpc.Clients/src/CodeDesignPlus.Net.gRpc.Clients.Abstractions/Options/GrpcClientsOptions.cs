@@ -42,4 +42,8 @@ public class GrpcClientsOptions
     /// Gets or sets the URL for the Email gRPC service.
     /// </summary>
     public string Email { get; set; } = null!;
+    /// <summary>
+    /// Gets or sets the URL for the FileStorage gRPC service.
+    /// </summary>
+    public string FileStorage { get; set; } = null!;
 }

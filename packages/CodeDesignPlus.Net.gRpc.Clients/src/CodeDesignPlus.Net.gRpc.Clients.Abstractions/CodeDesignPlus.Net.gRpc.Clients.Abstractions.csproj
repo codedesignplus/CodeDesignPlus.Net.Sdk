@@ -70,6 +70,9 @@
     <Protobuf Include="Protos\emails.proto" GrpcServices="Client">
       <Link>Protos\emails.proto</Link>
     </Protobuf>
+    <Protobuf Include="Protos\filestorage.proto" GrpcServices="Client">
+      <Link>Protos\filestorage.proto</Link>
+    </Protobuf>
   </ItemGroup>
   
   <ItemGroup>

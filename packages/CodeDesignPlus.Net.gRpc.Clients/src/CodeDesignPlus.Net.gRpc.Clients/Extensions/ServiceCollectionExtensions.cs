@@ -15,6 +15,7 @@ using ModuleGrpc = CodeDesignPlus.Net.Microservice.Modules.gRpc.Module;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Cache;
 using CodeDesignPlus.Net.Security.Abstractions;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Emails;
+using CodeDesignPlus.Net.gRpc.Clients.Services.FileStorage;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -23,6 +24,11 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 /// </summary>
 public static class ServiceCollectionExtensions
 {
+    /// <summary>
+    /// Tamaño máximo de un mensaje enviado a ms-filestorage: 16 MB, el mismo que acepta el servidor.
+    /// </summary>
+    private const int FileStorageMaxMessageSize = 16 * 1024 * 1024;
+
     /// <summary>
     /// Add CodeDesignPlus.EFCore configuration options
     /// </summary>
@@ -152,6 +158,22 @@ public static class ServiceCollectionExtensions
             });
 
             services.AddScoped<IEmailGrpc, EmailService>();
+        }
+
+        if (!string.IsNullOrEmpty(options!.FileStorage))
+        {
+            services
+                .AddGrpcClient<Services.FileStorage.Files.FilesClient>(o =>
+                {
+                    o.Address = new Uri(options.FileStorage);
+                })
+                // 16 MB, igual que el servidor. El frontend deja subir hasta 10 MB por archivo y un archivo
+                // generado en el backend puede pesar lo mismo; con los 4 MB que gRPC trae por defecto en la
+                // recepción del servidor, la llamada fallaria con ResourceExhausted. El límite de envío del
+                // cliente se fija igual para que el tope sea uno solo y explícito en los dos extremos.
+                .ConfigureChannel(channel => channel.MaxSendMessageSize = FileStorageMaxMessageSize);
+
+            services.AddScoped<IFileStorageGrpc, FileStorageGrpcService>();
         }
 
         // El snapshot lo publica ms-tenants, que es dueño de todo el contenido: alcanza con su

@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+// El servidor usa csharp_namespace = "CodeDesignPlus.Net.Microservice.FileStorage.gRpc";
+// la copia del cliente en el SDK usa "CodeDesignPlus.Net.gRpc.Clients.Services.FileStorage".
+// package y service NO cambian entre copias: forman la ruta /FileStorage.Files/Upload.
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.FileStorage";
+
+package FileStorage;
+
+// Guarda en ms-filestorage un archivo que genera o recibe otro microservicio (pendings/260, regla 56).
+// El archivo queda en {contenedor}/{target}/{id}/{file_name} con su registro, igual que si se subiera por REST.
+service Files {
+  rpc Upload (UploadFileRequest) returns (UploadFileResponse);
+}
+
+message UploadFileRequest {
+  // Id del registro: lo genera quien sube, y es el que guarda su agregado.
+  string id = 1;
+  // Copropiedad dueña del archivo. Un job o un consumidor no tiene JWT: viaja aquí, no en la cabecera.
+  string tenant = 2;
+  // Usuario a nombre de quien se guarda (el que pidió la operación que generó el archivo).
+  string uploaded_by = 3;
+  // Uno de FileScope.AllowedTargets.
+  string target = 4;
+  // Nombre original, con extensión. No se renombra.
+  string file_name = 5;
+  bytes content = 6;
+}
+
+message UploadFileResponse {
+  string id = 1;
+  string target = 2;
+  // Nombre con el que quedó guardado (FullName).
+  string file_name = 3;
+}

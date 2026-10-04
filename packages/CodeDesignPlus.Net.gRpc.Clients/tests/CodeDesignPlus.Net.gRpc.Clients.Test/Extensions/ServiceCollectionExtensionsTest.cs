@@ -1,6 +1,9 @@
 using CodeDesignPlus.Net.gRpc.Clients.Abstractions.Options;
 using CodeDesignPlus.Net.gRpc.Clients.Extensions;
+using CodeDesignPlus.Net.gRpc.Clients.Services.FileStorage;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
+using Grpc.Net.Client;
+using Grpc.Net.ClientFactory;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Tenants;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Users;
 using Moq;
@@ -135,5 +138,68 @@ public class ServiceCollectionExtensionsTest
         Assert.DoesNotContain(services, d => d.ServiceType == typeof(IPaymentGrpc));
         Assert.DoesNotContain(services, d => d.ServiceType == typeof(IUserGrpc));
         Assert.DoesNotContain(services, d => d.ServiceType == typeof(ITenantGrpc));
+        Assert.DoesNotContain(services, d => d.ServiceType == typeof(IFileStorageGrpc));
+    }
+
+    /// <summary>
+    /// Con la dirección de ms-filestorage se registran el cliente generado y la implementación, y el canal
+    /// queda con el tope de envío de 16 MB que acepta el servidor.
+    /// </summary>
+    [Fact]
+    public void AddGrpcClients_RegistersFileStorageClient_WhenFileStorageOptionIsSet()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{GrpcClientsOptions.Section}:FileStorage"] = "http://localhost:5004"
+            })
+            .Build();
+
+        // Act
+        services.AddGrpcClients(config);
+
+        // Assert
+        var serviceProvider = services.BuildServiceProvider();
+
+        Assert.Contains(services, d => d.ServiceType == typeof(IFileStorageGrpc) && d.ImplementationType == typeof(FileStorageGrpcService) && d.Lifetime == ServiceLifetime.Scoped);
+        Assert.NotNull(serviceProvider.GetService<Files.FilesClient>());
+
+        using var scope = serviceProvider.CreateScope();
+        Assert.IsType<FileStorageGrpcService>(scope.ServiceProvider.GetRequiredService<IFileStorageGrpc>());
+
+        var factoryOptions = serviceProvider.GetRequiredService<IOptionsMonitor<GrpcClientFactoryOptions>>().Get(nameof(Files.FilesClient));
+        var channelOptions = new GrpcChannelOptions();
+
+        foreach (var configure in factoryOptions.ChannelOptionsActions)
+            configure(channelOptions);
+
+        Assert.Equal(16 * 1024 * 1024, channelOptions.MaxSendMessageSize);
+    }
+
+    /// <summary>
+    /// Sin la dirección de ms-filestorage no se registra nada de su cliente.
+    /// </summary>
+    [Fact]
+    public void AddGrpcClients_DoesNotRegisterFileStorageClient_WhenFileStorageOptionIsMissing()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{GrpcClientsOptions.Section}:Email"] = "http://localhost:5005"
+            })
+            .Build();
+
+        // Act
+        services.AddGrpcClients(config);
+
+        // Assert
+        var serviceProvider = services.BuildServiceProvider();
+
+        Assert.DoesNotContain(services, d => d.ServiceType == typeof(IFileStorageGrpc));
+        Assert.Null(serviceProvider.GetService<Files.FilesClient>());
     }
 }
