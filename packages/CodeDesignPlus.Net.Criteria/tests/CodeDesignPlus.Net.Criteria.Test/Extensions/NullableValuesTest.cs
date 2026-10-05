@@ -39,6 +39,13 @@ public class NullableValuesTest
     }
 
     [Fact]
+    public void AnOptionalInstantCanBeAskedForNull()
+    {
+        // «Vigente» en Mi Portería: sin hora de fin o con la hora de fin por venir.
+        Assert.Equal(["Vigente", "Sin fin"], Apply($"ValidUntil=null|or|ValidUntil>={Now}"));
+    }
+
+    [Fact]
     public void AnOptionalIntIsComparedAsAnInt()
     {
         Assert.Equal(["Vigente"], Apply("Seats>=2"));
