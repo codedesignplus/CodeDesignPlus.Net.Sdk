@@ -10,6 +10,51 @@ namespace CodeDesignPlus.Net.Mongo.Test.Converter;
 
 public class ExpressionConverterTest
 {
+    /// <summary>
+    /// Un filtro por fecha compara contra la fecha BSON que guarda el documento. Antes lanzaba «.NET type
+    /// NodaTime.Instant cannot be mapped to a BsonValue» y cualquier listado filtrado por fecha respondía 500.
+    /// </summary>
+    [Theory]
+    [InlineData("CreatedAt<2026-10-05T14:00:00Z", "$lt")]
+    [InlineData("CreatedAt<=2026-10-05T14:00:00Z", "$lte")]
+    [InlineData("CreatedAt>2026-10-05T14:00:00Z", "$gt")]
+    [InlineData("CreatedAt>=2026-10-05T14:00:00Z", "$gte")]
+    [InlineData("CreatedAt=2026-10-05T14:00:00Z", "$eq")]
+    public void Convert_WhenComparingAnInstant_UsesTheBsonDateTheEntityStores(string filters, string mongoOperator)
+    {
+        // Arrange
+        CodeDesignPlus.Net.Mongo.Extensions.MongoSerializerRegistration.RegisterSerializers();
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Net.Core.Abstractions.Models.Criteria.Criteria { Filters = filters };
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(criteria.GetFilterExpression<Order>());
+
+        // Assert
+        var value = result["CreatedAt"].AsBsonDocument[mongoOperator];
+        Assert.Equal(BsonType.DateTime, value.BsonType);
+        Assert.Equal(new DateTime(2026, 10, 5, 14, 0, 0, DateTimeKind.Utc), value.ToUniversalTime());
+    }
+
+    [Fact]
+    public void Convert_WhenComparingAnInstantInsideAnAnd_KeepsTheOtherConditions()
+    {
+        // Arrange
+        CodeDesignPlus.Net.Mongo.Extensions.MongoSerializerRegistration.RegisterSerializers();
+        var parameter = Expression.Parameter(typeof(Order), "x");
+        var criteria = new Net.Core.Abstractions.Models.Criteria.Criteria { Filters = "Name=Order 1|and|CreatedAt<2026-10-05T14:00:00Z" };
+        var converter = new ExpressionConverter(parameter);
+
+        // Act
+        var result = converter.Convert(criteria.GetFilterExpression<Order>());
+
+        // Assert
+        var and = result["$and"].AsBsonArray;
+        Assert.Equal("Order 1", and[0]["Name"]["$eq"].AsString);
+        Assert.Equal(BsonType.DateTime, and[1]["CreatedAt"]["$lt"].BsonType);
+    }
+
     [Fact]
     public void Convert_WhenExpressionIsEqual_ReturnsBsonDocumentWithEqOperator()
     {

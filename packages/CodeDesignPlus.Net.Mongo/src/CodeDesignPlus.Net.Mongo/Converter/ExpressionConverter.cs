@@ -1,4 +1,6 @@
-﻿namespace CodeDesignPlus.Net.Mongo.Converter;
+﻿using MongoDB.Bson.IO;
+
+namespace CodeDesignPlus.Net.Mongo.Converter;
 
 /// <summary>
 /// Converts LINQ expressions to MongoDB BSON documents.
@@ -175,10 +177,7 @@ public class ExpressionConverter(ParameterExpression parameter, bool isAggregati
         var bsonArray = new BsonArray();
         foreach (var item in list)
         {
-            if (item is Guid guidItem)
-                bsonArray.Add(new BsonBinaryData(guidItem, GuidRepresentation.Standard));
-            else
-                bsonArray.Add(BsonValue.Create(item));
+            bsonArray.Add(ToBsonValue(item));
         }
 
         if (isAggregation)
@@ -205,14 +204,41 @@ public class ExpressionConverter(ParameterExpression parameter, bool isAggregati
         {
             var value = constantExpression.Value;
 
-            if (value is Guid guidValue)
-            {
-                return new BsonBinaryData(guidValue, GuidRepresentation.Standard);
-            }
-
-            return BsonValue.Create(value);
+            return ToBsonValue(value);
         }
 
         throw new Exceptions.MongoException("Only constant expressions for values are supported.");
+    }
+
+    /// <summary>
+    /// Converts a filter value to the same BSON the entity stores for it.
+    /// </summary>
+    /// <remarks>
+    /// <see cref="BsonTypeMapper"/> only knows the CLR primitives. A NodaTime value (<c>Instant</c>, <c>LocalDate</c>…)
+    /// has its own serializer registered by <c>MongoSerializerRegistration</c>, so it is written through that serializer:
+    /// comparing <c>validUntil &lt; 2026-10-05T14:00:00Z</c> must use the same BSON date the document holds. Before this,
+    /// any criteria comparing a date field threw «.NET type NodaTime.Instant cannot be mapped to a BsonValue».
+    /// </remarks>
+    /// <param name="value">The value of the constant expression.</param>
+    /// <returns>The BSON value to compare against.</returns>
+    private static BsonValue ToBsonValue(object? value)
+    {
+        if (value is Guid guidValue)
+            return new BsonBinaryData(guidValue, GuidRepresentation.Standard);
+
+        if (BsonTypeMapper.TryMapToBsonValue(value, out var mapped))
+            return mapped;
+
+        var wrapper = new BsonDocument();
+
+        using (var writer = new BsonDocumentWriter(wrapper))
+        {
+            writer.WriteStartDocument();
+            writer.WriteName("value");
+            BsonSerializer.Serialize(writer, value!.GetType(), value);
+            writer.WriteEndDocument();
+        }
+
+        return wrapper["value"];
     }
 }
