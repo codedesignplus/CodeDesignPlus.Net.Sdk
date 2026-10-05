@@ -140,6 +140,21 @@ internal static class Evaluator
                     : targetType);
             }
 
+            // Un tipo opcional (Instant?, int?, un enum?) se convierte como su tipo de fondo: antes caía en
+            // Convert.ChangeType, que no sabe de Nullable, y un filtro sobre una fecha opcional lanzaba
+            // InvalidCastException (pendings/277).
+            var underlyingType = Nullable.GetUnderlyingType(targetType);
+
+            if (underlyingType is not null && targetType != typeof(Guid?))
+            {
+                if (string.IsNullOrWhiteSpace(value))
+                    return Expression.Constant(null, targetType);
+
+                var underlying = CreateConstantExpression(value, underlyingType);
+
+                return Expression.Constant(underlying.Value, targetType);
+            }
+
             if (targetType == typeof(Instant))
             {
                 var parseResult = pattern.Parse(value);
