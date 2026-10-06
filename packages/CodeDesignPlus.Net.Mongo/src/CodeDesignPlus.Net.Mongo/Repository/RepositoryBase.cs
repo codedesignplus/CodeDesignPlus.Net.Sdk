@@ -454,9 +454,18 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         if (read == 0 && insertWhenNew)
         {
-            await InsertVersionedAsync(collection, entity, versioned, translateDuplicateKey: true, cancellationToken);
+            try
+            {
+                await InsertVersionedAsync(collection, entity, versioned, translateDuplicateKey: true, cancellationToken);
 
-            return;
+                return;
+            }
+            catch (ConcurrencyConflictException)
+            {
+                // The id already exists. If it is a document saved before the aggregate was versioned, it has no Version and
+                // reads as 0 like a new one: the replace below takes it. If another writer created it, it is at version 1
+                // or more and the replace refuses it as a conflict.
+            }
         }
 
         var filter = Builders<TEntity>.Filter.And(Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id), VersionFilter<TEntity>(read));

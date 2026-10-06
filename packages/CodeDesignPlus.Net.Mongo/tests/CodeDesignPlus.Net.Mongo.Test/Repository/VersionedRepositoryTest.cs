@@ -1,4 +1,4 @@
-using CodeDesignPlus.Net.Mongo.Abstractions.Exceptions;
+﻿using CodeDesignPlus.Net.Mongo.Abstractions.Exceptions;
 using CodeDesignPlus.Net.Mongo.Test.Helpers.Models;
 using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
 using MongoDB.Bson;
@@ -135,18 +135,8 @@ public class VersionedRepositoryTest
     {
         // Arrange
         var id = Guid.NewGuid();
-        var raw = this.collection.Database.GetCollection<BsonDocument>(nameof(CounterAggregate));
 
-        await raw.InsertOneAsync(new BsonDocument
-        {
-            { "_id", new BsonBinaryData(id, GuidRepresentation.Standard) },
-            { "Value", 7 },
-            { "CountedIds", new BsonArray() },
-            { "Tenant", new BsonBinaryData(Guid.NewGuid(), GuidRepresentation.Standard) },
-            { "IsActive", true },
-            { "IsDeleted", false },
-            { "CreatedBy", new BsonBinaryData(Guid.Empty, GuidRepresentation.Standard) },
-        });
+        await this.InsertWithoutVersionAsync(id, 7);
 
         var counter = await this.collection.Find(x => x.Id == id).FirstAsync();
 
@@ -159,6 +149,58 @@ public class VersionedRepositoryTest
 
         Assert.Equal(8, stored.Value);
         Assert.Equal(1, stored.Version);
+    }
+
+    [Fact]
+    public async Task UpdateWithRetryAsync_DocumentWithoutVersion_IsUpdatedInsteadOfConflictingForever()
+    {
+        // Arrange: a document saved before the aggregate was versioned reads as version 0, like a new one.
+        var id = Guid.NewGuid();
+
+        await this.InsertWithoutVersionAsync(id, 7);
+
+        // Act
+        var written = await this.repository.UpdateWithRetryAsync(
+            () => this.collection.Find(x => x.Id == id).FirstOrDefaultAsync(),
+            aggregate =>
+            {
+                aggregate.Increment();
+
+                return true;
+            },
+            maxAttempts: 3,
+            CancellationToken.None);
+
+        // Assert
+        var stored = await this.collection.Find(x => x.Id == id).FirstAsync();
+
+        Assert.Equal((true, 8, 1L), (written, stored.Value, stored.Version));
+    }
+
+    [Fact]
+    public async Task UpdateWithRetryAsync_FiftyConcurrentIncrementsOnADocumentWithoutVersion_KeepsAllFifty()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+
+        await this.InsertWithoutVersionAsync(id, 0);
+
+        // Act
+        await Task.WhenAll(Enumerable.Range(0, 50).Select(_ => Task.Run(() => this.repository.UpdateWithRetryAsync(
+            () => this.collection.Find(x => x.Id == id).FirstOrDefaultAsync(),
+            aggregate =>
+            {
+                aggregate.Increment();
+
+                return true;
+            },
+            maxAttempts: 100,
+            CancellationToken.None))));
+
+        // Assert
+        var stored = await this.collection.Find(x => x.Id == id).FirstAsync();
+
+        Assert.Equal(50, stored.Value);
     }
 
     [Fact]
@@ -302,5 +344,21 @@ public class VersionedRepositoryTest
 
         // Assert
         Assert.Contains(results, result => result.MemberNames.Contains(nameof(MongoOptions.ConcurrencyMaxAttempts)));
+    }
+
+    private Task InsertWithoutVersionAsync(Guid id, int value)
+    {
+        var raw = this.collection.Database.GetCollection<BsonDocument>(nameof(CounterAggregate));
+
+        return raw.InsertOneAsync(new BsonDocument
+        {
+            { "_id", new BsonBinaryData(id, GuidRepresentation.Standard) },
+            { "Value", value },
+            { "CountedIds", new BsonArray() },
+            { "Tenant", new BsonBinaryData(Guid.NewGuid(), GuidRepresentation.Standard) },
+            { "IsActive", true },
+            { "IsDeleted", false },
+            { "CreatedBy", new BsonBinaryData(Guid.Empty, GuidRepresentation.Standard) },
+        });
     }
 }
