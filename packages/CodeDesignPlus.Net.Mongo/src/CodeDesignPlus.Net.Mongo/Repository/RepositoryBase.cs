@@ -84,6 +84,11 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     {
         var collection = this.GetCollection<TEntity>();
 
+        if (entity is IVersionedAggregate versioned)
+        {
+            return InsertVersionedAsync(collection, entity, versioned, translateDuplicateKey: false, cancellationToken);
+        }
+
         return collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
     }
 
@@ -100,7 +105,40 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     {
         var collection = this.GetCollection<TEntity>();
 
+        if (typeof(IVersionedAggregate).IsAssignableFrom(typeof(TEntity)))
+        {
+            return CreateRangeVersionedAsync(collection, entities, cancellationToken);
+        }
+
         return collection.InsertManyAsync(entities, cancellationToken: cancellationToken);
+    }
+
+    /// <summary>
+    /// Inserts versioned aggregates one version up and leaves the in-memory versions as they were if the insert fails.
+    /// </summary>
+    private static async Task CreateRangeVersionedAsync<TEntity>(IMongoCollection<TEntity> collection, List<TEntity> entities, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var read = entities.Select(entity => ((IVersionedAggregate)entity).Version).ToList();
+
+        for (var i = 0; i < entities.Count; i++)
+        {
+            VersionAccessor.Set((IVersionedAggregate)entities[i], read[i] + 1);
+        }
+
+        try
+        {
+            await collection.InsertManyAsync(entities, cancellationToken: cancellationToken);
+        }
+        catch
+        {
+            for (var i = 0; i < entities.Count; i++)
+            {
+                VersionAccessor.Set((IVersionedAggregate)entities[i], read[i]);
+            }
+
+            throw;
+        }
     }
 
     /// <summary>
@@ -111,10 +149,21 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="entity">The entity to create or replace.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous upsert operation.</returns>
+    /// <remarks>
+    /// For an <see cref="IVersionedAggregate"/> a new aggregate (version 0) is inserted and a duplicate key becomes a
+    /// <see cref="ConcurrencyConflictException"/>: replacing would erase what another writer created first. Any other
+    /// versioned aggregate is saved as <see cref="UpdateAsync{TEntity}(TEntity, CancellationToken)"/> does.
+    /// </remarks>
+    /// <exception cref="ConcurrencyConflictException">Thrown for a versioned aggregate whose write found another writer first.</exception>
     public Task UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
+
+        if (entity is IVersionedAggregate versioned)
+        {
+            return SaveVersionedAsync(collection, entity, versioned, insertWhenNew: true, cancellationToken);
+        }
 
         var filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
         var options = new ReplaceOptions { IsUpsert = true };
@@ -278,10 +327,21 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous update operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the entity is null.</exception>
+    /// <remarks>
+    /// For an <see cref="IVersionedAggregate"/> the replace also filters by the version that was read and stores it
+    /// raised by one. If nothing matched, someone else wrote first (or the document is gone) and the write is refused
+    /// instead of silently erasing the other change.
+    /// </remarks>
+    /// <exception cref="ConcurrencyConflictException">Thrown for a versioned aggregate that changed, or no longer exists, since it was read.</exception>
     public Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase
     {
         var collection = this.GetCollection<TEntity>();
+
+        if (entity is IVersionedAggregate versioned)
+        {
+            return SaveVersionedAsync(collection, entity, versioned, insertWhenNew: false, cancellationToken);
+        }
 
         FilterDefinition<TEntity> filter = Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id);
 
@@ -308,6 +368,169 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
         {
             await this.UpdateAsync(entity, cancellationToken);
         }
+    }
+
+    /// <summary>
+    /// Reads a versioned aggregate, applies a change and saves it; on a concurrency conflict it reads again and
+    /// reapplies the change, up to <see cref="MongoOptions.ConcurrencyMaxAttempts"/> times.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the versioned aggregate.</typeparam>
+    /// <param name="load">Reads the current aggregate; it may return a new one (version 0) to create, or null to skip.</param>
+    /// <param name="mutate">Applies the change and returns false when it was already applied, so nothing is written.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>True when the aggregate was written; false when <paramref name="load"/> found nothing or <paramref name="mutate"/> declined.</returns>
+    /// <exception cref="ConcurrencyConflictException">Thrown when every attempt conflicted.</exception>
+    public Task<bool> UpdateWithRetryAsync<TEntity>(Func<Task<TEntity>> load, Func<TEntity, bool> mutate, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase, IVersionedAggregate
+    {
+        return this.UpdateWithRetryAsync(load, mutate, this.mongoOptions.ConcurrencyMaxAttempts, cancellationToken);
+    }
+
+    /// <summary>
+    /// Reads a versioned aggregate, applies a change and saves it; on a concurrency conflict it reads again and
+    /// reapplies the change, up to <paramref name="maxAttempts"/> times.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the versioned aggregate.</typeparam>
+    /// <param name="load">Reads the current aggregate; it may return a new one (version 0) to create, or null to skip.</param>
+    /// <param name="mutate">Applies the change and returns false when it was already applied, so nothing is written.</param>
+    /// <param name="maxAttempts">How many times to read, reapply and save before giving up.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>True when the aggregate was written; false when <paramref name="load"/> found nothing or <paramref name="mutate"/> declined.</returns>
+    /// <exception cref="ConcurrencyConflictException">Thrown when every attempt conflicted.</exception>
+    /// <remarks>
+    /// <paramref name="mutate"/> runs once per attempt, always on a freshly read aggregate, so it must be a pure change of
+    /// that aggregate: anything it computes is only valid from the attempt that was saved. The wait between attempts is
+    /// random so that writers that collided do not collide again in step.
+    /// </remarks>
+    public async Task<bool> UpdateWithRetryAsync<TEntity>(Func<Task<TEntity>> load, Func<TEntity, bool> mutate, int maxAttempts, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase, IVersionedAggregate
+    {
+        ArgumentNullException.ThrowIfNull(load);
+        ArgumentNullException.ThrowIfNull(mutate);
+
+        if (maxAttempts < 1)
+        {
+            throw new Exceptions.MongoException("The number of attempts must be at least 1.");
+        }
+
+        var collection = this.GetCollection<TEntity>();
+
+        for (var attempt = 1; ; attempt++)
+        {
+            var entity = await load();
+
+            if (entity is null || !mutate(entity))
+            {
+                return false;
+            }
+
+            try
+            {
+                await SaveVersionedAsync(collection, entity, entity, insertWhenNew: true, cancellationToken);
+
+                return true;
+            }
+            catch (ConcurrencyConflictException exception) when (attempt < maxAttempts)
+            {
+                logger.LogInformation("Concurrency conflict on {Entity} {Id} at version {Version}; retrying ({Attempt}/{MaxAttempts}).", exception.EntityType, exception.EntityId, exception.ExpectedVersion, attempt, maxAttempts);
+
+                var bound = this.mongoOptions.ConcurrencyRetryDelayMilliseconds * attempt;
+
+                if (bound > 0)
+                {
+                    await Task.Delay(Random.Shared.Next(bound + 1), cancellationToken);
+                }
+            }
+        }
+    }
+
+    /// <summary>
+    /// Saves a versioned aggregate checking the version it was read with, and raises that version by one.
+    /// </summary>
+    private static async Task SaveVersionedAsync<TEntity>(IMongoCollection<TEntity> collection, TEntity entity, IVersionedAggregate versioned, bool insertWhenNew, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var read = versioned.Version;
+
+        if (read == 0 && insertWhenNew)
+        {
+            await InsertVersionedAsync(collection, entity, versioned, translateDuplicateKey: true, cancellationToken);
+
+            return;
+        }
+
+        var filter = Builders<TEntity>.Filter.And(Builders<TEntity>.Filter.Eq(e => e.Id, entity.Id), VersionFilter<TEntity>(read));
+
+        if (typeof(IEntity).IsAssignableFrom(typeof(TEntity)))
+        {
+            filter = Builders<TEntity>.Filter.And(filter, Builders<TEntity>.Filter.Eq("IsDeleted", false));
+        }
+
+        VersionAccessor.Set(versioned, read + 1);
+
+        ReplaceOneResult result;
+
+        try
+        {
+            result = await collection.ReplaceOneAsync(filter, entity, cancellationToken: cancellationToken);
+        }
+        catch
+        {
+            VersionAccessor.Set(versioned, read);
+
+            throw;
+        }
+
+        if (result.MatchedCount == 0)
+        {
+            VersionAccessor.Set(versioned, read);
+
+            throw new ConcurrencyConflictException(typeof(TEntity), entity.Id, read);
+        }
+    }
+
+    /// <summary>
+    /// Inserts a versioned aggregate one version above the one it carries.
+    /// </summary>
+    private static async Task InsertVersionedAsync<TEntity>(IMongoCollection<TEntity> collection, TEntity entity, IVersionedAggregate versioned, bool translateDuplicateKey, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        var read = versioned.Version;
+
+        VersionAccessor.Set(versioned, read + 1);
+
+        try
+        {
+            await collection.InsertOneAsync(entity, cancellationToken: cancellationToken);
+        }
+        catch (MongoWriteException exception) when (translateDuplicateKey && exception.WriteError?.Category == ServerErrorCategory.DuplicateKey)
+        {
+            VersionAccessor.Set(versioned, read);
+
+            // Same id or same unique key: another writer created it first. Reading again finds theirs.
+            throw new ConcurrencyConflictException(typeof(TEntity), entity.Id, read, exception);
+        }
+        catch
+        {
+            VersionAccessor.Set(versioned, read);
+
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Matches the stored version; a document saved before the aggregate was versioned has no field and counts as 0.
+    /// </summary>
+    private static FilterDefinition<TEntity> VersionFilter<TEntity>(long version)
+    {
+        var builder = Builders<TEntity>.Filter;
+
+        if (version == 0)
+        {
+            return builder.Or(builder.Eq(VersionAccessor.Field, 0L), builder.Exists(VersionAccessor.Field, false));
+        }
+
+        return builder.Eq(VersionAccessor.Field, version);
     }
 
     /// <summary>

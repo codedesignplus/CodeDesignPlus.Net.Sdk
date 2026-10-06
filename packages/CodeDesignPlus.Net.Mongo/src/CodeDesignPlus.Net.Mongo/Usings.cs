@@ -1,6 +1,8 @@
 ﻿global using System;
+global using System.Collections.Concurrent;
 global using System.Linq;
 global using System.Linq.Expressions;
+global using System.Reflection;
 global using System.Text.RegularExpressions;
 global using System.Threading.Tasks;
 global using Microsoft.Extensions.Configuration;
@@ -11,6 +13,7 @@ global using CodeDesignPlus.Net.Core.Abstractions;
 global using CodeDesignPlus.Net.Core.Abstractions.Models.Criteria;
 global using CodeDesignPlus.Net.Criteria.Extensions;
 global using CodeDesignPlus.Net.Mongo.Abstractions;
+global using CodeDesignPlus.Net.Mongo.Abstractions.Exceptions;
 global using CodeDesignPlus.Net.Mongo.Abstractions.Operations;
 global using CodeDesignPlus.Net.Mongo.Abstractions.Options;
 global using CodeDesignPlus.Net.Mongo.Converter;

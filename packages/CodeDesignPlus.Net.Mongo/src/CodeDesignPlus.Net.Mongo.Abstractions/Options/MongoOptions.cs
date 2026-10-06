@@ -43,6 +43,24 @@ public class MongoOptions : IValidatableObject
     public bool RegisterAutomaticRepositories { get; set; } = true;
 
     /// <summary>
+    /// Gets or sets how many times <c>UpdateWithRetryAsync</c> reads, reapplies and saves a versioned aggregate before
+    /// giving up with a concurrency conflict, when the caller does not pass its own limit.
+    /// </summary>
+    /// <remarks>
+    /// Sized for the concurrency of one subscription across replicas (a handful of writers on the same document). When
+    /// it runs out the conflict escapes and the message bus retries the whole message, so a low value is not data loss.
+    /// </remarks>
+    [Range(1, 100)]
+    public int ConcurrencyMaxAttempts { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets the upper bound, in milliseconds, of the random wait before the first retry of a conflicting write.
+    /// It grows linearly with each attempt; 0 retries immediately.
+    /// </summary>
+    [Range(0, 10_000)]
+    public int ConcurrencyRetryDelayMilliseconds { get; set; } = 25;
+
+    /// <summary>
     /// Validates the properties of the MongoOptions.
     /// </summary>
     /// <param name="validationContext">The context information about the validation operation.</param>
@@ -65,6 +83,18 @@ public class MongoOptions : IValidatableObject
                 results
             );
         }
+
+        Validator.TryValidateProperty(
+            this.ConcurrencyMaxAttempts,
+            new ValidationContext(this, null, null) { MemberName = nameof(this.ConcurrencyMaxAttempts) },
+            results
+        );
+
+        Validator.TryValidateProperty(
+            this.ConcurrencyRetryDelayMilliseconds,
+            new ValidationContext(this, null, null) { MemberName = nameof(this.ConcurrencyRetryDelayMilliseconds) },
+            results
+        );
 
         return results;
     }

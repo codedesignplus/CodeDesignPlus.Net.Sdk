@@ -35,6 +35,11 @@ public interface IRepositoryBase
     /// <param name="entity">The entity to create or replace.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous upsert operation.</returns>
+    /// <remarks>
+    /// For an <see cref="IVersionedAggregate"/> a new aggregate (version 0) is inserted, never replacing an existing
+    /// document, and any other one is saved as <see cref="UpdateAsync{TEntity}(TEntity, CancellationToken)"/> does.
+    /// </remarks>
+    /// <exception cref="Exceptions.ConcurrencyConflictException">Thrown for a versioned aggregate whose write found another writer first.</exception>
     Task UpsertAsync<TEntity>(TEntity entity, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase;
 
@@ -66,6 +71,11 @@ public interface IRepositoryBase
     /// <param name="entity">The entity to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous update operation.</returns>
+    /// <remarks>
+    /// For an <see cref="IVersionedAggregate"/> the write only succeeds if the stored version is still the one read, and
+    /// raises the version by one.
+    /// </remarks>
+    /// <exception cref="Exceptions.ConcurrencyConflictException">Thrown for a versioned aggregate that changed, or no longer exists, since it was read.</exception>
     Task UpdateAsync<TEntity>(TEntity entity, CancellationToken cancellationToken) 
         where TEntity : class, IEntityBase;
 
@@ -76,8 +86,35 @@ public interface IRepositoryBase
     /// <param name="entities">The entities to update.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous update operation.</returns>
-    Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken) 
+    Task UpdateRangeAsync<TEntity>(List<TEntity> entities, CancellationToken cancellationToken)
         where TEntity : class, IEntityBase;
+
+    /// <summary>
+    /// Reads a versioned aggregate, applies a change and saves it; on a concurrency conflict it reads again and
+    /// reapplies the change, up to <c>MongoOptions.ConcurrencyMaxAttempts</c> times.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the versioned aggregate.</typeparam>
+    /// <param name="load">Reads the current aggregate; it may return a new one (version 0) to create, or null to skip.</param>
+    /// <param name="mutate">Applies the change and returns false when it was already applied, so nothing is written.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>True when the aggregate was written; false when <paramref name="load"/> found nothing or <paramref name="mutate"/> declined.</returns>
+    /// <exception cref="Exceptions.ConcurrencyConflictException">Thrown when every attempt conflicted.</exception>
+    Task<bool> UpdateWithRetryAsync<TEntity>(Func<Task<TEntity>> load, Func<TEntity, bool> mutate, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase, IVersionedAggregate;
+
+    /// <summary>
+    /// Reads a versioned aggregate, applies a change and saves it; on a concurrency conflict it reads again and
+    /// reapplies the change, up to <paramref name="maxAttempts"/> times.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the versioned aggregate.</typeparam>
+    /// <param name="load">Reads the current aggregate; it may return a new one (version 0) to create, or null to skip.</param>
+    /// <param name="mutate">Applies the change and returns false when it was already applied, so nothing is written.</param>
+    /// <param name="maxAttempts">How many times to read, reapply and save before giving up.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>True when the aggregate was written; false when <paramref name="load"/> found nothing or <paramref name="mutate"/> declined.</returns>
+    /// <exception cref="Exceptions.ConcurrencyConflictException">Thrown when every attempt conflicted.</exception>
+    Task<bool> UpdateWithRetryAsync<TEntity>(Func<Task<TEntity>> load, Func<TEntity, bool> mutate, int maxAttempts, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase, IVersionedAggregate;
     
     /// <summary>
     /// Deletes an entity by its identifier asynchronously.
