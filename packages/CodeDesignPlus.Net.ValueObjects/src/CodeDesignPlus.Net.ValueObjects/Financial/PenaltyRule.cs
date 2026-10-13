@@ -4,34 +4,38 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 
 /// <summary>
 /// Represents a penalty rule for late payments, damages, or non-compliance.
-/// Supports four penalty types: a monthly or a daily percentage rate accrued per day, a fixed amount, or a percentage
-/// of the original amount.
+/// Supports four penalty types: an annual effective or a daily rate accrued per day as simple interest, a fixed amount,
+/// or a percentage of the original amount.
 /// Amounts are stored in minor units (e.g., cents) to avoid floating-point precision loss.
 /// </summary>
 public sealed class PenaltyRule : IEquatable<PenaltyRule>
 {
     /// <summary>
-    /// Gets the penalty type. Valid values are "MONTHLY_RATE", "DAILY_RATE", "FIXED", or "PERCENTAGE".
+    /// Gets the penalty type. Valid values are "ANNUAL_EFFECTIVE_RATE", "DAILY_RATE", "FIXED", or "PERCENTAGE".
     /// </summary>
     public string Type { get; private set; }
 
     /// <summary>
     /// Gets the penalty rate in basis points.
-    /// Used when <see cref="Type"/> is "MONTHLY_RATE" (per 30 days, accrued daily), "DAILY_RATE" (per day) or
-    /// "PERCENTAGE" (of original amount). e.g., 180 = 1.80% per month, 6 = 0.06% per day, 1000 = 10.00% of original.
-    /// Zero when Type is "FIXED".
+    /// Used when <see cref="Type"/> is "ANNUAL_EFFECTIVE_RATE" (per year, accrued daily), "DAILY_RATE" (per day) or
+    /// "PERCENTAGE" (of original amount). e.g., 2500 = 25.00% effective per year, 6 = 0.06% per day, 1000 = 10.00% of
+    /// original. Zero when Type is "FIXED".
     /// <para>
-    /// Late-payment interest is quoted per month, and the daily equivalent of a legal monthly rate (around 0.06 %)
-    /// does not fit in whole basis points: only 0.06 % or 0.07 % can be stored. A monthly rate keeps two decimals of
-    /// precision and is prorated per day as <c>rate / 30</c>.
+    /// Late-payment interest is certified and approved as an annual effective rate, and its daily equivalent (around
+    /// 0.06 %) does not fit in whole basis points. The annual effective rate keeps two decimals of precision and is
+    /// converted to its daily equivalent by <see cref="GetDailyRate"/>.
     /// </para>
     /// </summary>
     public int RateBasisPoints { get; private set; }
 
     /// <summary>
-    /// The days a monthly rate is prorated over: a monthly rate accrues <c>rate / 30</c> per day.
+    /// The days an annual effective rate is converted over: the daily rate is <c>(1 + rate)^(1/365) - 1</c>.
     /// </summary>
-    public const int DaysPerMonth = 30;
+    /// <remarks>
+    /// It is the definition of the daily rate equivalent to an annual effective rate, not a setting: it does not depend
+    /// on the jurisdiction or on the tenant.
+    /// </remarks>
+    public const int DaysPerYear = 365;
 
     /// <summary>
     /// Gets the fixed penalty amount in minor units.
@@ -63,7 +67,7 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
 
         Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, Errors.TypeCannotBeNullOrEmpty);
         Guard.IsFalse(
-            normalizedType is "MONTHLY_RATE" or "DAILY_RATE" or "FIXED" or "PERCENTAGE",
+            normalizedType is "ANNUAL_EFFECTIVE_RATE" or "DAILY_RATE" or "FIXED" or "PERCENTAGE",
             Exceptions.Layer.None,
             Errors.TypeMustBeDAILYRATEFIXEDOrPERCENTAGE);
         Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
@@ -82,15 +86,16 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
     }
 
     /// <summary>
-    /// Creates a monthly-rate penalty rule accrued per day (e.g., 1.80% per month after 5 grace days).
+    /// Creates an annual-effective-rate penalty rule accrued per day as simple interest (e.g., 25.00% effective per
+    /// year after 5 grace days).
     /// </summary>
-    /// <param name="rateBasisPoints">The monthly rate in basis points (e.g., 180 = 1.80%).</param>
+    /// <param name="rateBasisPoints">The annual effective rate in basis points (e.g., 2500 = 25.00%).</param>
     /// <param name="currency">The ISO 4217 currency code.</param>
     /// <param name="graceDays">Number of days before the penalty starts accruing. Defaults to 0.</param>
     /// <param name="maxPenaltyAmount">Maximum penalty cap in minor units. Zero means no cap. Defaults to 0.</param>
-    /// <returns>A new <see cref="PenaltyRule"/> instance of type "MONTHLY_RATE".</returns>
-    public static PenaltyRule CreateMonthlyRate(int rateBasisPoints, string currency, int graceDays = 0, long maxPenaltyAmount = 0)
-        => new("MONTHLY_RATE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
+    /// <returns>A new <see cref="PenaltyRule"/> instance of type "ANNUAL_EFFECTIVE_RATE".</returns>
+    public static PenaltyRule CreateAnnualEffectiveRate(int rateBasisPoints, string currency, int graceDays = 0, long maxPenaltyAmount = 0)
+        => new("ANNUAL_EFFECTIVE_RATE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
 
     /// <summary>
     /// Creates a daily-rate penalty rule (e.g., 1.50% per day after 5 grace days).
@@ -125,6 +130,22 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
         => new("PERCENTAGE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
 
     /// <summary>
+    /// Gets the rate that accrues per day, as a factor (0.0006 for 0.06 %).
+    /// </summary>
+    /// <remarks>
+    /// An annual effective rate converts to its equivalent daily rate, <c>(1 + rate)^(1/365) - 1</c>, and a daily rate is
+    /// itself. The interest is simple —balance × days × daily rate, without capitalizing— and the caller rounds once,
+    /// at the end. Zero for "FIXED" and "PERCENTAGE", which do not accrue per day.
+    /// </remarks>
+    /// <returns>The daily rate as a decimal factor.</returns>
+    public decimal GetDailyRate() => Type switch
+    {
+        "ANNUAL_EFFECTIVE_RATE" => (decimal)(Math.Pow(1d + RateBasisPoints / 10000d, 1d / DaysPerYear) - 1d),
+        "DAILY_RATE" => RateBasisPoints / 10000m,
+        _ => 0m
+    };
+
+    /// <summary>
     /// Calculates the penalty amount for a given overdue base and number of overdue days.
     /// Respects grace days and the maximum cap.
     /// </summary>
@@ -138,8 +159,7 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
 
         long penalty = Type switch
         {
-            "MONTHLY_RATE" => (long)Math.Round(baseAmountMinorUnits * (RateBasisPoints / 10000m) * billableDays / DaysPerMonth, MidpointRounding.AwayFromZero),
-            "DAILY_RATE" => (long)Math.Round(baseAmountMinorUnits * (RateBasisPoints / 10000m) * billableDays, MidpointRounding.AwayFromZero),
+            "ANNUAL_EFFECTIVE_RATE" or "DAILY_RATE" => (long)Math.Round(baseAmountMinorUnits * GetDailyRate() * billableDays, MidpointRounding.AwayFromZero),
             "FIXED"      => FixedAmount,
             "PERCENTAGE" => (long)Math.Round(baseAmountMinorUnits * (RateBasisPoints / 10000m), MidpointRounding.AwayFromZero),
             _            => 0L
