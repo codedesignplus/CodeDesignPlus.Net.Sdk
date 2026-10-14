@@ -22,6 +22,7 @@ public class InboxService : IInboxGrpc, IDisposable, IAsyncDisposable
     private readonly CancellationTokenSource cts = new();
     private readonly Task backgroundTask;
     private readonly ILogger<InboxService> logger;
+    private readonly Inbox.InboxClient client;
 
     /// <summary>Inicializa el cliente y levanta la tarea de fondo del stream.</summary>
     /// <param name="client">El cliente gRPC generado del servicio <c>Inbox</c>.</param>
@@ -29,6 +30,7 @@ public class InboxService : IInboxGrpc, IDisposable, IAsyncDisposable
     public InboxService(Inbox.InboxClient client, ILogger<InboxService> logger)
     {
         this.logger = logger;
+        this.client = client;
 
         var pump = new StreamPump<NotifyAck>(logger, "Inbox", ack => (ack.Success, ack.Message));
 
@@ -38,6 +40,32 @@ public class InboxService : IInboxGrpc, IDisposable, IAsyncDisposable
     /// <inheritdoc/>
     public async Task NotifyAsync(NotificationRequest request, CancellationToken cancellationToken)
         => await channel.Writer.WriteAsync(request, cancellationToken);
+
+    /// <inheritdoc/>
+    /// <remarks>
+    /// Va directo y no por la cola del stream: si llega antes que el aviso que cierra, el servicio guarda el cierre y el aviso
+    /// nace cerrado, asi que el orden no importa.
+    /// </remarks>
+    public async Task<bool> ResolveAsync(ResolveRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var ack = await client.ResolveAsync(request, cancellationToken: cancellationToken);
+
+            if (!ack.Success)
+            {
+                logger.LogWarning("Inbox resolve of {Kinds} for {Module}/{AggregateId} was rejected: {Message}", string.Join(",", request.Kinds), request.Resource?.Module, request.Resource?.AggregateId, ack.Message);
+            }
+
+            return ack.Success;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            logger.LogWarning(ex, "Inbox resolve of {Kinds} for {Module}/{AggregateId} failed", string.Join(",", request.Kinds), request.Resource?.Module, request.Resource?.AggregateId);
+
+            return false;
+        }
+    }
 
     /// <summary>Cierra la cola y espera a que la tarea de fondo termine.</summary>
     public async ValueTask DisposeAsync()

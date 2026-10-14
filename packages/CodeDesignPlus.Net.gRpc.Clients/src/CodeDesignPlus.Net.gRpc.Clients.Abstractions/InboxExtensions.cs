@@ -148,6 +148,47 @@ public static class InboxExtensions
         CancellationToken cancellationToken = default)
         => Send(grpc, new Audience { Kind = AudienceKind.Tenant }, kind, title, body, module, aggregateId, payload, tenant, sentBy, occurredAt, notificationId, cancellationToken);
 
+    /// <summary>
+    /// Cierra los avisos de una tarea que ya se hizo: dejan de contar como pendientes en la campana de todos sus
+    /// destinatarios (por ejemplo, «espera tu aprobacion» cuando el documento se aprueba o se rechaza).
+    /// </summary>
+    /// <remarks>
+    /// La clave es el tipo de aviso mas el recurso al que lleva, la misma con la que se mando. Solo se cierran los avisos de
+    /// hechos anteriores a <paramref name="resolvedAt"/>: si el documento vuelve a necesitar la tarea, su aviso nuevo queda
+    /// abierto. Si el cierre llega antes que el aviso, el aviso nace cerrado.
+    /// </remarks>
+    /// <param name="grpc">El cliente de la bandeja.</param>
+    /// <param name="kinds">Los tipos de aviso que se cierran.</param>
+    /// <param name="module">El modulo dueño del dato, el mismo con que se mando el aviso.</param>
+    /// <param name="aggregateId">El identificador del agregado dentro de ese modulo.</param>
+    /// <param name="tenant">La copropiedad.</param>
+    /// <param name="resolvedBy">Quien hizo la tarea, o el usuario de sistema.</param>
+    /// <param name="resolvedAt">Cuando se hizo. Por omision, ahora.</param>
+    /// <param name="cancellationToken">Token para cancelar la operacion.</param>
+    /// <returns><c>true</c> si el servicio acepto el cierre.</returns>
+    public static Task<bool> ResolveAsync(
+        this IInboxGrpc grpc,
+        IEnumerable<string> kinds,
+        string module,
+        string aggregateId,
+        Guid tenant,
+        Guid resolvedBy,
+        DateTimeOffset? resolvedAt = null,
+        CancellationToken cancellationToken = default)
+    {
+        var request = new ResolveRequest
+        {
+            Tenant = tenant.ToString(),
+            Resource = new Resource { Module = module, AggregateId = aggregateId },
+            ResolvedBy = resolvedBy.ToString(),
+            ResolvedAt = Timestamp.FromDateTimeOffset(resolvedAt ?? DateTimeOffset.UtcNow)
+        };
+
+        request.Kinds.AddRange(kinds);
+
+        return grpc.ResolveAsync(request, cancellationToken);
+    }
+
     private static Task Send(
         IInboxGrpc grpc, Audience audience, string kind, string title, string body,
         string? module, string? aggregateId, object payload, Guid tenant, Guid sentBy,

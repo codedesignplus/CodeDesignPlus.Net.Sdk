@@ -106,6 +106,8 @@ message PushAck {
 // ─────────────────────────────────────────────────────────────────────────────
 service Inbox {
   rpc Notify (stream NotificationRequest) returns (stream NotifyAck);
+  //Cierra los avisos de una tarea que ya se hizo: deja de contar como pendiente en la campana de todos.
+  rpc Resolve (ResolveRequest) returns (ResolveAck);
 }
 
 message NotificationRequest {
@@ -155,4 +157,26 @@ message NotifyAck {
   string message        = 2;
   //El id que mando el emisor, para que pueda correlacionar el acuse.
   string notificationId = 3;
+}
+
+//La clave de correlacion de un aviso es su tipo mas el recurso al que lleva: el aviso "espera tu
+//aprobacion" del documento X se cierra cuando X se aprueba o se rechaza, lo haya leido quien lo haya
+//leido. El servicio no sabe nada del producto: solo compara tipo, modulo y agregado.
+message ResolveRequest {
+  string   tenant      = 1;
+  //Los tipos de aviso que se cierran (ej. "expenses.expense_approval_required").
+  repeated string kinds = 2;
+  Resource resource    = 3;
+  //Quien hizo la tarea, o el usuario de sistema.
+  string   resolvedBy  = 4;
+  //Cuando se hizo. Solo se cierran los avisos de hechos anteriores: uno posterior es otra tarea.
+  google.protobuf.Timestamp resolvedAt = 5;
+}
+
+message ResolveAck {
+  bool   success  = 1;
+  string message  = 2;
+  //Cuantos avisos ya guardados se cerraron. Cero no es un error: el aviso puede llegar despues, y entonces
+  //nace cerrado.
+  int64  resolved = 3;
 }

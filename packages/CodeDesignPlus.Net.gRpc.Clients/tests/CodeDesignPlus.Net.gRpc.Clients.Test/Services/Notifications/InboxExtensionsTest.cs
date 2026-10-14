@@ -140,6 +140,34 @@ public class InboxExtensionsTest
         Assert.Equal('5', id.ToString()[14]);
     }
 
+    /// <summary>
+    /// Cerrar un aviso viaja con la misma clave con la que se mando —tipo, modulo y agregado— y con el instante del hecho que
+    /// lo resolvio: los avisos posteriores son otra tarea y no se cierran.
+    /// </summary>
+    [Fact]
+    public async Task ResolveAsync_CarriesTheCorrelationKeyAndWhenItWasResolved()
+    {
+        // Arrange
+        ResolveRequest? captured = null;
+        var grpc = new Mock<IInboxGrpc>();
+        grpc.Setup(x => x.ResolveAsync(It.IsAny<ResolveRequest>(), It.IsAny<CancellationToken>()))
+            .Callback<ResolveRequest, CancellationToken>((request, _) => captured = request)
+            .ReturnsAsync(true);
+
+        var tenant = Guid.NewGuid();
+        var by = Guid.NewGuid();
+        var aggregateId = Guid.NewGuid().ToString();
+        var at = new DateTimeOffset(2026, 10, 14, 15, 30, 0, TimeSpan.Zero);
+
+        // Act
+        var accepted = await grpc.Object.ResolveAsync(["expenses.expense_approval_required"], "expenses", aggregateId, tenant, by, at);
+
+        // Assert
+        Assert.Equal(
+            (true, tenant.ToString(), "expenses.expense_approval_required", "expenses", aggregateId, by.ToString(), at),
+            (accepted, captured!.Tenant, captured.Kinds.Single(), captured.Resource.Module, captured.Resource.AggregateId, captured.ResolvedBy, captured.ResolvedAt.ToDateTimeOffset()));
+    }
+
     private static async Task<NotificationRequest> CaptureAsync(Func<IInboxGrpc, Task> send)
     {
         NotificationRequest? captured = null;
