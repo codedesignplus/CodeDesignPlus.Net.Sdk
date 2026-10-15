@@ -14,6 +14,8 @@ namespace CodeDesignPlus.Net.PubSub.Test.Snapshots;
 /// </summary>
 public class SnapshotSyncTest
 {
+    private static readonly SnapshotKey UserSnapshot = new("xunit-owner", "UserEntity", nameof(UserSnapshotDomainEvent));
+
     private readonly Mock<ISubscriptionTracker> tracker = new();
     private readonly Mock<ISnapshotRequester> requester = new();
     private readonly Mock<IProjectionSyncStore> store = new();
@@ -40,7 +42,7 @@ public class SnapshotSyncTest
         await RunAsync(service);
 
         // Assert
-        this.store.Verify(x => x.MarkRequestedAsync("xunit-owner", "UserEntity", this.requestId, It.IsAny<CancellationToken>()), Times.Once);
+        this.store.Verify(x => x.MarkRequestedAsync(UserSnapshot, this.requestId, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Fact]
@@ -48,8 +50,8 @@ public class SnapshotSyncTest
     {
         // Arrange
         this.store
-            .Setup(x => x.FindAsync("xunit-owner", "UserEntity", It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new ProjectionSyncState("xunit-owner", "UserEntity", Guid.NewGuid(), Instant.FromUtc(2026, 10, 14, 12, 0), Instant.FromUtc(2026, 10, 14, 12, 1), 3));
+            .Setup(x => x.FindAsync(UserSnapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new ProjectionSyncState("xunit-owner", "UserEntity", nameof(UserSnapshotDomainEvent), Guid.NewGuid(), Instant.FromUtc(2026, 10, 14, 12, 0), Instant.FromUtc(2026, 10, 14, 12, 1), 3));
 
         var service = this.Service();
 

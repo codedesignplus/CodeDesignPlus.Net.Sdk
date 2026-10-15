@@ -10,7 +10,7 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions.Snapshots;
 /// </summary>
 /// <remarks>
 /// Declarar un consumidor que hereda de esta clase es lo que convierte la copia en sincronizable: al arrancar, el SDK
-/// pide la foto completa a la aplicación y al agregado que nombra la clave del evento
+/// pide la foto completa que nombra la clave del evento (aplicación dueña, agregado y nombre de la foto)
 /// (<typeparamref name="TSnapshot"/>) mientras la fuente no figure como sincronizada.
 /// <para>
 /// <see cref="ApplyAsync"/> hace upsert: crea la copia si no existe y, si existe, la reemplaza solo cuando

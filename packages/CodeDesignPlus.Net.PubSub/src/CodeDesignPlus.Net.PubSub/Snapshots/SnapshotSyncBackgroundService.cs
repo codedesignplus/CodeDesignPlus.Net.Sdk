@@ -79,9 +79,9 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
 
         try
         {
-            var key = SnapshotSourceKey.Of(snapshot);
+            var key = SnapshotSync.KeyOf(snapshot);
 
-            var state = await store.FindAsync(key.Source, key.Aggregate, stoppingToken).ConfigureAwait(false);
+            var state = await store.FindAsync(key, stoppingToken).ConfigureAwait(false);
 
             if (state?.IsSynced == true)
             {
@@ -90,9 +90,9 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
 
             var requestId = await requester.RequestAsync(snapshot, null, stoppingToken).ConfigureAwait(false);
 
-            await store.MarkRequestedAsync(key.Source, key.Aggregate, requestId, stoppingToken).ConfigureAwait(false);
+            await store.MarkRequestedAsync(key, requestId, stoppingToken).ConfigureAwait(false);
 
-            logger.LogInformation("Snapshot {RequestId} of {Aggregate} requested from {Source}.", requestId, key.Aggregate, key.Source);
+            logger.LogInformation("Snapshot {RequestId} ({Snapshot}) requested from {Source}.", requestId, key.Snapshot, key.Source);
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

@@ -43,7 +43,7 @@ public class SnapshotRequestedHandlerTest
     {
         // Arrange
         var handler = this.Handler(appName: "xunit-owner", pageSize: 2);
-        var request = SnapshotRequestedDomainEvent.Create("xunit-owner", nameof(UserEntity), "xunit-copy", null);
+        var request = SnapshotRequestedDomainEvent.Create(Key("xunit-owner", nameof(UserEntity)), "xunit-copy", null);
 
         // Act
         await handler.HandleAsync(request, CancellationToken.None);
@@ -59,7 +59,7 @@ public class SnapshotRequestedHandlerTest
     {
         // Arrange
         var handler = this.Handler(appName: "xunit-owner", pageSize: 2);
-        var request = SnapshotRequestedDomainEvent.Create("xunit-owner", nameof(UserEntity), "xunit-copy", null);
+        var request = SnapshotRequestedDomainEvent.Create(Key("xunit-owner", nameof(UserEntity)), "xunit-copy", null);
 
         // Act
         await handler.HandleAsync(request, CancellationToken.None);
@@ -75,7 +75,7 @@ public class SnapshotRequestedHandlerTest
     {
         // Arrange
         var handler = this.Handler(appName: "xunit-owner", pageSize: 100);
-        var request = SnapshotRequestedDomainEvent.Create("xunit-owner", nameof(UserEntity), "xunit-copy", TenantB);
+        var request = SnapshotRequestedDomainEvent.Create(Key("xunit-owner", nameof(UserEntity)), "xunit-copy", TenantB);
 
         // Act
         await handler.HandleAsync(request, CancellationToken.None);
@@ -89,7 +89,7 @@ public class SnapshotRequestedHandlerTest
     {
         // Arrange
         var handler = this.Handler(appName: "xunit-owner", pageSize: 2);
-        var request = SnapshotRequestedDomainEvent.Create("ms-other", nameof(UserEntity), "xunit-copy", null);
+        var request = SnapshotRequestedDomainEvent.Create(Key("ms-other", nameof(UserEntity)), "xunit-copy", null);
 
         // Act
         await handler.HandleAsync(request, CancellationToken.None);
@@ -103,7 +103,7 @@ public class SnapshotRequestedHandlerTest
     {
         // Arrange
         var handler = this.Handler(appName: "xunit-owner", pageSize: 2);
-        var request = SnapshotRequestedDomainEvent.Create("xunit-owner", "InvoiceAggregate", "xunit-copy", null);
+        var request = SnapshotRequestedDomainEvent.Create(Key("xunit-owner", "InvoiceAggregate"), "xunit-copy", null);
 
         // Act
         await handler.HandleAsync(request, CancellationToken.None);
@@ -111,6 +111,22 @@ public class SnapshotRequestedHandlerTest
         // Assert
         Assert.Empty(this.published);
     }
+
+    [Fact]
+    public async Task HandleAsync_SameAggregateAnotherSnapshot_PublishesNothing()
+    {
+        // Arrange
+        var handler = this.Handler(appName: "xunit-owner", pageSize: 2);
+        var request = SnapshotRequestedDomainEvent.Create(new SnapshotKey("xunit-owner", nameof(UserEntity), "UserBalanceSnapshotDomainEvent"), "xunit-copy", null);
+
+        // Act
+        await handler.HandleAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(this.published);
+    }
+
+    private static SnapshotKey Key(string source, string aggregate) => new(source, aggregate, nameof(UserSnapshotDomainEvent));
 
     private SnapshotRequestedHandler Handler(string appName, uint pageSize)
     {

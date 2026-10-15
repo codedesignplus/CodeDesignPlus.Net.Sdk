@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
 using CodeDesignPlus.Net.Mongo.Extensions;
 using CodeDesignPlus.Net.Mongo.Snapshots;
 using CodeDesignPlus.Net.xUnit.Containers.MongoContainer;
@@ -27,7 +28,7 @@ public class MongoProjectionSyncStoreTest
     public async Task FindAsync_NeverRequested_ReturnsNull()
     {
         // Act
-        var state = await this.store.FindAsync("ms-assemblies", $"Never{Guid.NewGuid():N}", CancellationToken.None);
+        var state = await this.store.FindAsync(Key("Never"), CancellationToken.None);
 
         // Assert
         Assert.Null(state);
@@ -37,14 +38,14 @@ public class MongoProjectionSyncStoreTest
     public async Task MarkRequestedAsync_NewSource_IsRequestedButNotSynced()
     {
         // Arrange
-        var aggregate = $"Requested{Guid.NewGuid():N}";
+        var key = Key("Requested");
         var requestId = Guid.NewGuid();
 
         // Act
-        await this.store.MarkRequestedAsync("ms-assemblies", aggregate, requestId, CancellationToken.None);
+        await this.store.MarkRequestedAsync(key, requestId, CancellationToken.None);
 
         // Assert
-        var state = await this.store.FindAsync("ms-assemblies", aggregate, CancellationToken.None);
+        var state = await this.store.FindAsync(key, CancellationToken.None);
 
         Assert.Equal((requestId, false), (state!.LastRequestId, state.IsSynced));
     }
@@ -53,17 +54,19 @@ public class MongoProjectionSyncStoreTest
     public async Task MarkSyncedAsync_AfterTheRequest_KeepsTheRequestAndIsSynced()
     {
         // Arrange
-        var aggregate = $"Synced{Guid.NewGuid():N}";
+        var key = Key("Synced");
         var requestId = Guid.NewGuid();
 
-        await this.store.MarkRequestedAsync("ms-assemblies", aggregate, requestId, CancellationToken.None);
+        await this.store.MarkRequestedAsync(key, requestId, CancellationToken.None);
 
         // Act
-        await this.store.MarkSyncedAsync("ms-assemblies", aggregate, requestId, 3, CancellationToken.None);
+        await this.store.MarkSyncedAsync(key, requestId, 3, CancellationToken.None);
 
         // Assert
-        var state = await this.store.FindAsync("ms-assemblies", aggregate, CancellationToken.None);
+        var state = await this.store.FindAsync(key, CancellationToken.None);
 
         Assert.Equal((requestId, true, 3L), (state!.LastRequestId, state.IsSynced, state.Count));
     }
+
+    private static SnapshotKey Key(string prefix) => new("ms-assemblies", "AssemblyAggregate", $"{prefix}{Guid.NewGuid():N}SnapshotDomainEvent");
 }

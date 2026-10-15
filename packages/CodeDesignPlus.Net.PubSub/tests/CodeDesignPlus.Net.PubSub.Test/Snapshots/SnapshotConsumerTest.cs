@@ -13,6 +13,7 @@ namespace CodeDesignPlus.Net.PubSub.Test.Snapshots;
 public class SnapshotConsumerTest
 {
     private static readonly Guid Tenant = Guid.Parse("17daab5e-b090-48bd-969a-a7618eb2a726");
+    private static readonly SnapshotKey Assemblies = new("ms-assemblies", "AssemblyAggregate", "AssemblySnapshotDomainEvent");
 
     private readonly Mock<IProjectionSyncStore> store = new();
 
@@ -62,26 +63,26 @@ public class SnapshotConsumerTest
     public void Deserialize_RequestFromTheBus_KeepsEveryField()
     {
         // Arrange
-        var request = SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", "ms-communitylife", Tenant);
+        var request = SnapshotRequestedDomainEvent.Create(Assemblies, "ms-communitylife", Tenant);
 
         // Act
         var read = JsonSerializer.Deserialize<SnapshotRequestedDomainEvent>(JsonSerializer.Serialize(request));
 
         // Assert
-        Assert.Equal((request.Source, request.Aggregate, request.RequestId, request.RequestedBy, request.Tenant), (read.Source, read.Aggregate, read.RequestId, read.RequestedBy, read.Tenant));
+        Assert.Equal((request.Key(), request.RequestId, request.RequestedBy, request.Tenant), (read.Key(), read.RequestId, read.RequestedBy, read.Tenant));
     }
 
     [Fact]
     public void Deserialize_CompletionFromTheBus_KeepsEveryField()
     {
         // Arrange
-        var completed = SnapshotCompletedDomainEvent.Create(SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", "ms-communitylife", null), 3);
+        var completed = SnapshotCompletedDomainEvent.Create(SnapshotRequestedDomainEvent.Create(Assemblies, "ms-communitylife", null), 3);
 
         // Act
         var read = JsonSerializer.Deserialize<SnapshotCompletedDomainEvent>(JsonSerializer.Serialize(completed));
 
         // Assert
-        Assert.Equal((completed.Source, completed.Aggregate, completed.RequestId, completed.RequestedBy, completed.Tenant, completed.Count), (read.Source, read.Aggregate, read.RequestId, read.RequestedBy, read.Tenant, read.Count));
+        Assert.Equal((completed.Key(), completed.RequestId, completed.RequestedBy, completed.Tenant, completed.Count), (read.Key(), read.RequestId, read.RequestedBy, read.Tenant, read.Count));
     }
 
     [Theory]
@@ -106,14 +107,14 @@ public class SnapshotConsumerTest
     public async Task HandleAsync_FullSnapshotOfThisCopyCompleted_MarksTheSourceSynced()
     {
         // Arrange
-        var request = SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", "xunit-copy", null);
+        var request = SnapshotRequestedDomainEvent.Create(Assemblies, "xunit-copy", null);
         var handler = new SnapshotCompletedHandler(Core("xunit-copy"), Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotCompletedHandler>.Instance, this.store.Object);
 
         // Act
         await handler.HandleAsync(SnapshotCompletedDomainEvent.Create(request, 3), CancellationToken.None);
 
         // Assert
-        this.store.Verify(x => x.MarkSyncedAsync("ms-assemblies", "AssemblyAggregate", request.RequestId, 3, It.IsAny<CancellationToken>()), Times.Once);
+        this.store.Verify(x => x.MarkSyncedAsync(Assemblies, request.RequestId, 3, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]
@@ -122,14 +123,14 @@ public class SnapshotConsumerTest
     public async Task HandleAsync_CompletionOfAnotherCopyOrOfOneTenant_DoesNotMarkTheSource(string requestedBy, bool oneTenant)
     {
         // Arrange
-        var request = SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", requestedBy, oneTenant ? Tenant : null);
+        var request = SnapshotRequestedDomainEvent.Create(Assemblies, requestedBy, oneTenant ? Tenant : null);
         var handler = new SnapshotCompletedHandler(Core("xunit-copy"), Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotCompletedHandler>.Instance, this.store.Object);
 
         // Act
         await handler.HandleAsync(SnapshotCompletedDomainEvent.Create(request, 3), CancellationToken.None);
 
         // Assert
-        this.store.Verify(x => x.MarkSyncedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Never);
+        this.store.Verify(x => x.MarkSyncedAsync(It.IsAny<SnapshotKey>(), It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     internal static IOptions<CoreOptions> Core(string appName) => Microsoft.Extensions.Options.Options.Create(new CoreOptions

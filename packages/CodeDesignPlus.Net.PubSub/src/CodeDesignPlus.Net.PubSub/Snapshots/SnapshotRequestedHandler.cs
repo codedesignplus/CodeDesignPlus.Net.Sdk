@@ -25,11 +25,11 @@ internal sealed class SnapshotRequestedHandler(IEnumerable<ISnapshotSource> sour
             return;
         }
 
-        var source = sources.FirstOrDefault(x => string.Equals(x.Aggregate, data.Aggregate, StringComparison.OrdinalIgnoreCase));
+        var source = sources.FirstOrDefault(x => string.Equals(x.Aggregate, data.Aggregate, StringComparison.OrdinalIgnoreCase) && string.Equals(x.Snapshot, data.Snapshot, StringComparison.OrdinalIgnoreCase));
 
         if (source is null)
         {
-            logger.LogWarning("{RequestedBy} requested a snapshot of {Aggregate}, but {Source} has no snapshot source for it.", data.RequestedBy, data.Aggregate, data.Source);
+            logger.LogWarning("{RequestedBy} requested the snapshot {Snapshot} of {Aggregate}, but {Source} has no snapshot source for it.", data.RequestedBy, data.Snapshot, data.Aggregate, data.Source);
 
             return;
         }
@@ -40,7 +40,7 @@ internal sealed class SnapshotRequestedHandler(IEnumerable<ISnapshotSource> sour
 
         while (true)
         {
-            var snapshots = await source.GetPageAsync(data.Tenant, page, pageSize, token).ConfigureAwait(false);
+            var snapshots = await source.ReadPageAsync(data.Tenant, page, pageSize, token).ConfigureAwait(false);
 
             foreach (var snapshot in snapshots)
             {
@@ -65,6 +65,6 @@ internal sealed class SnapshotRequestedHandler(IEnumerable<ISnapshotSource> sour
 
         await message.PublishAsync(SnapshotCompletedDomainEvent.Create(data, count), token).ConfigureAwait(false);
 
-        logger.LogInformation("Snapshot {RequestId} of {Aggregate} for {RequestedBy} published: {Count} aggregates.", data.RequestId, data.Aggregate, data.RequestedBy, count);
+        logger.LogInformation("Snapshot {RequestId} ({Snapshot}) for {RequestedBy} published: {Count} aggregates.", data.RequestId, data.Snapshot, data.RequestedBy, count);
     }
 }

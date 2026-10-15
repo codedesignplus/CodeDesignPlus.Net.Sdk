@@ -19,18 +19,18 @@ public class UserSnapshotDomainEvent(Guid aggregateId, string name, Guid tenant,
 /// <summary>
 /// Fuente de fotos en memoria, con los usuarios ordenados por identificador.
 /// </summary>
-public class UserSnapshotSource : ISnapshotSource<UserEntity>
+public class UserSnapshotSource : ISnapshotSource<UserSnapshotDomainEvent>
 {
     public List<UserEntity> Users { get; } = [];
 
-    public Task<IReadOnlyList<SnapshotDomainEvent>> GetPageAsync(Guid? tenant, int page, int pageSize, CancellationToken cancellationToken)
+    public Task<IReadOnlyList<UserSnapshotDomainEvent>> GetPageAsync(Guid? tenant, int page, int pageSize, CancellationToken cancellationToken)
     {
-        IReadOnlyList<SnapshotDomainEvent> result = Users
+        IReadOnlyList<UserSnapshotDomainEvent> result = Users
             .Where(x => tenant is null || x.Tenant == tenant)
             .OrderBy(x => x.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .Select(x => (SnapshotDomainEvent)new UserSnapshotDomainEvent(x.Id, x.Name!, x.Tenant))
+            .Select(x => new UserSnapshotDomainEvent(x.Id, x.Name!, x.Tenant))
             .ToList();
 
         return Task.FromResult(result);

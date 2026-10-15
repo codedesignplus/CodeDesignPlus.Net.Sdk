@@ -38,7 +38,7 @@ internal sealed class SnapshotCompletedHandler(IOptions<CoreOptions> coreOptions
             return;
         }
 
-        await store.MarkSyncedAsync(data.Source, data.Aggregate, data.RequestId, data.Count, token).ConfigureAwait(false);
+        await store.MarkSyncedAsync(data.Key(), data.RequestId, data.Count, token).ConfigureAwait(false);
 
         logger.LogInformation("Projection of {Aggregate} from {Source} synced with snapshot {RequestId}: {Count} aggregates.", data.Aggregate, data.Source, data.RequestId, data.Count);
     }

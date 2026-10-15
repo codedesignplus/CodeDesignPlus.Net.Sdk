@@ -18,9 +18,9 @@ internal sealed class SnapshotRequester(IMessage message, IOptions<CoreOptions> 
     /// <inheritdoc/>
     public async Task<Guid> RequestAsync(Type snapshotType, Guid? tenant, CancellationToken cancellationToken)
     {
-        var key = SnapshotSourceKey.Of(snapshotType);
+        var key = SnapshotSync.KeyOf(snapshotType);
 
-        var request = SnapshotRequestedDomainEvent.Create(key.Source, key.Aggregate, coreOptions.Value.AppName, tenant);
+        var request = SnapshotRequestedDomainEvent.Create(key, coreOptions.Value.AppName, tenant);
 
         await message.PublishAsync(request, cancellationToken).ConfigureAwait(false);
 

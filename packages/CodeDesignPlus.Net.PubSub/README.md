@@ -54,18 +54,19 @@ pidió y paginado. La copia aplica con upsert y marca la fuente como sincronizad
        : SnapshotDomainEvent(aggregateId, tenant, eventId, occurredAt, metadata) { ... }
    ```
 
-2. Implemente `ISnapshotSource<TAggregate>`: devuelve una página de fotos con orden estable (por `Id`), de una
+2. Implemente `ISnapshotSource<TSnapshot>`: devuelve una página de fotos con orden estable (por `Id`), de una
    copropiedad o de todas. Póngala en el ensamblado del worker. El SDK la descubre y se suscribe solo a
-   `SnapshotRequestedDomainEvent`; contesta las peticiones que nombran su `Core:AppName`.
+   `SnapshotRequestedDomainEvent`; contesta las peticiones que nombran su `Core:AppName`, el agregado y el nombre de
+   esa foto. Un agregado puede tener varias fotos (una por vista que copian otros), cada una con su fuente.
 
    ```csharp
-   public class AssemblySnapshotSource(IAssemblyRepository repository) : ISnapshotSource<AssemblyAggregate>
+   public class AssemblySnapshotSource(IAssemblyRepository repository) : ISnapshotSource<AssemblySnapshotDomainEvent>
    {
-       public async Task<IReadOnlyList<SnapshotDomainEvent>> GetPageAsync(Guid? tenant, int page, int pageSize, CancellationToken cancellationToken)
+       public async Task<IReadOnlyList<AssemblySnapshotDomainEvent>> GetPageAsync(Guid? tenant, int page, int pageSize, CancellationToken cancellationToken)
        {
            var assemblies = await repository.GetPageAsync(tenant, page, pageSize, cancellationToken);
 
-           return assemblies.Select(x => (SnapshotDomainEvent)new AssemblySnapshotDomainEvent(x.Id, ...)).ToList();
+           return [.. assemblies.Select(x => new AssemblySnapshotDomainEvent(x.Id, ...))];
        }
    }
    ```
@@ -97,13 +98,13 @@ El tamaño de página es `PubSub:SnapshotPageSize` (100 por defecto).
 
 3. Nada más. Con un `SnapshotHandler` en el ensamblado, el SDK:
    - espera a que estén suscritos todos los consumidores (una foto publicada antes de que exista la cola se pierde);
-   - mira en `IProjectionSyncStore` si la fuente ya está sincronizada (`CodeDesignPlus.Net.Mongo` lo registra:
+   - mira en `IProjectionSyncStore` si esa foto ya está sincronizada (un documento por dueño y evento de foto) (`CodeDesignPlus.Net.Mongo` lo registra:
      colección `ProjectionSyncState`); si no, publica `SnapshotRequestedDomainEvent` y lo anota;
    - al llegar `SnapshotCompletedDomainEvent` de esa petición, marca la fuente como sincronizada.
 
 Para reparar una copropiedad a mano, inyecte `ISnapshotRequester` y llame a
 `RequestAsync<AssemblySnapshotDomainEvent>(tenant, token)` desde un endpoint de soporte. Para volver a pedir la foto
-completa, borre el documento de esa fuente en `ProjectionSyncState` y reinicie el micro.
+completa, borre el documento de esa foto en `ProjectionSyncState` y reinicie el micro.
 
 ### Lo que hay que saber
 

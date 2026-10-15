@@ -17,6 +17,7 @@ namespace CodeDesignPlus.Net.Core.Abstractions.Snapshots;
 /// <param name="aggregateId">El identificador de la petición (el mismo que <paramref name="requestId"/>).</param>
 /// <param name="source">La aplicación dueña del agregado (su <c>Core:AppName</c>).</param>
 /// <param name="aggregate">El nombre del agregado, igual a la entidad de la clave de su evento de foto.</param>
+/// <param name="snapshot">El nombre del evento de foto pedido: un agregado puede tener varias fotos, una por vista.</param>
 /// <param name="requestId">El identificador de la petición; viaja en cada foto y en el cierre.</param>
 /// <param name="requestedBy">La aplicación que pide (su <c>Core:AppName</c>).</param>
 /// <param name="tenant">La copropiedad a fotografiar, o nulo para todas.</param>
@@ -28,6 +29,7 @@ public class SnapshotRequestedDomainEvent(
     Guid aggregateId,
     string source,
     string aggregate,
+    string snapshot,
     Guid requestId,
     string requestedBy,
     Guid? tenant,
@@ -47,6 +49,11 @@ public class SnapshotRequestedDomainEvent(
     public string Aggregate { get; private set; } = aggregate;
 
     /// <summary>
+    /// El nombre del evento de foto.
+    /// </summary>
+    public string Snapshot { get; private set; } = snapshot;
+
+    /// <summary>
     /// El identificador de la petición.
     /// </summary>
     public Guid RequestId { get; private set; } = requestId;
@@ -64,19 +71,24 @@ public class SnapshotRequestedDomainEvent(
     /// <summary>
     /// Crea la petición.
     /// </summary>
-    /// <param name="source">La aplicación dueña del agregado.</param>
-    /// <param name="aggregate">El nombre del agregado.</param>
+    /// <param name="key">La foto pedida; tiene que nombrar a la aplicación dueña.</param>
     /// <param name="requestedBy">La aplicación que pide.</param>
     /// <param name="tenant">La copropiedad a fotografiar, o nulo para todas.</param>
     /// <returns>Un nuevo <see cref="SnapshotRequestedDomainEvent"/> con un identificador de petición nuevo.</returns>
-    public static SnapshotRequestedDomainEvent Create(string source, string aggregate, string requestedBy, Guid? tenant)
+    public static SnapshotRequestedDomainEvent Create(SnapshotKey key, string requestedBy, Guid? tenant)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(source);
-        ArgumentException.ThrowIfNullOrWhiteSpace(aggregate);
+        ArgumentNullException.ThrowIfNull(key);
+        ArgumentException.ThrowIfNullOrWhiteSpace(key.Source);
         ArgumentException.ThrowIfNullOrWhiteSpace(requestedBy);
 
         var requestId = Guid.NewGuid();
 
-        return new SnapshotRequestedDomainEvent(requestId, source, aggregate, requestId, requestedBy, tenant);
+        return new SnapshotRequestedDomainEvent(requestId, key.Source, key.Aggregate, key.Snapshot, requestId, requestedBy, tenant);
     }
+
+    /// <summary>
+    /// La foto pedida.
+    /// </summary>
+    /// <returns>La clave de la foto.</returns>
+    public SnapshotKey Key() => new(this.Source, this.Aggregate, this.Snapshot);
 }

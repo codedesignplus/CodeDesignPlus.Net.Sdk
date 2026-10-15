@@ -17,6 +17,7 @@ namespace CodeDesignPlus.Net.Core.Abstractions.Snapshots;
 /// <param name="aggregateId">El identificador de la petición.</param>
 /// <param name="source">La aplicación dueña del agregado.</param>
 /// <param name="aggregate">El nombre del agregado.</param>
+/// <param name="snapshot">El nombre del evento de foto pedido: un agregado puede tener varias fotos, una por vista.</param>
 /// <param name="requestId">El identificador de la petición contestada.</param>
 /// <param name="requestedBy">La aplicación que pidió.</param>
 /// <param name="tenant">La copropiedad fotografiada, o nulo si fueron todas.</param>
@@ -29,6 +30,7 @@ public class SnapshotCompletedDomainEvent(
     Guid aggregateId,
     string source,
     string aggregate,
+    string snapshot,
     Guid requestId,
     string requestedBy,
     Guid? tenant,
@@ -47,6 +49,11 @@ public class SnapshotCompletedDomainEvent(
     /// El nombre del agregado.
     /// </summary>
     public string Aggregate { get; private set; } = aggregate;
+
+    /// <summary>
+    /// El nombre del evento de foto.
+    /// </summary>
+    public string Snapshot { get; private set; } = snapshot;
 
     /// <summary>
     /// El identificador de la petición contestada.
@@ -69,6 +76,12 @@ public class SnapshotCompletedDomainEvent(
     public long Count { get; private set; } = count;
 
     /// <summary>
+    /// La foto terminada.
+    /// </summary>
+    /// <returns>La clave de la foto.</returns>
+    public SnapshotKey Key() => new(this.Source, this.Aggregate, this.Snapshot);
+
+    /// <summary>
     /// Crea el cierre de una petición.
     /// </summary>
     /// <param name="request">La petición contestada.</param>
@@ -78,6 +91,6 @@ public class SnapshotCompletedDomainEvent(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return new SnapshotCompletedDomainEvent(request.RequestId, request.Source, request.Aggregate, request.RequestId, request.RequestedBy, request.Tenant, count);
+        return new SnapshotCompletedDomainEvent(request.RequestId, request.Source, request.Aggregate, request.Snapshot, request.RequestId, request.RequestedBy, request.Tenant, count);
     }
 }

@@ -7,10 +7,10 @@ namespace CodeDesignPlus.Net.Mongo.Snapshots;
 /// su fuente.
 /// </summary>
 /// <remarks>
-/// Un documento por fuente y agregado, con identificador derivado de ambos (<see cref="ProjectionSyncState.IdOf"/>):
+/// Un documento por foto (aplicación dueña y evento de foto), con identificador derivado de ambos (<see cref="ProjectionSyncState.IdOf"/>):
 /// dos réplicas que lo escriben a la vez escriben el mismo documento con un upsert, sin carrera de creación. No es de
 /// ninguna copropiedad, así que la purga de una copropiedad no lo toca. Para volver a pedir una foto completa basta con
-/// borrar el documento de esa fuente y reiniciar el micro.
+/// borrar el documento de esa foto y reiniciar el micro.
 /// </remarks>
 internal sealed class MongoProjectionSyncStore(IMongoClient client, IOptions<MongoOptions> options) : IProjectionSyncStore
 {
@@ -22,46 +22,50 @@ internal sealed class MongoProjectionSyncStore(IMongoClient client, IOptions<Mon
     private IMongoCollection<ProjectionSyncDocument> Collection => client.GetDatabase(options.Value.Database).GetCollection<ProjectionSyncDocument>(CollectionName);
 
     /// <inheritdoc/>
-    public async Task<ProjectionSyncState> FindAsync(string source, string aggregate, CancellationToken cancellationToken)
+    public async Task<ProjectionSyncState> FindAsync(SnapshotKey key, CancellationToken cancellationToken)
     {
-        var document = await this.Collection.Find(x => x.Id == ProjectionSyncState.IdOf(source, aggregate)).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+        var id = ProjectionSyncState.IdOf(key);
+
+        var document = await this.Collection.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken).ConfigureAwait(false);
 
         if (document is null)
         {
             return null;
         }
 
-        return new ProjectionSyncState(document.Source, document.Aggregate, document.LastRequestId, document.RequestedAt, document.SyncedAt, document.Count);
+        return new ProjectionSyncState(document.Source, document.Aggregate, document.Snapshot, document.LastRequestId, document.RequestedAt, document.SyncedAt, document.Count);
     }
 
     /// <inheritdoc/>
-    public Task MarkRequestedAsync(string source, string aggregate, Guid requestId, CancellationToken cancellationToken)
+    public Task MarkRequestedAsync(SnapshotKey key, Guid requestId, CancellationToken cancellationToken)
     {
         var update = Builders<ProjectionSyncDocument>.Update
-            .Set(x => x.Source, source)
-            .Set(x => x.Aggregate, aggregate)
+            .Set(x => x.Source, key.Source)
+            .Set(x => x.Aggregate, key.Aggregate)
+            .Set(x => x.Snapshot, key.Snapshot)
             .Set(x => x.LastRequestId, requestId)
             .Set(x => x.RequestedAt, SystemClock.Instance.GetCurrentInstant());
 
-        return this.UpsertAsync(source, aggregate, update, cancellationToken);
+        return this.UpsertAsync(key, update, cancellationToken);
     }
 
     /// <inheritdoc/>
-    public Task MarkSyncedAsync(string source, string aggregate, Guid requestId, long count, CancellationToken cancellationToken)
+    public Task MarkSyncedAsync(SnapshotKey key, Guid requestId, long count, CancellationToken cancellationToken)
     {
         var update = Builders<ProjectionSyncDocument>.Update
-            .Set(x => x.Source, source)
-            .Set(x => x.Aggregate, aggregate)
+            .Set(x => x.Source, key.Source)
+            .Set(x => x.Aggregate, key.Aggregate)
+            .Set(x => x.Snapshot, key.Snapshot)
             .Set(x => x.SyncedRequestId, requestId)
             .Set(x => x.SyncedAt, SystemClock.Instance.GetCurrentInstant())
             .Set(x => x.Count, count);
 
-        return this.UpsertAsync(source, aggregate, update, cancellationToken);
+        return this.UpsertAsync(key, update, cancellationToken);
     }
 
-    private Task UpsertAsync(string source, string aggregate, UpdateDefinition<ProjectionSyncDocument> update, CancellationToken cancellationToken)
+    private Task UpsertAsync(SnapshotKey key, UpdateDefinition<ProjectionSyncDocument> update, CancellationToken cancellationToken)
     {
-        var id = ProjectionSyncState.IdOf(source, aggregate);
+        var id = ProjectionSyncState.IdOf(key);
 
         return this.Collection.UpdateOneAsync(x => x.Id == id, update, new UpdateOptions { IsUpsert = true }, cancellationToken);
     }
@@ -86,6 +90,11 @@ internal sealed class ProjectionSyncDocument
     /// El nombre del agregado.
     /// </summary>
     public string Aggregate { get; set; }
+
+    /// <summary>
+    /// El nombre del evento de foto.
+    /// </summary>
+    public string Snapshot { get; set; }
 
     /// <summary>
     /// La última petición publicada.
