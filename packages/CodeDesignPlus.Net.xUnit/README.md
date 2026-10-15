@@ -40,6 +40,26 @@ dotnet add package CodeDesignPlus.Net.xUnit
 ## Usage
 For more information regarding the library, you can visit our documentation at [CodeDesignPlus Doc](https://doc.codedesignplus.com)
 
+## Un DTO que se cachea vuelve igual que entró
+
+`CacheContract` reproduce cómo deserializa el cache (Newtonsoft por defecto) y lista toda propiedad alcanzable desde un
+DTO que se escribe pero no vuelve: `set` privado fuera del constructor que Newtonsoft elige, o un tipo que no sabe
+construir. En cada micro basta una prueba sobre todos los `IDtoBase` de la capa de aplicación:
+
+```csharp
+[Fact]
+public void FindLostPropertiesInDtos_ApplicationLayer_LosesNothing()
+{
+    // Act
+    var lost = CacheContract.FindLostPropertiesInDtos(typeof(EmailsDto).Assembly);
+
+    // Assert
+    Assert.Empty(lost);
+}
+```
+
+`CacheContract.RoundTrip(dto)` hace la ida y vuelta real, para fijar con datos el caso que se perdió.
+
 ## Roadmap
 Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues) for a list of proposed features and known issues.
 
