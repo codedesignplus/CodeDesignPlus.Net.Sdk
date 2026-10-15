@@ -9,6 +9,9 @@
     <Description>CodeDesignPlus.Net.xUnit provides a set of utilities and extensions for enhancing xUnit tests in .NET Core applications. This library simplifies the process of writing and managing unit tests, enabling developers to build robust and maintainable test suites.</Description>
     <Copyright>© CodeDesignPlus. All rights reserved.</Copyright>
     <PackageId>CodeDesignPlus.Net.xUnit</PackageId>
+    <!-- El paquete xunit marca el proyecto como de pruebas y eso lo deja sin empaquetar: es una biblioteca para pruebas (pendings/381). -->
+    <IsTestProject>false</IsTestProject>
+    <IsPackable>true</IsPackable>
     <RepositoryType>git</RepositoryType>
     <RepositoryUrl>https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk.git</RepositoryUrl>
     <PackageProjectUrl>https://www.codedesignplus.com</PackageProjectUrl>
