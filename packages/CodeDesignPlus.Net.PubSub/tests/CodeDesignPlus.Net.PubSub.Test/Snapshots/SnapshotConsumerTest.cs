@@ -1,0 +1,143 @@
+using CodeDesignPlus.Net.Core.Abstractions.Options;
+using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
+using CodeDesignPlus.Net.PubSub.Snapshots;
+using CodeDesignPlus.Net.PubSub.Test.Helpers.Snapshots;
+using Moq;
+
+namespace CodeDesignPlus.Net.PubSub.Test.Snapshots;
+
+/// <summary>
+/// La copia aplica solo la foto que pidió, marca la fuente como sincronizada cuando termina su foto completa y la foto
+/// sobrevive al bus con a quién va dirigida (pendings/380).
+/// </summary>
+public class SnapshotConsumerTest
+{
+    private static readonly Guid Tenant = Guid.Parse("17daab5e-b090-48bd-969a-a7618eb2a726");
+
+    private readonly Mock<IProjectionSyncStore> store = new();
+
+    [Fact]
+    public async Task HandleAsync_SnapshotRequestedByThisCopy_IsApplied()
+    {
+        // Arrange
+        var handler = new UserSnapshotHandler(Core("xunit-copy"));
+        var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant) { RequestedBy = "xunit-copy" };
+
+        // Act
+        await handler.HandleAsync(snapshot, CancellationToken.None);
+
+        // Assert
+        Assert.Single(handler.Applied);
+    }
+
+    [Fact]
+    public async Task HandleAsync_SnapshotRequestedByAnotherCopy_IsIgnored()
+    {
+        // Arrange
+        var handler = new UserSnapshotHandler(Core("xunit-copy"));
+        var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant) { RequestedBy = "ms-other-copy" };
+
+        // Act
+        await handler.HandleAsync(snapshot, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(handler.Applied);
+    }
+
+    [Fact]
+    public void Deserialize_SnapshotFromTheBus_KeepsTenantRequestAndRequester()
+    {
+        // Arrange
+        var requestId = Guid.NewGuid();
+        var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant) { RequestId = requestId, RequestedBy = "xunit-copy" };
+
+        // Act
+        var read = JsonSerializer.Deserialize<UserSnapshotDomainEvent>(JsonSerializer.Serialize(snapshot));
+
+        // Assert
+        Assert.Equal((Tenant, requestId, "xunit-copy", "Ana", snapshot.OccurredAt), (read.Tenant, read.RequestId, read.RequestedBy, read.Name, read.OccurredAt));
+    }
+
+    [Fact]
+    public void Deserialize_RequestFromTheBus_KeepsEveryField()
+    {
+        // Arrange
+        var request = SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", "ms-communitylife", Tenant);
+
+        // Act
+        var read = JsonSerializer.Deserialize<SnapshotRequestedDomainEvent>(JsonSerializer.Serialize(request));
+
+        // Assert
+        Assert.Equal((request.Source, request.Aggregate, request.RequestId, request.RequestedBy, request.Tenant), (read.Source, read.Aggregate, read.RequestId, read.RequestedBy, read.Tenant));
+    }
+
+    [Fact]
+    public void Deserialize_CompletionFromTheBus_KeepsEveryField()
+    {
+        // Arrange
+        var completed = SnapshotCompletedDomainEvent.Create(SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", "ms-communitylife", null), 3);
+
+        // Act
+        var read = JsonSerializer.Deserialize<SnapshotCompletedDomainEvent>(JsonSerializer.Serialize(completed));
+
+        // Assert
+        Assert.Equal((completed.Source, completed.Aggregate, completed.RequestId, completed.RequestedBy, completed.Tenant, completed.Count), (read.Source, read.Aggregate, read.RequestId, read.RequestedBy, read.Tenant, read.Count));
+    }
+
+    [Theory]
+    [InlineData(null, true)]
+    [InlineData(-60, true)]
+    [InlineData(60, false)]
+    public void Supersedes_LastAppliedChange_OnlyWhenTheSnapshotIsNotOlder(int? secondsFromSnapshot, bool expected)
+    {
+        // Arrange
+        var takenAt = Instant.FromUtc(2026, 10, 14, 12, 0);
+        var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant, occurredAt: takenAt);
+        Instant? lastApplied = secondsFromSnapshot is null ? null : takenAt + Duration.FromSeconds(secondsFromSnapshot.Value);
+
+        // Act
+        var supersedes = snapshot.Supersedes(lastApplied);
+
+        // Assert
+        Assert.Equal(expected, supersedes);
+    }
+
+    [Fact]
+    public async Task HandleAsync_FullSnapshotOfThisCopyCompleted_MarksTheSourceSynced()
+    {
+        // Arrange
+        var request = SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", "xunit-copy", null);
+        var handler = new SnapshotCompletedHandler(Core("xunit-copy"), Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotCompletedHandler>.Instance, this.store.Object);
+
+        // Act
+        await handler.HandleAsync(SnapshotCompletedDomainEvent.Create(request, 3), CancellationToken.None);
+
+        // Assert
+        this.store.Verify(x => x.MarkSyncedAsync("ms-assemblies", "AssemblyAggregate", request.RequestId, 3, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Theory]
+    [InlineData("ms-other-copy", false)]
+    [InlineData("xunit-copy", true)]
+    public async Task HandleAsync_CompletionOfAnotherCopyOrOfOneTenant_DoesNotMarkTheSource(string requestedBy, bool oneTenant)
+    {
+        // Arrange
+        var request = SnapshotRequestedDomainEvent.Create("ms-assemblies", "AssemblyAggregate", requestedBy, oneTenant ? Tenant : null);
+        var handler = new SnapshotCompletedHandler(Core("xunit-copy"), Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotCompletedHandler>.Instance, this.store.Object);
+
+        // Act
+        await handler.HandleAsync(SnapshotCompletedDomainEvent.Create(request, 3), CancellationToken.None);
+
+        // Assert
+        this.store.Verify(x => x.MarkSyncedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    internal static IOptions<CoreOptions> Core(string appName) => Microsoft.Extensions.Options.Options.Create(new CoreOptions
+    {
+        AppName = appName,
+        Business = "CodeDesignPlus",
+        Version = "v1",
+        Description = "Snapshot tests",
+        Contact = new() { Name = "CodeDesignPlus", Email = "wliscano@codedesignplus.com" }
+    });
+}

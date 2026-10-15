@@ -102,6 +102,7 @@ public static class ServiceCollectionExtensions
 
         var eventsHandlers = PubSubExtensions.GetEventHandlers();
         var handlerCount = 0;
+        var snapshots = new List<(Type Snapshot, Type Handler)>();
 
         foreach (var eventHandler in eventsHandlers)
         {
@@ -117,11 +118,56 @@ public static class ServiceCollectionExtensions
 
             services.TryAddScoped(eventHandler);
             handlerCount++;
+
+            if (typeof(SnapshotDomainEvent).IsAssignableFrom(eventType))
+                snapshots.Add((eventType, eventHandler));
         }
+
+        handlerCount += services.AddSnapshots(snapshots);
 
         services.Configure<SubscriptionTrackerInitializer>(x => x.ExpectedCount = handlerCount);
         services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, SubscriptionTrackerInitializerService>());
 
         return services;
+    }
+
+    /// <summary>
+    /// Registra la sincronización por fotos: el lado del dueño si la aplicación tiene alguna <see cref="ISnapshotSource"/>,
+    /// y el de la copia si consume algún evento de foto.
+    /// </summary>
+    /// <param name="services">La colección de servicios.</param>
+    /// <param name="snapshots">Los eventos de foto que consume la aplicación, con su consumidor.</param>
+    /// <returns>Cuántos consumidores propios del paquete se registraron, para el contador de suscripciones.</returns>
+    private static int AddSnapshots(this IServiceCollection services, List<(Type Snapshot, Type Handler)> snapshots)
+    {
+        var count = 0;
+        var sources = PubSubExtensions.GetSnapshotSources();
+
+        foreach (var source in sources)
+            services.TryAddEnumerable(ServiceDescriptor.Scoped(typeof(ISnapshotSource), source));
+
+        if (sources.Count > 0)
+        {
+            services.AddOwnHandler<SnapshotRequestedHandler, SnapshotRequestedDomainEvent>();
+            count++;
+        }
+
+        if (snapshots.Count > 0)
+        {
+            services.AddOwnHandler<SnapshotCompletedHandler, SnapshotCompletedDomainEvent>();
+            count++;
+
+            services.TryAddSingleton<ISnapshotRequester, SnapshotRequester>();
+            services.Configure<SnapshotSyncOptions>(x => x.Snapshots.AddRange(snapshots));
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, SnapshotSyncBackgroundService>());
+        }
+
+        return count;
+    }
+
+    private static void AddOwnHandler<THandler, TEvent>(this IServiceCollection services) where THandler : class, IEventHandler<TEvent> where TEvent : IDomainEvent
+    {
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, RegisterEventHandlerBackgroundService<THandler, TEvent>>());
+        services.TryAddScoped<THandler>();
     }
 }

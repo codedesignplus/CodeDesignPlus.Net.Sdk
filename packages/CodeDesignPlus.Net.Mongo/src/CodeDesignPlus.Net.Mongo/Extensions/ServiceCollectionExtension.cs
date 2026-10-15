@@ -1,4 +1,7 @@
-using System.Security.Authentication;
+﻿using System.Security.Authentication;
+using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
+using CodeDesignPlus.Net.Mongo.Snapshots;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace CodeDesignPlus.Net.Mongo.Extensions;
 
@@ -55,6 +58,9 @@ public static class ServiceCollectionExtensions
 
             return mongoClient;
         });
+
+        // Donde las copias locales recuerdan si ya recibieron la foto completa de su fuente (CodeDesignPlus.Net.PubSub).
+        services.TryAddSingleton<IProjectionSyncStore, MongoProjectionSyncStore>();
 
         if (options.RegisterAutomaticRepositories)
             services.AddRepositories<TStartup>();

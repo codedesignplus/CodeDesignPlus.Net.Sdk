@@ -32,17 +32,40 @@ public static class PubSubExtensions
     /// <summary>
     /// Scans and returns classes that implement the <see cref="IEventHandler{TEvent}"/> interface.
     /// </summary>
+    /// <remarks>
+    /// Deja fuera las clases abstractas y las genéricas abiertas (una base como
+    /// <c>SnapshotHandler&lt;TSnapshot&gt;</c> no se puede instanciar) y los consumidores propios de este paquete, que se
+    /// registran solo cuando la aplicación los necesita (fotos de proyecciones).
+    /// </remarks>
     /// <returns>A list of event handler types.</returns>
     public static List<Type> GetEventHandlers()
+    {
+        var own = typeof(PubSubExtensions).Assembly;
+
+        return AppDomain.CurrentDomain
+            .GetAssemblies()
+            .Where(assembly => assembly.GetName().Name != "DynamicProxyGenAssembly2" && assembly != own)
+            .SelectMany(x => x.GetTypes())
+            .Where(x =>
+                x.IsClass &&
+                !x.IsAbstract &&
+                !x.ContainsGenericParameters &&
+                x.IsAssignableGenericFrom(typeof(IEventHandler<>))
+            ).ToList();
+    }
+
+    /// <summary>
+    /// Busca las clases que implementan <see cref="ISnapshotSource"/>: las fuentes de foto de las que esta aplicación es dueña.
+    /// </summary>
+    /// <returns>Los tipos concretos de fuente de foto.</returns>
+    public static List<Type> GetSnapshotSources()
     {
         return AppDomain.CurrentDomain
             .GetAssemblies()
             .Where(assembly => assembly.GetName().Name != "DynamicProxyGenAssembly2")
             .SelectMany(x => x.GetTypes())
-            .Where(x =>
-                x.IsClass &&
-                x.IsAssignableGenericFrom(typeof(IEventHandler<>))
-            ).ToList();
+            .Where(x => x.IsClass && !x.IsAbstract && !x.ContainsGenericParameters && typeof(ISnapshotSource).IsAssignableFrom(x))
+            .ToList();
     }
 
     /// <summary>

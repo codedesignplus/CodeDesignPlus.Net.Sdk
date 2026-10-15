@@ -38,6 +38,82 @@ dotnet add package CodeDesignPlus.Net.PubSub
 ## Usage
 For more information regarding the library, you can visit our documentation at [CodeDesignPlus Doc](https://doc.codedesignplus.com)
 
+## Sincronización inicial de proyecciones (fotos)
+
+Una copia local que se alimenta de eventos solo recibe lo que pasa desde que existe su cola. Para que nazca completa,
+la copia **pide una foto** al arrancar y el dueño **contesta** con un evento de foto por agregado, dirigido a quien la
+pidió y paginado. La copia aplica con upsert y marca la fuente como sincronizada.
+
+### Lado del dueño
+
+1. Declare el evento de foto del agregado, con su estado completo, heredando de `SnapshotDomainEvent`:
+
+   ```csharp
+   [EventKey<AssemblyAggregate>(1, "AssemblySnapshotDomainEvent")]
+   public class AssemblySnapshotDomainEvent(Guid aggregateId, string title, Instant scheduledDate, Instant? completedAt, bool isCancelled, Guid tenant, Guid? eventId = null, Instant? occurredAt = null, Dictionary<string, object>? metadata = null)
+       : SnapshotDomainEvent(aggregateId, tenant, eventId, occurredAt, metadata) { ... }
+   ```
+
+2. Implemente `ISnapshotSource<TAggregate>`: devuelve una página de fotos con orden estable (por `Id`), de una
+   copropiedad o de todas. Póngala en el ensamblado del worker. El SDK la descubre y se suscribe solo a
+   `SnapshotRequestedDomainEvent`; contesta las peticiones que nombran su `Core:AppName`.
+
+   ```csharp
+   public class AssemblySnapshotSource(IAssemblyRepository repository) : ISnapshotSource<AssemblyAggregate>
+   {
+       public async Task<IReadOnlyList<SnapshotDomainEvent>> GetPageAsync(Guid? tenant, int page, int pageSize, CancellationToken cancellationToken)
+       {
+           var assemblies = await repository.GetPageAsync(tenant, page, pageSize, cancellationToken);
+
+           return assemblies.Select(x => (SnapshotDomainEvent)new AssemblySnapshotDomainEvent(x.Id, ...)).ToList();
+       }
+   }
+   ```
+
+El tamaño de página es `PubSub:SnapshotPageSize` (100 por defecto).
+
+### Lado de la copia
+
+1. Declare el gemelo del evento de foto: la clave nombra al dueño (aplicación) y al agregado (entidad). De ahí sale a
+   quién se le pide.
+
+   ```csharp
+   [EventKey("AssemblyAggregate", 1, "AssemblySnapshotDomainEvent", "ms-assemblies", "kappali")]
+   public class AssemblySnapshotDomainEvent(...) : SnapshotDomainEvent(...)
+   ```
+
+2. Consuma la foto heredando de `SnapshotHandler<TSnapshot>` e implemente `ApplyAsync` como un upsert idempotente.
+   Para no pisar un evento en vivo más nuevo, la copia guarda el `OccurredAt` del último evento del dueño que aplicó
+   (un campo nuevo fuera del constructor) y solo reemplaza si `snapshot.Supersedes(copia.SourceChangedAt)`.
+
+   ```csharp
+   [QueueName<AssemblyProjectionAggregate>("AssemblySnapshotHandler")]
+   public class AssemblySnapshotHandler(IAssemblyProjectionRepository repository, IOptions<CoreOptions> coreOptions)
+       : SnapshotHandler<AssemblySnapshotDomainEvent>(coreOptions)
+   {
+       protected override async Task ApplyAsync(AssemblySnapshotDomainEvent snapshot, CancellationToken cancellationToken) { ... }
+   }
+   ```
+
+3. Nada más. Con un `SnapshotHandler` en el ensamblado, el SDK:
+   - espera a que estén suscritos todos los consumidores (una foto publicada antes de que exista la cola se pierde);
+   - mira en `IProjectionSyncStore` si la fuente ya está sincronizada (`CodeDesignPlus.Net.Mongo` lo registra:
+     colección `ProjectionSyncState`); si no, publica `SnapshotRequestedDomainEvent` y lo anota;
+   - al llegar `SnapshotCompletedDomainEvent` de esa petición, marca la fuente como sincronizada.
+
+Para reparar una copropiedad a mano, inyecte `ISnapshotRequester` y llame a
+`RequestAsync<AssemblySnapshotDomainEvent>(tenant, token)` desde un endpoint de soporte. Para volver a pedir la foto
+completa, borre el documento de esa fuente en `ProjectionSyncState` y reinicie el micro.
+
+### Lo que hay que saber
+
+- Las peticiones y los cierres son contratos de plataforma con clave fija (`codedesignplus.ms-snapshots.v1.projectionsnapshot.*`):
+  todas las aplicaciones publican y escuchan en el mismo tema y descartan lo que no las nombra.
+- Las fotos van al tema del evento de foto de cada pareja; si dos copias del mismo agregado sincronizan, cada una
+  descarta la que pidió la otra (`RequestedBy`).
+- Pedir dos veces (dos réplicas, un reinicio antes del cierre) no duplica: la copia aplica con upsert.
+- Todo es aditivo: un consumidor desplegado que no conoce los eventos nuevos no cambia.
+
 ## Roadmap
 Refer to [issues](https://github.com/codedesignplus/CodeDesignPlus.Net.Sdk/issues) for a list of proposed features and known issues.
 

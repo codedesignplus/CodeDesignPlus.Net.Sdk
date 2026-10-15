@@ -28,4 +28,9 @@ public class PubSubOptions
     /// Gets or sets a value indicating whether to register automatic handlers.
     /// </summary>
     public bool RegisterAutomaticHandlers { get; set; } = true;
+    /// <summary>
+    /// Cuántos agregados lee y publica el dueño por página al contestar una petición de foto.
+    /// </summary>
+    [Range(1, 1000)]
+    public uint SnapshotPageSize { get; set; } = 100;
 }

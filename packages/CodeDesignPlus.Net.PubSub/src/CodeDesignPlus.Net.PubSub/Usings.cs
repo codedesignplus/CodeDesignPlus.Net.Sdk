@@ -20,3 +20,7 @@ global using System.Text;
 global using OpenTelemetry;
 global using OpenTelemetry.Context.Propagation;
 
+global using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
+global using CodeDesignPlus.Net.PubSub.Abstractions.Snapshots;
+global using CodeDesignPlus.Net.PubSub.Snapshots;
+global using System.Reflection;
