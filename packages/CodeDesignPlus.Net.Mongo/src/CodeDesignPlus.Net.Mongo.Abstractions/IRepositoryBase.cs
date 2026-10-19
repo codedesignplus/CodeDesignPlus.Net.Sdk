@@ -225,6 +225,7 @@ public interface IRepositoryBase
     /// <param name="process">The process to execute within the transaction.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous transaction operation.</returns>
+    /// <exception cref="Exception">The process or the commit failed; the transaction was aborted and nothing was written.</exception>
     Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken);
 
     /// <summary>

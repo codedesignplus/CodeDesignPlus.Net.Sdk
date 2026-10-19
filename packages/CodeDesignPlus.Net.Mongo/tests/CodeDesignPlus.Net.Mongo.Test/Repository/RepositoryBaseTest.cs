@@ -477,7 +477,7 @@ public class RepositoryBaseTest
     }
 
     [Fact]
-    public async Task TransactionAsync_ThrowException_CommitFailed()
+    public async Task TransactionAsync_ThrowException_WritesNothing()
     {
         // Arrange
         var cancellationToken = CancellationToken.None;
@@ -492,21 +492,32 @@ public class RepositoryBaseTest
         };
 
         // Act
-        await repository.TransactionAsync(async (database, session) =>
+        await Assert.ThrowsAsync<InvalidOperationException>(() => repository.TransactionAsync(async (database, session) =>
         {
             var clientCollection = database.GetCollection<Client>(typeof(Client).Name);
 
             await clientCollection.InsertOneAsync(session, entity, cancellationToken: cancellationToken);
 
-            throw new Exception("Custom Message");
-        }, cancellationToken);
-
+            throw new InvalidOperationException("Custom Message");
+        }, cancellationToken));
 
         // Assert
         var result = await collection.Find(x => x.Id == entity.Id).FirstOrDefaultAsync(cancellationToken);
 
         Assert.Null(result);
-        this.loggerMock.VerifyLogging("Failed to execute transaction", LogLevel.Error);
+    }
+
+    [Fact]
+    public async Task TransactionAsync_ThrowException_ReachesTheCaller()
+    {
+        // Arrange: el handler no puede seguir como si hubiera guardado (pendings/415).
+        var repository = new ClientRepository(serviceProvider, this.options, loggerMock.Object);
+
+        // Act
+        var exception = await Record.ExceptionAsync(() => repository.TransactionAsync((database, session) => throw new InvalidOperationException("Custom Message"), CancellationToken.None));
+
+        // Assert
+        Assert.Equal("Custom Message", Assert.IsType<InvalidOperationException>(exception).Message);
     }
 
     [Fact]

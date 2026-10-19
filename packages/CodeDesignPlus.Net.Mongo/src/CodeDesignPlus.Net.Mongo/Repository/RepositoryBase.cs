@@ -549,8 +549,15 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous transaction operation.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the process is null.</exception>
+    /// <remarks>
+    /// Si el proceso o la confirmación fallan, la transacción se aborta y la excepción llega a quien llamó. Antes se
+    /// registraba y se tragaba: el handler seguía como si hubiera guardado y publicaba eventos de algo que no quedó
+    /// (pendings/415).
+    /// </remarks>
     public async Task TransactionAsync(Func<IMongoDatabase, IClientSessionHandle, Task> process, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(process);
+
         var client = serviceProvider.GetRequiredService<IMongoClient>();
 
         var database = client.GetDatabase(this.mongoOptions.Database);
@@ -567,9 +574,32 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
         }
         catch (Exception ex)
         {
-            await session.AbortTransactionAsync(cancellationToken);
-
             logger.LogError(ex, "Failed to execute transaction");
+
+            await AbortQuietlyAsync(session);
+
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Aborta la transacción si sigue abierta, sin tapar con su propio error el que la hizo fallar.
+    /// </summary>
+    private async Task AbortQuietlyAsync(IClientSessionHandle session)
+    {
+        if (!session.IsInTransaction)
+        {
+            return;
+        }
+
+        try
+        {
+            // Sin el token de quien llamó: si fue él quien canceló, la transacción debe abortarse igual.
+            await session.AbortTransactionAsync(CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            logger.LogWarning(ex, "Failed to abort transaction");
         }
     }
 
