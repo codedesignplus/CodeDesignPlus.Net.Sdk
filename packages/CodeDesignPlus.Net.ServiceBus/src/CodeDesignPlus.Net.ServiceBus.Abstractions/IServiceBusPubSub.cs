@@ -1,4 +1,4 @@
-namespace CodeDesignPlus.Net.ServiceBus.Abstractions;
+﻿namespace CodeDesignPlus.Net.ServiceBus.Abstractions;
 
 /// <summary>
 /// Marker interface for the Azure Service Bus implementation of <see cref="IMessage"/>.
@@ -7,6 +7,6 @@ namespace CodeDesignPlus.Net.ServiceBus.Abstractions;
 /// Permite resolver el transporte concreto sin perder el registro generico de <see cref="IMessage"/>,
 /// igual que hacen el resto de transportes del SDK.
 /// </remarks>
-public interface IServiceBusPubSub : IMessage
+public interface IServiceBusPubSub : IMessage, IOutboxTransport
 {
 }

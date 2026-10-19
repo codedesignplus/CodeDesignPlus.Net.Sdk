@@ -33,13 +33,8 @@ public static class ServiceCollectionExtensions
         services
             .AddCore(configuration)
             .AddEventsHandlers(options.RegisterAutomaticHandlers)
+            .AddOutbox(options)
             .TryAddSingleton<IPubSub, PubSubService>();
-
-        if (options.UseQueue)
-        {
-            services.TryAddSingleton<IEventQueue, EventQueueService>();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, EventQueueBackgroundService>());
-        }
 
         if (options.EnableDiagnostic)
             services.TryAddSingleton<IActivityService, ActivitySourceService>();
@@ -73,16 +68,31 @@ public static class ServiceCollectionExtensions
         services
            .AddCore(configuration)
            .AddEventsHandlers(pubSubOptions.RegisterAutomaticHandlers)
+           .AddOutbox(pubSubOptions)
            .TryAddSingleton<IPubSub, PubSubService>();
-
-        if (pubSubOptions.UseQueue)
-        {
-            services.TryAddSingleton<IEventQueue, EventQueueService>();
-            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, EventQueueBackgroundService>());
-        }
 
         if (pubSubOptions.EnableDiagnostic)
             services.TryAddSingleton<IActivityService, ActivitySourceService>();
+
+        return services;
+    }
+
+    /// <summary>
+    /// Registra el aviso de la bandeja de salida y, si está activa, su despachador (pendings/245).
+    /// </summary>
+    /// <param name="services">The IServiceCollection to add the services to.</param>
+    /// <param name="options">The PubSub options.</param>
+    /// <returns>The IServiceCollection with the outbox services added.</returns>
+    /// <exception cref="ValidationException">Thrown when the outbox options are out of range.</exception>
+    private static IServiceCollection AddOutbox(this IServiceCollection services, PubSubOptions options)
+    {
+        // ValidateDataAnnotations no entra en los objetos anidados: se validan aquí, al arrancar.
+        Validator.ValidateObject(options.Outbox, new ValidationContext(options.Outbox), validateAllProperties: true);
+
+        services.TryAddSingleton<IOutboxSignal, OutboxSignal>();
+
+        if (options.Outbox.Enable)
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, OutboxDispatcherBackgroundService>());
 
         return services;
     }

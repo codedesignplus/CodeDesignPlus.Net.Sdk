@@ -1,4 +1,4 @@
-global using System;
+﻿global using System;
 global using System.Collections.Concurrent;
 global using System.Collections.Generic;
 global using System.Diagnostics;
@@ -30,3 +30,4 @@ global using CodeDesignPlus.Net.ServiceBus.Abstractions;
 global using CodeDesignPlus.Net.ServiceBus.Abstractions.Options;
 global using CodeDesignPlus.Net.ServiceBus.Exceptions;
 global using CodeDesignPlus.Net.ServiceBus.Services;
+global using CodeDesignPlus.Net.Core.Abstractions.Outbox;

@@ -33,19 +33,17 @@ public static class OptionsUtil
         }
     };
 
-    public static RedisPubSubOptions RedisPubSubOptions(bool useQueue) => new()
+    public static RedisPubSubOptions RedisPubSubOptions() => new()
     {
         Enable = true,
-        UseQueue = useQueue,
         EnableDiagnostic = true,
-        RegisterAutomaticHandlers = true,
-        SecondsWaitQueue = 5
+        RegisterAutomaticHandlers = true
     };
 
     public static object AppSettings => new
     {
         Core = CoreOptions,
         Redis = RedisOptions,
-        RedisPubSub = RedisPubSubOptions(true)
+        RedisPubSub = RedisPubSubOptions()
     };
 }

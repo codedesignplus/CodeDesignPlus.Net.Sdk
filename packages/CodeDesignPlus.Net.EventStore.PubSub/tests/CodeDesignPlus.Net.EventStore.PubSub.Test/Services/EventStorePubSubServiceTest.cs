@@ -94,7 +94,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
     [Fact]
     public async Task PublishAndSubscribe()
     {
-        var testServer = BuildTestServer(true, testOutput);
+        var testServer = BuildTestServer(testOutput);
 
         var pubSub = testServer.Host.Services.GetRequiredService<IMessage>();
 
@@ -144,10 +144,10 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
     public async Task PublishAndSubscribe_StreamExist_CatchException()
     {
         // This server create the stream with the same name as the event type
-        _ = BuildTestServer(true, testOutput);
+        _ = BuildTestServer(testOutput);
 
         // This generate catch exception because the stream already exist
-        var testServer = BuildTestServer(true, testOutput);
+        var testServer = BuildTestServer(testOutput);
 
         var pubSub = testServer.Host.Services.GetRequiredService<IMessage>();
 
@@ -268,7 +268,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
         loggerMock.VerifyLogging($"Warning processing event: OrderCreatedEvent | Custom Message.", LogLevel.Warning);
     }
 
-    private TestServer BuildTestServer(bool enableQueue, ITestOutputHelper output)
+    private TestServer BuildTestServer(ITestOutputHelper output)
     {
         var webHostBuilder = new WebHostBuilder()
                     .ConfigureLogging(logging =>
@@ -281,14 +281,14 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
                     })
                     .ConfigureAppConfiguration((hostingContext, config) =>
                     {
-                        AddJsonStream(config, enableQueue);
+                        AddJsonStream(config);
                     }).UseStartup<Startup>();
 
         var testServer = new TestServer(webHostBuilder);
         return testServer;
     }
 
-    private void AddJsonStream(IConfigurationBuilder config, bool enableQueue)
+    private void AddJsonStream(IConfigurationBuilder config)
     {
         var json = JsonSerializer.Serialize(new
         {
@@ -322,8 +322,7 @@ public class EventStorePubSubServiceTest(ITestOutputHelper output, EventStoreCol
             },
             EventStorePubSub = new EventStorePubSubOptions
             {
-                Enabled = true,
-                UseQueue = enableQueue
+                Enabled = true
             }
         });
 

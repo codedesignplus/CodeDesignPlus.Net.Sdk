@@ -40,7 +40,7 @@ builder.Services
   "Security":     { "Authority": "...", "ValidIssuer": "...", "ValidAudiences": ["..."] },
   "Observability":{ "Enable": true, "ServerOtel": "http://otel:4317", "Metrics": { ... }, "Trace": { ... } },
   "Mongo":        { "ConnectionString": "mongodb://...", "Database": "orders" },
-  "PubSub":       { "UseQueue": true, "RegisterAutomaticHandlers": true },
+  "PubSub":       { "RegisterAutomaticHandlers": true, "Outbox": { "Enable": true } },
   "RabbitMQ":     { "Host": "rabbit", "UserName": "...", "Password": "..." }
 }
 ```

@@ -68,7 +68,6 @@ builder.Services.AddServiceBus<Program>(builder.Configuration);
   "ServiceBus": {
     "Enable": true,
     "FullyQualifiedNamespace": "sb-kappali-stg.servicebus.windows.net",
-    "UseQueue": false,
     "EnableDiagnostic": true
   }
 }
@@ -89,6 +88,23 @@ builder.Services.AddServiceBus<Program>(builder.Configuration);
 | `MaxAutoLockRenewalMinutes` | `10` | Debe superar a `MaxRetryIntervalMs`; se valida |
 | `MessageTimeToLiveHours` | `48` | Caducidad del mensaje en la suscripción |
 | `RegisterHealthCheck` | `true` | Registra los chequeos con etiqueta `ready` |
+| `PublishTimeoutSeconds` | `30` | Plazo propio para encolar o enviar; no se usa el token de quien publica |
+| `Outbox:Enable` | `true` | Publicar es escribir en la colección `Outbox` del micro; un despachador lo envía |
+| `Outbox:MaxAttempts` | `20` | Envíos fallidos antes de dejar el mensaje en `Failed` |
+| `Outbox:SentRetentionDays` | `7` | Días que se guarda lo enviado (índice TTL) |
+
+## Bandeja de salida
+
+`IPubSub.PublishAsync` no envía: escribe el evento serializado en la colección `Outbox` de la base del micro (necesita
+`AddMongo`) y avisa al despachador, un servicio en segundo plano que corre en cada réplica. El despachador reclama cada
+mensaje con un plazo (`LeaseSeconds`), lo envía con el mismo `MessageId` y cuerpo, y lo marca `Sent`. Si falla,
+reintenta con espera creciente; al agotar `MaxAttempts` lo deja en `Failed` y registra a nivel Error un mensaje que
+empieza por `Outbox message exhausted`. Lo fallido no se borra nunca: para reenviarlo se pasa a `Pending` con
+`Attempts` en `0`.
+
+Así, una petición que el cliente corta después de guardar, un Service Bus caído o un pod que muere después de encolar
+no pierden el evento (pendings/245). Los consumidores ya deben tolerar repetidos: un pod que muere entre enviar y
+anotar `Sent` lo reenvía.
 
 ## Autenticación
 

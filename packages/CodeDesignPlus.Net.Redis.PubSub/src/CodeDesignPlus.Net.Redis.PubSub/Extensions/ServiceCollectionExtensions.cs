@@ -35,10 +35,10 @@ public static class ServiceCollectionExtensions
             services.AddRedis(configuration);
             services.AddPubSub(configuration, x =>
             {
-                x.UseQueue = options.UseQueue;
+                x.PublishTimeoutSeconds = options.PublishTimeoutSeconds;
+                x.Outbox = options.Outbox;
                 x.EnableDiagnostic = options.EnableDiagnostic;
                 x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
-                x.SecondsWaitQueue = options.SecondsWaitQueue;
             });
             services.TryAddSingleton<IMessage, RedisPubSubService>();
             services.TryAddSingleton<IRedisPubSub, RedisPubSubService>();

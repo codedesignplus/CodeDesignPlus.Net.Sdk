@@ -111,7 +111,8 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(options);
         Assert.NotNull(value);
 
-        Assert.Equal(ConfigurationUtil.PubSubOptions.UseQueue, value.UseQueue);
+        Assert.Equal(ConfigurationUtil.PubSubOptions.PublishTimeoutSeconds, value.PublishTimeoutSeconds);
+        Assert.Equal(ConfigurationUtil.PubSubOptions.Outbox.Enable, value.Outbox.Enable);
     }
 
     /// <summary>
@@ -131,7 +132,7 @@ public class ServiceCollectionExtensionsTest
         var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
         var activity = services.FirstOrDefault(x => typeof(IActivityService).IsAssignableFrom(x.ImplementationType));
 
-        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueue).IsAssignableFrom(x.ImplementationType));
+        var signal = services.FirstOrDefault(x => typeof(IOutboxSignal).IsAssignableFrom(x.ImplementationType));
         var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
@@ -142,12 +143,35 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(typeof(ActivitySourceService), activity.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, activity.Lifetime);
 
-        Assert.NotNull(eventQueue);
-        Assert.Equal(typeof(EventQueueService), eventQueue.ImplementationType);
-        Assert.Equal(ServiceLifetime.Singleton, eventQueue.Lifetime);
+        Assert.NotNull(signal);
+        Assert.Equal(ServiceLifetime.Singleton, signal.Lifetime);
 
-        Assert.NotEmpty(hostServices);
-        Assert.Contains(hostServices, x => x.ImplementationType == typeof(EventQueueBackgroundService));
+        Assert.Contains(hostServices, x => x.ImplementationType == typeof(OutboxDispatcherBackgroundService));
+    }
+
+    [Fact]
+    public void AddPubSubOverride_OutboxDisabled_NoDispatcher()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        // Act
+        services.AddPubSub(configuration, x => x.Outbox.Enable = false);
+
+        // Assert
+        Assert.DoesNotContain(services, x => x.ImplementationType == typeof(OutboxDispatcherBackgroundService));
+    }
+
+    [Fact]
+    public void AddPubSubOverride_OutboxOutOfRange_Throws()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        // Act & Assert
+        Assert.Throws<System.ComponentModel.DataAnnotations.ValidationException>(() => services.AddPubSub(configuration, x => x.Outbox.MaxAttempts = 0));
     }
 
     [Fact]
@@ -160,8 +184,7 @@ public class ServiceCollectionExtensionsTest
         // Act 
         services.AddPubSub(configuration, x =>
         {
-            x.UseQueue = true;
-            x.SecondsWaitQueue = 4;
+            x.PublishTimeoutSeconds = 4;
             x.EnableDiagnostic = true;
         });
 
@@ -169,7 +192,6 @@ public class ServiceCollectionExtensionsTest
         var pubSub = services.FirstOrDefault(x => typeof(IPubSub).IsAssignableFrom(x.ImplementationType));
         var activity = services.FirstOrDefault(x => typeof(IActivityService).IsAssignableFrom(x.ImplementationType));
 
-        var eventQueue = services.FirstOrDefault(x => typeof(IEventQueue).IsAssignableFrom(x.ImplementationType));
         var hostServices = services.Where(x => typeof(IHostedService).IsAssignableFrom(x.ImplementationType));
 
         Assert.NotNull(pubSub);
@@ -180,12 +202,7 @@ public class ServiceCollectionExtensionsTest
         Assert.Equal(typeof(ActivitySourceService), activity.ImplementationType);
         Assert.Equal(ServiceLifetime.Singleton, activity.Lifetime);
 
-        Assert.NotNull(eventQueue);
-        Assert.Equal(typeof(EventQueueService), eventQueue.ImplementationType);
-        Assert.Equal(ServiceLifetime.Singleton, eventQueue.Lifetime);
-
-        Assert.NotEmpty(hostServices);
-        Assert.Contains(hostServices, x => x.ImplementationType == typeof(EventQueueBackgroundService));
+        Assert.Contains(hostServices, x => x.ImplementationType == typeof(OutboxDispatcherBackgroundService));
     }
 
     /// <summary>

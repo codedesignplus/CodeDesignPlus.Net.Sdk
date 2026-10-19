@@ -37,8 +37,8 @@ public static class ServiceCollectionExtensions
             {
                 x.EnableDiagnostic = options.EnableDiagnostic;
                 x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
-                x.SecondsWaitQueue = options.SecondsWaitQueue;
-                x.UseQueue = options.UseQueue;
+                x.PublishTimeoutSeconds = options.PublishTimeoutSeconds;
+                x.Outbox = options.Outbox;
             });
             services.TryAddSingleton<IMessage, KafkaPubSub>();
             services.TryAddSingleton<IKafkaPubSub, KafkaPubSub>();

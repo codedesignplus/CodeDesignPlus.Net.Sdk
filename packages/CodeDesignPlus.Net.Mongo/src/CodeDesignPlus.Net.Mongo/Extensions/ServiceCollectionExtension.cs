@@ -1,5 +1,7 @@
 ﻿using System.Security.Authentication;
 using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
+using CodeDesignPlus.Net.Core.Abstractions.Outbox;
+using CodeDesignPlus.Net.Mongo.Outbox;
 using CodeDesignPlus.Net.Mongo.Snapshots;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -61,6 +63,10 @@ public static class ServiceCollectionExtensions
 
         // Donde las copias locales recuerdan si ya recibieron la foto completa de su fuente (CodeDesignPlus.Net.PubSub).
         services.TryAddSingleton<IProjectionSyncStore, MongoProjectionSyncStore>();
+
+        // La bandeja de salida de los eventos: CodeDesignPlus.Net.PubSub encola aquí lo que publica y lo envía su
+        // despachador (pendings/245).
+        services.TryAddSingleton<IOutboxStore, MongoOutboxStore>();
 
         if (options.RegisterAutomaticRepositories)
             services.AddRepositories<TStartup>();

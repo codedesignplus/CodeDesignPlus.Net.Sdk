@@ -2,56 +2,69 @@
 
 public class PubSubOptionsTest
 {
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public void PubSubOptions_DefaultValues_Valid(bool value)
+    [Fact]
+    public void PubSubOptions_DefaultValues_Valid()
     {
         // Arrange
-        var options = new PubSubOptions()
-        {
-            UseQueue = value
-        };
+        var options = new PubSubOptions();
 
         // Act
         var results = options.Validate();
 
         // Assert
         Assert.Empty(results);
-        Assert.Equal(value, options.UseQueue);
-        Assert.Equal((uint)2, options.SecondsWaitQueue);
     }
 
     [Fact]
-    public void PubSubOptions_Seconds_Valid()
+    public void PubSubOptions_DefaultValues_OutboxEnabledAndSentKeptSevenDays()
     {
         // Arrange
-        var secondsExpected = (uint)new Random().Next(1, 5);
+        var options = new PubSubOptions();
+
+        // Assert
+        Assert.Equal((true, 7u, 30u), (options.Outbox.Enable, options.Outbox.SentRetentionDays, options.PublishTimeoutSeconds));
+    }
+
+    [Theory]
+    [InlineData(0)]
+    [InlineData(301)]
+    public void PubSubOptions_PublishTimeout_Invalid(uint seconds)
+    {
+        // Arrange
         var options = new PubSubOptions()
         {
-            UseQueue = true,
-            SecondsWaitQueue = secondsExpected
+            PublishTimeoutSeconds = seconds
         };
 
         // Act
         var results = options.Validate();
 
         // Assert
-        Assert.Empty(results);
-        Assert.Equal(secondsExpected, options.SecondsWaitQueue);
+        Assert.NotEmpty(results);
     }
 
+    [Fact]
+    public void OutboxOptions_DefaultValues_Valid()
+    {
+        // Arrange
+        var options = new OutboxOptions();
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Empty(results);
+    }
 
     [Theory]
     [InlineData(0)]
-    [InlineData(11)]
-    public void PubSubOptions_Seconds_Invalid(uint seconds)
+    [InlineData(366)]
+    public void OutboxOptions_SentRetentionDays_Invalid(uint days)
     {
         // Arrange
-        var options = new PubSubOptions()
+        var options = new OutboxOptions()
         {
-            UseQueue = true,
-            SecondsWaitQueue = seconds
+            SentRetentionDays = days
         };
 
         // Act

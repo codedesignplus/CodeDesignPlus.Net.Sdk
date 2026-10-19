@@ -85,5 +85,19 @@ public class ServiceCollectionExtensionsTest
         Assert.Same(provider.GetRequiredService<IMessage>(), provider.GetRequiredService<IServiceBusPubSub>());
     }
 
+    [Fact]
+    public void AddServiceBus_Enable_TheOutboxSendsThroughTheSameInstance()
+    {
+        // Sin transporte de la bandeja de salida, IPubSub publicaría directo (pendings/245).
+        var services = new ServiceCollection();
+
+        services.AddLogging();
+        services.AddServiceBus<Startup>(ConfigurationUtil.GetConfiguration());
+
+        var provider = services.BuildServiceProvider();
+
+        Assert.Same(provider.GetRequiredService<IMessage>(), provider.GetRequiredService<IOutboxTransport>());
+    }
+
     private sealed class Startup { }
 }

@@ -40,8 +40,8 @@ public static class ServiceCollectionExtensions
             services.AddPubSub(configuration, x => {
                 x.EnableDiagnostic = options.EnableDiagnostic;
                 x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
-                x.SecondsWaitQueue = options.SecondsWaitQueue;
-                x.UseQueue = options.UseQueue;
+                x.PublishTimeoutSeconds = options.PublishTimeoutSeconds;
+                x.Outbox = options.Outbox;
             });
             services.TryAddSingleton<IMessage, EventStorePubSubService>();
             services.TryAddSingleton<IEventStorePubSub, EventStorePubSubService>();

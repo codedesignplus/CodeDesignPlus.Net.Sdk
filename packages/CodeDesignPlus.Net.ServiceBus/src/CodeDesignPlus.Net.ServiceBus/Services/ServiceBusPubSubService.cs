@@ -1,4 +1,4 @@
-using CodeDesignPlus.Net.Exceptions;
+﻿using CodeDesignPlus.Net.Exceptions;
 
 namespace CodeDesignPlus.Net.ServiceBus.Services;
 
@@ -97,6 +97,24 @@ public class ServiceBusPubSubService : IServiceBusPubSub
     }
 
     /// <summary>
+    /// Envía un mensaje de la bandeja de salida a su topic, con el identificador y el cuerpo con que se encoló.
+    /// </summary>
+    /// <param name="message">El mensaje de la bandeja.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous send operation.</returns>
+    /// <exception cref="ServiceBusPubSubException">The body exceeds the size accepted by Azure Service Bus.</exception>
+    public async Task SendAsync(OutboxMessage message, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(message);
+
+        var parentContext = this.activityService?.ExtractFromHeaders(message.Headers.ToDictionary(x => x.Key, x => (object)x.Value));
+
+        var activity = this.activityService?.StartActivity($"publish {message.Topic}", ActivityKind.Producer, parentContext);
+
+        await this.SendAsync(message.Topic, message.EventName, message.Id, message.AggregateId, Encoding.UTF8.GetBytes(message.Body), activity, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Publishes a domain event to its topic.
     /// </summary>
     /// <param name="event">The domain event to publish.</param>
@@ -106,20 +124,34 @@ public class ServiceBusPubSubService : IServiceBusPubSub
     {
         var topic = this.domainEventResolverService.GetKeyDomainEvent(@event.GetType());
 
-        await this.entityProvisioner.EnsureTopicAsync(topic, cancellationToken).ConfigureAwait(false);
-
         var activity = this.activityService?.StartActivity($"publish {topic}", ActivityKind.Producer);
 
         this.activityService?.Inject(activity, @event);
 
+        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event));
+
+        await this.SendAsync(topic, @event.GetType().Name, @event.EventId, @event.AggregateId, body, activity, cancellationToken).ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Sends a serialized event to its topic, creating the topic if it does not exist.
+    /// </summary>
+    /// <param name="topic">The topic of the event.</param>
+    /// <param name="eventName">The name of the event class.</param>
+    /// <param name="eventId">The identifier of the event, used as the message identifier.</param>
+    /// <param name="aggregateId">The aggregate that raised the event.</param>
+    /// <param name="body">The serialized event.</param>
+    /// <param name="activity">The producer activity, if diagnostics are enabled.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>A task that represents the asynchronous send operation.</returns>
+    private async Task SendAsync(string topic, string eventName, Guid eventId, Guid aggregateId, byte[] body, Activity activity, CancellationToken cancellationToken)
+    {
         activity?.AddTag("messaging.system", "servicebus");
         activity?.AddTag("messaging.operation.type", "publish");
         activity?.AddTag("messaging.destination.name", topic);
-        activity?.AddTag("event.type", @event.GetType().Name);
-        activity?.AddTag("event.id", @event.EventId.ToString());
-        activity?.AddTag("event.aggregate_id", @event.AggregateId.ToString());
-
-        var body = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(@event));
+        activity?.AddTag("event.type", eventName);
+        activity?.AddTag("event.id", eventId.ToString());
+        activity?.AddTag("event.aggregate_id", aggregateId.ToString());
 
         // Standard corta en 256 KB y devuelve un error generico del transporte. Se comprueba antes para que el
         // mensaje diga que evento fue y cuanto ocupaba, que es lo unico accionable.
@@ -128,32 +160,46 @@ public class ServiceBusPubSubService : IServiceBusPubSub
             activity?.SetStatus(ActivityStatusCode.Error, "Message too large");
             activity?.Stop();
 
-            throw new ServiceBusPubSubException($"The event {@event.GetType().Name} serializes to {body.Length} bytes and exceeds the {MaxMessageSizeBytes} bytes accepted by Azure Service Bus.");
+            throw new ServiceBusPubSubException($"The event {eventName} serializes to {body.Length} bytes and exceeds the {MaxMessageSizeBytes} bytes accepted by Azure Service Bus.");
         }
 
-        var message = new ServiceBusMessage(body)
+        try
         {
-            MessageId = @event.EventId.ToString(),
-            CorrelationId = Guid.NewGuid().ToString(),
-            Subject = @event.GetType().Name,
-            ContentType = "application/json"
-        };
+            await this.entityProvisioner.EnsureTopicAsync(topic, cancellationToken).ConfigureAwait(false);
 
-        var headers = new Dictionary<string, object>();
-        this.activityService?.InjectToHeaders(activity, headers);
+            var message = new ServiceBusMessage(body)
+            {
+                MessageId = eventId.ToString(),
+                CorrelationId = Guid.NewGuid().ToString(),
+                Subject = eventName,
+                ContentType = "application/json"
+            };
 
-        foreach (var header in headers)
-            message.ApplicationProperties[header.Key] = header.Value;
+            var headers = new Dictionary<string, object>();
+            this.activityService?.InjectToHeaders(activity, headers);
 
-        message.ApplicationProperties["x-cdp-business"] = this.coreOptions.Business;
-        message.ApplicationProperties["x-cdp-microservice"] = this.coreOptions.AppName;
+            foreach (var header in headers)
+                message.ApplicationProperties[header.Key] = header.Value;
 
-        await this.clientProvider.GetSender(topic).SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
+            message.ApplicationProperties["x-cdp-business"] = this.coreOptions.Business;
+            message.ApplicationProperties["x-cdp-microservice"] = this.coreOptions.AppName;
 
-        activity?.SetStatus(ActivityStatusCode.Ok);
-        activity?.Stop();
+            await this.clientProvider.GetSender(topic).SendMessageAsync(message, cancellationToken).ConfigureAwait(false);
 
-        this.logger.LogInformation("Event {TEvent} published", @event.GetType().Name);
+            activity?.SetStatus(ActivityStatusCode.Ok);
+        }
+        catch (Exception exception)
+        {
+            activity?.SetStatus(ActivityStatusCode.Error, exception.Message);
+
+            throw;
+        }
+        finally
+        {
+            activity?.Stop();
+        }
+
+        this.logger.LogInformation("Event {TEvent} published", eventName);
     }
 
     /// <summary>

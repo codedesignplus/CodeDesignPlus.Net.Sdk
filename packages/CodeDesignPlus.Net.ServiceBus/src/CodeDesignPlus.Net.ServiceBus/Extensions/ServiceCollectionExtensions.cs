@@ -1,4 +1,4 @@
-namespace CodeDesignPlus.Net.ServiceBus.Extensions;
+﻿namespace CodeDesignPlus.Net.ServiceBus.Extensions;
 
 /// <summary>
 /// Provides a set of extension methods for CodeDesignPlus.Net.ServiceBus.
@@ -37,8 +37,8 @@ public static class ServiceCollectionExtensions
         {
             x.EnableDiagnostic = options.EnableDiagnostic;
             x.RegisterAutomaticHandlers = options.RegisterAutomaticHandlers;
-            x.SecondsWaitQueue = options.SecondsWaitQueue;
-            x.UseQueue = options.UseQueue;
+            x.PublishTimeoutSeconds = options.PublishTimeoutSeconds;
+            x.Outbox = options.Outbox;
         });
 
         services.TryAddSingleton<IServiceBusClientProvider, ServiceBusClientProvider>();
@@ -47,6 +47,9 @@ public static class ServiceCollectionExtensions
         services.TryAddSingleton<ServiceBusPubSubService>();
         services.TryAddSingleton<IMessage>(x => x.GetRequiredService<ServiceBusPubSubService>());
         services.TryAddSingleton<IServiceBusPubSub>(x => x.GetRequiredService<ServiceBusPubSubService>());
+
+        // Lo que guarda la bandeja de salida se envía tal cual por aquí (pendings/245).
+        services.TryAddSingleton<IOutboxTransport>(x => x.GetRequiredService<ServiceBusPubSubService>());
 
         if (options.RegisterHealthCheck)
         {

@@ -141,10 +141,8 @@ public class RedisPubSubServiceTest(RedisCollectionFixture fixture)
         Assert.Equal(@event.Birthdate, @eventSend.Birthdate);
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task PublishEvent_InvokeHandler_CheckEvent(bool useQueue)
+    [Fact]
+    public async Task PublishEvent_InvokeHandler_CheckEvent()
     {
         // Arrange
         var @event = new UserCreatedEvent(Guid.NewGuid())
@@ -159,7 +157,7 @@ public class RedisPubSubServiceTest(RedisCollectionFixture fixture)
         {
             Core = OptionsUtil.CoreOptions,
             Redis = redisContainer.RedisOptions("client.pfx", "Temporal1", "Core"),
-            RedisPubSub = OptionsUtil.RedisPubSubOptions(useQueue)
+            RedisPubSub = OptionsUtil.RedisPubSubOptions()
         });
 
         var serviceCollection = new ServiceCollection();

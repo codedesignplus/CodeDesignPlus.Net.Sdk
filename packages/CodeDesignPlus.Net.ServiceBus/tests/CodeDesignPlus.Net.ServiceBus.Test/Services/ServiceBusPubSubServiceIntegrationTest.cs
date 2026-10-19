@@ -1,4 +1,4 @@
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using CodeDesignPlus.Net.Core.Extensions;
 using CodeDesignPlus.Net.ServiceBus.Test.Helpers.Events;
 using CodeDesignPlus.Net.xUnit.Containers.ServiceBusContainer;
@@ -29,7 +29,6 @@ public class ServiceBusPubSubServiceIntegrationTest(ServiceBusCollectionFixture 
                 ManagementConnectionString = this.fixture.Container.ManagementConnectionString,
                 RegisterHealthCheck = false,
                 RegisterAutomaticHandlers = false,
-                UseQueue = false,
                 MaxRetry = maxRetry,
                 RetryIntervalMs = retryIntervalMs,
                 MaxRetryIntervalMs = maxRetryIntervalMs,
@@ -83,6 +82,32 @@ public class ServiceBusPubSubServiceIntegrationTest(ServiceBusCollectionFixture 
         Assert.Equal(@event.AggregateId, received.AggregateId);
         Assert.Equal(@event.EventId, received.EventId);
         Assert.Equal("Wilson", received.Name);
+
+        await message.UnsubscribeAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
+    }
+
+    [Fact]
+    public async Task SendAsync_OutboxMessage_HandlerReceivesTheSameEvent()
+    {
+        // Lo que guardó la bandeja de salida llega igual que si se hubiera publicado directo (pendings/245).
+        await using var provider = this.BuildProvider();
+        var message = provider.GetRequiredService<IMessage>();
+        var transport = provider.GetRequiredService<IOutboxTransport>();
+        var resolver = provider.GetRequiredService<IDomainEventResolver>();
+        var memory = provider.GetRequiredService<IMemoryHandler>();
+
+        await message.SubscribeAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
+
+        var @event = new UserCreatedDomainEvent(Guid.NewGuid(), "Outbox");
+        var outboxMessage = new Core.Abstractions.Outbox.OutboxMessage(@event.EventId, resolver.GetKeyDomainEvent(@event.GetType()), nameof(UserCreatedDomainEvent), @event.AggregateId, JsonSerializer.Serialize(@event), [], SystemClock.Instance.GetCurrentInstant(), 0);
+
+        await transport.SendAsync(outboxMessage, CancellationToken.None);
+
+        await WaitUntilAsync(() => memory.Memory.ContainsKey(@event.AggregateId), TimeSpan.FromSeconds(30));
+
+        var received = Assert.IsType<UserCreatedDomainEvent>(memory.Memory[@event.AggregateId]);
+
+        Assert.Equal((@event.EventId, "Outbox"), (received.EventId, received.Name));
 
         await message.UnsubscribeAsync<UserCreatedDomainEvent, UserCreatedDomainEventHandler>(CancellationToken.None);
     }

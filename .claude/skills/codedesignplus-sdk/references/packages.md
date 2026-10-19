@@ -148,11 +148,11 @@ Redis connection management (supports multiple named instances).
 
 ## CodeDesignPlus.Net.PubSub
 
-Publisher/subscriber contract with optional in-memory queue.
+Publisher/subscriber contract with a transactional-style outbox: `IPubSub` writes each event to the micro's `Outbox` collection and a background dispatcher sends it (pendings/245).
 
 **Options** — `PubSubOptions`, section `"PubSub"`
-- `UseQueue` (bool, default `true`) — buffer in memory before dispatch.
-- `SecondsWaitQueue` (uint, 1–10, default `2`)
+- `PublishTimeoutSeconds` (uint, 1–300, default `30`) — own deadline to enqueue (or to send without outbox); the caller's token is NOT used, so a client that disconnects after saving does not lose the event.
+- `Outbox` (`OutboxOptions`) — `Enable` (default `true`), `PollingIntervalSeconds` (5), `LeaseSeconds` (120), `MaxAttempts` (20), `InitialRetryDelaySeconds` (5, doubles per failure), `MaxRetryDelaySeconds` (600), `SentRetentionDays` (7, TTL on `SentAt`). Needs an `IOutboxStore` (registered by `AddMongo`) and an `IOutboxTransport` (registered by `AddServiceBus`); without either, events are published directly. Exhausted messages stay with `Status: "Failed"` and log `Outbox message exhausted: …` at Error level. The in-memory `UseQueue`/`IEventQueue` was removed.
 - `EnableDiagnostic` (bool, default `false`)
 - `RegisterAutomaticHandlers` (bool, default `true`) — auto-register every `IEventHandler<T>` in loaded assemblies.
 

@@ -68,7 +68,7 @@ public class ServiceCollectionExtensionsTest
     public void AddRedisPubSub_SameOptions_Success()
     {
         // Arrange
-        var redisPubSubOptions = OptionsUtil.RedisPubSubOptions(true);
+        var redisPubSubOptions = OptionsUtil.RedisPubSubOptions();
         var configuration = ConfigurationUtil.GetConfiguration(OptionsUtil.AppSettings);
 
         var serviceCollection = new ServiceCollection();
@@ -86,9 +86,9 @@ public class ServiceCollectionExtensionsTest
         Assert.NotNull(value);
 
         Assert.Equal(redisPubSubOptions.Enable, value.Enable);
-        Assert.Equal(redisPubSubOptions.UseQueue, value.UseQueue);
+        Assert.Equal(redisPubSubOptions.PublishTimeoutSeconds, value.PublishTimeoutSeconds);
         Assert.Equal(redisPubSubOptions.EnableDiagnostic, value.EnableDiagnostic);
         Assert.Equal(redisPubSubOptions.RegisterAutomaticHandlers, value.RegisterAutomaticHandlers);
-        Assert.Equal(redisPubSubOptions.SecondsWaitQueue, value.SecondsWaitQueue);
+        Assert.Equal(redisPubSubOptions.Outbox.Enable, value.Outbox.Enable);
     }
 }

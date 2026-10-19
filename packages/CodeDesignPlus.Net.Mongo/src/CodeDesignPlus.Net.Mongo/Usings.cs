@@ -20,6 +20,7 @@ global using CodeDesignPlus.Net.Mongo.Converter;
 global using CodeDesignPlus.Net.Mongo.Repository;
 global using CodeDesignPlus.Net.Security.Abstractions;
 global using MongoDB.Bson;
+global using MongoDB.Bson.Serialization.Attributes;
 global using MongoDB.Bson.Serialization;
 global using MongoDB.Driver;
 global using MBS = MongoDB.Bson.Serialization;

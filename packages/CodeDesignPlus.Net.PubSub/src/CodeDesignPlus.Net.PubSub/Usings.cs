@@ -24,3 +24,7 @@ global using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
 global using CodeDesignPlus.Net.PubSub.Abstractions.Snapshots;
 global using CodeDesignPlus.Net.PubSub.Snapshots;
 global using System.Reflection;
+global using System.ComponentModel.DataAnnotations;
+global using CodeDesignPlus.Net.Core.Abstractions.Outbox;
+global using CodeDesignPlus.Net.Serializers;
+global using NodaTime;

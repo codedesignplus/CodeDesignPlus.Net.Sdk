@@ -81,6 +81,23 @@ public class ServiceCollectionExtensionsTest(MongoCollectionFixture fixture)
     }
 
     [Fact]
+    public void AddMongo_Enabled_RegistersTheOutboxStore()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration(new { Mongo = OptionsUtil.GetOptions(fixture.Container.Port) });
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddMongo<StartupFake>(configuration);
+
+        // Assert
+        var store = serviceCollection.SingleOrDefault(x => x.ServiceType == typeof(Core.Abstractions.Outbox.IOutboxStore));
+
+        Assert.Equal((typeof(Mongo.Outbox.MongoOutboxStore), ServiceLifetime.Singleton), (store?.ImplementationType, store?.Lifetime));
+    }
+
+    [Fact]
     public void AddMongo_SameOptions_Success()
     {
         // Arrange

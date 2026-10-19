@@ -112,4 +112,26 @@ public class ServiceBusPubSubServiceTest
     {
         Assert.Equal(262144, ServiceBusPubSubService.MaxMessageSizeBytes);
     }
+
+    [Fact]
+    public async Task SendAsync_MessageIsNull_ThrowArgumentNullException()
+    {
+        var service = BuildService();
+
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.SendAsync(null!, CancellationToken.None));
+    }
+
+    [Fact]
+    public async Task SendAsync_BodyTooLarge_ThrowsBeforeTouchingTheBus()
+    {
+        // Arrange
+        var service = BuildService();
+        var message = new Core.Abstractions.Outbox.OutboxMessage(Guid.NewGuid(), "topic", "BigEvent", Guid.NewGuid(), new string('x', ServiceBusPubSubService.MaxMessageSizeBytes + 1), [], SystemClock.Instance.GetCurrentInstant(), 0);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<ServiceBusPubSubException>(() => service.SendAsync(message, CancellationToken.None));
+
+        // Assert
+        Assert.Contains("BigEvent", exception.Message);
+    }
 }
