@@ -126,11 +126,17 @@ public static class ServiceCollectionExtensions
             var eventHandlerBackgroundType = typeof(RegisterEventHandlerBackgroundService<,>).MakeGenericType(eventHandler, eventType);
             services.TryAddEnumerable(ServiceDescriptor.Singleton(typeof(IHostedService), eventHandlerBackgroundType));
 
-            services.TryAddScoped(eventHandler);
             handlerCount++;
 
             if (typeof(SnapshotDomainEvent).IsAssignableFrom(eventType))
+            {
+                services.AddSnapshotHandler(eventHandler);
                 snapshots.Add((eventType, eventHandler));
+            }
+            else
+            {
+                services.TryAddScoped(eventHandler);
+            }
         }
 
         handlerCount += services.AddSnapshots(snapshots);
@@ -167,12 +173,36 @@ public static class ServiceCollectionExtensions
             services.AddOwnHandler<SnapshotCompletedHandler, SnapshotCompletedDomainEvent>();
             count++;
 
+            services.TryAddSingleton<ISnapshotProgressTracker, SnapshotProgressTracker>();
+
             services.TryAddSingleton<ISnapshotRequester, SnapshotRequester>();
             services.Configure<SnapshotSyncOptions>(x => x.Snapshots.AddRange(snapshots));
             services.TryAddEnumerable(ServiceDescriptor.Singleton<IHostedService, SnapshotSyncBackgroundService>());
         }
 
         return count;
+    }
+
+    /// <summary>
+    /// Registra un consumidor de fotos y le entrega, al resolverlo, el contador de fotos aplicadas (pendings/485).
+    /// </summary>
+    /// <remarks>
+    /// El contador no va en el constructor de <see cref="SnapshotHandler{TSnapshot}"/>: los consumidores de los micros
+    /// ya están declarados con el suyo, y así cuentan sin cambiar una línea al subir de versión.
+    /// </remarks>
+    /// <param name="services">La colección de servicios.</param>
+    /// <param name="handlerType">El consumidor de fotos.</param>
+    private static void AddSnapshotHandler(this IServiceCollection services, Type handlerType)
+    {
+        services.TryAddScoped(handlerType, provider =>
+        {
+            var handler = ActivatorUtilities.CreateInstance(provider, handlerType);
+
+            if (handler is ISnapshotProgressReporter reporter)
+                reporter.ProgressTracker = provider.GetService<ISnapshotProgressTracker>();
+
+            return handler;
+        });
     }
 
     private static void AddOwnHandler<THandler, TEvent>(this IServiceCollection services) where THandler : class, IEventHandler<TEvent> where TEvent : IDomainEvent

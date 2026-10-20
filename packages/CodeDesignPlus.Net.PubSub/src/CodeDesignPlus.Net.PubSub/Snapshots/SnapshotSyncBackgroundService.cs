@@ -15,20 +15,30 @@ internal sealed class SnapshotSyncOptions
 }
 
 /// <summary>
-/// Lado de la copia: al arrancar, pide la foto completa de cada fuente que todavía no figura como sincronizada.
+/// Lado de la copia: al arrancar, pide la foto completa de cada fuente que todavía no figura como sincronizada, y después
+/// la vuelve a pedir cada <see cref="PubSubOptions.SnapshotRetryInterval"/> mientras no lo esté.
 /// </summary>
 /// <remarks>
 /// Espera a que todos los consumidores estén suscritos: el bus reparte cada foto solo a las colas que ya existen, y una
 /// foto publicada antes de que exista la cola de su consumidor se pierde. Si la suscripción de un consumidor de fotos
 /// falló, no pide esa fuente. Con varias réplicas, cada una pide: el dueño contesta dos veces y la copia aplica con
 /// upsert, así que no duplica.
+/// <para>
+/// Una fuente queda sin sincronizar si la copia no aplicó todo lo que anunció el dueño, o si el dueño no contestó
+/// (pendings/485). Al repetir la petición lo avisa con una advertencia, con cuántas fotos aplicó de cuántas.
+/// </para>
 /// </remarks>
-internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker, ISnapshotRequester requester, IOptions<SnapshotSyncOptions> options, ILogger<SnapshotSyncBackgroundService> logger, IProjectionSyncStore store = null) : BackgroundService
+internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker, ISnapshotRequester requester, IOptions<SnapshotSyncOptions> options, IOptions<PubSubOptions> pubSubOptions, ILogger<SnapshotSyncBackgroundService> logger, IProjectionSyncStore store = null) : BackgroundService
 {
     /// <summary>
     /// Cada cuánto se mira si ya están suscritos los consumidores.
     /// </summary>
     internal TimeSpan PollInterval { get; init; } = TimeSpan.FromSeconds(1);
+
+    /// <summary>
+    /// El reloj con que se mide cuánto lleva una petición sin completarse.
+    /// </summary>
+    internal IClock Clock { get; init; } = SystemClock.Instance;
 
     /// <inheritdoc/>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -44,9 +54,20 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
         {
             await this.WaitForSubscriptionsAsync(stoppingToken).ConfigureAwait(false);
 
-            foreach (var (snapshot, handler) in options.Value.Snapshots)
+            await this.RequestPendingAsync(null, stoppingToken).ConfigureAwait(false);
+
+            var retryInterval = pubSubOptions.Value.SnapshotRetryInterval;
+
+            if (retryInterval <= TimeSpan.Zero)
             {
-                await this.RequestIfPendingAsync(snapshot, handler, stoppingToken).ConfigureAwait(false);
+                return;
+            }
+
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Task.Delay(retryInterval, stoppingToken).ConfigureAwait(false);
+
+                await this.RequestPendingAsync(retryInterval, stoppingToken).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -68,11 +89,28 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
     /// </summary>
     private static bool IsSettled(ISubscriptionTracker tracker) => tracker.ExpectedCount > 0 && tracker.ReadyCount + tracker.FailedHandlers.Count >= tracker.ExpectedCount;
 
-    private async Task RequestIfPendingAsync(Type snapshot, Type handler, CancellationToken stoppingToken)
+    /// <summary>
+    /// Pide cada fuente que no está sincronizada.
+    /// </summary>
+    /// <param name="retryAfter">Nulo al arrancar; al repetir, cuánto tiene que llevar la última petición sin completarse.</param>
+    /// <param name="stoppingToken">El token de parada.</param>
+    private async Task RequestPendingAsync(TimeSpan? retryAfter, CancellationToken stoppingToken)
+    {
+        foreach (var (snapshot, handler) in options.Value.Snapshots)
+        {
+            await this.RequestIfPendingAsync(snapshot, handler, retryAfter, stoppingToken).ConfigureAwait(false);
+        }
+    }
+
+    private async Task RequestIfPendingAsync(Type snapshot, Type handler, TimeSpan? retryAfter, CancellationToken stoppingToken)
     {
         if (tracker.FailedHandlers.Contains(handler.Name))
         {
-            logger.LogError("{Handler} is not subscribed: the snapshot of {Snapshot} is not requested.", handler.Name, snapshot.Name);
+            // Al repetir ya se avisó al arrancar: la suscripción no se reintenta sola.
+            if (retryAfter is null)
+            {
+                logger.LogError("{Handler} is not subscribed: the snapshot of {Snapshot} is not requested.", handler.Name, snapshot.Name);
+            }
 
             return;
         }
@@ -88,6 +126,14 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
                 return;
             }
 
+            // Al repetir, una petición reciente todavía puede estar llegando: se le da el intervalo entero.
+            if (retryAfter.HasValue && state?.RequestedAt is not null && this.Clock.GetCurrentInstant() - state.RequestedAt.Value < Duration.FromTimeSpan(retryAfter.Value))
+            {
+                return;
+            }
+
+            await this.WarnWhyAsync(key, state, retryAfter.HasValue, stoppingToken).ConfigureAwait(false);
+
             var requestId = await requester.RequestAsync(snapshot, null, stoppingToken).ConfigureAwait(false);
 
             await store.MarkRequestedAsync(key, requestId, stoppingToken).ConfigureAwait(false);
@@ -96,8 +142,40 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            // Una fuente que no se pudo pedir no impide pedir las demás; se vuelve a intentar en el siguiente arranque.
+            // Una fuente que no se pudo pedir no impide pedir las demás; se vuelve a intentar más tarde.
             logger.LogError(ex, "The snapshot of {Snapshot} could not be requested.", snapshot.Name);
+        }
+    }
+
+    /// <summary>
+    /// Deja en el log por qué se vuelve a pedir una foto que ya se había pedido.
+    /// </summary>
+    private async Task WarnWhyAsync(SnapshotKey key, ProjectionSyncState state, bool retrying, CancellationToken stoppingToken)
+    {
+        if (state is null)
+        {
+            return;
+        }
+
+        if (state.IsIncomplete)
+        {
+            var progress = await store.FindProgressAsync(state.IncompleteRequestId!.Value, stoppingToken).ConfigureAwait(false);
+
+            logger.LogWarning("Snapshot {RequestId} ({Snapshot}) from {Source} is incomplete: {Applied} of {Expected} snapshots applied. Requesting it again.", state.IncompleteRequestId, key.Snapshot, key.Source, progress?.Applied ?? 0, progress?.Expected);
+
+            return;
+        }
+
+        if (state.SyncedAt.HasValue)
+        {
+            logger.LogInformation("Snapshot {Snapshot} from {Source} was marked synced with {Count} snapshots before the applied ones were counted. Requesting it again to verify it.", key.Snapshot, key.Source, state.Count);
+
+            return;
+        }
+
+        if (retrying)
+        {
+            logger.LogWarning("Snapshot {RequestId} ({Snapshot}) from {Source}, requested at {RequestedAt}, got no complete answer. Requesting it again.", state.LastRequestId, key.Snapshot, key.Source, state.RequestedAt);
         }
     }
 }

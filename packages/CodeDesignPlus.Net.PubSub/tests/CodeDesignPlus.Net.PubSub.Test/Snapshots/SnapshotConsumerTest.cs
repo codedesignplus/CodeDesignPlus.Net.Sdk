@@ -104,11 +104,15 @@ public class SnapshotConsumerTest
     }
 
     [Fact]
-    public async Task HandleAsync_FullSnapshotOfThisCopyCompleted_MarksTheSourceSynced()
+    public async Task HandleAsync_FullSnapshotOfThisCopyCompletedAndApplied_MarksTheSourceSynced()
     {
         // Arrange
         var request = SnapshotRequestedDomainEvent.Create(Assemblies, "xunit-copy", null);
-        var handler = new SnapshotCompletedHandler(Core("xunit-copy"), Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotCompletedHandler>.Instance, this.store.Object);
+        var handler = this.CompletedHandler();
+
+        this.store
+            .Setup(x => x.RecordCompletedAsync(Assemblies, request.RequestId, 3, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new SnapshotProgress(request.RequestId, 3, 3));
 
         // Act
         await handler.HandleAsync(SnapshotCompletedDomainEvent.Create(request, 3), CancellationToken.None);
@@ -124,13 +128,20 @@ public class SnapshotConsumerTest
     {
         // Arrange
         var request = SnapshotRequestedDomainEvent.Create(Assemblies, requestedBy, oneTenant ? Tenant : null);
-        var handler = new SnapshotCompletedHandler(Core("xunit-copy"), Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotCompletedHandler>.Instance, this.store.Object);
+        var handler = this.CompletedHandler();
 
         // Act
         await handler.HandleAsync(SnapshotCompletedDomainEvent.Create(request, 3), CancellationToken.None);
 
         // Assert
-        this.store.Verify(x => x.MarkSyncedAsync(It.IsAny<SnapshotKey>(), It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Never);
+        this.store.Verify(x => x.RecordCompletedAsync(It.IsAny<SnapshotKey>(), It.IsAny<Guid>(), It.IsAny<long>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private SnapshotCompletedHandler CompletedHandler()
+    {
+        var tracker = new SnapshotProgressTracker(Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotProgressTracker>.Instance, this.store.Object);
+
+        return new SnapshotCompletedHandler(Core("xunit-copy"), tracker, Microsoft.Extensions.Logging.Abstractions.NullLogger<SnapshotCompletedHandler>.Instance);
     }
 
     internal static IOptions<CoreOptions> Core(string appName) => Microsoft.Extensions.Options.Options.Create(new CoreOptions

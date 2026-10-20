@@ -17,22 +17,41 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions.Snapshots;
 /// <see cref="SnapshotDomainEvent.Supersedes"/> dice que la foto es más nueva que lo último aplicado. Tiene que ser
 /// idempotente: una petición repetida (dos réplicas, un reinicio) manda la misma foto otra vez.
 /// </para>
+/// <para>
+/// Cada foto que <see cref="ApplyAsync"/> aplica sin lanzar se cuenta para su petición: la fuente solo queda
+/// sincronizada cuando la copia aplicó tantas como anunció el dueño al cerrar. Una foto que lanza (y acaba en la cola de
+/// descartados) deja la petición incompleta, y la foto se vuelve a pedir (pendings/485).
+/// </para>
 /// </remarks>
 /// <typeparam name="TSnapshot">El gemelo local del evento de foto del dueño.</typeparam>
 /// <param name="coreOptions">Las opciones de la aplicación, de donde sale su nombre.</param>
-public abstract class SnapshotHandler<TSnapshot>(IOptions<CoreOptions> coreOptions) : IEventHandler<TSnapshot> where TSnapshot : SnapshotDomainEvent
+public abstract class SnapshotHandler<TSnapshot>(IOptions<CoreOptions> coreOptions) : IEventHandler<TSnapshot>, ISnapshotProgressReporter where TSnapshot : SnapshotDomainEvent
 {
+    private ISnapshotProgressTracker progressTracker;
+
     /// <inheritdoc/>
-    public Task HandleAsync(TSnapshot data, CancellationToken token)
+    ISnapshotProgressTracker ISnapshotProgressReporter.ProgressTracker
+    {
+        set => this.progressTracker = value;
+    }
+
+    /// <inheritdoc/>
+    public async Task HandleAsync(TSnapshot data, CancellationToken token)
     {
         ArgumentNullException.ThrowIfNull(data);
 
         if (!data.IsAddressedTo(coreOptions.Value.AppName))
         {
-            return Task.CompletedTask;
+            return;
         }
 
-        return this.ApplyAsync(data, token);
+        await this.ApplyAsync(data, token).ConfigureAwait(false);
+
+        // Solo cuenta lo que se aplicó sin lanzar: una foto que falla no llega aquí y la petición queda corta.
+        if (this.progressTracker is not null)
+        {
+            await this.progressTracker.RecordAppliedAsync(data, token).ConfigureAwait(false);
+        }
     }
 
     /// <summary>

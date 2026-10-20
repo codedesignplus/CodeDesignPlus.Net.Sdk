@@ -45,8 +45,18 @@ public class UserSnapshotHandler(IOptions<CoreOptions> coreOptions) : SnapshotHa
 {
     public List<UserSnapshotDomainEvent> Applied { get; } = [];
 
+    /// <summary>
+    /// Los usuarios cuya foto falla al aplicarse, como un consumidor que acaba en la cola de descartados.
+    /// </summary>
+    public HashSet<Guid> Failing { get; } = [];
+
     protected override Task ApplyAsync(UserSnapshotDomainEvent snapshot, CancellationToken cancellationToken)
     {
+        if (this.Failing.Contains(snapshot.AggregateId))
+        {
+            throw new InvalidOperationException($"The snapshot of {snapshot.AggregateId} cannot be applied.");
+        }
+
         this.Applied.Add(snapshot);
 
         return Task.CompletedTask;
