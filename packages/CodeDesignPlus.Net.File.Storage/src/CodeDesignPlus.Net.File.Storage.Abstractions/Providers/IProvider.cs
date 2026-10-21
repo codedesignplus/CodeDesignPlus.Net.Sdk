@@ -55,4 +55,30 @@ public interface IProvider
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task<Response> DeleteTenantAsync(Guid tenant, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Copies a file that another system left in a container of the same storage into the tenant's storage, without
+    /// passing its content through the process: the provider copies it on the server side.
+    /// </summary>
+    /// <remarks>
+    /// The source is kept: it is deleted with <see cref="DeleteImportSourceAsync"/> once the caller has registered the
+    /// imported file, so a failure in between can be retried. Importing the same file twice overwrites the copy.
+    /// </remarks>
+    /// <param name="sourceContainer">The container (Blob), share (Azure File) or folder (local) where the file was left.</param>
+    /// <param name="sourcePath">The path of the file inside <paramref name="sourceContainer"/>.</param>
+    /// <param name="filename">The name the file takes in the tenant's storage.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task<Response> ImportAsync(string sourceContainer, string sourcePath, string filename, string target, Guid tenant, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Deletes the source of an import once the imported file is registered. A source that no longer exists is a success.
+    /// </summary>
+    /// <param name="sourceContainer">The container (Blob), share (Azure File) or folder (local) where the file was left.</param>
+    /// <param name="sourcePath">The path of the file inside <paramref name="sourceContainer"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    Task<Response> DeleteImportSourceAsync(string sourceContainer, string sourcePath, CancellationToken cancellationToken = default);
 }

@@ -150,6 +150,67 @@ public class LocalProvider(
     }
 
     /// <summary>
+    /// Copies a file left in another folder of the local storage into the tenant's folder.
+    /// </summary>
+    /// <param name="sourceContainer">The folder, under the storage root, where the file was left.</param>
+    /// <param name="sourcePath">The path of the file inside <paramref name="sourceContainer"/>.</param>
+    /// <param name="filename">The name the file takes in the tenant's folder.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task<M.Response> ImportAsync(string sourceContainer, string sourcePath, string filename, string target, Guid tenant, CancellationToken cancellationToken = default)
+    {
+        return ProcessAsync(Options.Local.Enable, filename, TypeProviders.LocalProvider, (file, response) =>
+        {
+            var source = Path.Combine(Options.Local.Folder, sourceContainer, sourcePath);
+
+            if (!System.IO.File.Exists(source))
+            {
+                response.Success = false;
+                response.Message = "The system cannot find the file specified";
+
+                return Task.FromResult(response);
+            }
+
+            var path = Path.Combine(GetPath(target, tenant), file.FullName);
+
+            System.IO.File.Copy(source, path, overwrite: true);
+
+            file.Detail = new M.FileDetail(Options.UriDownload, target, file.FullName, TypeProviders.LocalProvider);
+            file.Size = new FileInfo(path).Length;
+
+            response.Success = true;
+
+            return Task.FromResult(response);
+        });
+    }
+
+    /// <summary>
+    /// Deletes the file an import was copied from. A file that no longer exists is a success: the import was already done.
+    /// </summary>
+    /// <param name="sourceContainer">The folder, under the storage root, where the file was left.</param>
+    /// <param name="sourcePath">The path of the file inside <paramref name="sourceContainer"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous operation.</returns>
+    public Task<M.Response> DeleteImportSourceAsync(string sourceContainer, string sourcePath, CancellationToken cancellationToken = default)
+    {
+        return ProcessAsync(Options.Local.Enable, sourcePath, TypeProviders.LocalProvider, (file, response) =>
+        {
+            var source = Path.Combine(Options.Local.Folder, sourceContainer, sourcePath);
+
+            if (System.IO.File.Exists(source))
+            {
+                System.IO.File.Delete(source);
+            }
+
+            response.Success = true;
+
+            return Task.FromResult(response);
+        });
+    }
+
+    /// <summary>
     /// Gets the full path for the specified target directory and tenant.
     /// </summary>
     /// <param name="target">The target directory.</param>

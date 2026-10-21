@@ -25,18 +25,26 @@ public class FileStorageGrpcService(Files.FilesClient client) : IFileStorageGrpc
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        return await client.UploadAsync(request, BuildHeaders(request), cancellationToken: cancellationToken);
+        return await client.UploadAsync(request, BuildHeaders(request.Tenant), cancellationToken: cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<UploadFileResponse> ImportAsync(ImportFileRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        return await client.ImportAsync(request, BuildHeaders(request.Tenant), cancellationToken: cancellationToken);
     }
 
     /// <summary>
     /// Arma las cabeceras de la llamada a partir del request, nunca del contexto HTTP.
     /// </summary>
-    private static Grpc.Core.Metadata BuildHeaders(UploadFileRequest request)
+    private static Grpc.Core.Metadata BuildHeaders(string tenant)
     {
         var headers = new Grpc.Core.Metadata();
 
-        if (!string.IsNullOrWhiteSpace(request.Tenant))
-            headers.Add("X-Tenant", request.Tenant);
+        if (!string.IsNullOrWhiteSpace(tenant))
+            headers.Add("X-Tenant", tenant);
 
         return headers;
     }

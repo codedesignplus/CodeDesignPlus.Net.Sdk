@@ -11,6 +11,10 @@ package FileStorage;
 // El archivo queda en {contenedor}/{target}/{id}/{file_name} con su registro, igual que si se subiera por REST.
 service Files {
   rpc Upload (UploadFileRequest) returns (UploadFileResponse);
+  // Registra un archivo que otro sistema dejó en un contenedor de la misma cuenta (p. ej. una grabación): lo copia en el
+  // servidor a {contenedor}/{target}/{id}/{file_name}, sin que el contenido viaje en el mensaje, crea el registro y borra
+  // el origen. Repetirla con el mismo id devuelve el archivo ya registrado.
+  rpc Import (ImportFileRequest) returns (UploadFileResponse);
 }
 
 message UploadFileRequest {
@@ -25,6 +29,23 @@ message UploadFileRequest {
   // Nombre original, con extensión. No se renombra.
   string file_name = 5;
   bytes content = 6;
+}
+
+message ImportFileRequest {
+  // Id del registro: lo genera quien importa, y es el que guarda su agregado.
+  string id = 1;
+  // Copropiedad dueña del archivo.
+  string tenant = 2;
+  // Usuario a nombre de quien se guarda.
+  string uploaded_by = 3;
+  // Una carpeta con nombre seguro (FileScope.IsValidTarget).
+  string target = 4;
+  // Nombre con el que queda el archivo, con extensión.
+  string file_name = 5;
+  // Contenedor donde lo dejó el otro sistema. Solo se aceptan los de FileScope:ImportSources.
+  string source_container = 6;
+  // Ruta del archivo dentro de source_container.
+  string source_path = 7;
 }
 
 message UploadFileResponse {

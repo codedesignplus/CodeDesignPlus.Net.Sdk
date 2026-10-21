@@ -139,4 +139,71 @@ public class FileStorageService(IEnumerable<IProvider> providers) : IFileStorage
 
         return Task.WhenAll(tasks);
     }
+
+    /// <summary>
+    /// Copies a file left in a container of the same storage into the tenant's storage, in every provider.
+    /// </summary>
+    /// <param name="sourceContainer">The container where the file was left.</param>
+    /// <param name="sourcePath">The path of the file inside <paramref name="sourceContainer"/>.</param>
+    /// <param name="file">The name the file takes in the tenant's storage.</param>
+    /// <param name="target">The target directory.</param>
+    /// <param name="tenant">The tenant identifier for storage isolation. It cannot be empty.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The responses of the enabled providers; a disabled provider does not answer.</returns>
+    /// <exception cref="FileStorageException">Thrown when the tenant, the source container or the source path is empty.</exception>
+    public async Task<M.Response[]> ImportAsync(string sourceContainer, string sourcePath, string file, string target, Guid tenant, CancellationToken cancellationToken = default)
+    {
+        if (tenant == Guid.Empty)
+        {
+            throw new FileStorageException("Tenant cannot be empty.");
+        }
+
+        GuardSource(sourceContainer, sourcePath);
+
+        var tasks = providers.Select(provider => provider.ImportAsync(sourceContainer, sourcePath, file, target, tenant, cancellationToken));
+
+        var responses = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        return responses.Where(response => response is not null).ToArray();
+    }
+
+    /// <summary>
+    /// Deletes the source of an import in every provider.
+    /// </summary>
+    /// <param name="sourceContainer">The container where the file was left.</param>
+    /// <param name="sourcePath">The path of the file inside <paramref name="sourceContainer"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The responses of the enabled providers; a disabled provider does not answer.</returns>
+    /// <exception cref="FileStorageException">Thrown when the source container or the source path is empty.</exception>
+    public async Task<M.Response[]> DeleteImportSourceAsync(string sourceContainer, string sourcePath, CancellationToken cancellationToken = default)
+    {
+        GuardSource(sourceContainer, sourcePath);
+
+        var tasks = providers.Select(provider => provider.DeleteImportSourceAsync(sourceContainer, sourcePath, cancellationToken));
+
+        var responses = await Task.WhenAll(tasks).ConfigureAwait(false);
+
+        return responses.Where(response => response is not null).ToArray();
+    }
+
+    /// <summary>
+    /// An import without a source container or path would read from the root of the storage, never what was asked.
+    /// </summary>
+    private static void GuardSource(string sourceContainer, string sourcePath)
+    {
+        if (string.IsNullOrWhiteSpace(sourceContainer))
+        {
+            throw new FileStorageException("Source container cannot be empty.");
+        }
+
+        if (string.IsNullOrWhiteSpace(sourcePath))
+        {
+            throw new FileStorageException("Source path cannot be empty.");
+        }
+
+        if (sourcePath.Split('/', '\\').Contains(".."))
+        {
+            throw new FileStorageException("Source path cannot leave its container.");
+        }
+    }
 }

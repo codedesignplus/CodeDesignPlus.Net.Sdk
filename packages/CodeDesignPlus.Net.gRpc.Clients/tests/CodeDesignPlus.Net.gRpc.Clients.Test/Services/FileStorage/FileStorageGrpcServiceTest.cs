@@ -140,4 +140,62 @@ public class FileStorageGrpcServiceTest
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => service.UploadAsync(null!, CancellationToken.None));
     }
+
+    private static ImportFileRequest CreateImportRequest(string tenant) => new()
+    {
+        Id = Guid.NewGuid().ToString(),
+        Tenant = tenant,
+        UploadedBy = Guid.NewGuid().ToString(),
+        Target = "meeting-recordings",
+        FileName = "session-1-part-1.mp4",
+        SourceContainer = "call-recordings",
+        SourcePath = "20261021/call/recording/0-mixed.mp4"
+    };
+
+    /// <summary>
+    /// La importación llega al servidor tal cual la armó quien llama, con la copropiedad del request en la cabecera y sin
+    /// Authorization, y la respuesta vuelve sin tocar.
+    /// </summary>
+    [Fact]
+    public async Task ImportAsync_SendsRequestAndTenantHeader_AndReturnsResponse()
+    {
+        // Arrange
+        var tenant = Guid.NewGuid().ToString();
+        var request = CreateImportRequest(tenant);
+        var expected = new UploadFileResponse { Id = request.Id, Target = request.Target, FileName = request.FileName };
+
+        ImportFileRequest? sent = null;
+        Grpc.Core.Metadata? headers = null;
+        CancellationToken received = default;
+
+        using var cts = new CancellationTokenSource();
+
+        var client = new Mock<Files.FilesClient>();
+        client
+            .Setup(c => c.ImportAsync(It.IsAny<ImportFileRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .Callback<ImportFileRequest, Grpc.Core.Metadata, DateTime?, CancellationToken>((r, h, _, ct) => (sent, headers, received) = (r, h, ct))
+            .Returns(GrpcUtil.CreateAsyncUnaryCall(expected));
+
+        var service = new FileStorageGrpcService(client.Object);
+
+        // Act
+        var response = await service.ImportAsync(request, cts.Token);
+
+        // Assert
+        Assert.Same(request, sent);
+        Assert.Same(expected, response);
+        Assert.Equal(cts.Token, received);
+        Assert.Equal(tenant, headers!.GetValue("x-tenant"));
+        Assert.Null(headers.Get("authorization"));
+    }
+
+    [Fact]
+    public async Task ImportAsync_ThrowsArgumentNullException_WhenRequestIsNull()
+    {
+        // Arrange
+        var service = new FileStorageGrpcService(new Mock<Files.FilesClient>().Object);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => service.ImportAsync(null!, CancellationToken.None));
+    }
 }

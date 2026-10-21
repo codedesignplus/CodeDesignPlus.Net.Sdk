@@ -82,4 +82,20 @@ public class FileTest
         // Assert
         Assert.Equal("tenant", exception.ParamName);
     }
+
+    [Theory]
+    [InlineData("recording.mp4", "video/mp4")]
+    [InlineData("photo.jpg", "image/jpeg")]
+    [InlineData("minutes.pdf", "application/pdf")]
+    public void Mime_ExtensionListedExactly_ReturnsThatMimeType(string fullName, string expected)
+    {
+        // Arrange
+        var file = new M.File(fullName);
+
+        // Act
+        var mime = file.Mime;
+
+        // Assert
+        Assert.Equal(expected, mime.MimeType);
+    }
 }

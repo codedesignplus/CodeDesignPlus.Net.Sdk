@@ -43,7 +43,16 @@ public class File
     /// <summary>
     /// Gets the MIME type of the file.
     /// </summary>
-    public ApacheMime Mime { get => ApacheMime.ApacheMimes.FirstOrDefault(x => x.Extension.Contains(this.Extension)); }
+    /// <remarks>
+    /// The extension is matched against each extension listed by the MIME type first: a substring match alone resolved
+    /// <c>.mp4</c> to <c>audio/mp4</c> (listed as <c>.mp4a</c> before the video), so a recorded video was served as audio.
+    /// The substring match is kept as the fallback, for names whose extension no MIME type lists exactly.
+    /// </remarks>
+    public ApacheMime Mime
+    {
+        get => ApacheMime.ApacheMimes.FirstOrDefault(x => x.Extension.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries).Contains(this.Extension, StringComparer.OrdinalIgnoreCase))
+            ?? ApacheMime.ApacheMimes.FirstOrDefault(x => x.Extension.Contains(this.Extension));
+    }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="File"/> class.
