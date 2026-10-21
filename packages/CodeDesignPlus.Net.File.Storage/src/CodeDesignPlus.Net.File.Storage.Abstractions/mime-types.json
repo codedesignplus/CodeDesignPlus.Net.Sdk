@@ -1568,7 +1568,7 @@
   {
     "extension": ".java",
     "name": "Java Source File",
-    "mimeType": "text/x-java-source,java"
+    "mimeType": "text/x-java-source"
   },
 
   {
@@ -2412,7 +2412,7 @@
   },
 
   {
-    "extension": ".mpga",
+    "extension": ".mpga, .mp3",
     "name": "MPEG Audio",
     "mimeType": "audio/mpeg"
   },
@@ -3842,7 +3842,7 @@
   {
     "extension": ".ccxml",
     "name": "Voice Browser Call Control",
-    "mimeType": "application/ccxml+xml,"
+    "mimeType": "application/ccxml+xml"
   },
 
   {

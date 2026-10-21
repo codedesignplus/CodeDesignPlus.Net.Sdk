@@ -75,7 +75,7 @@ public class ProviderTest
         // Assert
         Assert.NotNull(result);
         Assert.False(result.Success);
-        Assert.Equal("Internal error", result.Message);
+        Assert.Equal("Exception: Internal error", result.Message);
         Assert.NotNull(result.File);
         Assert.NotNull(result.Exception);
     }

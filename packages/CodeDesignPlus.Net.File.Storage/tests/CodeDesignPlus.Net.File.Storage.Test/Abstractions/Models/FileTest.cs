@@ -1,4 +1,4 @@
-﻿using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
+using M = CodeDesignPlus.Net.File.Storage.Abstractions.Models;
 
 namespace CodeDesignPlus.Net.File.Storage.Test.Abstractions.Models;
 
@@ -30,7 +30,7 @@ public class FileTest
         var tags = file.GetTags(1);
 
         // Assert
-        var mimeType = ApacheMime.ApacheMimes.FirstOrDefault(x => x.Extension.Contains(file.Extension))!.ToString();
+        var mimeType = "text/plain";
         Assert.Equal(fullName, file.FullName);
         Assert.Equal("test", file.Name);
         Assert.Equal(".txt", file.Extension);
@@ -87,6 +87,7 @@ public class FileTest
     [InlineData("recording.mp4", "video/mp4")]
     [InlineData("photo.jpg", "image/jpeg")]
     [InlineData("minutes.pdf", "application/pdf")]
+    [InlineData("grabacion-sesion-1-parte-1.mp3", "audio/mpeg")]
     public void Mime_ExtensionListedExactly_ReturnsThatMimeType(string fullName, string expected)
     {
         // Arrange
@@ -97,5 +98,24 @@ public class FileTest
 
         // Assert
         Assert.Equal(expected, mime.MimeType);
+    }
+
+    /// <summary>
+    /// A file whose extension no MIME type lists is binary data: its tags and metadata are built anyway, instead of failing
+    /// with a <see cref="NullReferenceException"/>.
+    /// </summary>
+    [Fact]
+    public void GetTags_ExtensionWithoutMimeType_UsesBinaryContentType()
+    {
+        // Arrange
+        var file = new M.File("recording.acsraw");
+
+        // Act
+        var tags = file.GetTags(Guid.Empty);
+        var metadata = file.GetMetadata(new Uri("http://localhost"));
+
+        // Assert
+        Assert.Null(file.Mime);
+        Assert.Equal(("application/octet-stream", "application/octet-stream", "application/octet-stream"), (file.ContentType, tags["Mime"], metadata["Mime"]));
     }
 }

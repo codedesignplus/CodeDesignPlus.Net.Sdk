@@ -99,7 +99,7 @@ public class AzureBlobProvider(
                 Tags = file.GetTags(tenant),
                 HttpHeaders = new BlobHttpHeaders
                 {
-                    ContentType = file.Mime.MimeType
+                    ContentType = file.ContentType
                 },
             }, cancellationToken: cancellationToken).ConfigureAwait(false);
 
@@ -268,12 +268,8 @@ public class AzureBlobProvider(
             file.Size = properties.ContentLength;
 
             // The copy brings the headers and metadata of the source; the imported file gets the same ones as an upload.
-            await destination.SetHttpHeadersAsync(new BlobHttpHeaders { ContentType = file.Mime?.MimeType ?? properties.ContentType }, cancellationToken: cancellationToken).ConfigureAwait(false);
-
-            if (file.Mime is not null)
-            {
-                await destination.SetMetadataAsync(file.GetMetadata(this.factory.Options.UriDownload), cancellationToken: cancellationToken).ConfigureAwait(false);
-            }
+            await destination.SetHttpHeadersAsync(new BlobHttpHeaders { ContentType = file.ContentType }, cancellationToken: cancellationToken).ConfigureAwait(false);
+            await destination.SetMetadataAsync(file.GetMetadata(this.factory.Options.UriDownload), cancellationToken: cancellationToken).ConfigureAwait(false);
 
             file.Detail = new Abstractions.Models.FileDetail(this.factory.Options.UriDownload, target, System.IO.Path.GetFileName(name), TypeProviders.AzureBlobProvider);
 

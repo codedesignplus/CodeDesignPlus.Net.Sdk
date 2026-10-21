@@ -55,6 +55,23 @@ public class File
     }
 
     /// <summary>
+    /// The content type of a file whose extension no MIME type lists: arbitrary binary data, as RFC 2046 (section 4.5.1)
+    /// defines it.
+    /// </summary>
+    public const string UnknownContentType = "application/octet-stream";
+
+    /// <summary>
+    /// Gets the content type of the file: the one of its <see cref="Mime"/>, or <see cref="UnknownContentType"/> when no
+    /// MIME type lists its extension.
+    /// </summary>
+    /// <remarks>
+    /// Tags, metadata and headers are written with this value and not with <see cref="Mime"/>, which is <see langword="null"/>
+    /// for an unknown extension: an <c>.mp3</c> recording, before <c>.mp3</c> was listed, failed every import with a
+    /// <see cref="NullReferenceException"/> while its tags were built.
+    /// </remarks>
+    public string ContentType => this.Mime?.MimeType ?? UnknownContentType;
+
+    /// <summary>
     /// Initializes a new instance of the <see cref="File"/> class.
     /// </summary>
     /// <param name="fullName">The full name of the file.</param>
@@ -85,7 +102,7 @@ public class File
             { "Size", this.Size.ToString() },
             { "Version", this.Version.ToString() },
             { "Renowned", this.Renowned.ToString() },
-            { "Mime", this.Mime.ToString() },
+            { "Mime", this.ContentType },
             { "Uri", uri.ToString()},
             { "CreatedAt", SystemClock.Instance.GetCurrentInstant().ToString() }
         };
@@ -106,7 +123,7 @@ public class File
         return new Dictionary<string, string>
         {
             { "Name", this.Name },
-            { "Mime", this.Mime.ToString() },
+            { "Mime", this.ContentType },
             { "Tenant", tenant.ToString() }
         };
     }

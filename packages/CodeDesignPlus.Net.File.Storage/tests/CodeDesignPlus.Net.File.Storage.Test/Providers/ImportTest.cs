@@ -136,6 +136,28 @@ public class ImportTest
         Assert.False(response.Success);
     }
 
+    /// <summary>
+    /// Si Azure rechaza la copia, la respuesta dice el tipo, el estado y el código del error en una línea, sin las cabeceras
+    /// que Azure añade al mensaje: es lo que ms-filestorage devuelve a quien pidió importar.
+    /// </summary>
+    [Fact]
+    public async Task ImportAsync_StorageRejectsTheCopy_SaysWhyInOneLine()
+    {
+        // Arrange
+        destination
+            .Setup(x => x.StartCopyFromUriAsync(It.IsAny<Uri>(), It.IsAny<BlobCopyFromUriOptions>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new RequestFailedException(403, "This request is not authorized to perform this operation.\nRequestId:1\nHeaders:\nServer: Windows-Azure-Blob/1.0", "AuthorizationPermissionMismatch", null));
+
+        var provider = Blob();
+
+        // Act
+        var response = await provider.ImportAsync(SourceContainer, SourcePath, FileName, Target, tenant);
+
+        // Assert
+        Assert.False(response.Success);
+        Assert.Equal("RequestFailedException (403 AuthorizationPermissionMismatch): This request is not authorized to perform this operation.", response.Message);
+    }
+
     [Fact]
     public async Task DeleteImportSourceAsync_Blob_DeletesTheSource()
     {
