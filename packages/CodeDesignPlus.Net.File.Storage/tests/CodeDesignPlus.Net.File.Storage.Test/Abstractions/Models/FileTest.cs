@@ -118,4 +118,59 @@ public class FileTest
         Assert.Null(file.Mime);
         Assert.Equal(("application/octet-stream", "application/octet-stream", "application/octet-stream"), (file.ContentType, tags["Mime"], metadata["Mime"]));
     }
+    /// <summary>
+    /// La etiqueta de un blob solo admite letras y dígitos ASCII, espacio y <c>+ - . / : = _</c>: el nombre entra sin tildes
+    /// y con lo demás cambiado por <c>_</c> (Kappali pendings/526).
+    /// </summary>
+    [Theory]
+    [InlineData("Cotización (1)", "Cotizacion _1_")]
+    [InlineData("Señalización & más", "Senalizacion _ mas")]
+    [InlineData("acta-2026_v1.final", "acta-2026_v1.final")]
+    public void ToTagValue_NameOutsideTheTagAlphabet_IsFolded(string name, string expected)
+    {
+        // Act
+        var value = M.File.ToTagValue(name);
+
+        // Assert
+        Assert.Equal(expected, value);
+    }
+
+    [Fact]
+    public void ToTagValue_NameLongerThanATag_IsCut()
+    {
+        // Act
+        var value = M.File.ToTagValue(new string('a', 300));
+
+        // Assert
+        Assert.Equal(M.File.MaxTagValueLength, value.Length);
+    }
+
+    /// <summary>
+    /// Los metadatos viajan como cabeceras HTTP, que solo llevan ASCII: el nombre va codificado y se recupera tal cual.
+    /// </summary>
+    [Fact]
+    public void GetMetadata_NameWithAccents_IsAsciiAndDecodesBack()
+    {
+        // Arrange
+        var file = new M.File("Cotización (1).pdf");
+
+        // Act
+        var metadata = file.GetMetadata(new Uri("http://localhost"));
+
+        // Assert
+        Assert.Equal((true, "Cotización (1).pdf", "Cotización (1)"), (metadata.Values.All(x => x.All(char.IsAscii)), Uri.UnescapeDataString(metadata["FullName"]), Uri.UnescapeDataString(metadata["Name"])));
+    }
+
+    /// <summary>
+    /// Un archivo sin extensión es binario, no el primer tipo del catálogo.
+    /// </summary>
+    [Fact]
+    public void Mime_NameWithoutExtension_IsBinary()
+    {
+        // Arrange
+        var file = new M.File("README");
+
+        // Assert
+        Assert.Equal((null, "application/octet-stream"), (file.Mime, file.ContentType));
+    }
 }
