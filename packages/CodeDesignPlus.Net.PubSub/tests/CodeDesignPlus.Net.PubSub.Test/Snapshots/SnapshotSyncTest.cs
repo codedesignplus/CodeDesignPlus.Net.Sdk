@@ -146,6 +146,49 @@ public class SnapshotSyncTest
         this.requester.Verify(x => x.RequestAsync(typeof(UserSnapshotDomainEvent), null, It.IsAny<CancellationToken>()), Times.Once);
     }
 
+    /// <summary>
+    /// La copia arrancó antes que el dueño y su petición se perdió: con el intervalo de una hora, las primeras esperas
+    /// cortas la repiten pronto (pendings/466).
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_OwnerNotUpYet_RetriesAfterTheShortDelaysBeforeTheInterval()
+    {
+        // Arrange
+        this.store
+            .Setup(x => x.FindAsync(UserSnapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(State(synced: false));
+
+        var service = this.Service(TimeSpan.FromHours(1), RequestedAt + Duration.FromHours(2), [TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(40)]);
+
+        // Act
+        await RunAsync(service);
+
+        // Assert
+        this.requester.Verify(x => x.RequestAsync(typeof(UserSnapshotDomainEvent), null, It.IsAny<CancellationToken>()), Times.Exactly(3));
+    }
+
+    /// <summary>
+    /// Cuando llega el cierre y la fuente queda sincronizada, las repeticiones que faltan ya no piden.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_SourceSyncedAfterTheFirstRetry_StopsRequesting()
+    {
+        // Arrange
+        var reads = 0;
+
+        this.store
+            .Setup(x => x.FindAsync(UserSnapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => Interlocked.Increment(ref reads) <= 2 ? State(synced: false) : State(synced: true) with { Applied = 3 });
+
+        var service = this.Service(TimeSpan.FromHours(1), RequestedAt + Duration.FromHours(2), [TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20), TimeSpan.FromMilliseconds(20)]);
+
+        // Act
+        await RunAsync(service);
+
+        // Assert
+        this.requester.Verify(x => x.RequestAsync(typeof(UserSnapshotDomainEvent), null, It.IsAny<CancellationToken>()), Times.Exactly(2));
+    }
+
     [Fact]
     public async Task ExecuteAsync_RetryDisabled_RequestsOnlyOnStartup()
     {
@@ -227,13 +270,14 @@ public class SnapshotSyncTest
             handlers.Contains(typeof(SnapshotCompletedHandler))));
     }
 
-    private SnapshotSyncBackgroundService Service(TimeSpan? retryInterval = null, Instant? now = null)
+    private SnapshotSyncBackgroundService Service(TimeSpan? retryInterval = null, Instant? now = null, TimeSpan[] retryDelays = null)
     {
         var options = new SnapshotSyncOptions();
 
         options.Snapshots.Add((typeof(UserSnapshotDomainEvent), typeof(UserSnapshotHandler)));
 
-        var pubSubOptions = new PubSubOptions();
+        // Sin esperas crecientes salvo que la prueba las pida: así se prueba el intervalo solo.
+        var pubSubOptions = new PubSubOptions { SnapshotRetryDelays = retryDelays ?? [] };
 
         if (retryInterval.HasValue)
         {

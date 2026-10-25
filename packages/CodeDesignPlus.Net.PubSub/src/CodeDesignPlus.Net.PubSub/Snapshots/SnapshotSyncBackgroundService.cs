@@ -16,7 +16,8 @@ internal sealed class SnapshotSyncOptions
 
 /// <summary>
 /// Lado de la copia: al arrancar, pide la foto completa de cada fuente que todavía no figura como sincronizada, y después
-/// la vuelve a pedir cada <see cref="PubSubOptions.SnapshotRetryInterval"/> mientras no lo esté.
+/// la vuelve a pedir mientras no lo esté: primero tras las esperas de <see cref="PubSubOptions.SnapshotRetryDelays"/>, que
+/// crecen, y luego cada <see cref="PubSubOptions.SnapshotRetryInterval"/>.
 /// </summary>
 /// <remarks>
 /// Espera a que todos los consumidores estén suscritos: el bus reparte cada foto solo a las colas que ya existen, y una
@@ -26,6 +27,10 @@ internal sealed class SnapshotSyncOptions
 /// <para>
 /// Una fuente queda sin sincronizar si la copia no aplicó todo lo que anunció el dueño, o si el dueño no contestó
 /// (pendings/485). Al repetir la petición lo avisa con una advertencia, con cuántas fotos aplicó de cuántas.
+/// </para>
+/// <para>
+/// El dueño no contesta si arrancó después que la copia: la petición llegó antes de que existiera su suscripción y se
+/// perdió. Las primeras repeticiones van pronto para que esa copia no espere el intervalo entero (pendings/466).
 /// </para>
 /// </remarks>
 internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker, ISnapshotRequester requester, IOptions<SnapshotSyncOptions> options, IOptions<PubSubOptions> pubSubOptions, ILogger<SnapshotSyncBackgroundService> logger, IProjectionSyncStore store = null) : BackgroundService
@@ -56,18 +61,18 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
 
             await this.RequestPendingAsync(null, stoppingToken).ConfigureAwait(false);
 
-            var retryInterval = pubSubOptions.Value.SnapshotRetryInterval;
-
-            if (retryInterval <= TimeSpan.Zero)
+            for (var attempt = 0; !stoppingToken.IsCancellationRequested; attempt++)
             {
-                return;
-            }
+                var delay = pubSubOptions.Value.SnapshotRetryDelayOf(attempt);
 
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                await Task.Delay(retryInterval, stoppingToken).ConfigureAwait(false);
+                if (delay <= TimeSpan.Zero)
+                {
+                    return;
+                }
 
-                await this.RequestPendingAsync(retryInterval, stoppingToken).ConfigureAwait(false);
+                await Task.Delay(delay, stoppingToken).ConfigureAwait(false);
+
+                await this.RequestPendingAsync(delay, stoppingToken).ConfigureAwait(false);
             }
         }
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
@@ -92,7 +97,7 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
     /// <summary>
     /// Pide cada fuente que no está sincronizada.
     /// </summary>
-    /// <param name="retryAfter">Nulo al arrancar; al repetir, cuánto tiene que llevar la última petición sin completarse.</param>
+    /// <param name="retryAfter">Nulo al arrancar; al repetir, la espera que se acaba de cumplir.</param>
     /// <param name="stoppingToken">El token de parada.</param>
     private async Task RequestPendingAsync(TimeSpan? retryAfter, CancellationToken stoppingToken)
     {
@@ -126,8 +131,10 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
                 return;
             }
 
-            // Al repetir, una petición reciente todavía puede estar llegando: se le da el intervalo entero.
-            if (retryAfter.HasValue && state?.RequestedAt is not null && this.Clock.GetCurrentInstant() - state.RequestedAt.Value < Duration.FromTimeSpan(retryAfter.Value))
+            // Al repetir, una petición reciente (de otra réplica) todavía puede estar llegando y se le deja correr. La mitad de
+            // la espera y no la espera entera: la petición propia se hizo justo antes de empezar a esperar, y por un instante
+            // de reloj no puede saltarse su repetición.
+            if (retryAfter.HasValue && state?.RequestedAt is not null && this.Clock.GetCurrentInstant() - state.RequestedAt.Value < Duration.FromTimeSpan(retryAfter.Value / 2))
             {
                 return;
             }
