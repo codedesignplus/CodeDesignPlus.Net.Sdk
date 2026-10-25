@@ -39,4 +39,9 @@ internal interface ISnapshotProgressReporter
     /// El contador de fotos aplicadas, o nulo si la aplicación no lleva la cuenta (sin almacén, o en una prueba).
     /// </summary>
     ISnapshotProgressTracker ProgressTracker { set; }
+
+    /// <summary>
+    /// Quien dice si la copropiedad de una foto ya no existe, o nulo si la aplicación no lo sabe (pendings/467).
+    /// </summary>
+    ISnapshotTenantFilter TenantFilter { set; }
 }

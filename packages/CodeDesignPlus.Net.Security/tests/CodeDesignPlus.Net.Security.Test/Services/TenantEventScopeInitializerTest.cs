@@ -1,3 +1,5 @@
+using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
+using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.Security.Services;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -55,6 +57,43 @@ public class TenantEventScopeInitializerTest
         // Act & Assert
         await Assert.ThrowsAsync<SecurityException>(() => initializer.InitializeAsync(Mock.Of<IDomainEvent>()));
     }
+
+    /// <summary>
+    /// La foto de una copropiedad dada de baja no lanza: la descarta el consumidor de fotos en vez de mandarla a la cola de
+    /// descartados (pendings/467).
+    /// </summary>
+    [Fact]
+    public async Task InitializeAsync_SnapshotOfAMissingTenant_DoesNotThrow()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        eventContextMock.SetupGet(c => c.Tenant).Returns(tenantId);
+        tenantMock.Setup(t => t.SetAsync(tenantId, It.IsAny<CancellationToken>())).ThrowsAsync(new CodeDesignPlusException(Layer.None, Errors.TenantNotFound));
+
+        var initializer = BuildInitializer();
+
+        // Act
+        var exception = await Record.ExceptionAsync(() => initializer.InitializeAsync(new GoneSnapshotDomainEvent(Guid.NewGuid(), tenantId)));
+
+        // Assert
+        Assert.Null(exception);
+    }
+
+    [Fact]
+    public async Task InitializeAsync_RegularEventOfAMissingTenant_Rethrows()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        eventContextMock.SetupGet(c => c.Tenant).Returns(tenantId);
+        tenantMock.Setup(t => t.SetAsync(tenantId, It.IsAny<CancellationToken>())).ThrowsAsync(new CodeDesignPlusException(Layer.None, Errors.TenantNotFound));
+
+        var initializer = BuildInitializer();
+
+        // Act & Assert
+        await Assert.ThrowsAsync<CodeDesignPlusException>(() => initializer.InitializeAsync(Mock.Of<IDomainEvent>()));
+    }
+
+    private sealed class GoneSnapshotDomainEvent(Guid aggregateId, Guid tenant) : SnapshotDomainEvent(aggregateId, tenant);
 
     private TenantEventScopeInitializer BuildInitializer() =>
         new(eventContextMock.Object, tenantMock.Object, Mock.Of<ILogger<TenantEventScopeInitializer>>());

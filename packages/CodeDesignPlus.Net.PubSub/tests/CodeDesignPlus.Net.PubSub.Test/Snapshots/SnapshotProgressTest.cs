@@ -4,6 +4,7 @@ using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.PubSub.Snapshots;
 using CodeDesignPlus.Net.PubSub.Test.Helpers.Snapshots;
 using Microsoft.Extensions.Logging.Abstractions;
+using Moq;
 
 namespace CodeDesignPlus.Net.PubSub.Test.Snapshots;
 
@@ -30,6 +31,31 @@ public class SnapshotProgressTest
         this.completedHandler = new SnapshotCompletedHandler(SnapshotConsumerTest.Core(App), this.tracker, NullLogger<SnapshotCompletedHandler>.Instance);
 
         ((ISnapshotProgressReporter)this.handler).ProgressTracker = this.tracker;
+    }
+
+    /// <summary>
+    /// Una de las tres fotos es de una copropiedad dada de baja: se descarta sin ir a la cola de descartados y cuenta, así
+    /// que la petición cuadra y no se vuelve a pedir cada hora (pendings/467).
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_SnapshotOfAMissingTenantDiscarded_IsSynced()
+    {
+        // Arrange
+        var goneTenant = Guid.NewGuid();
+        var snapshots = this.Snapshots(2);
+        var filter = new Mock<ISnapshotTenantFilter>();
+
+        snapshots.Add(new UserSnapshotDomainEvent(Guid.NewGuid(), "Gone", goneTenant) { RequestId = this.request.RequestId, RequestedBy = App });
+        filter.Setup(x => x.IsMissingAsync(goneTenant, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        ((ISnapshotProgressReporter)this.handler).TenantFilter = filter.Object;
+
+        // Act
+        await this.DeliverAsync(snapshots);
+        await this.completedHandler.HandleAsync(SnapshotCompletedDomainEvent.Create(this.request, 3), CancellationToken.None);
+
+        // Assert
+        Assert.Equal((true, 2), (this.store.State(UserSnapshot)!.IsSynced, this.handler.Applied.Count));
     }
 
     /// <summary>

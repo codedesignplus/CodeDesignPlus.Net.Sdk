@@ -184,7 +184,8 @@ public static class ServiceCollectionExtensions
     }
 
     /// <summary>
-    /// Registra un consumidor de fotos y le entrega, al resolverlo, el contador de fotos aplicadas (pendings/485).
+    /// Registra un consumidor de fotos y le entrega, al resolverlo, el contador de fotos aplicadas (pendings/485) y quien
+    /// dice si la copropiedad de una foto ya no existe (pendings/467).
     /// </summary>
     /// <remarks>
     /// El contador no va en el constructor de <see cref="SnapshotHandler{TSnapshot}"/>: los consumidores de los micros
@@ -199,7 +200,10 @@ public static class ServiceCollectionExtensions
             var handler = ActivatorUtilities.CreateInstance(provider, handlerType);
 
             if (handler is ISnapshotProgressReporter reporter)
+            {
                 reporter.ProgressTracker = provider.GetService<ISnapshotProgressTracker>();
+                reporter.TenantFilter = provider.GetService<ISnapshotTenantFilter>();
+            }
 
             return handler;
         });

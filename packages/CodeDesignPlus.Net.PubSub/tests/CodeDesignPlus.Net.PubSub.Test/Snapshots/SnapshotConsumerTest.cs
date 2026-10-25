@@ -1,5 +1,7 @@
 using CodeDesignPlus.Net.Core.Abstractions.Options;
 using CodeDesignPlus.Net.Core.Abstractions.Snapshots;
+using CodeDesignPlus.Net.PubSub.Abstractions.Snapshots;
+using CodeDesignPlus.Net.PubSub.Extensions;
 using CodeDesignPlus.Net.PubSub.Snapshots;
 using CodeDesignPlus.Net.PubSub.Test.Helpers.Snapshots;
 using Moq;
@@ -39,6 +41,75 @@ public class SnapshotConsumerTest
         var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant) { RequestedBy = "ms-other-copy" };
 
         // Act
+        await handler.HandleAsync(snapshot, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(handler.Applied);
+    }
+
+    /// <summary>
+    /// La foto de una copropiedad dada de baja no se aplica (pendings/467).
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_TenantNoLongerExists_IsNotApplied()
+    {
+        // Arrange
+        var filter = new Mock<ISnapshotTenantFilter>();
+        var handler = new UserSnapshotHandler(Core("xunit-copy"));
+        var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant) { RequestedBy = "xunit-copy" };
+
+        filter.Setup(x => x.IsMissingAsync(Tenant, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        ((ISnapshotProgressReporter)handler).TenantFilter = filter.Object;
+
+        // Act
+        await handler.HandleAsync(snapshot, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(handler.Applied);
+    }
+
+    [Fact]
+    public async Task HandleAsync_TenantExists_IsApplied()
+    {
+        // Arrange
+        var filter = new Mock<ISnapshotTenantFilter>();
+        var handler = new UserSnapshotHandler(Core("xunit-copy"));
+        var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant) { RequestedBy = "xunit-copy" };
+
+        filter.Setup(x => x.IsMissingAsync(Tenant, It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
+        ((ISnapshotProgressReporter)handler).TenantFilter = filter.Object;
+
+        // Act
+        await handler.HandleAsync(snapshot, CancellationToken.None);
+
+        // Assert
+        Assert.Single(handler.Applied);
+    }
+
+    [Fact]
+    public async Task AddPubSub_SnapshotHandlerResolved_ReceivesTheTenantFilter()
+    {
+        // Arrange
+        var filter = new Mock<ISnapshotTenantFilter>();
+        var services = new ServiceCollection();
+
+        services.AddLogging();
+        services.AddPubSub(ConfigurationUtil.GetConfiguration());
+        services.AddSingleton(Core("xunit-pub-sub"));
+        services.AddSingleton(filter.Object);
+
+        using var provider = services.BuildServiceProvider();
+        using var scope = provider.CreateScope();
+
+        var snapshot = new UserSnapshotDomainEvent(Guid.NewGuid(), "Ana", Tenant);
+
+        filter.Setup(x => x.IsMissingAsync(Tenant, It.IsAny<CancellationToken>())).ReturnsAsync(true);
+
+        // Act
+        var handler = scope.ServiceProvider.GetRequiredService<UserSnapshotHandler>();
+
         await handler.HandleAsync(snapshot, CancellationToken.None);
 
         // Assert

@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.PubSub.Abstractions;
+using CodeDesignPlus.Net.PubSub.Abstractions.Snapshots;
 using CodeDesignPlus.Net.Security.Middlewares;
 using CodeDesignPlus.Net.Security.MIddlewares;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -71,6 +72,8 @@ public static class ServiceCollectionExtensions
             services.TryAddScoped<IRoleDirectory, RoleDirectory>();
             services.TryAddScoped<ITenant, Tenant>();
             services.TryAddEnumerable(ServiceDescriptor.Scoped<IEventScopeInitializer, TenantEventScopeInitializer>());
+            // La copia descarta la foto de una copropiedad que ya no existe en vez de mandarla a los descartados (pendings/467).
+            services.TryAddScoped<ISnapshotTenantFilter, SnapshotTenantFilter>();
         }
 
         return services;

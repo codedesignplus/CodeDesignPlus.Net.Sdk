@@ -22,17 +22,28 @@ namespace CodeDesignPlus.Net.PubSub.Abstractions.Snapshots;
 /// sincronizada cuando la copia aplicó tantas como anunció el dueño al cerrar. Una foto que lanza (y acaba en la cola de
 /// descartados) deja la petición incompleta, y la foto se vuelve a pedir (pendings/485).
 /// </para>
+/// <para>
+/// La foto de una copropiedad que ya no existe (dada de baja y a la espera de su purga) no se aplica: se descarta y
+/// cuenta como aplicada, para que la petición cuadre (pendings/467).
+/// </para>
 /// </remarks>
 /// <typeparam name="TSnapshot">El gemelo local del evento de foto del dueño.</typeparam>
 /// <param name="coreOptions">Las opciones de la aplicación, de donde sale su nombre.</param>
 public abstract class SnapshotHandler<TSnapshot>(IOptions<CoreOptions> coreOptions) : IEventHandler<TSnapshot>, ISnapshotProgressReporter where TSnapshot : SnapshotDomainEvent
 {
     private ISnapshotProgressTracker progressTracker;
+    private ISnapshotTenantFilter tenantFilter;
 
     /// <inheritdoc/>
     ISnapshotProgressTracker ISnapshotProgressReporter.ProgressTracker
     {
         set => this.progressTracker = value;
+    }
+
+    /// <inheritdoc/>
+    ISnapshotTenantFilter ISnapshotProgressReporter.TenantFilter
+    {
+        set => this.tenantFilter = value;
     }
 
     /// <inheritdoc/>
@@ -45,9 +56,16 @@ public abstract class SnapshotHandler<TSnapshot>(IOptions<CoreOptions> coreOptio
             return;
         }
 
-        await this.ApplyAsync(data, token).ConfigureAwait(false);
+        // La foto de una copropiedad que ya no existe no tiene dónde aplicarse, pero el dueño la contó al cerrar.
+        var tenantMissing = this.tenantFilter is not null && data.Tenant != Guid.Empty && await this.tenantFilter.IsMissingAsync(data.Tenant, token).ConfigureAwait(false);
 
-        // Solo cuenta lo que se aplicó sin lanzar: una foto que falla no llega aquí y la petición queda corta.
+        if (!tenantMissing)
+        {
+            await this.ApplyAsync(data, token).ConfigureAwait(false);
+        }
+
+        // Solo cuenta lo que se aplicó sin lanzar (o lo descartado): una foto que falla no llega aquí y la petición queda
+        // corta.
         if (this.progressTracker is not null)
         {
             await this.progressTracker.RecordAppliedAsync(data, token).ConfigureAwait(false);
