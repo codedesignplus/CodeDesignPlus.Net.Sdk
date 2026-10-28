@@ -1,5 +1,6 @@
 ﻿global using System;
 global using System.Linq;
+global using System.Collections.Concurrent;
 global using System.Threading.Tasks;
 global using CodeDesignPlus.Net.Vault.Abstractions;
 global using Microsoft.Extensions.Options;
