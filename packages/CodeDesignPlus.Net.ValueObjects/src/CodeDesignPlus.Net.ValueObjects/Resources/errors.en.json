@@ -68,7 +68,6 @@
     "9066": "Credit Card Expiration Date cannot be null or empty",
     "9067": "Credit Card Expiration Date must be in valid format",
     "9068": "Credit Card Holder Name cannot be null or empty",
-    "9069": "Credit Card Security Code cannot be null or empty",
     "9070": "Type of the payment method cannot be null or empty",
     "9071": "Payment method details cannot be null",
     "9072": "Only one payment method is allowed",

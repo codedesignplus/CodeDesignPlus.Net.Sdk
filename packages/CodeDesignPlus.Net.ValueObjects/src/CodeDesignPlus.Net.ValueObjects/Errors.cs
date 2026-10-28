@@ -152,8 +152,6 @@ public class Errors : IErrorCodes
 
     public static readonly Error CreditCardHolderNameCannotBeNullOr = new("9068");
 
-    public static readonly Error CreditCardSecurityCodeCannotBeNullOr = new("9069");
-
     public static readonly Error TypeOfThePaymentMethodCannotBeNull = new("9070");
 
     public static readonly Error PaymentMethodDetailsCannotBeNull = new("9071");

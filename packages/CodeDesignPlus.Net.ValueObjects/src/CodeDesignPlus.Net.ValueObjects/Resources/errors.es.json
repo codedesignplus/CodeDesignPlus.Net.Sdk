@@ -68,7 +68,6 @@
     "9066": "La fecha de vencimiento de la tarjeta es obligatoria.",
     "9067": "La fecha de vencimiento de la tarjeta no tiene un formato válido.",
     "9068": "El nombre del titular de la tarjeta es obligatorio.",
-    "9069": "El código de seguridad de la tarjeta es obligatorio.",
     "9070": "El tipo de medio de pago es obligatorio.",
     "9071": "Los datos del medio de pago son obligatorios.",
     "9072": "Solo se permite un medio de pago.",

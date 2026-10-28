@@ -2,17 +2,32 @@ syntax = "proto3";
 
 
 import "google/protobuf/wrappers.proto";
+import "google/protobuf/timestamp.proto";
 
 option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.Payment";
 
 package Payment;
 
+// Field numbers removed from a message are reserved and never reused: emitters and consumers are deployed
+// separately, and a reused number would be read with the old meaning by whoever has not been upgraded yet.
 service Payment {
   rpc InitiatePayment (InitiatePaymentRequest) returns (InitiatePaymentResponse);
   rpc GetPaymentStatus (GetPaymentStatusRequest) returns (GetPaymentStatusResponse);
+
+  // Collection account of a tenant: whether it can charge online and pay third parties. Never returns secrets.
+  rpc GetMerchantAccount (GetMerchantAccountRequest) returns (GetMerchantAccountResponse);
+
+  // Payment to a third party, one per request. It is closed by the provider's event, never by this call.
+  rpc RequestPayout (RequestPayoutRequest) returns (RequestPayoutResponse);
+  rpc GetPayout (GetPayoutRequest) returns (GetPayoutResponse);
 }
 
 message InitiatePaymentRequest {
+  // 9 (payer with billing address), 10 (card or PSE data) and 11 (provider as a positional enum) were removed:
+  // the payment method is chosen on the provider's hosted page and the provider is resolved by ms-payments.
+  reserved 9, 10, 11;
+  reserved "payer", "paymentMethod";
+
   string id = 1;
   string module = 2;
   string referenceId = 3;
@@ -20,41 +35,31 @@ message InitiatePaymentRequest {
   Amount tax = 5;
   Amount total = 6;
   string description = 7;
+
+  // Who pays. Its contact and document prefill the provider's hosted page.
   Buyer buyer = 8;
-  Payer payer = 9;
-  PaymentMethod paymentMethod = 10;
-  PaymentProvider provider = 11;
-}
 
-enum PaymentProvider {
-  None = 0;
-  Payu = 1;
-  MercadoPago = 2;
-}
+  // Provider code (for example "Wompi"). Empty lets ms-payments resolve it from the tenant's country.
+  optional string provider = 12;
 
-message PaymentMethod {
-  string type = 1;
-  optional CreditCard creditCard = 2;
-  optional Pse pse = 3;
+  // Page the provider returns to when the payer finishes. Empty falls back to the one configured in ms-payments.
+  optional string return_url = 13;
+
+  // Charge to the platform's own merchant account instead of the tenant's (subscriptions sold on the landing).
+  bool platform_account = 14;
 }
 
 message Buyer {
+  // 7 (shipping address) was removed: no provider needs it to charge.
+  reserved 7;
+  reserved "shippingAddress";
+
   string buyerId = 1;
   string name = 2;
   string phone = 3;
   string email = 4;
   optional TypeDocument typeDocument = 5;
   optional string document = 6;
-  optional Address shippingAddress = 7;
-}
-
-message Payer {
-  string fullName = 1;
-  optional string emailAddress = 2;
-  optional string contactPhone = 3;
-  TypeDocument typeDocument = 4;
-  string documentNumber = 5;
-  Address billingAddress = 6;
 }
 
 message TypeDocument {
@@ -62,29 +67,7 @@ message TypeDocument {
   string name = 2;
 }
 
-message Address {
-  string street = 1;
-  string country = 2;
-  optional string state = 3;
-  string city = 4;
-  optional string postalCode = 5;
-}
-
-message CreditCard {
-  string last4Digits = 1;
-  string cardHolderName = 2;
-  string creditCardTokenId = 3;
-  string expirationDate = 4;
-  string securityCode = 5;
-  int32 installmentsNumber = 6;
-}
-
-message Pse {
-  string pseCode = 1;
-  string typePerson = 2;
-  string pseResponseUrl = 3;
-}
-
+// Money in minor units (cents) with its ISO 4217 currency.
 message Amount {
   int64 value = 1;
   google.protobuf.StringValue currency = 2;
@@ -99,6 +82,8 @@ enum PaymentStatus {
   Pending = 5;
 }
 
+// The payment always continues on the provider's hosted page, so ms-payments answers Redirect. The other values
+// stay because a number already on the wire cannot be removed.
 enum NextActionType {
   Undefined = 0;
   Redirect = 1;
@@ -120,4 +105,103 @@ message GetPaymentStatusRequest {
 
 message GetPaymentStatusResponse {
   PaymentStatus status = 1;
+
+  // What the provider actually captured. Only set once the payment succeeded.
+  Amount captured_amount = 2;
+
+  // Provider code that processed the payment.
+  optional string provider = 3;
+}
+
+enum MerchantAccountStatus {
+  MERCHANT_ACCOUNT_STATUS_UNSPECIFIED = 0;
+  MERCHANT_ACCOUNT_STATUS_PENDING_CONNECTION = 1;
+  MERCHANT_ACCOUNT_STATUS_ACTIVE = 2;
+  MERCHANT_ACCOUNT_STATUS_INVALID = 3;
+  MERCHANT_ACCOUNT_STATUS_DISABLED = 4;
+}
+
+enum MerchantAccountEnvironment {
+  MERCHANT_ACCOUNT_ENVIRONMENT_UNSPECIFIED = 0;
+  MERCHANT_ACCOUNT_ENVIRONMENT_SANDBOX = 1;
+  MERCHANT_ACCOUNT_ENVIRONMENT_PRODUCTION = 2;
+}
+
+message GetMerchantAccountRequest {
+  // Travels in the request, not only in the header, so a worker without a user token can ask for it.
+  string tenant = 1;
+}
+
+message GetMerchantAccountResponse {
+  string id = 1;
+  string tenant = 2;
+  string provider = 3;
+  MerchantAccountEnvironment environment = 4;
+
+  // Online payments are offered only while the account is Active.
+  MerchantAccountStatus status = 5;
+
+  // Whether the account has payments to third parties connected.
+  bool payouts_enabled = 6;
+  google.protobuf.Timestamp last_validated_at = 7;
+}
+
+enum PayoutPurpose {
+  PAYOUT_PURPOSE_UNSPECIFIED = 0;
+  PAYOUT_PURPOSE_EXPENSE = 1;
+  PAYOUT_PURPOSE_OWNER_DISBURSEMENT = 2;
+  PAYOUT_PURPOSE_WITHDRAWAL = 3;
+}
+
+enum PayoutStatus {
+  PAYOUT_STATUS_UNSPECIFIED = 0;
+  PAYOUT_STATUS_REQUESTED = 1;
+  PAYOUT_STATUS_AWAITING_APPROVAL = 2;
+  PAYOUT_STATUS_PROCESSING = 3;
+  PAYOUT_STATUS_COMPLETED = 4;
+  PAYOUT_STATUS_FAILED = 5;
+}
+
+message RequestPayoutRequest {
+  // Generated by the caller once; repeating the request with the same id does not pay twice.
+  string id = 1;
+  string tenant = 2;
+  string module = 3;
+
+  // Id of what is being paid in the calling module.
+  string referenceId = 4;
+  PayoutPurpose purpose = 5;
+
+  // Beneficiary registered in ms-payments. The bank account number never travels in this contract.
+  string beneficiaryId = 6;
+  Amount amount = 7;
+  string description = 8;
+
+  // User who asked for the payment, kept for the audit trail: the call may come from a worker without a token.
+  string requestedBy = 9;
+}
+
+message RequestPayoutResponse {
+  string payout_id = 1;
+  PayoutStatus status = 2;
+}
+
+message GetPayoutRequest {
+  string id = 1;
+  string tenant = 2;
+}
+
+message GetPayoutResponse {
+  string id = 1;
+  string module = 2;
+  string referenceId = 3;
+  PayoutPurpose purpose = 4;
+  Amount amount = 5;
+  PayoutStatus status = 6;
+  optional string provider = 7;
+  optional string provider_batch_id = 8;
+  optional string provider_transaction_id = 9;
+
+  // Reason given by the provider when the payout failed.
+  optional string failure_reason = 10;
 }

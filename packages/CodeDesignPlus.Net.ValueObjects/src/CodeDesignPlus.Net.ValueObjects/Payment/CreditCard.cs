@@ -37,23 +37,17 @@ public sealed partial class CreditCard : IEquatable<CreditCard>
     public string CardHolderName { get; private set; } = string.Empty;
 
     /// <summary>
-    /// The security code of the credit card.
-    /// </summary>
-    public string SecurityCode { get; private set; } = null!;
-
-    /// <summary>
     /// The number of installments for the credit card payment.
     /// </summary>
     public int? InstallmentsNumber { get; private set; } 
 
     [JsonConstructor]
-    private CreditCard(string token, string last4Digits, string expirationDate, string cardHolderName, string securityCode, int? installmentsNumber)
+    private CreditCard(string token, string last4Digits, string expirationDate, string cardHolderName, int? installmentsNumber)
     {
         var normalizedToken = token?.Trim() ?? string.Empty;
         var normalizedLast4 = last4Digits?.Trim() ?? string.Empty;
         var normalizedExpirationDate = expirationDate?.Trim() ?? string.Empty;
         var normalizedCardHolderName = cardHolderName?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedSecurityCode = securityCode?.Trim() ?? string.Empty;
         var normalizedInstallmentsNumber = installmentsNumber ?? 1;
 
         Guard.IsNullOrEmpty(normalizedToken, Exceptions.Layer.None, Errors.CreditCardTokenCannotBeNullOrEmpty);
@@ -65,13 +59,11 @@ public sealed partial class CreditCard : IEquatable<CreditCard>
         Guard.IsFalse(ExpirationDateRegex().IsMatch(normalizedExpirationDate), Exceptions.Layer.None, Errors.CreditCardExpirationDateMustBeInValid);
 
         Guard.IsNullOrEmpty(normalizedCardHolderName, Exceptions.Layer.None, Errors.CreditCardHolderNameCannotBeNullOr);
-        Guard.IsNullOrEmpty(normalizedSecurityCode, Exceptions.Layer.None, Errors.CreditCardSecurityCodeCannotBeNullOr);
 
         this.Token = normalizedToken;
         this.Last4Digits = normalizedLast4;
         this.ExpirationDate = normalizedExpirationDate;
         this.CardHolderName = normalizedCardHolderName;
-        this.SecurityCode = normalizedSecurityCode;
         this.InstallmentsNumber = normalizedInstallmentsNumber;
     }
     
@@ -82,12 +74,11 @@ public sealed partial class CreditCard : IEquatable<CreditCard>
     /// <param name="last4Digits">The last 4 digits of the credit card.</param>
     /// <param name="expirationDate">The expiration date of the credit card in YYYY/MM format.</param>
     /// <param name="cardHolderName">The name of the cardholder.</param>
-    /// <param name="securityCode">The security code of the credit card.</param>
     /// <param name="installmentsNumber">The number of installments for the credit card payment.</param>
     /// <returns>A new immutable snapshot of the credit card's details.</returns>
-    public static CreditCard Create(string token, string last4Digits, string expirationDate, string cardHolderName, string securityCode, int? installmentsNumber = null)
+    public static CreditCard Create(string token, string last4Digits, string expirationDate, string cardHolderName, int? installmentsNumber = null)
     {
-        return new CreditCard(token, last4Digits, expirationDate, cardHolderName, securityCode, installmentsNumber);
+        return new CreditCard(token, last4Digits, expirationDate, cardHolderName, installmentsNumber);
     }
 
     /// <summary>
