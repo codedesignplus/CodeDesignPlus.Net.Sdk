@@ -198,11 +198,9 @@ public class Errors : IErrorCodes
 
     public static readonly Error NameCannotBeGreaterThan124Characters = new("9092");
 
-    public static readonly Error PhoneCannotBeNullOrEmpty = new("9093");
+    // 9093 and 9095 said the buyer's phone and email were required; both are optional since Kappali pendings/665. Not reused.
 
     public static readonly Error PhoneContainsInvalidCharacters = new("9094");
-
-    public static readonly Error EmailCannotBeNullOrEmpty = new("9095");
 
     public static readonly Error EmailContainsInvalidCharacters = new("9096");
 

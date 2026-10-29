@@ -79,11 +79,11 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// </summary>
     public string Name { get; private set; }
     /// <summary>
-    /// Gets the phone number of the buyer.
+    /// Gets the phone number of the buyer; empty when the payer gave none.
     /// </summary>
     public string Phone { get; private set; }
     /// <summary>
-    /// Gets the email address of the buyer.
+    /// Gets the email address of the buyer; empty when the payer gave none.
     /// </summary>
     public string Email { get; private set; }
     /// <summary>
@@ -108,13 +108,22 @@ public sealed partial class Buyer : IEquatable<Buyer>
         Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty2);
         Guard.IsGreaterThan(normalizedName.Length, 124, Exceptions.Layer.None, Errors.NameCannotBeGreaterThan124Characters);
 
+        // Phone and email are optional: a payer may be known only by name and document (a visitor paying at the front
+        // desk, Kappali pendings/665), and the provider's hosted page asks for what is missing. When they come, they are
+        // validated as always; when they do not, they are empty, never null.
         var normalizedPhone = phone?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, Errors.PhoneCannotBeNullOrEmpty);
-        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.PhoneContainsInvalidCharacters);
+
+        if (normalizedPhone.Length > 0)
+        {
+            Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.PhoneContainsInvalidCharacters);
+        }
 
         var normalizedEmail = email?.Trim().ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, Errors.EmailCannotBeNullOrEmpty);
-        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailContainsInvalidCharacters);
+
+        if (normalizedEmail.Length > 0)
+        {
+            Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailContainsInvalidCharacters);
+        }
 
         // Optional fields validation - only validate if provided
         if (document != null)
