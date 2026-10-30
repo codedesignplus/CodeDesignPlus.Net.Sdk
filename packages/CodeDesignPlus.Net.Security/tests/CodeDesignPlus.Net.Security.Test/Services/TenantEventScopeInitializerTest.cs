@@ -79,13 +79,38 @@ public class TenantEventScopeInitializerTest
         Assert.Null(exception);
     }
 
+    /// <summary>
+    /// A regular event of a tenant that is not found yet is retried, not dead-lettered as a business error: when a property
+    /// is born, an event can reach a consumer before ms-tenants publishes the tenant (Kappali pendings/720).
+    /// </summary>
     [Fact]
-    public async Task InitializeAsync_RegularEventOfAMissingTenant_Rethrows()
+    public async Task InitializeAsync_RegularEventOfAMissingTenant_ThrowsARetryableError()
     {
         // Arrange
         var tenantId = Guid.NewGuid();
         eventContextMock.SetupGet(c => c.Tenant).Returns(tenantId);
         tenantMock.Setup(t => t.SetAsync(tenantId, It.IsAny<CancellationToken>())).ThrowsAsync(new CodeDesignPlusException(Layer.None, Errors.TenantNotFound));
+
+        var initializer = BuildInitializer();
+
+        // Act
+        var exception = await Assert.ThrowsAsync<SecurityException>(() => initializer.InitializeAsync(Mock.Of<IDomainEvent>()));
+
+        // Assert: a SecurityException and not a CodeDesignPlusException, which the brokers treat as non-retryable; the cause
+        // travels inside.
+        Assert.IsType<CodeDesignPlusException>(exception.InnerException);
+    }
+
+    /// <summary>
+    /// Any other business error while loading the tenant is still rethrown as it is.
+    /// </summary>
+    [Fact]
+    public async Task InitializeAsync_OtherBusinessError_IsRethrownAsItIs()
+    {
+        // Arrange
+        var tenantId = Guid.NewGuid();
+        eventContextMock.SetupGet(c => c.Tenant).Returns(tenantId);
+        tenantMock.Setup(t => t.SetAsync(tenantId, It.IsAny<CancellationToken>())).ThrowsAsync(new CodeDesignPlusException(Layer.None, "999", "Other"));
 
         var initializer = BuildInitializer();
 
