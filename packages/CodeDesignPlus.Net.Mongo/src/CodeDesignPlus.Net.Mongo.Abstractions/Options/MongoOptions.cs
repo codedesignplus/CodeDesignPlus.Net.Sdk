@@ -61,6 +61,18 @@ public class MongoOptions : IValidatableObject
     public int ConcurrencyRetryDelayMilliseconds { get; set; } = 25;
 
     /// <summary>
+    /// Gets or sets the server that answers the connection string (<c>Mongo:Engine</c>). Defaults to <see cref="MongoEngine.MongoDb"/>.
+    /// </summary>
+    /// <remarks>
+    /// Azure DocumentDB returns, on an unsorted find without limit that needs a <c>getMore</c> and filters an index on the
+    /// fly, the last documents of the first batch again (Kappali pendings/621: 157 rows for 154 ids). With
+    /// <see cref="MongoEngine.AzureDocumentDb"/> every find without its own order is sorted by <c>_id</c> and the sorted
+    /// ones get <c>_id</c> as the last tie-breaker; with <see cref="MongoEngine.MongoDb"/> nothing changes. Aggregations
+    /// are left as the caller wrote them.
+    /// </remarks>
+    public MongoEngine Engine { get; set; } = MongoEngine.MongoDb;
+
+    /// <summary>
     /// Validates the properties of the MongoOptions.
     /// </summary>
     /// <param name="validationContext">The context information about the validation operation.</param>
@@ -95,6 +107,11 @@ public class MongoOptions : IValidatableObject
             new ValidationContext(this, null, null) { MemberName = nameof(this.ConcurrencyRetryDelayMilliseconds) },
             results
         );
+
+        if (!Enum.IsDefined(this.Engine))
+        {
+            results.Add(new ValidationResult($"The {nameof(this.Engine)} field is not a known engine.", [nameof(this.Engine)]));
+        }
 
         return results;
     }

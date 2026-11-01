@@ -51,4 +51,50 @@ public class MongoOptionsTest
         // Assert
         Assert.Contains(results, x => x.ErrorMessage == "The Database field is required.");
     }
+
+    [Fact]
+    public void Engine_NotConfigured_DefaultsToMongoDb()
+    {
+        // Arrange
+        var options = new MongoOptions();
+
+        // Act
+        var engine = options.Engine;
+
+        // Assert
+        Assert.Equal(MongoEngine.MongoDb, engine);
+    }
+
+    [Fact]
+    public void Engine_ConfiguredByName_BindsAzureDocumentDb()
+    {
+        // Arrange
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?> { ["Mongo:Engine"] = "AzureDocumentDb" })
+            .Build();
+
+        // Act
+        var options = configuration.GetSection(MongoOptions.Section).Get<MongoOptions>()!;
+
+        // Assert
+        Assert.Equal(MongoEngine.AzureDocumentDb, options.Engine);
+    }
+
+    [Fact]
+    public void Engine_UnknownValue_FailedValidation()
+    {
+        // Arrange
+        var options = new MongoOptions()
+        {
+            ConnectionString = Guid.NewGuid().ToString(),
+            Database = Guid.NewGuid().ToString(),
+            Engine = (MongoEngine)99
+        };
+
+        // Act
+        var results = options.Validate();
+
+        // Assert
+        Assert.Contains(results, x => x.ErrorMessage == "The Engine field is not a known engine.");
+    }
 }

@@ -23,6 +23,10 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
     /// <returns>The MongoDB collection.</returns>
+    /// <remarks>
+    /// With <see cref="MongoEngine.AzureDocumentDb"/> the collection sorts by <c>_id</c> every find that brings no order
+    /// of its own, because DocumentDB can repeat documents across batches of an unsorted find (Kappali pendings/621).
+    /// </remarks>
     public IMongoCollection<TEntity> GetCollection<TEntity>()
         where TEntity : class, IEntityBase
     {
@@ -30,7 +34,14 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         var database = client.GetDatabase(this.mongoOptions.Database);
 
-        return database.GetCollection<TEntity>(typeof(TEntity).Name);
+        var collection = database.GetCollection<TEntity>(typeof(TEntity).Name);
+
+        if (this.mongoOptions.Engine == MongoEngine.AzureDocumentDb)
+        {
+            return new StableOrderCollection<TEntity>(collection);
+        }
+
+        return collection;
     }
 
     /// <summary>
@@ -814,6 +825,11 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     /// <param name="criteria">The criteria containing the sort expression and order type.</param>
     /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
     /// <returns>The sorted query.</returns>
+    /// <remarks>
+    /// With <see cref="MongoEngine.AzureDocumentDb"/> the query is always sorted: by <c>_id</c> when the criteria brings no
+    /// order, and with <c>_id</c> as the last tie-breaker when it does, so that pages neither repeat nor skip documents
+    /// that share the sort value (Kappali pendings/621).
+    /// </remarks>
     private IFindFluent<TEntity, TEntity> Query<TEntity>(C.Criteria criteria, Guid tenant)
         where TEntity : class, IEntityBase
     {
@@ -825,11 +841,12 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
 
         var query = collection.Find(filter);
 
-        if (sortBy != null)
-            if (criteria.OrderType == OrderTypes.Ascending)
-                query = query.SortBy(sortBy);
-            else
-                query = query.SortByDescending(sortBy);
+        var sort = this.BuildSort(collection, sortBy, criteria.OrderType);
+
+        if (sort != null)
+        {
+            query = query.Sort(sort);
+        }
 
         if (criteria.Skip.HasValue)
         {
@@ -842,6 +859,38 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
         }
 
         return query;
+    }
+
+    /// <summary>
+    /// Builds the order of a criteria query; null when the criteria brings none and the engine does not need one.
+    /// </summary>
+    private SortDefinition<TEntity> BuildSort<TEntity>(IMongoCollection<TEntity> collection, Expression<Func<TEntity, object>> sortBy, OrderTypes orderType)
+        where TEntity : class, IEntityBase
+    {
+        var builder = Builders<TEntity>.Sort;
+        var stableOrder = this.mongoOptions.Engine == MongoEngine.AzureDocumentDb;
+
+        if (sortBy == null)
+        {
+            return stableOrder ? StableOrderCollection<TEntity>.IdAscending : null;
+        }
+
+        var sort = orderType == OrderTypes.Ascending ? builder.Ascending(sortBy) : builder.Descending(sortBy);
+
+        if (!stableOrder)
+        {
+            return sort;
+        }
+
+        // Combining overwrites a repeated field, so a criteria that already sorts by _id would lose its direction.
+        var rendered = sort.Render(new RenderArgs<TEntity>(collection.DocumentSerializer, collection.Settings.SerializerRegistry));
+
+        if (rendered.Contains("_id"))
+        {
+            return sort;
+        }
+
+        return builder.Combine(sort, StableOrderCollection<TEntity>.IdAscending);
     }
 
     /// <summary>
