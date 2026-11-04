@@ -46,6 +46,14 @@ public static class PlatformNotificationKinds
     public const string LicenseOffered = "license.offered";
 
     /// <summary>
+    /// A la administración: el equipo comercial le retiró a la copropiedad la licencia a medida que le había ofrecido y que
+    /// no alcanzó a tomar (Kappali pendings/464). Sale de <c>LicenseOfferWithdrawnDomainEvent</c> de ms-licenses. No lleva
+    /// a ninguna pantalla: la licencia ya no está entre las opciones de cambio.
+    /// Payload: { licenseId, licenseName, withdrawnAt }
+    /// </summary>
+    public const string LicenseOfferWithdrawn = "license.offer-withdrawn";
+
+    /// <summary>
     /// Al Super Administrador: una orden pagada no se pudo aplicar; el pago se aprobó pero la licencia o el paquete no
     /// quedó en la copropiedad y hay que revisarlo (Kappali pendings/737, paso 6). Sale de
     /// <c>OrderProvisioningFailedDomainEvent</c> de ms-licenses, que solo trae la orden, el paso que falló, el error y el

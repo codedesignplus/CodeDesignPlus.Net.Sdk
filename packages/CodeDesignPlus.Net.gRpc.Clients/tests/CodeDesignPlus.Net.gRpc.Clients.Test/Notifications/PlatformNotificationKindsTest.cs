@@ -15,6 +15,7 @@ public class PlatformNotificationKindsTest
         { PlatformNotificationKinds.LicenseExpired, "license.expired" },
         { PlatformNotificationKinds.LicenseBlocked, "license.blocked" },
         { PlatformNotificationKinds.LicenseOffered, "license.offered" },
+        { PlatformNotificationKinds.LicenseOfferWithdrawn, "license.offer-withdrawn" },
         { PlatformNotificationKinds.LicenseOrderNotApplied, "license.order-not-applied" },
     };
 
