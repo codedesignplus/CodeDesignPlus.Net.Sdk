@@ -2,6 +2,8 @@
   "language": "en",
   "errors": {
     "9400": "The X-Tenant header is not a valid identifier.",
-    "9401": "The requested tenant does not exist."
+    "9401": "The requested tenant does not exist.",
+    "9402": "The property's license has expired: it is read-only. Renew it in Settings › Organization.",
+    "9403": "License expired"
   }
 }

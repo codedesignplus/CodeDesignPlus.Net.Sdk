@@ -23,4 +23,10 @@ public class Errors : IErrorCodes
 
     /// <summary>El tenant de la cabecera <c>X-Tenant</c> no existe.</summary>
     public static readonly Error TenantNotFound = new("9401");
+
+    /// <summary>La licencia del tenant vencio y paso el plazo de gracia: solo se permite leer (Kappali pendings/737).</summary>
+    public static readonly Error LicenseExpired = new("9402");
+
+    /// <summary>El titulo del ProblemDetails de <see cref="LicenseExpired"/>.</summary>
+    public static readonly Error LicenseExpiredTitle = new("9403");
 }

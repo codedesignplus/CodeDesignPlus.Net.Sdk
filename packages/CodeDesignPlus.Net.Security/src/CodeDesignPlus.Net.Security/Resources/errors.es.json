@@ -2,6 +2,8 @@
   "language": "es",
   "errors": {
     "9400": "La cabecera X-Tenant no es un identificador válido.",
-    "9401": "La copropiedad indicada no existe."
+    "9401": "La copropiedad indicada no existe.",
+    "9402": "La licencia de la copropiedad venció: está en solo lectura. Renuévala en Configuración › Organización.",
+    "9403": "Licencia vencida"
   }
 }

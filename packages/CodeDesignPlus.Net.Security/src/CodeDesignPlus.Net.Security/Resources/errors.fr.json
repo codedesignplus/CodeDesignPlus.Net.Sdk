@@ -2,6 +2,8 @@
   "language": "fr",
   "errors": {
     "9400": "L'en-tête X-Tenant n'est pas un identifiant valide.",
-    "9401": "La copropriété indiquée n'existe pas."
+    "9401": "La copropriété indiquée n'existe pas.",
+    "9402": "La licence de la copropriété a expiré : elle est en lecture seule. Renouvelez-la dans Paramètres › Organisation.",
+    "9403": "Licence expirée"
   }
 }

@@ -293,7 +293,12 @@ JWT auth + RBAC + tenant awareness.
 - `Applications` (string[]) — allowed client apps
 - `CertificatePath`, `CertificatePassword`
 - `EnableTenantContext` (bool)
-- `ValidateLicense` (bool)
+- `ValidateLicense` (bool) — off by default; with it, the license middleware applies grace and read-only (Kappali pendings/737)
+- `GraceDays` (int, 0-365, default 15) — days after `ExpirationDate` that everything still works; then read-only (only GET/HEAD/OPTIONS, writes get 403 `error_code` 9402 `LicenseExpired`)
+- `LicenseExemptPaths` (string[]) — path prefixes never blocked (renewal, payment, webhooks), by whole segments, case-insensitive
+- `LicenseExemptTenants` (Guid[]) — tenants never blocked (the platform one). gRPC calls and requests without tenant are never blocked either
+- Response headers (`LicenseHeaders`): `X-License-Status: grace|read-only`, `X-License-Grace-Ends: <ISO-8601 UTC>` (grace only). CORS must list them in `Access-Control-Expose-Headers`
+- `ITenant.GetLicenseStanding(graceDays)` / `LicenseStanding.Evaluate(expiration, now, graceDays)` — the single place that decides Active/Grace/ReadOnly
 - `ValidateRbac` (bool), `ServerRbac` (Uri), `RefreshRbacInterval` (ushort)
 
 **Interfaces**

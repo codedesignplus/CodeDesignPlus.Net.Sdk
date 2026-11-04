@@ -55,6 +55,20 @@ public class Tenant(ILogger<Tenant> logger, ITenantDirectory directory) : ITenan
     }
 
     /// <inheritdoc/>
+    public Models.LicenseStanding GetLicenseStanding(int graceDays)
+    {
+        this.EnsureLoaded();
+
+        var now = NodaTime.SystemClock.Instance.GetCurrentInstant();
+
+        var standing = Models.LicenseStanding.Evaluate(this.tenant.License.ExpirationDate, now, graceDays);
+
+        logger.LogDebug("The license with id {LicenseId} is {Status}, ExpirationDate: {ExpirationDate}, GraceEndsAt: {GraceEndsAt}", this.tenant.License.Id, standing.Status, standing.ExpirationDate, standing.GraceEndsAt);
+
+        return standing;
+    }
+
+    /// <inheritdoc/>
     public string GetMetadata(string key)
     {
         this.EnsureLoaded();

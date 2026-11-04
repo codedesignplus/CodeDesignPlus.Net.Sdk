@@ -37,6 +37,13 @@ public interface ITenant
     /// <returns>Return true if the license is valid; otherwise, false.</returns>
     bool LicenseIsValid();
     /// <summary>
+    /// Gets how the license of the loaded tenant stands now: active, in its grace period or read-only.
+    /// </summary>
+    /// <param name="graceDays">The days of grace after the expiration date, from <c>Security:GraceDays</c>.</param>
+    /// <returns>The <see cref="LicenseStanding"/> computed by <see cref="LicenseStanding.Evaluate"/>.</returns>
+    /// <exception cref="Exceptions.SecurityException">Thrown when no tenant has been loaded.</exception>
+    LicenseStanding GetLicenseStanding(int graceDays);
+    /// <summary>
     /// Get the metadata value by key.
     /// </summary>
     /// <param name="key">The key to search in the metadata.</param>

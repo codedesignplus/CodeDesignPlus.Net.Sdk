@@ -43,6 +43,19 @@ public class SecurityOptionsTest
     }
 
     [Fact]
+    public void License_Defaults_FifteenGraceDaysAndNothingExempt()
+    {
+        // Act
+        var options = new SecurityOptions();
+
+        // Assert
+        Assert.False(options.ValidateLicense);
+        Assert.Equal(15, options.GraceDays);
+        Assert.Empty(options.LicenseExemptPaths);
+        Assert.Empty(options.LicenseExemptTenants);
+    }
+
+    [Fact]
     public void GetCertificate_NullPath_ReturnNull()
     {
         // Arrange

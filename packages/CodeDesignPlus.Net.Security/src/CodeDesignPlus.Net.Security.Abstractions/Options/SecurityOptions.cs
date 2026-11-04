@@ -79,6 +79,25 @@ public class SecurityOptions
     /// Gets or sets a value indicating whether to validate the license
     /// </summary>
     public bool ValidateLicense { get; set; }
+
+    /// <summary>
+    /// Gets or sets the days after the expiration date during which the tenant keeps working as usual. Once they pass,
+    /// the tenant is read-only: reads go through and writes are refused with <c>LicenseExpired</c>.
+    /// </summary>
+    [Range(0, 365)]
+    public int GraceDays { get; set; } = 15;
+
+    /// <summary>
+    /// Gets or sets the path prefixes that the license never blocks, such as the ones a tenant needs to pay its renewal
+    /// (<c>/api/Subscription</c>) or the webhooks of a payment gateway. Compared by whole segments and ignoring case.
+    /// </summary>
+    public string[] LicenseExemptPaths { get; set; } = [];
+
+    /// <summary>
+    /// Gets or sets the tenants that the license never blocks, such as the tenant of the platform itself.
+    /// </summary>
+    public Guid[] LicenseExemptTenants { get; set; } = [];
+
     /// <summary>
     /// Gets or sets a value indicating whether to validate the RBAC
     /// </summary>

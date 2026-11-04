@@ -2,6 +2,8 @@
   "language": "pt",
   "errors": {
     "9400": "O cabeçalho X-Tenant não é um identificador válido.",
-    "9401": "O condomínio indicado não existe."
+    "9401": "O condomínio indicado não existe.",
+    "9402": "A licença do condomínio venceu: está em modo somente leitura. Renove-a em Configurações › Organização.",
+    "9403": "Licença vencida"
   }
 }

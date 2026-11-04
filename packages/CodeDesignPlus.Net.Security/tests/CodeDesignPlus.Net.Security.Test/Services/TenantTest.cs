@@ -175,6 +175,57 @@ public class TenantTest
     }
 
     [Fact]
+    public void GetLicenseStanding_LicenseExpiredBeyondGrace_IsReadOnly()
+    {
+        // Arrange
+        var now = NodaTime.SystemClock.Instance.GetCurrentInstant();
+        var tenant = new M.Tenant
+        {
+            License = new M.License
+            {
+                StartDate = now.Minus(NodaTime.Duration.FromDays(60)),
+                ExpirationDate = now.Minus(NodaTime.Duration.FromDays(16))
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(tenantService, tenant);
+
+        // Act
+        var standing = tenantService.GetLicenseStanding(15);
+
+        // Assert
+        Assert.Equal(M.LicenseStatus.ReadOnly, standing.Status);
+    }
+
+    [Fact]
+    public void GetLicenseStanding_LicenseExpiredWithinGrace_IsGrace()
+    {
+        // Arrange
+        var now = NodaTime.SystemClock.Instance.GetCurrentInstant();
+        var tenant = new M.Tenant
+        {
+            License = new M.License
+            {
+                StartDate = now.Minus(NodaTime.Duration.FromDays(60)),
+                ExpirationDate = now.Minus(NodaTime.Duration.FromDays(14))
+            }
+        };
+        tenantService.GetType().GetField("tenant", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.SetValue(tenantService, tenant);
+
+        // Act
+        var standing = tenantService.GetLicenseStanding(15);
+
+        // Assert
+        Assert.Equal(M.LicenseStatus.Grace, standing.Status);
+    }
+
+    [Fact]
+    public void GetLicenseStanding_WithoutLoadedTenant_ThrowsSecurityException()
+    {
+        // Act & Assert
+        Assert.Throws<SecurityException>(() => tenantService.GetLicenseStanding(15));
+    }
+
+    [Fact]
     public void GetMetadata_ValidKey_ReturnsValue()
     {
         // Arrange
