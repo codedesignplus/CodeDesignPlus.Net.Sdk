@@ -1,5 +1,6 @@
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notification;
 using Moq;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Test.Services.Notifications;
 
@@ -25,6 +26,27 @@ public class LiveChannelExtensionsTest
 
         Assert.Contains("\"processedUnits\"", captured!.JsonPayload);
         Assert.DoesNotContain("\"ProcessedUnits\"", captured.JsonPayload);
+    }
+
+    /// <summary>
+    /// El canal en vivo usa la misma serializacion que la bandeja: un <see cref="Instant"/> no se pierde como <c>{}</c>.
+    /// </summary>
+    [Fact]
+    public async Task PushToUserAsync_PayloadWithInstant_SerializesIsoUtc()
+    {
+        // Arrange
+        LiveUserPush? captured = null;
+
+        var grpc = new Mock<ILiveChannelGrpc>();
+        grpc.Setup(x => x.PushToUserAsync(It.IsAny<LiveUserPush>(), It.IsAny<CancellationToken>()))
+            .Callback<LiveUserPush, CancellationToken>((r, _) => captured = r)
+            .Returns(Task.CompletedTask);
+
+        // Act
+        await grpc.Object.PushToUserAsync(Guid.NewGuid(), "job.progress", new { finishedAt = Instant.FromUtc(2026, 11, 4, 8, 0) }, Guid.NewGuid());
+
+        // Assert
+        Assert.Equal("{\"finishedAt\":\"2026-11-04T08:00:00Z\"}", captured!.JsonPayload);
     }
 
     [Fact]

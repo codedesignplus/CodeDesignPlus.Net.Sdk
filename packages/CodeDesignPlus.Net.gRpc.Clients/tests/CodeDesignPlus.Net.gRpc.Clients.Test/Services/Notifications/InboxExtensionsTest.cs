@@ -1,5 +1,6 @@
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notification;
 using Moq;
+using NodaTime;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Test.Services.Notifications;
 
@@ -27,6 +28,43 @@ public class InboxExtensionsTest
         Assert.Contains("\"documentId\"", captured.JsonPayload);
         Assert.Contains("\"amountDue\"", captured.JsonPayload);
         Assert.DoesNotContain("\"DocumentId\"", captured.JsonPayload);
+    }
+
+    /// <summary>
+    /// Un <see cref="Instant"/> del payload sale en ISO-8601 UTC con <c>Z</c>: sin los convertidores de NodaTime,
+    /// System.Text.Json lo escribia como <c>{}</c> y el aviso se guardaba sin la fecha (pendings/464 y 736).
+    /// </summary>
+    [Fact]
+    public async Task NotifyRolesAsync_PayloadWithInstant_SerializesIsoUtc()
+    {
+        // Arrange
+        var offeredAt = Instant.FromUtc(2026, 11, 4, 15, 30, 5);
+
+        // Act
+        var captured = await CaptureAsync(grpc => grpc.NotifyRolesAsync(
+            ["role"], "license.offered", "t", "b", null, null,
+            new { licenseId = Guid.Empty, offeredAt, graceEndsAt = (Instant?)offeredAt.Plus(Duration.FromDays(15)) },
+            Guid.NewGuid(), Guid.Empty));
+
+        // Assert
+        Assert.Equal("{\"licenseId\":\"00000000-0000-0000-0000-000000000000\",\"offeredAt\":\"2026-11-04T15:30:05Z\",\"graceEndsAt\":\"2026-11-19T15:30:05Z\"}", captured.JsonPayload);
+    }
+
+    /// <summary>
+    /// Una fecha de calendario del payload sale como <c>yyyy-MM-dd</c>, sin hora ni zona.
+    /// </summary>
+    [Fact]
+    public async Task NotifyUsersAsync_PayloadWithLocalDate_SerializesIsoDate()
+    {
+        // Arrange
+        var dueDate = new LocalDate(2026, 11, 30);
+
+        // Act
+        var captured = await CaptureAsync(grpc => grpc.NotifyUsersAsync(
+            [Guid.NewGuid()], "invoice.issued", "t", "b", null, null, new { dueDate }, Guid.NewGuid(), Guid.Empty));
+
+        // Assert
+        Assert.Equal("{\"dueDate\":\"2026-11-30\"}", captured.JsonPayload);
     }
 
     [Fact]

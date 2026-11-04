@@ -1,4 +1,3 @@
-using System.Text.Json;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Notification;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Abstractions;
@@ -9,12 +8,6 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Abstractions;
 /// </summary>
 public static class NotificationExtensions
 {
-    private static readonly JsonSerializerOptions SerializerOptions = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = false
-    };
-
     /// <summary>
     /// Envía una notificación a un usuario específico, serializando el payload a JSON.
     /// </summary>
@@ -42,7 +35,7 @@ public static class NotificationExtensions
             Id = Guid.NewGuid().ToString(),
             UserId = userId.ToString(),
             EventName = eventName,
-            JsonPayload = JsonSerializer.Serialize(payload, SerializerOptions),
+            JsonPayload = NotificationSerialization.Serialize(payload),
             Tenant = tenant.ToString(),
             SentBy = sentBy.ToString()
         };
@@ -75,7 +68,7 @@ public static class NotificationExtensions
         {
             Id = Guid.NewGuid().ToString(),
             EventName = eventName,
-            JsonPayload = JsonSerializer.Serialize(payload, SerializerOptions),
+            JsonPayload = NotificationSerialization.Serialize(payload),
             Tenant = tenant.ToString(),
             SentBy = sentBy.ToString()
         };
@@ -114,7 +107,7 @@ public static class NotificationExtensions
             Id = Guid.NewGuid().ToString(),
             GroupName = groupName,
             EventName = eventName,
-            JsonPayload = JsonSerializer.Serialize(payload, SerializerOptions),
+            JsonPayload = NotificationSerialization.Serialize(payload),
             Tenant = tenant.ToString(),
             SentBy = sentBy.ToString()
         };
