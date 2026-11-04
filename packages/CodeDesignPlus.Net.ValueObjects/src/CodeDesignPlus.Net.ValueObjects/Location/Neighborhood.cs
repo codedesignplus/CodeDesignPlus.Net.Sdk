@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Location;
 /// Represents a specific neighborhood or subdivision within a locality or city.
 /// Examples include specific zones like El Tintal, La Fraguita, or Perdomo Alto.
 /// </summary>
-public sealed class Neighborhood : IEquatable<Neighborhood>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class Neighborhood : IEquatable<Neighborhood>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the unique identifier for the neighborhood.
@@ -21,13 +25,18 @@ public sealed class Neighborhood : IEquatable<Neighborhood>
     [JsonConstructor]
     private Neighborhood(Guid id, string name)
     {
-        var normalizedName = name?.Trim() ?? string.Empty;
+        Id = id;
+        Name = name?.Trim() ?? string.Empty;
+    }
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.NeighborhoodIDCannotBeEmpty);
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NeighborhoodNameCannotBeNullOrEmpty);
-
-        this.Id = id;
-        this.Name = normalizedName;
+    /// <summary>
+    /// Checks the identifier and the name of the neighborhood.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(Id, Exceptions.Layer.None, Errors.NeighborhoodIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.NeighborhoodNameCannotBeNullOrEmpty);
     }
 
     /// <summary>
@@ -35,9 +44,12 @@ public sealed class Neighborhood : IEquatable<Neighborhood>
     /// </summary>
     public static Neighborhood Create(Guid id, string name)
     {
-        return new Neighborhood(id, name);
-    }
+        var neighborhood = new Neighborhood(id, name);
 
+        neighborhood.EnsureValid();
+
+        return neighborhood;
+    }
 
     /// <summary>
     /// Checks if two Neighborhood instances are equal in value.

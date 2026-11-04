@@ -85,8 +85,12 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// );
 /// // Company is the payer, employee (buyer) is different
 /// </code>
+/// <para>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a
+/// read never validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </para>
 /// </remarks>
-public sealed partial class Payer : IEquatable<Payer>
+public sealed partial class Payer : IEquatable<Payer>, IValidatableValueObject
 {
     [GeneratedRegex(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", RegexOptions.Compiled)]
     private static partial Regex EmailRegex();
@@ -127,37 +131,43 @@ public sealed partial class Payer : IEquatable<Payer>
     [JsonConstructor]
     private Payer(string fullName, string? emailAddress, string? contactPhone, TypeDocument? typeDocument, string documentNumber, Address? billingAddress)
     {
-        var normalizedFullName = fullName?.Trim() ?? string.Empty;
-        var normalizedDocument = documentNumber?.Trim() ?? string.Empty;
+        FullName = fullName?.Trim() ?? string.Empty;
+        EmailAddress = emailAddress?.Trim().ToLowerInvariant();
+        ContactPhone = contactPhone?.Trim();
+        TypeDocument = typeDocument;
+        DocumentNumber = documentNumber?.Trim() ?? string.Empty;
+        BillingAddress = billingAddress;
+    }
 
-        Guard.IsNullOrEmpty(normalizedFullName, Exceptions.Layer.None, Errors.FullNameCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedFullName.Length, 150, Exceptions.Layer.None, Errors.FullNameCannotBeGreaterThan150Characters);
+    /// <summary>
+    /// Checks the full name and the document number of the payer, the email and phone when they are present, and the
+    /// document type and billing address it carries.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(FullName, Exceptions.Layer.None, Errors.FullNameCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(FullName.Length, 150, Exceptions.Layer.None, Errors.FullNameCannotBeGreaterThan150Characters);
 
-        Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, Errors.DocumentNumberCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, Errors.DocumentNumberCannotBeGreaterThan20Characters);
+        Guard.IsNullOrEmpty(DocumentNumber, Exceptions.Layer.None, Errors.DocumentNumberCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(DocumentNumber.Length, 20, Exceptions.Layer.None, Errors.DocumentNumberCannotBeGreaterThan20Characters);
 
         // Optional fields validation - only validate if provided
-        if (emailAddress != null)
+        if (EmailAddress != null)
         {
-            var normalizedEmail = emailAddress.Trim().ToLowerInvariant();
-            Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, Errors.EmailAddressCannotBeEmptyWhenProvided);
-            Guard.IsGreaterThan(normalizedEmail.Length, 255, Exceptions.Layer.None, Errors.EmailAddressCannotBeGreaterThan255Characters);
-            Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailAddressFormatIsInvalid);
-            this.EmailAddress = normalizedEmail;
+            Guard.IsNullOrEmpty(EmailAddress, Exceptions.Layer.None, Errors.EmailAddressCannotBeEmptyWhenProvided);
+            Guard.IsGreaterThan(EmailAddress.Length, 255, Exceptions.Layer.None, Errors.EmailAddressCannotBeGreaterThan255Characters);
+            Guard.IsFalse(EmailRegex().IsMatch(EmailAddress), Exceptions.Layer.None, Errors.EmailAddressFormatIsInvalid);
         }
 
-        if (contactPhone != null)
+        if (ContactPhone != null)
         {
-            var normalizedPhone = contactPhone.Trim();
-            Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, Errors.ContactPhoneCannotBeEmptyWhenProvided);
-            Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.ContactPhoneFormatIsInvalid);
-            this.ContactPhone = normalizedPhone;
+            Guard.IsNullOrEmpty(ContactPhone, Exceptions.Layer.None, Errors.ContactPhoneCannotBeEmptyWhenProvided);
+            Guard.IsFalse(PhoneRegex().IsMatch(ContactPhone), Exceptions.Layer.None, Errors.ContactPhoneFormatIsInvalid);
         }
 
-        this.FullName = normalizedFullName;
-        this.TypeDocument = typeDocument;
-        this.DocumentNumber = normalizedDocument;
-        this.BillingAddress = billingAddress;
+        TypeDocument?.EnsureValid();
+        BillingAddress?.EnsureValid();
     }
 
     /// <summary>
@@ -173,7 +183,11 @@ public sealed partial class Payer : IEquatable<Payer>
     /// <returns>A new instance of the <see cref="Payer"/> class.</returns>
     public static Payer Create(string fullName, string emailAddress, string contactPhone, TypeDocument typeDocument, string documentNumber, Address billingAddress)
     {
-        return new Payer(fullName, emailAddress, contactPhone, typeDocument, documentNumber, billingAddress);
+        var payer = new Payer(fullName, emailAddress, contactPhone, typeDocument, documentNumber, billingAddress);
+
+        payer.EnsureValid();
+
+        return payer;
     }
 
     /// <summary>
@@ -189,7 +203,11 @@ public sealed partial class Payer : IEquatable<Payer>
     /// <returns>A new instance of the <see cref="Payer"/> class.</returns>
     public static Payer CreateFromBuyer(string fullName, Buyer buyer, TypeDocument typeDocument, string documentNumber, Address billingAddress)
     {
-        return new Payer(fullName, buyer.Email, buyer.Phone, typeDocument, documentNumber, billingAddress);
+        var payer = new Payer(fullName, buyer.Email, buyer.Phone, typeDocument, documentNumber, billingAddress);
+
+        payer.EnsureValid();
+
+        return payer;
     }
 
     
@@ -202,7 +220,11 @@ public sealed partial class Payer : IEquatable<Payer>
     /// <returns>A new instance of the <see cref="Payer"/> class.</returns>
     public static Payer CreateFromBuyer(Buyer buyer)
     {
-        return new Payer(buyer.Name, buyer.Email, buyer.Phone, buyer.TypeDocument, buyer.Document!, buyer.ShippingAddress);
+        var payer = new Payer(buyer.Name, buyer.Email, buyer.Phone, buyer.TypeDocument, buyer.Document!, buyer.ShippingAddress);
+
+        payer.EnsureValid();
+
+        return payer;
     }
 
     /// <summary>
@@ -217,7 +239,11 @@ public sealed partial class Payer : IEquatable<Payer>
     /// <returns>A new instance of the <see cref="Payer"/> class.</returns>
     public static Payer CreateMinimal(string fullName, TypeDocument typeDocument, string documentNumber, Address billingAddress)
     {
-        return new Payer(fullName, null, null, typeDocument, documentNumber, billingAddress);
+        var payer = new Payer(fullName, null, null, typeDocument, documentNumber, billingAddress);
+
+        payer.EnsureValid();
+
+        return payer;
     }
 
     /// <summary>

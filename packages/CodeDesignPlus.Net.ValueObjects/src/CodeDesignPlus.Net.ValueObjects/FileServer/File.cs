@@ -7,7 +7,11 @@ namespace CodeDesignPlus.Net.ValueObjects.FileServer;
 /// Captures the metadata needed by aggregates to locate and describe the file
 /// without coupling them to the storage infrastructure.
 /// </summary>
-public sealed class File : IEquatable<File>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class File : IEquatable<File>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the unique identifier of the file within the file server.
@@ -42,32 +46,35 @@ public sealed class File : IEquatable<File>
     [JsonConstructor]
     private File(Guid id, string target, string name, string extension, string mimeType, long size)
     {
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.FileIdCannotBeEmpty);
-
-        var normalizedTarget = target?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedTarget, Exceptions.Layer.None, Errors.TargetCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedTarget.Length, 512, Exceptions.Layer.None, Errors.TargetCannotExceed512Characters);
-
-        var normalizedName = name?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedName.Length, 255, Exceptions.Layer.None, Errors.NameCannotExceed255Characters);
-
-        var normalizedExtension = extension?.Trim().TrimStart('.').ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedExtension, Exceptions.Layer.None, Errors.ExtensionCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedExtension.Length, 20, Exceptions.Layer.None, Errors.ExtensionCannotExceed20Characters);
-
-        var normalizedMimeType = mimeType?.Trim().ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedMimeType, Exceptions.Layer.None, Errors.MimeTypeCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedMimeType.Length, 127, Exceptions.Layer.None, Errors.MimeTypeCannotExceed127Characters);
-
-        Guard.IsLessThan(size, 0L, Exceptions.Layer.None, Errors.SizeCannotBeNegative);
-
         Id = id;
-        Target = normalizedTarget;
-        Name = normalizedName;
-        Extension = normalizedExtension;
-        MimeType = normalizedMimeType;
+        Target = target?.Trim() ?? string.Empty;
+        Name = name?.Trim() ?? string.Empty;
+        Extension = extension?.Trim().TrimStart('.').ToLowerInvariant() ?? string.Empty;
+        MimeType = mimeType?.Trim().ToLowerInvariant() ?? string.Empty;
         Size = size;
+    }
+
+    /// <summary>
+    /// Checks the identifier, the lengths of the texts and the size of the file reference.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(Id, Exceptions.Layer.None, Errors.FileIdCannotBeEmpty);
+
+        Guard.IsNullOrEmpty(Target, Exceptions.Layer.None, Errors.TargetCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(Target.Length, 512, Exceptions.Layer.None, Errors.TargetCannotExceed512Characters);
+
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(Name.Length, 255, Exceptions.Layer.None, Errors.NameCannotExceed255Characters);
+
+        Guard.IsNullOrEmpty(Extension, Exceptions.Layer.None, Errors.ExtensionCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(Extension.Length, 20, Exceptions.Layer.None, Errors.ExtensionCannotExceed20Characters);
+
+        Guard.IsNullOrEmpty(MimeType, Exceptions.Layer.None, Errors.MimeTypeCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(MimeType.Length, 127, Exceptions.Layer.None, Errors.MimeTypeCannotExceed127Characters);
+
+        Guard.IsLessThan(Size, 0L, Exceptions.Layer.None, Errors.SizeCannotBeNegative);
     }
 
     /// <summary>
@@ -82,7 +89,11 @@ public sealed class File : IEquatable<File>
     /// <returns>A new <see cref="File"/> instance.</returns>
     public static File Create(Guid id, string target, string name, string extension, string mimeType, long size)
     {
-        return new File(id, target, name, extension, mimeType, size);
+        var file = new File(id, target, name, extension, mimeType, size);
+
+        file.EnsureValid();
+
+        return file;
     }
 
     /// <summary>

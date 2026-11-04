@@ -8,7 +8,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// or a percentage of the original amount.
 /// Amounts are stored in minor units (e.g., cents) to avoid floating-point precision loss.
 /// </summary>
-public sealed class PenaltyRule : IEquatable<PenaltyRule>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class PenaltyRule : IEquatable<PenaltyRule>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the penalty type. Valid values are "ANNUAL_EFFECTIVE_RATE", "DAILY_RATE", "FIXED", or "PERCENTAGE".
@@ -62,27 +66,31 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
     [JsonConstructor]
     private PenaltyRule(string type, int rateBasisPoints, long fixedAmount, string currency, int graceDays, long maxPenaltyAmount)
     {
-        var normalizedType = type?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
-
-        Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, Errors.TypeCannotBeNullOrEmpty);
-        Guard.IsFalse(
-            normalizedType is "ANNUAL_EFFECTIVE_RATE" or "DAILY_RATE" or "FIXED" or "PERCENTAGE",
-            Exceptions.Layer.None,
-            Errors.TypeMustBeDAILYRATEFIXEDOrPERCENTAGE);
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
-        Guard.IsLessThan(rateBasisPoints, 0, Exceptions.Layer.None, Errors.RateBasisPointsCannotBeNegative);
-        Guard.IsLessThan(fixedAmount, 0L, Exceptions.Layer.None, Errors.FixedAmountCannotBeNegative);
-        Guard.IsLessThan(graceDays, 0, Exceptions.Layer.None, Errors.GraceDaysCannotBeNegative);
-        Guard.IsLessThan(maxPenaltyAmount, 0L, Exceptions.Layer.None, Errors.MaxPenaltyAmountCannotBeNegative);
-
-        Type = normalizedType;
+        Type = type?.Trim().ToUpperInvariant() ?? string.Empty;
         RateBasisPoints = rateBasisPoints;
         FixedAmount = fixedAmount;
-        Currency = normalizedCurrency;
+        Currency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
         GraceDays = graceDays;
         MaxPenaltyAmount = maxPenaltyAmount;
+    }
+
+    /// <summary>
+    /// Checks the type, the currency and that no amount, rate or day count is negative.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Type, Exceptions.Layer.None, Errors.TypeCannotBeNullOrEmpty);
+        Guard.IsFalse(
+            Type is "ANNUAL_EFFECTIVE_RATE" or "DAILY_RATE" or "FIXED" or "PERCENTAGE",
+            Exceptions.Layer.None,
+            Errors.TypeMustBeDAILYRATEFIXEDOrPERCENTAGE);
+        Guard.IsNullOrEmpty(Currency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
+        Guard.IsFalse(Currency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
+        Guard.IsLessThan(RateBasisPoints, 0, Exceptions.Layer.None, Errors.RateBasisPointsCannotBeNegative);
+        Guard.IsLessThan(FixedAmount, 0L, Exceptions.Layer.None, Errors.FixedAmountCannotBeNegative);
+        Guard.IsLessThan(GraceDays, 0, Exceptions.Layer.None, Errors.GraceDaysCannotBeNegative);
+        Guard.IsLessThan(MaxPenaltyAmount, 0L, Exceptions.Layer.None, Errors.MaxPenaltyAmountCannotBeNegative);
     }
 
     /// <summary>
@@ -95,7 +103,13 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
     /// <param name="maxPenaltyAmount">Maximum penalty cap in minor units. Zero means no cap. Defaults to 0.</param>
     /// <returns>A new <see cref="PenaltyRule"/> instance of type "ANNUAL_EFFECTIVE_RATE".</returns>
     public static PenaltyRule CreateAnnualEffectiveRate(int rateBasisPoints, string currency, int graceDays = 0, long maxPenaltyAmount = 0)
-        => new("ANNUAL_EFFECTIVE_RATE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
+    {
+        var penaltyRule = new PenaltyRule("ANNUAL_EFFECTIVE_RATE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
+
+        penaltyRule.EnsureValid();
+
+        return penaltyRule;
+    }
 
     /// <summary>
     /// Creates a daily-rate penalty rule (e.g., 1.50% per day after 5 grace days).
@@ -106,7 +120,13 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
     /// <param name="maxPenaltyAmount">Maximum penalty cap in minor units. Zero means no cap. Defaults to 0.</param>
     /// <returns>A new <see cref="PenaltyRule"/> instance of type "DAILY_RATE".</returns>
     public static PenaltyRule CreateDailyRate(int rateBasisPoints, string currency, int graceDays = 0, long maxPenaltyAmount = 0)
-        => new("DAILY_RATE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
+    {
+        var penaltyRule = new PenaltyRule("DAILY_RATE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
+
+        penaltyRule.EnsureValid();
+
+        return penaltyRule;
+    }
 
     /// <summary>
     /// Creates a fixed-amount penalty rule.
@@ -116,7 +136,13 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
     /// <param name="graceDays">Number of days before the penalty applies. Defaults to 0.</param>
     /// <returns>A new <see cref="PenaltyRule"/> instance of type "FIXED".</returns>
     public static PenaltyRule CreateFixed(long fixedAmount, string currency, int graceDays = 0)
-        => new("FIXED", 0, fixedAmount, currency, graceDays, 0);
+    {
+        var penaltyRule = new PenaltyRule("FIXED", 0, fixedAmount, currency, graceDays, 0);
+
+        penaltyRule.EnsureValid();
+
+        return penaltyRule;
+    }
 
     /// <summary>
     /// Creates a percentage-of-original penalty rule (e.g., 10% of the unpaid amount).
@@ -127,7 +153,13 @@ public sealed class PenaltyRule : IEquatable<PenaltyRule>
     /// <param name="maxPenaltyAmount">Maximum penalty cap in minor units. Zero means no cap. Defaults to 0.</param>
     /// <returns>A new <see cref="PenaltyRule"/> instance of type "PERCENTAGE".</returns>
     public static PenaltyRule CreatePercentage(int rateBasisPoints, string currency, int graceDays = 0, long maxPenaltyAmount = 0)
-        => new("PERCENTAGE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
+    {
+        var penaltyRule = new PenaltyRule("PERCENTAGE", rateBasisPoints, 0, currency, graceDays, maxPenaltyAmount);
+
+        penaltyRule.EnsureValid();
+
+        return penaltyRule;
+    }
 
     /// <summary>
     /// Gets the rate that accrues per day, as a factor (0.0006 for 0.06 %).

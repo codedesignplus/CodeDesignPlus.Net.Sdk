@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// Represents a currency with its associated properties such as code, symbol, and decimal digits.
 /// This immutable Value Object enforces ISO 4217 standards to prevent precision loss in financial calculations.
 /// </summary>
-public sealed class Currency : IEquatable<Currency>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class Currency : IEquatable<Currency>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the unique identifier for the currency.
@@ -43,26 +47,31 @@ public sealed class Currency : IEquatable<Currency>
     [JsonConstructor]
     private Currency(Guid currencyId, string name, string code, string symbol, short decimalDigits, short numericCode)
     {
-        var normalizedCode = code.Trim().ToUpperInvariant() ?? string.Empty;
-
-        Guard.GuidIsEmpty(currencyId, Exceptions.Layer.None, Errors.CurrencyIdIsEmpty);
-        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, Errors.NameIsRequired);
-        
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.CurrencyCodeIsRequired.With(name, code));
-        Guard.IsFalse(normalizedCode.Length == 3, Exceptions.Layer.None, Errors.CurrencyCodeLengthIsInvalid.With(name, code)); 
-        
-        Guard.IsNullOrEmpty(symbol, Exceptions.Layer.None, Errors.CurrencySymbolIsRequired.With(name, code));
-
-        Guard.IsNotInRange(numericCode, 1, 999, Exceptions.Layer.None, Errors.CurrencyNumericCodeIsInvalid.With(name, code));
-
-        Guard.IsLessThan(decimalDigits, 0, Exceptions.Layer.None, Errors.CurrencyDecimalDigitsAreInvalid.With(name, code));
-
         this.CurrencyId = currencyId;
         this.Name = name;
-        this.Code = normalizedCode;
+        this.Code = code?.Trim().ToUpperInvariant() ?? string.Empty;
         this.Symbol = symbol;
         this.DecimalDigits = decimalDigits;
         this.NumericCode = numericCode;
+    }
+
+    /// <summary>
+    /// Checks the identifier, the name, the ISO 4217 codes, the symbol and the decimal digits of the currency.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(CurrencyId, Exceptions.Layer.None, Errors.CurrencyIdIsEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.NameIsRequired);
+
+        Guard.IsNullOrEmpty(Code, Exceptions.Layer.None, Errors.CurrencyCodeIsRequired.With(Name, Code));
+        Guard.IsFalse(Code.Length == 3, Exceptions.Layer.None, Errors.CurrencyCodeLengthIsInvalid.With(Name, Code));
+
+        Guard.IsNullOrEmpty(Symbol, Exceptions.Layer.None, Errors.CurrencySymbolIsRequired.With(Name, Code));
+
+        Guard.IsNotInRange(NumericCode, 1, 999, Exceptions.Layer.None, Errors.CurrencyNumericCodeIsInvalid.With(Name, Code));
+
+        Guard.IsLessThan(DecimalDigits, 0, Exceptions.Layer.None, Errors.CurrencyDecimalDigitsAreInvalid.With(Name, Code));
     }
 
     /// <summary>
@@ -70,7 +79,11 @@ public sealed class Currency : IEquatable<Currency>
     /// </summary>
     public static Currency Create(Guid currencyId, string name, string code, string symbol, short decimalDigits, short numericCode)
     {
-        return new Currency(currencyId, name, code, symbol, decimalDigits, numericCode);
+        var currency = new Currency(currencyId, name, code, symbol, decimalDigits, numericCode);
+
+        currency.EnsureValid();
+
+        return currency;
     }
 
     /// <summary>

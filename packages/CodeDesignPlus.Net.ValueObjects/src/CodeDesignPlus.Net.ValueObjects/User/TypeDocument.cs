@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// Represents the type of identification document (e.g., CC, NIT, Passport).
 /// This immutable Value Object ensures document types are standardized across the ecosystem.
 /// </summary>
-public sealed class TypeDocument : IEquatable<TypeDocument>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class TypeDocument : IEquatable<TypeDocument>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the standard abbreviation or code for the document type (e.g., "CC", "NIT").
@@ -21,17 +25,20 @@ public sealed class TypeDocument : IEquatable<TypeDocument>
     [JsonConstructor]
     private TypeDocument(string code, string name)
     {
-        // Normalización: Aseguramos que el código siempre esté en mayúsculas sostenidas
-        var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedName = name?.Trim() ?? string.Empty;
+        Code = code?.Trim().ToUpperInvariant() ?? string.Empty;
+        Name = name?.Trim() ?? string.Empty;
+    }
 
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty2);
-        Guard.IsGreaterThan(normalizedCode.Length, 3, Exceptions.Layer.None, Errors.CodeCannotBeGreaterThan3Characters);
-        
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty2);
+    /// <summary>
+    /// Checks the code and the name of the document type.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Code, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty2);
+        Guard.IsGreaterThan(Code.Length, 3, Exceptions.Layer.None, Errors.CodeCannotBeGreaterThan3Characters);
 
-        this.Code = normalizedCode;
-        this.Name = normalizedName;
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty2);
     }
 
     /// <summary>
@@ -42,9 +49,12 @@ public sealed class TypeDocument : IEquatable<TypeDocument>
     /// <returns>A new instance of the <see cref="TypeDocument"/> class.</returns>
     public static TypeDocument Create(string code, string name)
     {
-        return new TypeDocument(code, name);
-    }
+        var typeDocument = new TypeDocument(code, name);
 
+        typeDocument.EnsureValid();
+
+        return typeDocument;
+    }
 
     /// <summary>
     /// Determines whether two <see cref="TypeDocument"/> instances are equal.

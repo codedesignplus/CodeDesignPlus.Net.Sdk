@@ -7,7 +7,11 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// Represents a simplified billing or shipping address snapshot.
 /// This immutable Value Object captures essential address components for payment processing.
 /// </summary>
-public sealed partial class Address : IEquatable<Address>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed partial class Address : IEquatable<Address>, IValidatableValueObject
 {
     [GeneratedRegex(@"^[A-Z]{2}$", RegexOptions.Compiled)]
     private static partial Regex CountryRegex();
@@ -43,39 +47,40 @@ public sealed partial class Address : IEquatable<Address>
     [JsonConstructor]
     private Address(string street, string country, string? state, string city, string? postalCode)
     {
-        var normalizedStreet = street?.Trim() ?? string.Empty;
-        var normalizedCountry = country?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedCity = city?.Trim() ?? string.Empty;
+        Street = street?.Trim() ?? string.Empty;
+        Country = country?.Trim().ToUpperInvariant() ?? string.Empty;
+        State = state?.Trim();
+        City = city?.Trim() ?? string.Empty;
+        PostalCode = postalCode?.Trim();
+    }
 
-        Guard.IsNullOrEmpty(normalizedStreet, Exceptions.Layer.None, Errors.StreetCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedStreet.Length, 100, Exceptions.Layer.None, Errors.StreetCannotBeGreaterThan100Characters);
+    /// <summary>
+    /// Checks the street, the ISO 3166-1 country code and the city, and the state and postal code when they are present.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Street, Exceptions.Layer.None, Errors.StreetCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(Street.Length, 100, Exceptions.Layer.None, Errors.StreetCannotBeGreaterThan100Characters);
 
-        Guard.IsNullOrEmpty(normalizedCountry, Exceptions.Layer.None, Errors.CountryCannotBeNullOrEmpty);
-        Guard.IsFalse(CountryRegex().IsMatch(normalizedCountry), Exceptions.Layer.None, Errors.CountryMustBeAValidISO31661);
+        Guard.IsNullOrEmpty(Country, Exceptions.Layer.None, Errors.CountryCannotBeNullOrEmpty);
+        Guard.IsFalse(CountryRegex().IsMatch(Country), Exceptions.Layer.None, Errors.CountryMustBeAValidISO31661);
 
-        Guard.IsNullOrEmpty(normalizedCity, Exceptions.Layer.None, Errors.CityCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedCity.Length, 50, Exceptions.Layer.None, Errors.CityCannotBeGreaterThan50Characters);
+        Guard.IsNullOrEmpty(City, Exceptions.Layer.None, Errors.CityCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(City.Length, 50, Exceptions.Layer.None, Errors.CityCannotBeGreaterThan50Characters);
 
         // Optional fields validation - only validate if provided
-        if (state != null)
+        if (State != null)
         {
-            var normalizedState = state.Trim();
-            Guard.IsNullOrEmpty(normalizedState, Exceptions.Layer.None, Errors.StateCannotBeEmptyWhenProvided);
-            Guard.IsGreaterThan(normalizedState.Length, 40, Exceptions.Layer.None, Errors.StateCannotBeGreaterThan40Characters);
-            this.State = normalizedState;
+            Guard.IsNullOrEmpty(State, Exceptions.Layer.None, Errors.StateCannotBeEmptyWhenProvided);
+            Guard.IsGreaterThan(State.Length, 40, Exceptions.Layer.None, Errors.StateCannotBeGreaterThan40Characters);
         }
 
-        if (postalCode != null)
+        if (PostalCode != null)
         {
-            var normalizedPostalCode = postalCode.Trim();
-            Guard.IsNullOrEmpty(normalizedPostalCode, Exceptions.Layer.None, Errors.PostalCodeCannotBeEmptyWhenProvided);
-            Guard.IsFalse(PostalCodeRegex().IsMatch(normalizedPostalCode), Exceptions.Layer.None, Errors.PostalCodeMustContainOnlyDigits18);
-            this.PostalCode = normalizedPostalCode;
+            Guard.IsNullOrEmpty(PostalCode, Exceptions.Layer.None, Errors.PostalCodeCannotBeEmptyWhenProvided);
+            Guard.IsFalse(PostalCodeRegex().IsMatch(PostalCode), Exceptions.Layer.None, Errors.PostalCodeMustContainOnlyDigits18);
         }
-
-        this.Street = normalizedStreet;
-        this.Country = normalizedCountry;
-        this.City = normalizedCity;
     }
 
     /// <summary>
@@ -90,7 +95,11 @@ public sealed partial class Address : IEquatable<Address>
     /// <returns>A new instance of the <see cref="Address"/> class.</returns>
     public static Address Create(string street, string country, string state, string city, string postalCode)
     {
-        return new Address(street, country, state, city, postalCode);
+        var address = new Address(street, country, state, city, postalCode);
+
+        address.EnsureValid();
+
+        return address;
     }
 
     /// <summary>
@@ -104,7 +113,11 @@ public sealed partial class Address : IEquatable<Address>
     /// <returns>A new instance of the <see cref="Address"/> class.</returns>
     public static Address CreateMinimal(string street, string country, string city)
     {
-        return new Address(street, country, null, city, null);
+        var address = new Address(street, country, null, city, null);
+
+        address.EnsureValid();
+
+        return address;
     }
 
     /// <summary>
@@ -119,7 +132,11 @@ public sealed partial class Address : IEquatable<Address>
     /// <returns>A new instance of the <see cref="Address"/> class.</returns>
     public static Address CreateWithoutPostalCode(string street, string country, string state, string city)
     {
-        return new Address(street, country, state, city, null);
+        var address = new Address(street, country, state, city, null);
+
+        address.EnsureValid();
+
+        return address;
     }
 
     /// <summary>

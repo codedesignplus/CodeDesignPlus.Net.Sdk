@@ -32,6 +32,7 @@ In microservice architectures, dealing with concepts like Money, Currency, and G
 - **Strict Immutability**: All Value Objects are completely immutable. Once created, their state cannot be altered, ensuring thread safety and historical accuracy (Snapshot pattern).
 - **Value Equality**: Implements `IEquatable<T>` and overrides operators (`==`, `!=`) so objects are compared by their structural values, not their memory references.
 - **Fail-Fast Validation**: Built-in Domain Guards ensure that invalid states (like negative taxes or invalid ISO codes) are rejected at the exact moment of creation.
+- **Reads Never Fail**: The constructor only hydrates, so Mongo, the cache and event deserialization can always read a stored value, even one a rule now rejects. The invariants live in `EnsureValid()` (`IValidatableValueObject`): the factory methods call it, and `CodeDesignPlus.Net.Microservice.Commons` calls it on every value object a MediatR request carries.
 
 ## Installation
 To install the package, run the following command:

@@ -7,7 +7,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// The rate is stored in basis points to avoid floating-point precision issues
 /// (e.g., 1900 = 19.00%, 700 = 7.00%).
 /// </summary>
-public sealed class TaxDefinition : IEquatable<TaxDefinition>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class TaxDefinition : IEquatable<TaxDefinition>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the tax code (e.g., "IVA", "IGV", "ITBMS", "VAT").
@@ -39,20 +43,24 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
     [JsonConstructor]
     private TaxDefinition(string code, string name, int rateBasisPoints, bool isInclusive, string currency)
     {
-        var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
-
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty);
-        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
-        Guard.IsNotInRange(rateBasisPoints, 0, 100000, Exceptions.Layer.None, Errors.RateBasisPointsMustBeBetween0And100000);
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
-
-        Code = normalizedCode;
+        Code = code?.Trim().ToUpperInvariant() ?? string.Empty;
         Name = name;
         RateBasisPoints = rateBasisPoints;
         IsInclusive = isInclusive;
-        Currency = normalizedCurrency;
+        Currency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Checks the code, the name, the rate and the currency of the tax.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Code, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
+        Guard.IsNotInRange(RateBasisPoints, 0, 100000, Exceptions.Layer.None, Errors.RateBasisPointsMustBeBetween0And100000);
+        Guard.IsNullOrEmpty(Currency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
+        Guard.IsFalse(Currency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
     }
 
     /// <summary>
@@ -77,7 +85,11 @@ public sealed class TaxDefinition : IEquatable<TaxDefinition>
     /// </remarks>
     public static TaxDefinition Create(string code, string name, int rateBasisPoints, bool isInclusive, string currency)
     {
-        return new TaxDefinition(code, name, rateBasisPoints, isInclusive, currency);
+        var taxDefinition = new TaxDefinition(code, name, rateBasisPoints, isInclusive, currency);
+
+        taxDefinition.EnsureValid();
+
+        return taxDefinition;
     }
 
     /// <summary>

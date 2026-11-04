@@ -7,7 +7,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Common;
 /// Useful for booking windows, lease terms, availability slots, and reporting periods.
 /// Both values are stored as UTC to support multi-timezone deployments.
 /// </summary>
-public sealed class DateRange : IEquatable<DateRange>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class DateRange : IEquatable<DateRange>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the start of the range (UTC).
@@ -27,12 +31,19 @@ public sealed class DateRange : IEquatable<DateRange>
     [JsonConstructor]
     private DateRange(DateTimeOffset start, DateTimeOffset end)
     {
-        Guard.IsTrue(start == default, Exceptions.Layer.None, Errors.StartCannotBeTheDefaultValue);
-        Guard.IsTrue(end == default, Exceptions.Layer.None, Errors.EndCannotBeTheDefaultValue);
-        Guard.IsTrue(end <= start, Exceptions.Layer.None, Errors.EndMustBeAfterStart);
-
         Start = start.ToUniversalTime();
         End = end.ToUniversalTime();
+    }
+
+    /// <summary>
+    /// Checks that both ends are set and that the end comes after the start.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown when an end is the default value or the end is not after the start.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsTrue(Start == default, Exceptions.Layer.None, Errors.StartCannotBeTheDefaultValue);
+        Guard.IsTrue(End == default, Exceptions.Layer.None, Errors.EndCannotBeTheDefaultValue);
+        Guard.IsTrue(End <= Start, Exceptions.Layer.None, Errors.EndMustBeAfterStart);
     }
 
     /// <summary>
@@ -42,7 +53,13 @@ public sealed class DateRange : IEquatable<DateRange>
     /// <param name="end">The end of the range (UTC).</param>
     /// <returns>A new <see cref="DateRange"/> instance.</returns>
     public static DateRange Create(DateTimeOffset start, DateTimeOffset end)
-        => new(start, end);
+    {
+        var range = new DateRange(start, end);
+
+        range.EnsureValid();
+
+        return range;
+    }
 
     /// <summary>
     /// Creates a <see cref="DateRange"/> starting now (UTC) with a given duration.
@@ -52,7 +69,8 @@ public sealed class DateRange : IEquatable<DateRange>
     public static DateRange FromNow(TimeSpan duration)
     {
         var now = DateTimeOffset.UtcNow;
-        return new DateRange(now, now.Add(duration));
+
+        return Create(now, now.Add(duration));
     }
 
     /// <summary>

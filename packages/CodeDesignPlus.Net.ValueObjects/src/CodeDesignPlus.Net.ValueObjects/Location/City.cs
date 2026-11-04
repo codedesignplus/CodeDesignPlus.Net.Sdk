@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Location;
 /// Represents a geographical city or municipality.
 /// This immutable Value Object standardizes city details across the microservices ecosystem.
 /// </summary>
-public sealed class City : IEquatable<City>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class City : IEquatable<City>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the unique identifier for the city.
@@ -27,15 +31,19 @@ public sealed class City : IEquatable<City>
     [JsonConstructor]
     private City(Guid id, string name, string? timezone)
     {
-        var normalizedName = name?.Trim() ?? string.Empty;
-        var normalizedTimezone = timezone?.Trim();
+        Id = id;
+        Name = name?.Trim() ?? string.Empty;
+        Timezone = timezone?.Trim();
+    }
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.CityIDCannotBeEmpty);
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.CityNameCannotBeNullOrEmpty);
-
-        this.Id = id;
-        this.Name = normalizedName;
-        this.Timezone = normalizedTimezone;
+    /// <summary>
+    /// Checks the identifier and the name of the city.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(Id, Exceptions.Layer.None, Errors.CityIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.CityNameCannotBeNullOrEmpty);
     }
 
     /// <summary>
@@ -43,7 +51,11 @@ public sealed class City : IEquatable<City>
     /// </summary>
     public static City Create(Guid id, string name, string? timezone)
     {
-        return new City(id, name, timezone);
+        var city = new City(id, name, timezone);
+
+        city.EnsureValid();
+
+        return city;
     }
 
     /// <summary>

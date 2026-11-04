@@ -8,7 +8,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// to prevent floating-point precision loss in distributed systems and payment gateways.
 /// Currency properties are based on the ISO 4217 international standard.
 /// </summary>
-public sealed class Money : IEquatable<Money>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class Money : IEquatable<Money>, IValidatableValueObject
 {
     /// <summary>
     /// The amount of money in the minor unit (e.g., 12345 cents instead of 123.45).
@@ -21,20 +25,34 @@ public sealed class Money : IEquatable<Money>
     public string Currency { get; private set; }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="Money"/> class directly from a minor unit amount.
+    /// Initializes a new instance of the <see cref="Money"/> class directly from a minor unit amount, without validating it.
     /// </summary>
     /// <param name="amount">The amount of money in the minor unit.</param>
     /// <param name="currency">The currency code.</param>
     [JsonConstructor]
     private Money(long amount, string currency)
     {
-        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
-        
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCodeCannotBeNullOrEmpty);
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyCodeMustBeExactly3CharactersISO);
-
         Amount = amount;
-        Currency = normalizedCurrency;
+        Currency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Checks that the currency is a 3-letter ISO 4217 code.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown when the currency is empty or is not 3 characters long.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Currency, Exceptions.Layer.None, Errors.CurrencyCodeCannotBeNullOrEmpty);
+        Guard.IsFalse(Currency.Length == 3, Exceptions.Layer.None, Errors.CurrencyCodeMustBeExactly3CharactersISO);
+    }
+
+    private static Money Valid(long amount, string currency)
+    {
+        var money = new Money(amount, currency);
+
+        money.EnsureValid();
+
+        return money;
     }
     /// <summary>
     /// Creates a Money instance from a decimal value representing the main unit (e.g., 10.50 USD).
@@ -51,7 +69,7 @@ public sealed class Money : IEquatable<Money>
         var factor = (decimal)Math.Pow(10, decimalPlaces);
         var minorUnitAmount = (long)Math.Round(amountInMainUnit * factor, MidpointRounding.AwayFromZero);
 
-        return new Money(minorUnitAmount, currency);
+        return Valid(minorUnitAmount, currency);
     }
 
     /// <summary>
@@ -61,8 +79,8 @@ public sealed class Money : IEquatable<Money>
     /// <param name="currency">The currency code (ISO 4217).</param>
     /// <returns>A new Money instance.</returns>
     public static Money FromLong(long amountInMinorUnit, string currency)
-    {        
-        return new Money(amountInMinorUnit, currency);
+    {
+        return Valid(amountInMinorUnit, currency);
     }
 
     /// <summary>
@@ -76,7 +94,7 @@ public sealed class Money : IEquatable<Money>
     /// <returns>A Money instance with zero value and "XXX" currency.</returns>
     public static Money Zero()
     {
-        return new Money(0L, "XXX");
+        return Valid(0L, "XXX");
     }
 
     /// <summary>
@@ -89,7 +107,7 @@ public sealed class Money : IEquatable<Money>
     /// <returns>A Money instance with zero value and the specified currency.</returns>
     public static Money Zero(string currency)
     {
-        return new Money(0L, currency);
+        return Valid(0L, currency);
     }
 
     /// <summary>

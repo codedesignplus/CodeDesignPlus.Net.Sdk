@@ -22,6 +22,9 @@ public static class MediatRExtensions
         services.AddMediatR(config => {
             config.RegisterServicesFromAssemblies(assembly);
 
+            // The value objects of the request first: their constructor no longer validates, and a request with an
+            // invalid one is rejected with the error it was rejected with when the constructor did (Kappali pendings/737).
+            config.AddOpenBehavior(typeof(ValueObjectValidationPipeline<,>));
             config.AddOpenBehavior(typeof(ValidationPipeline<,>));
         });
 

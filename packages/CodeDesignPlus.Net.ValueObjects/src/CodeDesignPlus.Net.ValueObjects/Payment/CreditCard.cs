@@ -7,7 +7,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Payment;
 /// Represents a tokenized, PCI-DSS compliant credit card snapshot.
 /// Stores only non-sensitive data safe for database persistence.
 /// </summary>
-public sealed partial class CreditCard : IEquatable<CreditCard>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed partial class CreditCard : IEquatable<CreditCard>, IValidatableValueObject
 {
     // Asumiendo formato YYYY/MM según tu diseño original
     [GeneratedRegex(@"^\d{4}/\d{2}$", RegexOptions.Compiled)]
@@ -44,27 +48,28 @@ public sealed partial class CreditCard : IEquatable<CreditCard>
     [JsonConstructor]
     private CreditCard(string token, string last4Digits, string expirationDate, string cardHolderName, int? installmentsNumber)
     {
-        var normalizedToken = token?.Trim() ?? string.Empty;
-        var normalizedLast4 = last4Digits?.Trim() ?? string.Empty;
-        var normalizedExpirationDate = expirationDate?.Trim() ?? string.Empty;
-        var normalizedCardHolderName = cardHolderName?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedInstallmentsNumber = installmentsNumber ?? 1;
+        Token = token?.Trim() ?? string.Empty;
+        Last4Digits = last4Digits?.Trim() ?? string.Empty;
+        ExpirationDate = expirationDate?.Trim() ?? string.Empty;
+        CardHolderName = cardHolderName?.Trim().ToUpperInvariant() ?? string.Empty;
+        InstallmentsNumber = installmentsNumber ?? 1;
+    }
 
-        Guard.IsNullOrEmpty(normalizedToken, Exceptions.Layer.None, Errors.CreditCardTokenCannotBeNullOrEmpty);
+    /// <summary>
+    /// Checks the token, the last four digits, the expiration date and the cardholder name.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Token, Exceptions.Layer.None, Errors.CreditCardTokenCannotBeNullOrEmpty);
 
-        Guard.IsNullOrEmpty(normalizedLast4, Exceptions.Layer.None, Errors.CreditCardLast4DigitsCannotBeNull);
-        Guard.IsFalse(Last4DigitsRegex().IsMatch(normalizedLast4), Exceptions.Layer.None, Errors.CreditCardLast4DigitsMustBeExactly);
+        Guard.IsNullOrEmpty(Last4Digits, Exceptions.Layer.None, Errors.CreditCardLast4DigitsCannotBeNull);
+        Guard.IsFalse(Last4DigitsRegex().IsMatch(Last4Digits), Exceptions.Layer.None, Errors.CreditCardLast4DigitsMustBeExactly);
 
-        Guard.IsNullOrEmpty(normalizedExpirationDate, Exceptions.Layer.None, Errors.CreditCardExpirationDateCannotBeNullOr);
-        Guard.IsFalse(ExpirationDateRegex().IsMatch(normalizedExpirationDate), Exceptions.Layer.None, Errors.CreditCardExpirationDateMustBeInValid);
+        Guard.IsNullOrEmpty(ExpirationDate, Exceptions.Layer.None, Errors.CreditCardExpirationDateCannotBeNullOr);
+        Guard.IsFalse(ExpirationDateRegex().IsMatch(ExpirationDate), Exceptions.Layer.None, Errors.CreditCardExpirationDateMustBeInValid);
 
-        Guard.IsNullOrEmpty(normalizedCardHolderName, Exceptions.Layer.None, Errors.CreditCardHolderNameCannotBeNullOr);
-
-        this.Token = normalizedToken;
-        this.Last4Digits = normalizedLast4;
-        this.ExpirationDate = normalizedExpirationDate;
-        this.CardHolderName = normalizedCardHolderName;
-        this.InstallmentsNumber = normalizedInstallmentsNumber;
+        Guard.IsNullOrEmpty(CardHolderName, Exceptions.Layer.None, Errors.CreditCardHolderNameCannotBeNullOr);
     }
     
     /// <summary>
@@ -78,7 +83,11 @@ public sealed partial class CreditCard : IEquatable<CreditCard>
     /// <returns>A new immutable snapshot of the credit card's details.</returns>
     public static CreditCard Create(string token, string last4Digits, string expirationDate, string cardHolderName, int? installmentsNumber = null)
     {
-        return new CreditCard(token, last4Digits, expirationDate, cardHolderName, installmentsNumber);
+        var creditCard = new CreditCard(token, last4Digits, expirationDate, cardHolderName, installmentsNumber);
+
+        creditCard.EnsureValid();
+
+        return creditCard;
     }
 
     /// <summary>

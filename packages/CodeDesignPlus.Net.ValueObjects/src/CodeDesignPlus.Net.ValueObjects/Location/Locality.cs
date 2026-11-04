@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Location;
 /// Represents a locality, borough, or administrative district within a city.
 /// Useful for modeling complex urban structures (e.g., Kennedy, Chapinero, or Usaquén).
 /// </summary>
-public sealed class Locality : IEquatable<Locality>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class Locality : IEquatable<Locality>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the unique identifier for the locality.
@@ -21,13 +25,18 @@ public sealed class Locality : IEquatable<Locality>
     [JsonConstructor]
     private Locality(Guid id, string name)
     {
-        var normalizedName = name?.Trim() ?? string.Empty;
+        Id = id;
+        Name = name?.Trim() ?? string.Empty;
+    }
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.LocalityIDCannotBeEmpty);
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.LocalityNameCannotBeNullOrEmpty);
-
-        this.Id = id;
-        this.Name = normalizedName;
+    /// <summary>
+    /// Checks the identifier and the name of the locality.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(Id, Exceptions.Layer.None, Errors.LocalityIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.LocalityNameCannotBeNullOrEmpty);
     }
 
     /// <summary>
@@ -35,7 +44,11 @@ public sealed class Locality : IEquatable<Locality>
     /// </summary>
     public static Locality Create(Guid id, string name)
     {
-        return new Locality(id, name);
+        var locality = new Locality(id, name);
+
+        locality.EnsureValid();
+
+        return locality;
     }
 
     /// <summary>

@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Location;
 /// Represents a geographical state, province, or department.
 /// This immutable Value Object standardizes location details across the microservices ecosystem.
 /// </summary>
-public sealed class State : IEquatable<State>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class State : IEquatable<State>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the unique identifier for the state.
@@ -26,16 +30,20 @@ public sealed class State : IEquatable<State>
     [JsonConstructor]
     private State(Guid id, string name, string code)
     {
-        var normalizedName = name?.Trim() ?? string.Empty;
-        var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
+        Id = id;
+        Name = name?.Trim() ?? string.Empty;
+        Code = code?.Trim().ToUpperInvariant() ?? string.Empty;
+    }
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.StateIDCannotBeEmpty);
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.StateNameCannotBeNullOrEmpty);
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.StateCodeCannotBeNullOrEmpty);
-
-        this.Id = id;
-        this.Name = normalizedName;
-        this.Code = normalizedCode;
+    /// <summary>
+    /// Checks the identifier, the name and the code of the state.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(Id, Exceptions.Layer.None, Errors.StateIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.StateNameCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(Code, Exceptions.Layer.None, Errors.StateCodeCannotBeNullOrEmpty);
     }
 
     /// <summary>
@@ -43,7 +51,11 @@ public sealed class State : IEquatable<State>
     /// </summary>
     public static State Create(Guid id, string name, string code)
     {
-        return new State(id, name, code);
+        var state = new State(id, name, code);
+
+        state.EnsureValid();
+
+        return state;
     }
 
     /// <summary>

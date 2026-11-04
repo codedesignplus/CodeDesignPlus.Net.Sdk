@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Location;
 /// Represents a comprehensive geographical location.
 /// Aggregates all hierarchical geographic components into a single, immutable snapshot.
 /// </summary>
-public sealed class Location : IEquatable<Location>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class Location : IEquatable<Location>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the country component of the location.
@@ -48,24 +52,35 @@ public sealed class Location : IEquatable<Location>
     [JsonConstructor]
     private Location(Country country, State state, City city, Locality? locality, Neighborhood? neighborhood, string address, string postalCode)
     {
-        var normalizedAddress = address?.Trim() ?? string.Empty;
-        var normalizedPostalCode = postalCode?.Trim() ?? string.Empty;
+        Country = country;
+        State = state;
+        City = city;
+        Locality = locality;
+        Neighborhood = neighborhood;
+        Address = address?.Trim() ?? string.Empty;
+        PostalCode = postalCode?.Trim() ?? string.Empty;
+    }
 
-        Guard.IsNull(country, Exceptions.Layer.None, Errors.CountryCannotBeNull);
-        Guard.IsNull(state, Exceptions.Layer.None, Errors.StateCannotBeNull);
-        Guard.IsNull(city, Exceptions.Layer.None, Errors.CityCannotBeNull);
-        Guard.IsTrue(neighborhood is not null && locality is null, Exceptions.Layer.None, Errors.NeighborhoodRequiresLocality);
+    /// <summary>
+    /// Checks that the country, the state and the city are present, the address and the postal code, and each part of the
+    /// location.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNull(Country, Exceptions.Layer.None, Errors.CountryCannotBeNull);
+        Guard.IsNull(State, Exceptions.Layer.None, Errors.StateCannotBeNull);
+        Guard.IsNull(City, Exceptions.Layer.None, Errors.CityCannotBeNull);
+        Guard.IsTrue(Neighborhood is not null && Locality is null, Exceptions.Layer.None, Errors.NeighborhoodRequiresLocality);
 
-        Guard.IsNullOrEmpty(normalizedAddress, Exceptions.Layer.None, Errors.AddressCannotBeNullOrEmpty);
-        Guard.IsNullOrEmpty(normalizedPostalCode, Exceptions.Layer.None, Errors.PostalCodeCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(Address, Exceptions.Layer.None, Errors.AddressCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(PostalCode, Exceptions.Layer.None, Errors.PostalCodeCannotBeNullOrEmpty);
 
-        this.Country = country;
-        this.State = state;
-        this.City = city;
-        this.Locality = locality;
-        this.Neighborhood = neighborhood;
-        this.Address = normalizedAddress;
-        this.PostalCode = normalizedPostalCode;
+        Country.EnsureValid();
+        State.EnsureValid();
+        City.EnsureValid();
+        Locality?.EnsureValid();
+        Neighborhood?.EnsureValid();
     }
 
     /// <summary>
@@ -81,7 +96,11 @@ public sealed class Location : IEquatable<Location>
     /// <returns>A new instance of the Location value object.</returns>
     public static Location Create(Country country, State state, City city, Locality? locality, Neighborhood? neighborhood, string address, string postalCode)
     {
-        return new Location(country, state, city, locality, neighborhood, address, postalCode);
+        var location = new Location(country, state, city, locality, neighborhood, address, postalCode);
+
+        location.EnsureValid();
+
+        return location;
     }
 
     /// <summary>

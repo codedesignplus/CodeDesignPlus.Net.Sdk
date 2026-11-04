@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Payment;
 /// Represents the selected payment method. 
 /// Acts as a discriminated union ensuring only one payment type (e.g., PSE XOR CreditCard) is active at a time.
 /// </summary>
-public sealed class PaymentMethod : IEquatable<PaymentMethod>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class PaymentMethod : IEquatable<PaymentMethod>, IValidatableValueObject
 {
     /// <summary>
     /// The type representing the payment method.
@@ -24,18 +28,27 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
     [JsonConstructor]
     private PaymentMethod(string type, Pse? pse, CreditCard? creditCard)
     {
-        var normalizedType = type?.Trim().ToUpperInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedType, Exceptions.Layer.None, Errors.TypeOfThePaymentMethodCannotBeNull);
+        Type = type?.Trim().ToUpperInvariant() ?? string.Empty;
+        Pse = pse;
+        CreditCard = creditCard;
+    }
 
-        bool bothAreNull = pse == null && creditCard == null;
+    /// <summary>
+    /// Checks the type, that exactly one of the payment details is present, and the details themselves.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Type, Exceptions.Layer.None, Errors.TypeOfThePaymentMethodCannotBeNull);
+
+        bool bothAreNull = Pse == null && CreditCard == null;
         Guard.IsTrue(bothAreNull, Exceptions.Layer.None, Errors.PaymentMethodDetailsCannotBeNull);
 
-        bool bothAreProvided = pse != null && creditCard != null;
+        bool bothAreProvided = Pse != null && CreditCard != null;
         Guard.IsTrue(bothAreProvided, Exceptions.Layer.None, Errors.OnlyOnePaymentMethodIsAllowed);
 
-        this.Type = normalizedType;
-        this.Pse = pse;
-        this.CreditCard = creditCard;
+        Pse?.EnsureValid();
+        CreditCard?.EnsureValid();
     }
 
     /// <summary>
@@ -47,7 +60,11 @@ public sealed class PaymentMethod : IEquatable<PaymentMethod>
     /// <returns>A new instance of the PaymentMethod class.</returns>
     public static PaymentMethod Create(string type, Pse? pse, CreditCard? creditCard)
     {
-        return new PaymentMethod(type, pse, creditCard);
+        var paymentMethod = new PaymentMethod(type, pse, creditCard);
+
+        paymentMethod.EnsureValid();
+
+        return paymentMethod;
     }
 
     /// <summary>

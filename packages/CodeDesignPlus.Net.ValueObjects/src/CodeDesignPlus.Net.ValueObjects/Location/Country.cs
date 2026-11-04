@@ -9,7 +9,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Location;
 /// Represents a country according to the ISO 3166-1 standard.
 /// This immutable Value Object guarantees the structural integrity of geographic and financial relationships.
 /// </summary>
-public sealed class Country : IEquatable<Country>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class Country : IEquatable<Country>, IValidatableValueObject
 {
     /// <summary>
     /// The unique identifier for the country.
@@ -54,34 +58,40 @@ public sealed class Country : IEquatable<Country>
     [JsonConstructor]
     private Country(Guid id, string name, string alpha2, string alpha3, ushort code, string phoneCode, string timezone, Currency currency)
     {
-        var normalizedAlpha2 = alpha2?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedAlpha3 = alpha3?.Trim().ToUpperInvariant() ?? string.Empty;
+        Id = id;
+        Name = name;
+        Alpha2 = alpha2?.Trim().ToUpperInvariant() ?? string.Empty;
+        Alpha3 = alpha3?.Trim().ToUpperInvariant() ?? string.Empty;
+        Code = code;
+        PhoneCode = phoneCode;
+        Timezone = timezone;
+        Currency = currency;
+    }
 
-        Guard.GuidIsEmpty(id, Exceptions.Layer.None, Errors.CountryIDCannotBeEmpty);
-        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, Errors.CountryNameCannotBeEmpty);
+    /// <summary>
+    /// Checks the identifier, the name, the ISO 3166-1 codes, the phone code, the time zone and the currency of the country.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(Id, Exceptions.Layer.None, Errors.CountryIDCannotBeEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.CountryNameCannotBeEmpty);
 
-        Guard.IsNullOrEmpty(normalizedAlpha2, Exceptions.Layer.None, Errors.CountryAlpha2CodeCannotBeEmpty);
-        Guard.IsFalse(normalizedAlpha2.Length == 2, Exceptions.Layer.None, Errors.CountryAlpha2CodeLengthIsInvalid);
+        Guard.IsNullOrEmpty(Alpha2, Exceptions.Layer.None, Errors.CountryAlpha2CodeCannotBeEmpty);
+        Guard.IsFalse(Alpha2.Length == 2, Exceptions.Layer.None, Errors.CountryAlpha2CodeLengthIsInvalid);
 
-        Guard.IsNullOrEmpty(normalizedAlpha3, Exceptions.Layer.None, Errors.CountryAlpha3CodeCannotBeEmpty);
-        Guard.IsFalse(normalizedAlpha3.Length == 3, Exceptions.Layer.None, Errors.CountryAlpha3CodeLengthIsInvalid);
+        Guard.IsNullOrEmpty(Alpha3, Exceptions.Layer.None, Errors.CountryAlpha3CodeCannotBeEmpty);
+        Guard.IsFalse(Alpha3.Length == 3, Exceptions.Layer.None, Errors.CountryAlpha3CodeLengthIsInvalid);
 
-        Guard.IsNotInRange(code, 1, 999, Exceptions.Layer.None, Errors.CountryNumericCodeIsInvalid);
+        Guard.IsNotInRange(Code, 1, 999, Exceptions.Layer.None, Errors.CountryNumericCodeIsInvalid);
 
-        Guard.IsNullOrEmpty(phoneCode, Exceptions.Layer.None, Errors.CountryPhoneCodeCannotBeEmpty);
+        Guard.IsNullOrEmpty(PhoneCode, Exceptions.Layer.None, Errors.CountryPhoneCodeCannotBeEmpty);
 
-        Guard.IsNullOrEmpty(timezone, Exceptions.Layer.None, Errors.CountryTimezoneCannotBeEmpty);
+        Guard.IsNullOrEmpty(Timezone, Exceptions.Layer.None, Errors.CountryTimezoneCannotBeEmpty);
 
-        Guard.IsNull(currency, Exceptions.Layer.None, Errors.CountryCurrencyIsRequired);
+        Guard.IsNull(Currency, Exceptions.Layer.None, Errors.CountryCurrencyIsRequired);
 
-        this.Id = id;
-        this.Name = name;
-        this.Alpha2 = normalizedAlpha2;
-        this.Alpha3 = normalizedAlpha3;
-        this.Code = code;
-        this.PhoneCode = phoneCode;
-        this.Timezone = timezone;
-        this.Currency = currency;
+        Currency.EnsureValid();
     }
 
     /// <summary>
@@ -98,7 +108,11 @@ public sealed class Country : IEquatable<Country>
     /// <returns>A new instance of the <see cref="Country"/> class.</returns>
     public static Country Create(Guid id, string name, string alpha2, string alpha3, ushort code, string phoneCode, string timezone, Currency currency)
     {
-        return new Country(id, name, alpha2, alpha3, code, phoneCode, timezone, currency);
+        var country = new Country(id, name, alpha2, alpha3, code, phoneCode, timezone, currency);
+
+        country.EnsureValid();
+
+        return country;
     }
 
     /// <summary>

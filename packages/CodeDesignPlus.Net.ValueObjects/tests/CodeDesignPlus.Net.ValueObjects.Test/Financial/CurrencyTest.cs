@@ -134,11 +134,12 @@ public class CurrencyTest
     }
 
     [Fact]
-    public void Create_NullCode_ThrowsNullReferenceException()
+    public void Create_NullCode_ThrowsCodeDesignPlusException()
     {
-        // El constructor normaliza con `code.Trim()` antes de cualquier guard, asi que un codigo
-        // nulo revienta con NullReferenceException en vez de CodeDesignPlusException. Es un defecto
-        // conocido: este test fija el comportamiento actual para que el arreglo se note.
-        Assert.Throws<NullReferenceException>(() => Currency.Create(Guid.NewGuid(), Name, null!, Symbol, 2, 170));
+        // The constructor no longer validates nor dereferences the code: a null code reaches the guard (pendings/737).
+        // Act & Assert
+        var exception = Assert.Throws<CodeDesignPlusException>(() => Currency.Create(Guid.NewGuid(), Name, null!, Symbol, 2, 170));
+
+        Assert.Equal(Errors.CurrencyCodeIsRequired.Code, exception.Code);
     }
 }

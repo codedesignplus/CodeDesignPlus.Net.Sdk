@@ -7,7 +7,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// All monetary amounts are stored in minor units (e.g., cents) to avoid floating-point precision loss.
 /// <see cref="Subtotal"/>, <see cref="TaxAmount"/>, and <see cref="Total"/> are computed from the other fields.
 /// </summary>
-public sealed class LineItem : IEquatable<LineItem>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class LineItem : IEquatable<LineItem>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the product or service identifier.
@@ -70,21 +74,31 @@ public sealed class LineItem : IEquatable<LineItem>
     [JsonConstructor]
     private LineItem(Guid productId, string description, int quantity, long unitPrice, string currency, IReadOnlyList<TaxDefinition> taxes)
     {
-        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
-
-        Guard.GuidIsEmpty(productId, Exceptions.Layer.None, Errors.ProductIdCannotBeEmpty);
-        Guard.IsNullOrEmpty(description, Exceptions.Layer.None, Errors.DescriptionCannotBeNullOrEmpty);
-        Guard.IsLessThan(quantity, 1, Exceptions.Layer.None, Errors.QuantityMustBeAtLeast1);
-        Guard.IsLessThan(unitPrice, 0L, Exceptions.Layer.None, Errors.UnitPriceCannotBeNegative);
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
-
         ProductId = productId;
         Description = description;
         Quantity = quantity;
         UnitPrice = unitPrice;
-        Currency = normalizedCurrency;
+        Currency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
         Taxes = taxes ?? [];
+    }
+
+    /// <summary>
+    /// Checks the product, the description, the quantity, the unit price, the currency and each of the taxes of the line.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(ProductId, Exceptions.Layer.None, Errors.ProductIdCannotBeEmpty);
+        Guard.IsNullOrEmpty(Description, Exceptions.Layer.None, Errors.DescriptionCannotBeNullOrEmpty);
+        Guard.IsLessThan(Quantity, 1, Exceptions.Layer.None, Errors.QuantityMustBeAtLeast1);
+        Guard.IsLessThan(UnitPrice, 0L, Exceptions.Layer.None, Errors.UnitPriceCannotBeNegative);
+        Guard.IsNullOrEmpty(Currency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
+        Guard.IsFalse(Currency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
+
+        foreach (var tax in Taxes)
+        {
+            tax?.EnsureValid();
+        }
     }
 
     /// <summary>
@@ -98,7 +112,13 @@ public sealed class LineItem : IEquatable<LineItem>
     /// <param name="taxes">The list of taxes applicable to this line item.</param>
     /// <returns>A new <see cref="LineItem"/> instance.</returns>
     public static LineItem Create(Guid productId, string description, int quantity, long unitPrice, string currency, IReadOnlyList<TaxDefinition> taxes)
-        => new(productId, description, quantity, unitPrice, currency, taxes);
+    {
+        var lineItem = new LineItem(productId, description, quantity, unitPrice, currency, taxes);
+
+        lineItem.EnsureValid();
+
+        return lineItem;
+    }
 
     /// <summary>
     /// Creates a line item without taxes.
@@ -110,7 +130,13 @@ public sealed class LineItem : IEquatable<LineItem>
     /// <param name="currency">The ISO 4217 currency code.</param>
     /// <returns>A new <see cref="LineItem"/> instance with an empty tax list.</returns>
     public static LineItem Create(Guid productId, string description, int quantity, long unitPrice, string currency)
-        => new(productId, description, quantity, unitPrice, currency, []);
+    {
+        var lineItem = new LineItem(productId, description, quantity, unitPrice, currency, []);
+
+        lineItem.EnsureValid();
+
+        return lineItem;
+    }
 
     /// <summary>
     /// Returns true if two <see cref="LineItem"/> instances are equal.

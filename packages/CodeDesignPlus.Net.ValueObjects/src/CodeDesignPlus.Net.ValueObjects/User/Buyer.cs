@@ -61,8 +61,12 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// // buyer.ShippingAddress = null
 /// // For SaaS subscriptions, streaming services, etc.
 /// </code>
+/// <para>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a
+/// read never validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </para>
 /// </remarks>
-public sealed partial class Buyer : IEquatable<Buyer>
+public sealed partial class Buyer : IEquatable<Buyer>, IValidatableValueObject
 {
     [GeneratedRegex(@"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$", RegexOptions.Compiled)]
     private static partial Regex EmailRegex();
@@ -102,44 +106,52 @@ public sealed partial class Buyer : IEquatable<Buyer>
     [JsonConstructor]
     private Buyer(Guid buyerId, string name, string phone, string email, TypeDocument? typeDocument, string? document, Address? shippingAddress)
     {
-        Guard.GuidIsEmpty(buyerId, Exceptions.Layer.None, Errors.BuyerIdCannotBeEmpty);
-
-        var normalizedName = name?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedName, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty2);
-        Guard.IsGreaterThan(normalizedName.Length, 124, Exceptions.Layer.None, Errors.NameCannotBeGreaterThan124Characters);
+        BuyerId = buyerId;
+        Name = name?.Trim() ?? string.Empty;
 
         // Phone and email are optional: a payer may be known only by name and document (a visitor paying at the front
-        // desk, Kappali pendings/665), and the provider's hosted page asks for what is missing. When they come, they are
-        // validated as always; when they do not, they are empty, never null.
-        var normalizedPhone = phone?.Trim() ?? string.Empty;
+        // desk, Kappali pendings/665), and the provider's hosted page asks for what is missing. When they do not come,
+        // they are empty, never null.
+        Phone = phone?.Trim() ?? string.Empty;
+        Email = email?.Trim().ToLowerInvariant() ?? string.Empty;
 
-        if (normalizedPhone.Length > 0)
+        TypeDocument = typeDocument;
+        Document = document?.Trim();
+        ShippingAddress = shippingAddress;
+    }
+
+    /// <summary>
+    /// Checks the identifier and the name of the buyer, the phone, email and document when they are present, and the
+    /// document type and shipping address it carries.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.GuidIsEmpty(BuyerId, Exceptions.Layer.None, Errors.BuyerIdCannotBeEmpty);
+
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty2);
+        Guard.IsGreaterThan(Name.Length, 124, Exceptions.Layer.None, Errors.NameCannotBeGreaterThan124Characters);
+
+        // When phone and email come, they are validated as always.
+        if (!string.IsNullOrEmpty(Phone))
         {
-            Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.PhoneContainsInvalidCharacters);
+            Guard.IsFalse(PhoneRegex().IsMatch(Phone), Exceptions.Layer.None, Errors.PhoneContainsInvalidCharacters);
         }
 
-        var normalizedEmail = email?.Trim().ToLowerInvariant() ?? string.Empty;
-
-        if (normalizedEmail.Length > 0)
+        if (!string.IsNullOrEmpty(Email))
         {
-            Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailContainsInvalidCharacters);
+            Guard.IsFalse(EmailRegex().IsMatch(Email), Exceptions.Layer.None, Errors.EmailContainsInvalidCharacters);
         }
 
         // Optional fields validation - only validate if provided
-        if (document != null)
+        if (Document != null)
         {
-            var normalizedDocument = document.Trim();
-            Guard.IsNullOrEmpty(normalizedDocument, Exceptions.Layer.None, Errors.DocumentCannotBeEmptyWhenProvided);
-            Guard.IsGreaterThan(normalizedDocument.Length, 20, Exceptions.Layer.None, Errors.DocumentCannotBeGreaterThan20Characters);
-            this.Document = normalizedDocument;
+            Guard.IsNullOrEmpty(Document, Exceptions.Layer.None, Errors.DocumentCannotBeEmptyWhenProvided);
+            Guard.IsGreaterThan(Document.Length, 20, Exceptions.Layer.None, Errors.DocumentCannotBeGreaterThan20Characters);
         }
 
-        this.BuyerId = buyerId;
-        this.Name = normalizedName;
-        this.Phone = normalizedPhone;
-        this.Email = normalizedEmail;
-        this.TypeDocument = typeDocument;
-        this.ShippingAddress = shippingAddress;
+        TypeDocument?.EnsureValid();
+        ShippingAddress?.EnsureValid();
     }
 
     /// <summary>
@@ -156,7 +168,11 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <returns>A new instance of the <see cref="Buyer"/> class.</returns>
     public static Buyer Create(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document, Address shippingAddress)
     {
-        return new Buyer(buyerId, name, phone, email, typeDocument, document, shippingAddress);
+        var buyer = new Buyer(buyerId, name, phone, email, typeDocument, document, shippingAddress);
+
+        buyer.EnsureValid();
+
+        return buyer;
     }
 
     /// <summary>
@@ -172,7 +188,11 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <returns>A new instance of the <see cref="Buyer"/> class.</returns>
     public static Buyer CreateWithoutShipping(Guid buyerId, string name, string phone, string email, TypeDocument typeDocument, string document)
     {
-        return new Buyer(buyerId, name, phone, email, typeDocument, document, null);
+        var buyer = new Buyer(buyerId, name, phone, email, typeDocument, document, null);
+
+        buyer.EnsureValid();
+
+        return buyer;
     }
 
     /// <summary>
@@ -187,7 +207,11 @@ public sealed partial class Buyer : IEquatable<Buyer>
     /// <returns>A new instance of the <see cref="Buyer"/> class.</returns>
     public static Buyer CreateMinimal(Guid buyerId, string name, string phone, string email)
     {
-        return new Buyer(buyerId, name, phone, email, null, null, null);
+        var buyer = new Buyer(buyerId, name, phone, email, null, null, null);
+
+        buyer.EnsureValid();
+
+        return buyer;
     }
 
     /// <summary>

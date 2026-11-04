@@ -8,7 +8,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// The rate is stored in basis points to avoid floating-point precision issues
 /// (e.g., 350 = 3.50%).
 /// </summary>
-public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, IValidatableValueObject
 {
     /// <summary>
     /// Gets the withholding code (e.g., "RETE_FUENTE", "RETE_ICA", "ISR").
@@ -40,21 +44,25 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>
     [JsonConstructor]
     private WithholdingDefinition(string code, string name, int rateBasisPoints, long minimumBase, string currency)
     {
-        var normalizedCode = code?.Trim().ToUpperInvariant() ?? string.Empty;
-        var normalizedCurrency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
-
-        Guard.IsNullOrEmpty(normalizedCode, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty);
-        Guard.IsNullOrEmpty(name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
-        Guard.IsNotInRange(rateBasisPoints, 0, 100000, Exceptions.Layer.None, Errors.RateBasisPointsMustBeBetween0And100000);
-        Guard.IsLessThan(minimumBase, 0L, Exceptions.Layer.None, Errors.MinimumBaseCannotBeNegative);
-        Guard.IsNullOrEmpty(normalizedCurrency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
-        Guard.IsFalse(normalizedCurrency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
-
-        Code = normalizedCode;
+        Code = code?.Trim().ToUpperInvariant() ?? string.Empty;
         Name = name;
         RateBasisPoints = rateBasisPoints;
         MinimumBase = minimumBase;
-        Currency = normalizedCurrency;
+        Currency = currency?.Trim().ToUpperInvariant() ?? string.Empty;
+    }
+
+    /// <summary>
+    /// Checks the code, the name, the rate, the minimum base and the currency of the withholding.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Code, Exceptions.Layer.None, Errors.CodeCannotBeNullOrEmpty);
+        Guard.IsNullOrEmpty(Name, Exceptions.Layer.None, Errors.NameCannotBeNullOrEmpty);
+        Guard.IsNotInRange(RateBasisPoints, 0, 100000, Exceptions.Layer.None, Errors.RateBasisPointsMustBeBetween0And100000);
+        Guard.IsLessThan(MinimumBase, 0L, Exceptions.Layer.None, Errors.MinimumBaseCannotBeNegative);
+        Guard.IsNullOrEmpty(Currency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
+        Guard.IsFalse(Currency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
     }
 
     /// <summary>
@@ -68,7 +76,11 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>
     /// <returns>A new <see cref="WithholdingDefinition"/> instance.</returns>
     public static WithholdingDefinition Create(string code, string name, int rateBasisPoints, long minimumBase, string currency)
     {
-        return new WithholdingDefinition(code, name, rateBasisPoints, minimumBase, currency);
+        var withholdingDefinition = new WithholdingDefinition(code, name, rateBasisPoints, minimumBase, currency);
+
+        withholdingDefinition.EnsureValid();
+
+        return withholdingDefinition;
     }
 
     /// <summary>

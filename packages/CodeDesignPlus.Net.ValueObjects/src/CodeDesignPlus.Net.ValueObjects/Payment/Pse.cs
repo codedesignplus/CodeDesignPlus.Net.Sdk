@@ -6,7 +6,11 @@ namespace CodeDesignPlus.Net.ValueObjects.Payment;
 /// <summary>
 /// Represents a PSE (Pagos Seguros en Línea) payment configuration.
 /// </summary>
-public sealed partial class Pse : IEquatable<Pse>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed partial class Pse : IEquatable<Pse>, IValidatableValueObject
 {
     [GeneratedRegex(@"^https?:\/\/([a-zA-Z0-9\-\.]+)(:[0-9]+)?(\/[^\s]*)?$", RegexOptions.Compiled)]
     private static partial Regex UrlRegex();
@@ -27,23 +31,26 @@ public sealed partial class Pse : IEquatable<Pse>
     [JsonConstructor]
     private Pse(string pseCode, string typePerson, string pseResponseUrl)
     {
-        var normalizedPseCode = pseCode?.Trim() ?? string.Empty;
-        var normalizedTypePerson = typePerson?.Trim().ToUpperInvariant() ?? string.Empty; 
-        var normalizedUrl = pseResponseUrl?.Trim() ?? string.Empty;
+        PseCode = pseCode?.Trim() ?? string.Empty;
+        TypePerson = typePerson?.Trim().ToUpperInvariant() ?? string.Empty;
+        PseResponseUrl = pseResponseUrl?.Trim() ?? string.Empty;
+    }
 
-        Guard.IsNullOrEmpty(normalizedPseCode, Exceptions.Layer.None, Errors.PseCodeCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedPseCode.Length, 34, Exceptions.Layer.None, Errors.PseCodeCannotBeGreaterThan34Characters);
+    /// <summary>
+    /// Checks the PSE code, the type of person and the response URL.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(PseCode, Exceptions.Layer.None, Errors.PseCodeCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(PseCode.Length, 34, Exceptions.Layer.None, Errors.PseCodeCannotBeGreaterThan34Characters);
 
-        Guard.IsNullOrEmpty(normalizedTypePerson, Exceptions.Layer.None, Errors.TypePersonCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedTypePerson.Length, 1, Exceptions.Layer.None, Errors.TypePersonCannotBeGreaterThan1Character); 
+        Guard.IsNullOrEmpty(TypePerson, Exceptions.Layer.None, Errors.TypePersonCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(TypePerson.Length, 1, Exceptions.Layer.None, Errors.TypePersonCannotBeGreaterThan1Character); 
 
-        Guard.IsNullOrEmpty(normalizedUrl, Exceptions.Layer.None, Errors.PseResponseUrlCannotBeNullOrEmpty);
-        Guard.IsGreaterThan(normalizedUrl.Length, 200, Exceptions.Layer.None, Errors.PseResponseUrlCannotBeGreaterThan200Characters);
-        Guard.IsFalse(UrlRegex().IsMatch(normalizedUrl), Exceptions.Layer.None, Errors.PseResponseUrlMustBeAValidFormat);
-
-        this.PseCode = normalizedPseCode;
-        this.TypePerson = normalizedTypePerson;
-        this.PseResponseUrl = normalizedUrl;
+        Guard.IsNullOrEmpty(PseResponseUrl, Exceptions.Layer.None, Errors.PseResponseUrlCannotBeNullOrEmpty);
+        Guard.IsGreaterThan(PseResponseUrl.Length, 200, Exceptions.Layer.None, Errors.PseResponseUrlCannotBeGreaterThan200Characters);
+        Guard.IsFalse(UrlRegex().IsMatch(PseResponseUrl), Exceptions.Layer.None, Errors.PseResponseUrlMustBeAValidFormat);
     }
 
     /// <summary>
@@ -55,7 +62,11 @@ public sealed partial class Pse : IEquatable<Pse>
     /// <returns>A new instance of the Pse class.</returns>
     public static Pse Create(string pseCode, string typePerson, string pseResponseUrl)
     {
-        return new Pse(pseCode, typePerson, pseResponseUrl);
+        var pse = new Pse(pseCode, typePerson, pseResponseUrl);
+
+        pse.EnsureValid();
+
+        return pse;
     }
 
     /// <summary>

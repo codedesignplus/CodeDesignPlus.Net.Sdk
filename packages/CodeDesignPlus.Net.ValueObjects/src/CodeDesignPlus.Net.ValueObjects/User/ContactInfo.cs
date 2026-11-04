@@ -8,7 +8,11 @@ namespace CodeDesignPlus.Net.ValueObjects.User;
 /// Used across residents, organizations, emergency contacts, and similar entities.
 /// Both email addresses are normalized to lowercase.
 /// </summary>
-public sealed partial class ContactInfo : IEquatable<ContactInfo>
+/// <remarks>
+/// The constructor only hydrates: Mongo, the cache and the deserialization of events and requests use it, and a read never
+/// validates. The factory methods validate with <see cref="EnsureValid"/>.
+/// </remarks>
+public sealed partial class ContactInfo : IEquatable<ContactInfo>, IValidatableValueObject
 {
     [GeneratedRegex(@"^\+?\d{7,15}$", RegexOptions.Compiled)]
     private static partial Regex PhoneRegex();
@@ -39,32 +43,35 @@ public sealed partial class ContactInfo : IEquatable<ContactInfo>
     [JsonConstructor]
     private ContactInfo(string phone, string email, string? alternatePhone, string? alternateEmail)
     {
-        var normalizedPhone = phone?.Trim() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedPhone, Exceptions.Layer.None, Errors.PhoneCannotBeNullOrEmpty2);
-        Guard.IsFalse(PhoneRegex().IsMatch(normalizedPhone), Exceptions.Layer.None, Errors.PhoneFormatIsInvalid);
+        Phone = phone?.Trim() ?? string.Empty;
+        Email = email?.Trim().ToLowerInvariant() ?? string.Empty;
+        AlternatePhone = alternatePhone?.Trim();
+        AlternateEmail = alternateEmail?.Trim().ToLowerInvariant();
+    }
 
-        var normalizedEmail = email?.Trim().ToLowerInvariant() ?? string.Empty;
-        Guard.IsNullOrEmpty(normalizedEmail, Exceptions.Layer.None, Errors.EmailCannotBeNullOrEmpty2);
-        Guard.IsFalse(EmailRegex().IsMatch(normalizedEmail), Exceptions.Layer.None, Errors.EmailFormatIsInvalid);
+    /// <summary>
+    /// Checks the primary phone and email, and the alternate ones when they are present.
+    /// </summary>
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
+    public void EnsureValid()
+    {
+        Guard.IsNullOrEmpty(Phone, Exceptions.Layer.None, Errors.PhoneCannotBeNullOrEmpty2);
+        Guard.IsFalse(PhoneRegex().IsMatch(Phone), Exceptions.Layer.None, Errors.PhoneFormatIsInvalid);
 
-        if (alternatePhone is not null)
+        Guard.IsNullOrEmpty(Email, Exceptions.Layer.None, Errors.EmailCannotBeNullOrEmpty2);
+        Guard.IsFalse(EmailRegex().IsMatch(Email), Exceptions.Layer.None, Errors.EmailFormatIsInvalid);
+
+        if (AlternatePhone is not null)
         {
-            var normalizedAltPhone = alternatePhone.Trim();
-            Guard.IsNullOrEmpty(normalizedAltPhone, Exceptions.Layer.None, Errors.AlternatePhoneCannotBeEmptyWhenProvided);
-            Guard.IsFalse(PhoneRegex().IsMatch(normalizedAltPhone), Exceptions.Layer.None, Errors.AlternatePhoneFormatIsInvalid);
-            AlternatePhone = normalizedAltPhone;
+            Guard.IsNullOrEmpty(AlternatePhone, Exceptions.Layer.None, Errors.AlternatePhoneCannotBeEmptyWhenProvided);
+            Guard.IsFalse(PhoneRegex().IsMatch(AlternatePhone), Exceptions.Layer.None, Errors.AlternatePhoneFormatIsInvalid);
         }
 
-        if (alternateEmail is not null)
+        if (AlternateEmail is not null)
         {
-            var normalizedAltEmail = alternateEmail.Trim().ToLowerInvariant();
-            Guard.IsNullOrEmpty(normalizedAltEmail, Exceptions.Layer.None, Errors.AlternateEmailCannotBeEmptyWhenProvided);
-            Guard.IsFalse(EmailRegex().IsMatch(normalizedAltEmail), Exceptions.Layer.None, Errors.AlternateEmailFormatIsInvalid);
-            AlternateEmail = normalizedAltEmail;
+            Guard.IsNullOrEmpty(AlternateEmail, Exceptions.Layer.None, Errors.AlternateEmailCannotBeEmptyWhenProvided);
+            Guard.IsFalse(EmailRegex().IsMatch(AlternateEmail), Exceptions.Layer.None, Errors.AlternateEmailFormatIsInvalid);
         }
-
-        Phone = normalizedPhone;
-        Email = normalizedEmail;
     }
 
     /// <summary>
@@ -74,7 +81,13 @@ public sealed partial class ContactInfo : IEquatable<ContactInfo>
     /// <param name="email">The primary email address.</param>
     /// <returns>A new <see cref="ContactInfo"/> instance.</returns>
     public static ContactInfo Create(string phone, string email)
-        => new(phone, email, null, null);
+    {
+        var contactInfo = new ContactInfo(phone, email, null, null);
+
+        contactInfo.EnsureValid();
+
+        return contactInfo;
+    }
 
     /// <summary>
     /// Creates a <see cref="ContactInfo"/> with primary and optional alternate contact details.
@@ -85,7 +98,13 @@ public sealed partial class ContactInfo : IEquatable<ContactInfo>
     /// <param name="alternateEmail">An optional alternate email address.</param>
     /// <returns>A new <see cref="ContactInfo"/> instance.</returns>
     public static ContactInfo Create(string phone, string email, string? alternatePhone, string? alternateEmail)
-        => new(phone, email, alternatePhone, alternateEmail);
+    {
+        var contactInfo = new ContactInfo(phone, email, alternatePhone, alternateEmail);
+
+        contactInfo.EnsureValid();
+
+        return contactInfo;
+    }
 
     /// <summary>
     /// Returns true if two <see cref="ContactInfo"/> instances are equal.
