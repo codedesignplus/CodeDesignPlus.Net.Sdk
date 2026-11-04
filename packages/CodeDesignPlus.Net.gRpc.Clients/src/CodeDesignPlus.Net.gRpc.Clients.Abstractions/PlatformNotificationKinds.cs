@@ -36,4 +36,20 @@ public static class PlatformNotificationKinds
     /// (Kappali pendings/736, 737). Payload: { licenseId, licenseName, endDate, daysRemaining, graceEndsAt }
     /// </summary>
     public const string LicenseBlocked = "license.blocked";
+
+    /// <summary>
+    /// A la administración: el equipo comercial le ofreció a la copropiedad una licencia a medida, que puede tomar desde
+    /// Configuración › Organización › Cambiar de licencia (Kappali pendings/464). Sale de <c>LicenseOfferedDomainEvent</c>
+    /// de ms-licenses, que no trae precios (se ven al cotizar el cambio).
+    /// Payload: { licenseId, licenseName, offeredAt }
+    /// </summary>
+    public const string LicenseOffered = "license.offered";
+
+    /// <summary>
+    /// Al Super Administrador: una orden pagada no se pudo aplicar; el pago se aprobó pero la licencia o el paquete no
+    /// quedó en la copropiedad y hay que revisarlo (Kappali pendings/737, paso 6). Sale de
+    /// <c>OrderProvisioningFailedDomainEvent</c> de ms-licenses, que solo trae la orden, el paso que falló, el error y el
+    /// comprador. Payload: { orderId, buyerId, stepName, reason, failedAt }
+    /// </summary>
+    public const string LicenseOrderNotApplied = "license.order-not-applied";
 }
