@@ -13,6 +13,7 @@ internal static class Tokenizer
     /// </summary>
     /// <param name="input">The input string to tokenize.</param>
     /// <returns>A list of tokens.</returns>
+    /// <exception cref="CriteriaException">Thrown when a part is neither a logical operator nor a condition with a comparison operator.</exception>
     public static List<Token> Tokenize(string input)
     {
         var tokens = new List<Token>();
@@ -37,7 +38,12 @@ internal static class Tokenizer
     /// </summary>
     /// <param name="part">The part to create tokens from.</param>
     /// <returns>An enumerable collection of tokens.</returns>
-    private static IEnumerable<Token> CreateTokensFromPart(string part)
+    /// <remarks>
+    /// A part without a comparison operator (<c>foo</c> in <c>a=1|foo</c>, or the empty part of a trailing <c>|</c>)
+    /// used to yield no tokens and vanish, so the filter asked for less than it said without any error. It is a
+    /// malformed condition (Kappali pendings/403).
+    /// </remarks>
+    private static Token[] CreateTokensFromPart(string part)
     {
         foreach (var compOperator in comparisonOperators)
         {
@@ -45,11 +51,15 @@ internal static class Tokenizer
 
             if (split.Length == 2)
             {
-                yield return new Token(TokenType.Property, split[0]);
-                yield return new Token(TokenType.ComparisonOperator, compOperator);
-                yield return new Token(TokenType.Value, split[1]);
-                yield break;
+                return
+                [
+                    new Token(TokenType.Property, split[0]),
+                    new Token(TokenType.ComparisonOperator, compOperator),
+                    new Token(TokenType.Value, split[1])
+                ];
             }
         }
+
+        throw new CriteriaException(CriteriaErrors.InvalidCondition);
     }
 }

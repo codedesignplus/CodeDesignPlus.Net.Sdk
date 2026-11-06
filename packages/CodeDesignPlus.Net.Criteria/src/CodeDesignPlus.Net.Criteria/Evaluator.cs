@@ -13,6 +13,11 @@ internal static class Evaluator
     private static readonly string[] Operators = ["~=", "^=", "$=", "!=", "@=", "<=", ">=", "=", "<", ">"];
 
     /// <summary>
+    /// The text operators (contains, starts with, ends with), whose value is always a literal text.
+    /// </summary>
+    private static readonly string[] TextOperators = ["~=", "^=", "$="];
+
+    /// <summary>
     /// Evaluates an ASTNode and builds an expression to represent the evaluation.
     /// </summary>
     /// <typeparam name="T">The type of the parameter in the expression.</typeparam>
@@ -50,6 +55,16 @@ internal static class Evaluator
     /// <param name="node">The AST node to build the condition expression from.</param>
     /// <param name="parameter">The parameter expression to use in the expression.</param>
     /// <returns>The built condition expression.</returns>
+    /// <remarks>
+    /// <b>What the word <c>null</c> means depends on the operator</b> (Kappali pendings/403):
+    /// <list type="bullet">
+    /// <item>With <c>~=</c>, <c>^=</c> and <c>$=</c> the value is the text the user typed, so <c>name~=null</c> looks for
+    /// the text "null". Turning it into <c>Contains(null)</c> made a search for that word fail.</item>
+    /// <item>With <c>=</c>, <c>!=</c> and the order operators it means "no value": <c>validUntil=null</c> is how a
+    /// screen asks for the records without an end date, and it is the only way to ask for them. A text that contains
+    /// the word is still found with the text operators.</item>
+    /// </list>
+    /// </remarks>
     private static Expression BuildConditionExpression(AstNode node, ParameterExpression parameter)
     {
         var (propertyPath, operatorSymbol, value) = SplitCondition(node.Value);
@@ -58,7 +73,9 @@ internal static class Evaluator
         if (operatorSymbol == "@=")
             return BuildInExpression(property, value, propertyPath);
 
-        var constant = CreateConstantExpression(value, property.Type, propertyPath);
+        var constant = TextOperators.Contains(operatorSymbol)
+            ? CreateTextConstantExpression(value, property.Type, operatorSymbol, propertyPath)
+            : CreateConstantExpression(value, property.Type, propertyPath);
 
         return BuildComparisonExpression(property, constant, operatorSymbol, propertyPath);
     }
@@ -121,6 +138,19 @@ internal static class Evaluator
         }
 
         return propertyExpression;
+    }
+
+    /// <summary>
+    /// Creates the literal text of a text operator, never converted to <c>null</c>.
+    /// </summary>
+    private static ConstantExpression CreateTextConstantExpression(string value, Type targetType, string operatorSymbol, string propertyPath)
+    {
+        if (targetType != typeof(string))
+        {
+            throw new CriteriaException(CriteriaErrors.UnsupportedOperator.With(operatorSymbol, propertyPath));
+        }
+
+        return Expression.Constant(value, typeof(string));
     }
 
     /// <summary>

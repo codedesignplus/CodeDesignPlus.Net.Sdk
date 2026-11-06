@@ -1,4 +1,5 @@
-﻿using CodeDesignPlus.Net.Criteria.Models;
+﻿using CodeDesignPlus.Net.Criteria.Exceptions;
+using CodeDesignPlus.Net.Criteria.Models;
 using System.Reflection;
 
 namespace CodeDesignPlus.Net.Criteria.Test;
@@ -26,17 +27,31 @@ public class TokenizerTest
         Assert.Equal("30", tokens[2].Value);
     }
 
+    // A part without a comparison operator used to vanish without any error (Kappali pendings/403).
     [Fact]
-    public void CreateTokensFromPart_NoComparisonOperator_NoTokensGenerated()
+    public void CreateTokensFromPart_NoComparisonOperator_ThrowsInvalidCondition()
     {
         // Arrange
         string part = "invalidPart";
         var methodInfo = typeof(Tokenizer).GetMethod("CreateTokensFromPart", BindingFlags.NonPublic | BindingFlags.Static);
 
         // Act
-        var result = (IEnumerable<Token>)methodInfo!.Invoke(null, [part])!;
+        var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [part]));
 
         // Assert
-        Assert.Empty(result);
+        Assert.Equal(CriteriaErrors.InvalidCondition.Code, Assert.IsType<CriteriaException>(exception.InnerException).Code);
+    }
+
+    [Theory]
+    [InlineData("Total>=30|foo")]
+    [InlineData("Total>=30|and|foo")]
+    [InlineData("Total>=30|")]
+    public void Tokenize_PartWithoutComparisonOperator_ThrowsInvalidCondition(string input)
+    {
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => Tokenizer.Tokenize(input));
+
+        // Assert
+        Assert.Equal(CriteriaErrors.InvalidCondition.Code, exception.Code);
     }
 }

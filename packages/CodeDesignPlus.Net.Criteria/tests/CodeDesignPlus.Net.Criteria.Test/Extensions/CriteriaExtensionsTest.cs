@@ -383,6 +383,70 @@ public class CriteriaExtensionsTest
     }
 
     [Fact]
+    public void GetFilterExpression_ConditionFollowedByPartWithoutComparisonOperator_ThrowsInvalidCondition()
+    {
+        // Arrange
+        // Before, "foo" vanished and the filter answered as Name=Order 1 (Kappali pendings/403).
+        var criteria = new MC.Criteria { Filters = "Name=Order 1|foo" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+
+        // Assert
+        Assert.Equal(CriteriaErrors.InvalidCondition.Code, exception.Code);
+    }
+
+    // With a text operator the value is the text the user typed: "null" is the word, not the absence of a value.
+    [Theory]
+    [InlineData("Name~=null")]
+    [InlineData("Name^=null")]
+    [InlineData("Name$=null")]
+    public void GetFilterExpression_TextOperatorWithTheWordNull_SearchesTheText(string filters)
+    {
+        // Arrange
+        var orders = OrdersData.GetOrders();
+        orders[1].Name = "null";
+
+        var criteria = new MC.Criteria { Filters = filters };
+
+        // Act
+        var result = orders.AsQueryable().Where(criteria.GetFilterExpression<Order>()).Select(x => x.Id);
+
+        // Assert
+        Assert.Equal([orders[1].Id], result);
+    }
+
+    // With = and != the word null keeps meaning "no value": it is how a screen asks for the records without a value.
+    [Fact]
+    public void GetFilterExpression_EqualsNull_ReturnsTheRecordsWithoutValue()
+    {
+        // Arrange
+        var orders = OrdersData.GetOrders();
+        orders[2].Name = null!;
+
+        var criteria = new MC.Criteria { Filters = "Name=null" };
+
+        // Act
+        var result = orders.AsQueryable().Where(criteria.GetFilterExpression<Order>()).Select(x => x.Id);
+
+        // Assert
+        Assert.Equal([orders[2].Id], result);
+    }
+
+    [Fact]
+    public void GetFilterExpression_TextOperatorOnANumber_ThrowsUnsupportedOperator()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { Filters = "Total^=null" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+
+        // Assert
+        Assert.Equal(CriteriaErrors.UnsupportedOperator.With("^=", "Total").ToEnglish(), exception.Message);
+    }
+
+    [Fact]
     public void GetFilterExpression_OrFollowedByAnd_GroupsFromTheLeft()
     {
         // Arrange
