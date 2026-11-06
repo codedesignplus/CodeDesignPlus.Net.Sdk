@@ -271,6 +271,42 @@ public interface IRepositoryBase
         where TEntity : class, IEntityBase;
 
     /// <summary>
+    /// Finds entities matching the specified criteria, always restricted to a scope decided by the server, asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// The scope is joined with <c>AND</c> to the expression already built from the criteria, never to its text, so
+    /// whatever the client sends in <c>Filters</c> (an <c>|or|</c> included) can only narrow the scope, never widen it.
+    /// The tenant and soft-delete filters are added as in <see cref="MatchingAsync{TEntity}(C.Criteria, Guid, CancellationToken)"/>.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="scope">The server-side filter every result must satisfy (for example, the records of the caller).</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="criteria"/> or <paramref name="scope"/> is null.</exception>
+    Task<Pagination<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, FilterDefinition<TEntity> scope, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase;
+
+    /// <summary>
+    /// Finds entities matching the specified criteria, always restricted to a scope decided by the server, asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// Same as the <see cref="FilterDefinition{TDocument}"/> overload, with the scope written as a lambda. It exists so that
+    /// passing an expression never binds to the projection overload <c>MatchingAsync&lt;TEntity, TResult&gt;</c> with a
+    /// <c>bool</c> result.
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="scope">The server-side condition every result must satisfy (for example, the records of the caller).</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="criteria"/> or <paramref name="scope"/> is null.</exception>
+    Task<Pagination<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, Expression<Func<TEntity, bool>> scope, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase;
+
+    /// <summary>
     /// Finds entities matching the specified criteria and projects them to the specified result type asynchronously.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>

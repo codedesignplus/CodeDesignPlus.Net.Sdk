@@ -295,6 +295,60 @@ public class CriteriaExtensionsTest
     }
 
     [Fact]
+    public void GetFilterExpression_ConditionsWithoutLogicalOperator_ThrowsCriteriaException()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { Filters = "Name=Order 1|Name!=Order 1" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+
+        // Assert
+        Assert.StartsWith("Condition without a logical operator: 'Name'", exception.Message);
+    }
+
+    [Fact]
+    public void GetFilterExpression_ScopeAfterConditionWithoutLogicalOperator_ThrowsCriteriaException()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { Filters = "Name=Order 1|Total=200|and|Name=Order 2" };
+
+        // Act & Assert
+        Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+    }
+
+    [Fact]
+    public void GetFilterExpression_OrFollowedByAnd_GroupsFromTheLeft()
+    {
+        // Arrange
+        // Left-associative on purpose: clients append a scope with |and| at the end of a filter that may carry |or|.
+        var orderExpected = this.orders.Where(x => (x.Name == "Order 1" || x.Name == "Order 2") && x.Total == 200);
+        var criteria = new MC.Criteria { Filters = "Name=Order 1|or|Name=Order 2|and|Total=200" };
+
+        // Act
+        var filterExpression = criteria.GetFilterExpression<Order>();
+        var order = this.orders.AsQueryable().Where(filterExpression).Select(x => x.Name);
+
+        // Assert
+        Assert.Equal(orderExpected.Select(x => x.Name), order);
+    }
+
+    [Fact]
+    public void GetFilterExpression_AndFollowedByOr_GroupsFromTheLeft()
+    {
+        // Arrange
+        var orderExpected = this.orders.Where(x => (x.Total == 90 && x.Name == "Order 2") || x.Total == 300);
+        var criteria = new MC.Criteria { Filters = "Total=90|and|Name=Order 2|or|Total=300" };
+
+        // Act
+        var filterExpression = criteria.GetFilterExpression<Order>();
+        var order = this.orders.AsQueryable().Where(filterExpression).Select(x => x.Name);
+
+        // Assert
+        Assert.Equal(orderExpected.Select(x => x.Name), order);
+    }
+
+    [Fact]
     public void GetFilterExpression_ClientSubEntity_ReturnsNotNull()
     {
         // Arrange

@@ -680,6 +680,55 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     }
 
     /// <summary>
+    /// Finds entities matching the specified criteria, always restricted to a scope decided by the server, asynchronously.
+    /// </summary>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="scope">The server-side condition every result must satisfy.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="criteria"/> or <paramref name="scope"/> is null.</exception>
+    public Task<Pagination<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, Expression<Func<TEntity, bool>> scope, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        ArgumentNullException.ThrowIfNull(scope);
+
+        return this.MatchingAsync(criteria, Builders<TEntity>.Filter.Where(scope), tenant, cancellationToken);
+    }
+
+    /// <summary>
+    /// Finds entities matching the specified criteria, always restricted to a scope decided by the server, asynchronously.
+    /// </summary>
+    /// <remarks>
+    /// The scope is joined with <c>AND</c> to the expression built from the criteria, not to its text: a scope pasted
+    /// into <c>Filters</c> can be escaped by an <c>|or|</c> placed before it (Kappali pendings/402 and 403).
+    /// </remarks>
+    /// <typeparam name="TEntity">The type of the entity.</typeparam>
+    /// <param name="criteria">The criteria to match.</param>
+    /// <param name="scope">The server-side filter every result must satisfy.</param>
+    /// <param name="tenant">The tenant identifier only for entities that inherit from <see cref="AggregateRoot"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task that represents the asynchronous matching operation.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="criteria"/> or <paramref name="scope"/> is null.</exception>
+    public async Task<Pagination<TEntity>> MatchingAsync<TEntity>(C.Criteria criteria, FilterDefinition<TEntity> scope, Guid tenant, CancellationToken cancellationToken)
+        where TEntity : class, IEntityBase
+    {
+        ArgumentNullException.ThrowIfNull(criteria);
+        ArgumentNullException.ThrowIfNull(scope);
+
+        var requested = criteria.GetFilterExpression<TEntity>().ToFilterDefinition();
+        var filter = Builders<TEntity>.Filter.And(scope, requested).BuildFilter(tenant);
+
+        var totalCount = await this.GetCollection<TEntity>().CountDocumentsAsync(filter, cancellationToken: cancellationToken);
+
+        var query = this.QueryByFilter(criteria, filter);
+        var data = await query.ToListAsync(cancellationToken);
+
+        return Pagination<TEntity>.Create(data, totalCount, limit: criteria.Limit, skip: criteria.Skip);
+    }
+
+    /// <summary>
     /// Finds entities matching the specified criteria and projects them to the specified result type asynchronously.
     /// </summary>
     /// <typeparam name="TEntity">The type of the entity.</typeparam>
@@ -833,11 +882,21 @@ public abstract class RepositoryBase(IServiceProvider serviceProvider, IOptions<
     private IFindFluent<TEntity, TEntity> Query<TEntity>(C.Criteria criteria, Guid tenant)
         where TEntity : class, IEntityBase
     {
-        var collection = this.GetCollection<TEntity>();
         var filterExpression = criteria.GetFilterExpression<TEntity>();
-        var sortBy = criteria.GetSortByExpression<TEntity>();
 
         var filter = filterExpression.ToFilterDefinition().BuildFilter(tenant);
+
+        return this.QueryByFilter(criteria, filter);
+    }
+
+    /// <summary>
+    /// Applies the order, skip and limit of the criteria to a query over an already built filter.
+    /// </summary>
+    private IFindFluent<TEntity, TEntity> QueryByFilter<TEntity>(C.Criteria criteria, FilterDefinition<TEntity> filter)
+        where TEntity : class, IEntityBase
+    {
+        var collection = this.GetCollection<TEntity>();
+        var sortBy = criteria.GetSortByExpression<TEntity>();
 
         var query = collection.Find(filter);
 

@@ -53,4 +53,49 @@ public class ParserTest
         Assert.IsType<CriteriaException>(exception.InnerException);
         Assert.Equal("Invalid condition format", exception.InnerException.Message);
     }
+
+    [Fact]
+    public void Parse_ConditionsWithoutLogicalOperator_ThrowsCriteriaException()
+    {
+        // Arrange
+        var tokens = new List<Token>
+        {
+            new (TokenType.Property, "status"),
+            new (TokenType.ComparisonOperator, "="),
+            new (TokenType.Value, "0"),
+            new (TokenType.Property, "status"),
+            new (TokenType.ComparisonOperator, "!="),
+            new (TokenType.Value, "0")
+        };
+        var parser = new Parser(tokens);
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(parser.Parse);
+
+        // Assert
+        Assert.Equal("Condition without a logical operator: 'status' must be joined to the previous condition with |and| or |or|", exception.Message);
+    }
+
+    [Fact]
+    public void Parse_ConditionsJoinedByLogicalOperators_ReturnsSingleExpression()
+    {
+        // Arrange
+        var tokens = new List<Token>
+        {
+            new (TokenType.Property, "status"),
+            new (TokenType.ComparisonOperator, "="),
+            new (TokenType.Value, "0"),
+            new (TokenType.LogicalOperator, "or"),
+            new (TokenType.Property, "status"),
+            new (TokenType.ComparisonOperator, "="),
+            new (TokenType.Value, "1")
+        };
+        var parser = new Parser(tokens);
+
+        // Act
+        var root = parser.Parse();
+
+        // Assert
+        Assert.Single(root.Children);
+    }
 }

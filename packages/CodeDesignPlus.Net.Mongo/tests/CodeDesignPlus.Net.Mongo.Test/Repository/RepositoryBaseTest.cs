@@ -718,6 +718,83 @@ public class RepositoryBaseTest
         Assert.Contains(result.Data, x => x.Id == product.Id);
     }
 
+    // The scope is joined to the parsed criteria, not to its text: an |or| in the filter cannot widen it (pendings/403).
+    [Fact]
+    public async Task MatchingAsync_WithScopeAndOrInCriteria_ReturnsOnlyScopedDocuments()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new OrderRepository(serviceProvider, this.options, new Mock<ILogger<OrderRepository>>().Object);
+
+        var mine = Guid.NewGuid();
+        var other = Guid.NewGuid();
+
+        var orders = new List<Order>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Scoped 1", Total = 10, Tenant = mine },
+            new() { Id = Guid.NewGuid(), Name = "Scoped 2", Total = 20, Tenant = mine },
+            new() { Id = Guid.NewGuid(), Name = "Scoped 1", Total = 30, Tenant = other },
+            new() { Id = Guid.NewGuid(), Name = "Scoped 3", Total = 40, Tenant = mine },
+        };
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        Expression<Func<Order, bool>> scope = x => x.Tenant == mine;
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria
+        {
+            Filters = "name=Scoped 2|or|name=Scoped 1",
+            OrderBy = "total",
+            OrderType = Core.Abstractions.Models.Criteria.OrderTypes.Ascending,
+            Limit = 10
+        };
+
+        // Act
+        var result = await repository.MatchingAsync(criteria, scope, Guid.Empty, cancellationToken);
+
+        // Assert
+        Assert.Equal(new[] { orders[0].Id, orders[1].Id }, result.Data.Select(x => x.Id));
+    }
+
+    [Fact]
+    public async Task MatchingAsync_WithScopeAndOrInCriteria_CountsOnlyScopedDocuments()
+    {
+        // Arrange
+        var cancellationToken = CancellationToken.None;
+        var repository = new OrderRepository(serviceProvider, this.options, new Mock<ILogger<OrderRepository>>().Object);
+
+        var mine = Guid.NewGuid();
+
+        var orders = new List<Order>
+        {
+            new() { Id = Guid.NewGuid(), Name = "Scoped 1", Total = 10, Tenant = mine },
+            new() { Id = Guid.NewGuid(), Name = "Scoped 1", Total = 20, Tenant = Guid.NewGuid() },
+            new() { Id = Guid.NewGuid(), Name = "Scoped 2", Total = 30, Tenant = Guid.NewGuid() },
+        };
+
+        await repository.CreateRangeAsync(orders, cancellationToken);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria { Filters = "name=Scoped 1|or|name=Scoped 2" };
+
+        // Act
+        var result = await repository.MatchingAsync(criteria, Builders<Order>.Filter.Eq(x => x.Tenant, mine), Guid.Empty, cancellationToken);
+
+        // Assert
+        Assert.Equal(1, result.TotalCount);
+    }
+
+    [Fact]
+    public async Task MatchingAsync_WithNullScope_ThrowsArgumentNullException()
+    {
+        // Arrange
+        var repository = new OrderRepository(serviceProvider, this.options, new Mock<ILogger<OrderRepository>>().Object);
+
+        var criteria = new Core.Abstractions.Models.Criteria.Criteria { Filters = "name=Scoped 1" };
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(() => repository.MatchingAsync<Order>(criteria, (FilterDefinition<Order>)null!, Guid.Empty, CancellationToken.None));
+    }
+
     // La pagina devuelta tiene que decir lo que se pidio. Skip y Limit son distintos a proposito: si se cruzan al
     // construir la Pagination (paso desde que existe, pendings/023), la prueba falla.
     [Fact]
