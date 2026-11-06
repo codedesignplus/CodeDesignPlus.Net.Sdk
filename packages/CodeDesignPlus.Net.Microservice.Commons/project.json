@@ -5,6 +5,7 @@
   "sourceRoot": "packages/CodeDesignPlus.Net.Microservice.Commons",
   "implicitDependencies": [
     "CodeDesignPlus.Net.Core",
+    "CodeDesignPlus.Net.Criteria",
     "CodeDesignPlus.Net.Exceptions",
     "CodeDesignPlus.Net.Serializers"
   ],

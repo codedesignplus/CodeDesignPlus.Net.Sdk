@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Criteria.Extensions;
 using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.gRpc.Interceptors;
 using FluentValidation;
@@ -42,6 +43,36 @@ public class ErrorInterceptorTest
         // Act & Assert
         var exception = await Assert.ThrowsAsync<RpcException>(() => _interceptor.UnaryServerHandler(request, context, continuation.Object));
         Assert.Equal(StatusCode.FailedPrecondition, exception.StatusCode);
+    }
+
+    // Un filtro mal escrito es un argumento invalido, no una precondicion que falla (Kappali pendings/403).
+    [Theory]
+    [InlineData("status=0|status!=0")]
+    [InlineData("missing=1")]
+    [InlineData("status=abc")]
+    public async Task UnaryServerHandler_MalformedFilter_ReturnsInvalidArgument(string filters)
+    {
+        // Arrange
+        var request = new Mock<object>().Object;
+        var context = new Mock<ServerCallContext>().Object;
+
+        Task<object> continuation(object req, ServerCallContext ctx)
+        {
+            new CodeDesignPlus.Net.Core.Abstractions.Models.Criteria.Criteria { Filters = filters }.GetFilterExpression<FilteredItem>();
+
+            return Task.FromResult(req);
+        }
+
+        // Act
+        var exception = await Assert.ThrowsAsync<RpcException>(() => _interceptor.UnaryServerHandler(request, context, continuation));
+
+        // Assert
+        Assert.Equal(StatusCode.InvalidArgument, exception.StatusCode);
+    }
+
+    private sealed class FilteredItem
+    {
+        public int Status { get; set; }
     }
 
     [Theory]

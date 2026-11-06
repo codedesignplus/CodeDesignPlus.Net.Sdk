@@ -35,18 +35,20 @@ internal class Parser
     /// <exception cref="CriteriaException">Thrown when a condition is malformed or is not joined to the previous one by a logical operator.</exception>
     public AstNode Parse()
     {
-        var root = new AstNode(AstType.Expression, null, []);
-
+        // A non-empty filter that yields no tokens (no comparison operator anywhere) used to reach the evaluator with
+        // an empty root and fail with an index out of range, a 500.
         if (tokens.Count == 0)
         {
-            return root;
+            throw new CriteriaException(CriteriaErrors.InvalidCondition);
         }
+
+        var root = new AstNode(AstType.Expression, null, []);
 
         root.Children.Add(ParseExpression());
 
         if (position < tokens.Count)
         {
-            throw new CriteriaException($"Condition without a logical operator: '{tokens[position].Value}' must be joined to the previous condition with |and| or |or|");
+            throw new CriteriaException(CriteriaErrors.MissingLogicalOperator.With(tokens[position].Value));
         }
 
         return root;
@@ -81,6 +83,6 @@ internal class Parser
             return new AstNode(AstType.Condition, $"{property}{comparisonOperator}{value}", []);
         }
 
-        throw new CriteriaException("Invalid condition format");
+        throw new CriteriaException(CriteriaErrors.InvalidCondition);
     }
 }

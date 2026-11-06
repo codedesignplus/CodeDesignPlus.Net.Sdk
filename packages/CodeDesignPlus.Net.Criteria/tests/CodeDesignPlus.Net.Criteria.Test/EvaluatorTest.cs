@@ -18,9 +18,9 @@ public class EvaluatorTest
 
         // Act & Assert
         var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [node, parameter]));
-        Assert.IsType<CriteriaException>(exception.InnerException);
+        var criteriaException = Assert.IsType<CriteriaException>(exception.InnerException);
 
-        Assert.Equal("Invalid AST node type: 999", exception.InnerException.Message);
+        Assert.Equal(CriteriaErrors.InvalidFilter.Code, criteriaException.Code);
     }
 
     [Fact]
@@ -36,8 +36,8 @@ public class EvaluatorTest
 
         // Act & Assert
         var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [logicalNode, parameter]));
-        Assert.IsType<CriteriaException>(exception.InnerException);
-        Assert.Equal("Invalid logical operator: invalidOperator", exception.InnerException.Message);
+        var criteriaException = Assert.IsType<CriteriaException>(exception.InnerException);
+        Assert.Equal(CriteriaErrors.InvalidFilter.Code, criteriaException.Code);
     }
 
     [Fact]
@@ -51,8 +51,8 @@ public class EvaluatorTest
         // Act & Assert
         var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [invalidCondition]));
 
-        Assert.IsType<CriteriaException>(exception.InnerException);
-        Assert.Equal("Invalid condition format", exception.InnerException.Message);
+        var criteriaException = Assert.IsType<CriteriaException>(exception.InnerException);
+        Assert.Equal(CriteriaErrors.InvalidCondition.Code, criteriaException.Code);
     }
 
     [Fact]
@@ -64,10 +64,10 @@ public class EvaluatorTest
         var methodInfo = typeof(Evaluator).GetMethod("CreateConstantExpression", BindingFlags.NonPublic | BindingFlags.Static);
 
         // Act & Assert
-        var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [invalidValue, targetType]));
-        Assert.IsType<CriteriaException>(exception.InnerException);
+        var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [invalidValue, targetType, "Total"]));
+        var criteriaException = Assert.IsType<CriteriaException>(exception.InnerException);
 
-        Assert.Contains($"Invalid value '{invalidValue}' for type {targetType}", exception.InnerException.Message);
+        Assert.Equal(CriteriaErrors.InvalidValue.With(invalidValue, "Total").ToEnglish(), criteriaException.Message);
     }
 
     [Fact]
@@ -80,9 +80,9 @@ public class EvaluatorTest
         var methodInfo = typeof(Evaluator).GetMethod("BuildComparisonExpression", BindingFlags.NonPublic | BindingFlags.Static);
 
         // Act & Assert
-        var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [property, constant, unsupportedOperator]));
-        Assert.IsType<CriteriaException>(exception.InnerException);
-        Assert.Equal($"Unsupported operator: {unsupportedOperator}", exception.InnerException.Message);
+        var exception = Assert.Throws<TargetInvocationException>(() => methodInfo!.Invoke(null, [property, constant, unsupportedOperator, "Length"]));
+        var criteriaException = Assert.IsType<CriteriaException>(exception.InnerException);
+        Assert.Equal(CriteriaErrors.UnsupportedOperator.With(unsupportedOperator, "Length").ToEnglish(), criteriaException.Message);
     }
 
     [Fact]
@@ -129,9 +129,9 @@ public class EvaluatorTest
 
         // Act & Assert
         var exception = Assert.Throws<TargetInvocationException>(() =>
-            methodInfo!.Invoke(null, ["InvalidStatus", typeof(OrderStatus)]));
-        Assert.IsType<CriteriaException>(exception.InnerException);
-        Assert.Contains("Invalid value 'InvalidStatus' for type", exception.InnerException.Message);
+            methodInfo!.Invoke(null, ["InvalidStatus", typeof(OrderStatus), "Status"]));
+        var criteriaException = Assert.IsType<CriteriaException>(exception.InnerException);
+        Assert.Equal(CriteriaErrors.InvalidValue.With("InvalidStatus", "Status").ToEnglish(), criteriaException.Message);
     }
 
     [Fact]

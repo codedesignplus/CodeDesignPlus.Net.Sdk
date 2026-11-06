@@ -1,3 +1,4 @@
+using CodeDesignPlus.Net.Criteria.Exceptions;
 using CodeDesignPlus.Net.Exceptions;
 using CodeDesignPlus.Net.Exceptions.Models;
 using FluentValidation;
@@ -130,7 +131,10 @@ public class ErrorInterceptor(ILogger<ErrorInterceptor> logger) : Interceptor
             // lo que el cliente necesita para decidir, asi que pasa tal cual.
             RpcException ex => ex,
             ValidationException ex => HandleValidationException(ex),
-            CodeDesignPlusException ex => HandleCodeDesignPlusException(ex),
+            // Un filtro mal escrito es una peticion mal hecha, no una precondicion que falla (Kappali pendings/403).
+            // Va antes que CodeDesignPlusException porque deriva de ella.
+            CriteriaException ex => HandleCodeDesignPlusException(ex, StatusCode.InvalidArgument),
+            CodeDesignPlusException ex => HandleCodeDesignPlusException(ex, StatusCode.FailedPrecondition),
             _ => HandleGeneralException(exception),
         };
     }
@@ -172,8 +176,9 @@ public class ErrorInterceptor(ILogger<ErrorInterceptor> logger) : Interceptor
     /// Handles CodeDesignPlus exceptions.
     /// </summary>
     /// <param name="exception">CodeDesignPlus exception.</param>
+    /// <param name="statusCode">The gRPC status that answers the exception.</param>
     /// <returns>Corresponding RpcException.</returns>
-    private static RpcException HandleCodeDesignPlusException(CodeDesignPlusException exception)
+    private static RpcException HandleCodeDesignPlusException(CodeDesignPlusException exception, StatusCode statusCode)
     {
         var response = new ErrorResponse(null, exception.Layer);
 
@@ -186,7 +191,7 @@ public class ErrorInterceptor(ILogger<ErrorInterceptor> logger) : Interceptor
             { "Message", exception.Message }
         };
 
-        var status = new Status(StatusCode.FailedPrecondition, exception.Message);
+        var status = new Status(statusCode, exception.Message);
 
         return new RpcException(status, metadata, response.ToString());
     }

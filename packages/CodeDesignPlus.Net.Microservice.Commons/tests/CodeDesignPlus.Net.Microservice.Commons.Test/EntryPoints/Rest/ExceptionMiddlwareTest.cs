@@ -8,6 +8,7 @@ using CodeDesignPlus.Net.Exceptions;
 using FluentValidation;
 using FluentValidation.Results;
 using System.Diagnostics;
+using CodeDesignPlus.Net.Criteria.Extensions;
 
 namespace CodeDesignPlus.Net.Microservice.Commons.Test.EntryPoints.Rest;
 
@@ -113,6 +114,79 @@ public class ExceptionMiddlewareTests
         Assert.Contains("001", body);
         Assert.Contains("App error", body);
         Assert.Contains("TestApp", body);
+    }
+
+    // Un filtro mal escrito es una peticion mal hecha: 400, no 500 (Kappali pendings/403). Se lanzan los errores reales
+    // del analizador, incluidos los que ya existian antes del 403 (propiedad inexistente, valor mal escrito).
+    [Theory]
+    [InlineData("status=0|status!=0", "9501")]
+    [InlineData("missing=1", "9502")]
+    [InlineData("status=abc", "9503")]
+    [InlineData("status~=1", "9504")]
+    [InlineData("status", "9500")]
+    public async Task InvokeAsync_WhenFilterIsMalformed_ReturnsBadRequestProblemJsonWithItsCode(string filters, string code)
+    {
+        // Arrange
+        var context = new DefaultHttpContext();
+        context.Response.Body = new MemoryStream();
+
+        Task next(HttpContext ctx)
+        {
+            new CodeDesignPlus.Net.Core.Abstractions.Models.Criteria.Criteria { Filters = filters }.GetFilterExpression<FilteredItem>();
+
+            return Task.CompletedTask;
+        }
+
+        var middleware = CreateMiddleware(next);
+
+        // Act
+        await middleware.InvokeAsync(context);
+
+        // Assert
+        context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+
+        Assert.Equal((400, "application/problem+json", true), (context.Response.StatusCode, context.Response.ContentType, body.Contains($"\"error_code\":\"{code}\"")));
+    }
+
+    [Fact]
+    public async Task InvokeAsync_WhenFilterIsMalformed_DetailFollowsTheRequestLanguage()
+    {
+        // Arrange
+        var context = new DefaultHttpContext();
+        context.Response.Body = new MemoryStream();
+
+        static Task next(HttpContext ctx)
+        {
+            ErrorLanguage.Current = "es";
+
+            new CodeDesignPlus.Net.Core.Abstractions.Models.Criteria.Criteria { Filters = "status=0|status!=0" }.GetFilterExpression<FilteredItem>();
+
+            return Task.CompletedTask;
+        }
+
+        var middleware = CreateMiddleware(next);
+
+        // Act
+        try
+        {
+            await middleware.InvokeAsync(context);
+        }
+        finally
+        {
+            ErrorLanguage.Current = null;
+        }
+
+        // Assert
+        context.Response.Body.Seek(0, SeekOrigin.Begin);
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+
+        Assert.Contains("La condición sobre «status» debe unirse a la anterior con |and| o |or|.", body);
+    }
+
+    private sealed class FilteredItem
+    {
+        public int Status { get; set; }
     }
 
     [Fact]

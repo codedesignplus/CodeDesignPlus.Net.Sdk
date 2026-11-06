@@ -1,0 +1,11 @@
+{
+  "language": "en",
+  "errors": {
+    "9500": "A filter condition is incomplete or has no operator: write it as property, operator and value, for example status=1.",
+    "9501": "The filter condition on '{0}' must be joined to the previous one with |and| or |or|.",
+    "9502": "The property '{0}' does not exist, so it cannot be used to filter or sort.",
+    "9503": "The value '{0}' is not valid for '{1}'.",
+    "9504": "The operator '{0}' cannot be used with '{1}'.",
+    "9505": "The filter is not valid."
+  }
+}

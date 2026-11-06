@@ -4,7 +4,8 @@
   "projectType": "library",
   "sourceRoot": "packages/CodeDesignPlus.Net.Criteria",
   "implicitDependencies": [
-    "CodeDesignPlus.Net.Core"
+    "CodeDesignPlus.Net.Core",
+    "CodeDesignPlus.Net.Exceptions"
   ],
   "targets": {
     "restore": {

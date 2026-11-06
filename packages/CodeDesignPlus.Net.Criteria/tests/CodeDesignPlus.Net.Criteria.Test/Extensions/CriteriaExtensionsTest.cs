@@ -257,7 +257,7 @@ public class CriteriaExtensionsTest
         // Act & Assert
         var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
 
-        Assert.Contains("Instance property 'InvalidProperty' is not defined", exception.Message);
+        Assert.Equal(CriteriaErrors.UnknownProperty.With("InvalidProperty").ToEnglish(), exception.Message);
     }
 
     [Fact]
@@ -304,7 +304,7 @@ public class CriteriaExtensionsTest
         var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
 
         // Assert
-        Assert.StartsWith("Condition without a logical operator: 'Name'", exception.Message);
+        Assert.Equal(CriteriaErrors.MissingLogicalOperator.With("Name").ToEnglish(), exception.Message);
     }
 
     [Fact]
@@ -315,6 +315,71 @@ public class CriteriaExtensionsTest
 
         // Act & Assert
         Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+    }
+
+    [Fact]
+    public void GetFilterExpression_FilterWithoutComparisonOperator_ThrowsInvalidCondition()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { Filters = "Name" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+
+        // Assert
+        Assert.Equal(CriteriaErrors.InvalidCondition.Code, exception.Code);
+    }
+
+    [Fact]
+    public void GetFilterExpression_ValueThatDoesNotFitTheType_ThrowsInvalidValue()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { Filters = "Total=abc" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+
+        // Assert
+        Assert.Equal(CriteriaErrors.InvalidValue.With("abc", "Total").ToEnglish(), exception.Message);
+    }
+
+    [Fact]
+    public void GetFilterExpression_InListValueThatDoesNotFitTheType_ThrowsInvalidValue()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { Filters = "Status@=Pending,Unknown" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+
+        // Assert
+        Assert.Equal(CriteriaErrors.InvalidValue.With("Unknown", "Status").ToEnglish(), exception.Message);
+    }
+
+    [Fact]
+    public void GetFilterExpression_OperatorNotSupportedByTheType_ThrowsUnsupportedOperator()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { Filters = "Total~=9" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetFilterExpression<Order>());
+
+        // Assert
+        Assert.Equal(CriteriaErrors.UnsupportedOperator.With("~=", "Total").ToEnglish(), exception.Message);
+    }
+
+    [Fact]
+    public void GetSortByExpression_UnknownProperty_ThrowsUnknownProperty()
+    {
+        // Arrange
+        var criteria = new MC.Criteria { OrderBy = "Missing" };
+
+        // Act
+        var exception = Assert.Throws<CriteriaException>(() => criteria.GetSortByExpression<Order>());
+
+        // Assert
+        Assert.Equal(CriteriaErrors.UnknownProperty.With("Missing").ToEnglish(), exception.Message);
     }
 
     [Fact]

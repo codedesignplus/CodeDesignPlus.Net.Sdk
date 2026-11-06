@@ -40,7 +40,7 @@ internal static class Evaluator
             AstType.Expression => BuildExpression(node.Children[0], parameter),
             AstType.Condition => BuildConditionExpression(node, parameter),
             AstType.Operator => BuildLogicalExpression(node, parameter),
-            _ => throw new CriteriaException($"Invalid AST node type: {node.Type}"),
+            _ => throw new CriteriaException(CriteriaErrors.InvalidFilter),
         };
     }
 
@@ -56,11 +56,11 @@ internal static class Evaluator
         var property = BuildPropertyExpression(propertyPath, parameter);
 
         if (operatorSymbol == "@=")
-            return BuildInExpression(property, value);
+            return BuildInExpression(property, value, propertyPath);
 
-        var constant = CreateConstantExpression(value, property.Type);
+        var constant = CreateConstantExpression(value, property.Type, propertyPath);
 
-        return BuildComparisonExpression(property, constant, operatorSymbol);
+        return BuildComparisonExpression(property, constant, operatorSymbol, propertyPath);
     }
 
     /// <summary>
@@ -78,7 +78,7 @@ internal static class Evaluator
         {
             "and" => Expression.AndAlso(left, right),
             "or" => Expression.OrElse(left, right),
-            _ => throw new CriteriaException($"Invalid logical operator: {node.Value}")
+            _ => throw new CriteriaException(CriteriaErrors.InvalidFilter)
         };
     }
 
@@ -97,7 +97,7 @@ internal static class Evaluator
                 return (parts[0], op, parts[1]);
         }
 
-        throw new CriteriaException("Invalid condition format");
+        throw new CriteriaException(CriteriaErrors.InvalidCondition);
     }
 
     /// <summary>
@@ -114,7 +114,7 @@ internal static class Evaluator
         foreach (var propertyName in propertyPath.Split('.'))
         {
             var pi = currentType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
-                ?? throw new CriteriaException($"Instance property '{propertyName}' is not defined for type '{currentType.FullName}' (Parameter 'propertyName')");
+                ?? throw new CriteriaException(CriteriaErrors.UnknownProperty.With(propertyPath));
 
             propertyExpression = Expression.Property(propertyExpression, pi);
             currentType = pi.PropertyType;
@@ -128,8 +128,9 @@ internal static class Evaluator
     /// </summary>
     /// <param name="value">The value to create the constant expression from.</param>
     /// <param name="targetType">The target type of the constant expression.</param>
+    /// <param name="propertyPath">The filtered property, named in the error when the value does not fit its type.</param>
     /// <returns>The created constant expression.</returns>
-    private static ConstantExpression CreateConstantExpression(string value, Type targetType)
+    private static ConstantExpression CreateConstantExpression(string value, Type targetType, string propertyPath)
     {
         try
         {
@@ -150,7 +151,7 @@ internal static class Evaluator
                 if (string.IsNullOrWhiteSpace(value))
                     return Expression.Constant(null, targetType);
 
-                var underlying = CreateConstantExpression(value, underlyingType);
+                var underlying = CreateConstantExpression(value, underlyingType, propertyPath);
 
                 return Expression.Constant(underlying.Value, targetType);
             }
@@ -198,9 +199,9 @@ internal static class Evaluator
 
             return Expression.Constant(convertedValue, targetType);
         }
-        catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is ArgumentException)
+        catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is ArgumentException || ex is OverflowException)
         {
-            throw new CriteriaException($"Invalid value '{value}' for type {targetType}", ex);
+            throw new CriteriaException(CriteriaErrors.InvalidValue.With(value, propertyPath), ex);
         }
     }
 
@@ -210,30 +211,66 @@ internal static class Evaluator
     /// <param name="property">The property expression to use in the comparison.</param>
     /// <param name="constant">The constant expression to use in the comparison.</param>
     /// <param name="operatorSymbol">The operator symbol to use in the comparison.</param>
+    /// <param name="propertyPath">The filtered property, named in the error when the operator does not apply to it.</param>
     /// <returns>The built comparison expression.</returns>
-    private static Expression BuildComparisonExpression(Expression property, Expression constant, string operatorSymbol)
+    /// <remarks>
+    /// An operator that the property type does not support (<c>~=</c> on a number, <c>&gt;</c> on a text) used to escape as
+    /// an <see cref="InvalidOperationException"/> or an <see cref="ArgumentException"/>, which the microservice answered with
+    /// a 500. It is a malformed filter, so it becomes a <see cref="CriteriaException"/> (Kappali pendings/403).
+    /// </remarks>
+    private static Expression BuildComparisonExpression(Expression property, Expression constant, string operatorSymbol, string propertyPath)
     {
-        return operatorSymbol switch
+        try
         {
-            "^=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])!, constant),
-            "$=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])!, constant),
-            "~=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!, constant),
-            "=" => Expression.Equal(property, constant),
-            "!=" => Expression.NotEqual(property, constant),
-            "<" => Expression.LessThan(property, constant),
-            ">" => Expression.GreaterThan(property, constant),
-            "<=" => Expression.LessThanOrEqual(property, constant),
-            ">=" => Expression.GreaterThanOrEqual(property, constant),
-            _ => throw new CriteriaException($"Unsupported operator: {operatorSymbol}")
-        };
+            return operatorSymbol switch
+            {
+                "^=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.StartsWith), [typeof(string)])!, constant),
+                "$=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.EndsWith), [typeof(string)])!, constant),
+                "~=" => Expression.Call(property, typeof(string).GetMethod(nameof(string.Contains), [typeof(string)])!, constant),
+                "=" => Expression.Equal(property, constant),
+                "!=" => Expression.NotEqual(property, constant),
+                "<" => Expression.LessThan(property, constant),
+                ">" => Expression.GreaterThan(property, constant),
+                "<=" => Expression.LessThanOrEqual(property, constant),
+                ">=" => Expression.GreaterThanOrEqual(property, constant),
+                _ => throw new CriteriaException(CriteriaErrors.UnsupportedOperator.With(operatorSymbol, propertyPath))
+            };
+        }
+        catch (Exception ex) when (ex is InvalidOperationException || ex is ArgumentException)
+        {
+            throw new CriteriaException(CriteriaErrors.UnsupportedOperator.With(operatorSymbol, propertyPath), ex);
+        }
     }
 
-    private static Expression BuildInExpression(Expression property, string value)
+    /// <summary>
+    /// Builds the membership test of the <c>@=</c> operator from a comma-separated list of values.
+    /// </summary>
+    private static Expression BuildInExpression(Expression property, string value, string propertyPath)
     {
         var values = value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         var propertyType = property.Type;
 
-        var convertedValues = values.Select(v =>
+        var convertedValues = values.Select(v => ConvertInValue(v, propertyType, propertyPath)).ToList();
+
+        var listType = typeof(List<>).MakeGenericType(propertyType);
+        var list = Activator.CreateInstance(listType);
+        var addMethod = listType.GetMethod("Add")!;
+
+        foreach (var item in convertedValues)
+            addMethod.Invoke(list, [item]);
+
+        var containsMethod = listType.GetMethod("Contains", [propertyType])!;
+        var listConstant = Expression.Constant(list, listType);
+
+        return Expression.Call(listConstant, containsMethod, property);
+    }
+
+    /// <summary>
+    /// Converts one value of an <c>@=</c> list to the property type; a value that does not fit is a malformed filter.
+    /// </summary>
+    private static object ConvertInValue(string v, Type propertyType, string propertyPath)
+    {
+        try
         {
             if (propertyType.IsEnum)
                 return Enum.Parse(propertyType, v, ignoreCase: true);
@@ -248,19 +285,11 @@ internal static class Evaluator
                 return Convert.ChangeType(v, typeof(long), System.Globalization.CultureInfo.InvariantCulture);
 
             return Convert.ChangeType(v, propertyType, System.Globalization.CultureInfo.InvariantCulture);
-        }).ToList();
-
-        var listType = typeof(List<>).MakeGenericType(propertyType);
-        var list = Activator.CreateInstance(listType);
-        var addMethod = listType.GetMethod("Add")!;
-
-        foreach (var item in convertedValues)
-            addMethod.Invoke(list, [item]);
-
-        var containsMethod = listType.GetMethod("Contains", [propertyType])!;
-        var listConstant = Expression.Constant(list, listType);
-
-        return Expression.Call(listConstant, containsMethod, property);
+        }
+        catch (Exception ex) when (ex is InvalidCastException || ex is FormatException || ex is ArgumentException || ex is OverflowException)
+        {
+            throw new CriteriaException(CriteriaErrors.InvalidValue.With(v, propertyPath), ex);
+        }
     }
 
     /// <summary>
@@ -278,7 +307,7 @@ internal static class Evaluator
         foreach (var part in propertyName.Split('.'))
         {
             var pi = currentType.GetProperty(part, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase)
-                ?? throw new CriteriaException($"Instance property '{part}' is not defined for type '{currentType.FullName}' (Parameter 'propertyName')");
+                ?? throw new CriteriaException(CriteriaErrors.UnknownProperty.With(propertyName));
 
             property = Expression.Property(property, pi);
             currentType = pi.PropertyType;

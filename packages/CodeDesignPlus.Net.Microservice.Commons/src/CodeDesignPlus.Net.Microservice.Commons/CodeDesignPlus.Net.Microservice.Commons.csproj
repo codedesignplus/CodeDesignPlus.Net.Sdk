@@ -54,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Exceptions\src\CodeDesignPlus.Net.Exceptions\CodeDesignPlus.Net.Exceptions.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Criteria\src\CodeDesignPlus.Net.Criteria\CodeDesignPlus.Net.Criteria.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Serializers\src\CodeDesignPlus.Net.Serializers\CodeDesignPlus.Net.Serializers.csproj" />
     <ProjectReference Include="..\..\..\CodeDesignPlus.Net.Core\src\CodeDesignPlus.Net.Core\CodeDesignPlus.Net.Core.csproj" />
   </ItemGroup>

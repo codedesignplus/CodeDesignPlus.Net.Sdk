@@ -1,0 +1,11 @@
+{
+  "language": "pt",
+  "errors": {
+    "9500": "Uma condição do filtro está incompleta ou não tem operador: escreva-a como propriedade, operador e valor, por exemplo status=1.",
+    "9501": "A condição sobre “{0}” deve ser unida à anterior com |and| ou |or|.",
+    "9502": "A propriedade “{0}” não existe, então não pode ser usada para filtrar nem para ordenar.",
+    "9503": "O valor “{0}” não é válido para “{1}”.",
+    "9504": "O operador “{0}” não pode ser usado com “{1}”.",
+    "9505": "O filtro não é válido."
+  }
+}
