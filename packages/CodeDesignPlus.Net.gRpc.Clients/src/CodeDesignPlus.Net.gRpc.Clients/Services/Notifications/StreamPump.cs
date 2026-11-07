@@ -32,11 +32,18 @@ internal sealed class StreamPump<TResponse>
     }
 
     /// <summary>Escribe todo lo que llegue a la cola, reabriendo el stream a los 5s si se cae.</summary>
+    /// <remarks>
+    /// El mensaje que se estaba escribiendo cuando el stream falló ya salió de la cola: se guarda y es lo primero que se escribe
+    /// al reconectar. Antes se perdía, y era justo el primero después de un rato sin tráfico, cuando el stream se había caído
+    /// sin que nadie lo notara. Reenviarlo no duplica un aviso durable: la bandeja lo reconoce por su id.
+    /// </remarks>
     internal async Task RunAsync<TRequest>(
         ChannelReader<TRequest> channelReader,
         Func<CancellationToken, AsyncDuplexStreamingCall<TRequest, TResponse>> callFactory,
         CancellationToken token)
     {
+        var unsent = new Queue<TRequest>(1);
+
         while (!token.IsCancellationRequested)
         {
             try
@@ -54,9 +61,20 @@ internal sealed class StreamPump<TResponse>
                     }
                 }, token);
 
+                while (unsent.TryPeek(out var pending))
+                {
+                    await call.RequestStream.WriteAsync(pending, token);
+
+                    unsent.Dequeue();
+                }
+
                 await foreach (var request in channelReader.ReadAllAsync(token))
                 {
+                    unsent.Enqueue(request);
+
                     await call.RequestStream.WriteAsync(request, token);
+
+                    unsent.Dequeue();
                 }
 
                 await call.RequestStream.CompleteAsync();
