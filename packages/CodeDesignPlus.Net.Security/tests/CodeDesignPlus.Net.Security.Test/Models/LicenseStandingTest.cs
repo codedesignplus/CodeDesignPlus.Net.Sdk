@@ -88,4 +88,17 @@ public class LicenseStandingTest
         // Act & Assert
         Assert.Throws<ArgumentOutOfRangeException>(() => LicenseStanding.Evaluate(Expiration, Expiration, -1));
     }
+
+    /// <summary>
+    /// The default value of the status is not a status: a standing that was never evaluated must not read as an active license.
+    /// </summary>
+    [Fact]
+    public void LicenseStatus_DefaultValue_IsNotAStatus()
+    {
+        // Act
+        var defined = Enum.IsDefined(default(LicenseStatus));
+
+        // Assert
+        Assert.False(defined);
+    }
 }
