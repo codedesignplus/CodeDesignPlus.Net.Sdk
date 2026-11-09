@@ -119,6 +119,7 @@
     "9120": "Le symbole est obligatoire pour {0}-{1}.",
     "9121": "Le code numérique est invalide pour {0}-{1}.",
     "9122": "Le nombre de décimales est invalide pour {0}-{1}.",
-    "9123": "Un quartier nécessite sa localité."
+    "9123": "Un quartier nécessite sa localité.",
+    "9124": "La retenue doit être calculée sur le sous-total ou sur la taxe."
   }
 }

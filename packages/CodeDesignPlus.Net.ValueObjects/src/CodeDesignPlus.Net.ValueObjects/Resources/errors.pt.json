@@ -119,6 +119,7 @@
     "9120": "O símbolo é obrigatório para {0}-{1}.",
     "9121": "O código numérico é inválido para {0}-{1}.",
     "9122": "As casas decimais são inválidas para {0}-{1}.",
-    "9123": "O bairro precisa da sua localidade."
+    "9123": "O bairro precisa da sua localidade.",
+    "9124": "A retenção deve ser calculada sobre o subtotal ou sobre o imposto."
   }
 }

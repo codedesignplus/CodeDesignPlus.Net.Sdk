@@ -18,12 +18,14 @@ namespace CodeDesignPlus.Net.ValueObjects.Financial;
 /// <param name="RatePercentage">The rate as a percentage (e.g., 3.5 = 3.5%).</param>
 /// <param name="MinimumBase">Minimum transaction amount in MAJOR units to apply this withholding. Zero = always applies.</param>
 /// <param name="Currency">The 3-letter currency code for the minimum base, according to ISO 4217.</param>
+/// <param name="Basis">The amount the rate applies to: the subtotal (1) or the tax (2).</param>
 public sealed record WithholdingDefinitionInput(
     string Code,
     string Name,
     decimal RatePercentage,
     decimal MinimumBase,
-    string Currency)
+    string Currency,
+    WithholdingBasis Basis)
 {
     /// <summary>
     /// Converts this input into a <see cref="WithholdingDefinition"/> value object,
@@ -36,6 +38,6 @@ public sealed record WithholdingDefinitionInput(
         var minimumBaseMinor = Money.FromDecimal(MinimumBase, Currency, decimalPlaces).Amount;
         var rateBasisPoints = BasisPoints.FromPercentage(RatePercentage);
 
-        return WithholdingDefinition.Create(Code, Name, rateBasisPoints, minimumBaseMinor, Currency);
+        return WithholdingDefinition.Create(Code, Name, rateBasisPoints, minimumBaseMinor, Currency, Basis);
     }
 }

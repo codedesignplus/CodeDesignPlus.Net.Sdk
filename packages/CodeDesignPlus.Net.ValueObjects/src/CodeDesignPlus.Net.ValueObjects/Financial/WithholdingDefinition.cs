@@ -41,6 +41,17 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, I
     /// </summary>
     public string Currency { get; private set; }
 
+    /// <summary>
+    /// Gets the amount the rate applies to: the subtotal or the tax of the lines that form the base.
+    /// </summary>
+    /// <remarks>
+    /// It is a member and not a constructor argument because the definitions stored before it existed do not carry it, and
+    /// the driver discards a constructor whose arguments are not all in the document. The attribute lets the JSON
+    /// deserialization of events, the cache and requests write it through its private setter.
+    /// </remarks>
+    [JsonProperty]
+    public WithholdingBasis Basis { get; private set; }
+
     [JsonConstructor]
     private WithholdingDefinition(string code, string name, int rateBasisPoints, long minimumBase, string currency)
     {
@@ -52,7 +63,7 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, I
     }
 
     /// <summary>
-    /// Checks the code, the name, the rate, the minimum base and the currency of the withholding.
+    /// Checks the code, the name, the rate, the minimum base, the currency and the basis of the withholding.
     /// </summary>
     /// <exception cref="Exceptions.CodeDesignPlusException">Thrown with the error of the first invariant that does not hold.</exception>
     public void EnsureValid()
@@ -63,6 +74,7 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, I
         Guard.IsLessThan(MinimumBase, 0L, Exceptions.Layer.None, Errors.MinimumBaseCannotBeNegative);
         Guard.IsNullOrEmpty(Currency, Exceptions.Layer.None, Errors.CurrencyCannotBeNullOrEmpty);
         Guard.IsFalse(Currency.Length == 3, Exceptions.Layer.None, Errors.CurrencyMustBeExactly3CharactersISO4217);
+        Guard.IsFalse(Enum.IsDefined(Basis), Exceptions.Layer.None, Errors.WithholdingBasisIsInvalid);
     }
 
     /// <summary>
@@ -73,10 +85,14 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, I
     /// <param name="rateBasisPoints">The rate in basis points (e.g., 350 = 3.50%).</param>
     /// <param name="minimumBase">Minimum transaction amount in minor units to apply this withholding. Zero = always applies.</param>
     /// <param name="currency">ISO 4217 currency code for the minimum base.</param>
+    /// <param name="basis">The amount the rate applies to: the subtotal or the tax.</param>
     /// <returns>A new <see cref="WithholdingDefinition"/> instance.</returns>
-    public static WithholdingDefinition Create(string code, string name, int rateBasisPoints, long minimumBase, string currency)
+    public static WithholdingDefinition Create(string code, string name, int rateBasisPoints, long minimumBase, string currency, WithholdingBasis basis)
     {
-        var withholdingDefinition = new WithholdingDefinition(code, name, rateBasisPoints, minimumBase, currency);
+        var withholdingDefinition = new WithholdingDefinition(code, name, rateBasisPoints, minimumBase, currency)
+        {
+            Basis = basis
+        };
 
         withholdingDefinition.EnsureValid();
 
@@ -90,22 +106,35 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, I
     public decimal ToDecimalRate() => RateBasisPoints / 10000m;
 
     /// <summary>
-    /// Determines whether the withholding applies to the given base amount.
+    /// Determines whether the withholding applies to a document with the given subtotal.
     /// </summary>
-    /// <param name="baseAmountMinorUnits">The transaction base in minor units.</param>
-    /// <returns>True if the base meets the minimum threshold; otherwise, false.</returns>
-    public bool AppliesTo(long baseAmountMinorUnits) => baseAmountMinorUnits >= MinimumBase;
+    /// <param name="subtotalMinorUnits">The subtotal (value before taxes) of the lines that form the base, in minor units.</param>
+    /// <returns>True if the subtotal meets the minimum threshold; otherwise, false.</returns>
+    /// <remarks>
+    /// The threshold is always compared against the subtotal, also when the rate applies to the tax: the minimum base of the
+    /// VAT withholding is the value of the operation without VAT (DUR 1625 art. 1.3.2.1.12).
+    /// </remarks>
+    public bool AppliesTo(long subtotalMinorUnits) => subtotalMinorUnits >= MinimumBase;
 
     /// <summary>
-    /// Calculates the withholding amount for a given base in minor units.
-    /// Returns zero if the base is below the minimum threshold.
+    /// Calculates the withholding amount for the lines that form its base.
+    /// Returns zero if the subtotal is below the minimum threshold.
     /// </summary>
-    /// <param name="baseAmountMinorUnits">The base amount in minor units.</param>
+    /// <param name="subtotalMinorUnits">The subtotal (value before taxes) of the lines that form the base, in minor units.</param>
+    /// <param name="taxMinorUnits">The tax charged on those same lines, in minor units.</param>
     /// <returns>The calculated withholding amount in minor units, or zero if the threshold is not met.</returns>
-    public long CalculateWithholdingAmount(long baseAmountMinorUnits)
+    /// <exception cref="Exceptions.CodeDesignPlusException">Thrown when the stored basis is not a known one.</exception>
+    public long CalculateWithholdingAmount(long subtotalMinorUnits, long taxMinorUnits)
     {
-        if (!AppliesTo(baseAmountMinorUnits))
+        if (!AppliesTo(subtotalMinorUnits))
             return 0L;
+
+        var baseAmountMinorUnits = Basis switch
+        {
+            WithholdingBasis.Subtotal => subtotalMinorUnits,
+            WithholdingBasis.Tax => taxMinorUnits,
+            _ => throw new Exceptions.CodeDesignPlusException(Exceptions.Layer.None, Errors.WithholdingBasisIsInvalid)
+        };
 
         return (long)Math.Round(baseAmountMinorUnits * ToDecimalRate(), MidpointRounding.AwayFromZero);
     }
@@ -143,7 +172,8 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, I
                Name == other.Name &&
                RateBasisPoints == other.RateBasisPoints &&
                MinimumBase == other.MinimumBase &&
-               Currency == other.Currency;
+               Currency == other.Currency &&
+               Basis == other.Basis;
     }
 
     /// <summary>
@@ -157,5 +187,5 @@ public sealed class WithholdingDefinition : IEquatable<WithholdingDefinition>, I
     /// Returns the hash code for this instance.
     /// </summary>
     /// <returns>The hash code.</returns>
-    public override int GetHashCode() => HashCode.Combine(Code, Name, RateBasisPoints, MinimumBase, Currency);
+    public override int GetHashCode() => HashCode.Combine(Code, Name, RateBasisPoints, MinimumBase, Currency, Basis);
 }

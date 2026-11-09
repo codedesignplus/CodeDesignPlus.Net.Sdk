@@ -119,6 +119,7 @@
     "9120": "Symbol is required for {0}-{1}",
     "9121": "Numeric code is invalid for {0}-{1}",
     "9122": "Decimal digits is invalid for {0}-{1}",
-    "9123": "A neighborhood requires its locality."
+    "9123": "A neighborhood requires its locality.",
+    "9124": "The withholding must be calculated on the subtotal or on the tax."
   }
 }

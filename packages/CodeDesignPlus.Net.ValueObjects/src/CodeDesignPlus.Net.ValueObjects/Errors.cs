@@ -269,4 +269,10 @@ public class Errors : IErrorCodes
     /// no tiene localidades), pero no un barrio sin su localidad (pendings/130).
     /// </summary>
     public static readonly Error NeighborhoodRequiresLocality = new("9123");
+
+    /// <summary>
+    /// Una retención se calcula sobre el subtotal o sobre el impuesto: sin saberlo, una retención de IVA salía sobre el
+    /// valor sin IVA (Kappali pendings/668).
+    /// </summary>
+    public static readonly Error WithholdingBasisIsInvalid = new("9124");
 }
