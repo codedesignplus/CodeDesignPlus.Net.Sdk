@@ -1,5 +1,6 @@
 using CodeDesignPlus.Net.gRpc.Clients.Abstractions.Options;
 using CodeDesignPlus.Net.gRpc.Clients.Extensions;
+using CodeDesignPlus.Net.gRpc.Clients.Services.ElectronicInvoicing;
 using CodeDesignPlus.Net.gRpc.Clients.Services.FileStorage;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Payment;
 using Grpc.Net.Client;
@@ -139,6 +140,53 @@ public class ServiceCollectionExtensionsTest
         Assert.DoesNotContain(services, d => d.ServiceType == typeof(IUserGrpc));
         Assert.DoesNotContain(services, d => d.ServiceType == typeof(ITenantGrpc));
         Assert.DoesNotContain(services, d => d.ServiceType == typeof(IFileStorageGrpc));
+        Assert.DoesNotContain(services, d => d.ServiceType == typeof(IElectronicInvoicingGrpc));
+    }
+
+    /// <summary>
+    /// Con la dirección de ms-electronicinvoicing se registran el cliente generado y la implementación, por petición.
+    /// </summary>
+    [Fact]
+    public void AddGrpcClients_RegistersElectronicInvoicingClient_WhenElectronicInvoicingOptionIsSet()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{GrpcClientsOptions.Section}:ElectronicInvoicing"] = "http://localhost:5006"
+            })
+            .Build();
+
+        // Act
+        services.AddGrpcClients(config);
+
+        // Assert
+        using var scope = services.BuildServiceProvider().CreateScope();
+
+        Assert.IsType<ElectronicInvoicingGrpcService>(scope.ServiceProvider.GetRequiredService<IElectronicInvoicingGrpc>());
+    }
+
+    /// <summary>
+    /// Sin la dirección de ms-electronicinvoicing no se registra su cliente: un micro que no factura no lo necesita.
+    /// </summary>
+    [Fact]
+    public void AddGrpcClients_DoesNotRegisterElectronicInvoicingClient_WhenElectronicInvoicingOptionIsMissing()
+    {
+        // Arrange
+        var services = new ServiceCollection();
+        var config = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [$"{GrpcClientsOptions.Section}:Email"] = "http://localhost:5005"
+            })
+            .Build();
+
+        // Act
+        services.AddGrpcClients(config);
+
+        // Assert
+        Assert.DoesNotContain(services, d => d.ServiceType == typeof(IElectronicInvoicingGrpc) || d.ServiceType == typeof(ElectronicInvoicing.ElectronicInvoicingClient));
     }
 
     /// <summary>

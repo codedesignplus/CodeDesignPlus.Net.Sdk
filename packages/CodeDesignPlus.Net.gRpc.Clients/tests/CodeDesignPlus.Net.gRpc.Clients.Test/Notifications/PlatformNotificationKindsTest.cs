@@ -17,6 +17,7 @@ public class PlatformNotificationKindsTest
         { PlatformNotificationKinds.LicenseOffered, "license.offered" },
         { PlatformNotificationKinds.LicenseOfferWithdrawn, "license.offer-withdrawn" },
         { PlatformNotificationKinds.LicenseOrderNotApplied, "license.order-not-applied" },
+        { PlatformNotificationKinds.LicenseInvoiceRejected, "license.invoice-rejected" },
     };
 
     [Theory]

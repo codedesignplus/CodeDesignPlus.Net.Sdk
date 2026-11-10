@@ -16,6 +16,7 @@ using CodeDesignPlus.Net.gRpc.Clients.Services.Cache;
 using CodeDesignPlus.Net.Security.Abstractions;
 using CodeDesignPlus.Net.gRpc.Clients.Services.Emails;
 using CodeDesignPlus.Net.gRpc.Clients.Services.FileStorage;
+using CodeDesignPlus.Net.gRpc.Clients.Services.ElectronicInvoicing;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Extensions;
 
@@ -174,6 +175,17 @@ public static class ServiceCollectionExtensions
                 .ConfigureChannel(channel => channel.MaxSendMessageSize = FileStorageMaxMessageSize);
 
             services.AddScoped<IFileStorageGrpc, FileStorageGrpcService>();
+        }
+
+        // ms-electronicinvoicing: lo llaman workers y jobs sin usuario, con el emisor dentro del request (Kappali pendings/661).
+        if (!string.IsNullOrEmpty(options!.ElectronicInvoicing))
+        {
+            services.AddGrpcClient<ElectronicInvoicing.ElectronicInvoicingClient>(o =>
+            {
+                o.Address = new Uri(options.ElectronicInvoicing);
+            });
+
+            services.AddScoped<IElectronicInvoicingGrpc, ElectronicInvoicingGrpcService>();
         }
 
         // El snapshot lo publica ms-tenants, que es dueño de todo el contenido: alcanza con su

@@ -1,0 +1,297 @@
+syntax = "proto3";
+
+// The server uses csharp_namespace = "CodeDesignPlus.Net.Microservice.ElectronicInvoicing.gRpc"; this client copy uses
+// "CodeDesignPlus.Net.gRpc.Clients.Services.ElectronicInvoicing". package and service do NOT change between copies:
+// they form the route /ElectronicInvoicing.ElectronicInvoicing/IssueDocument. Everything else is a byte-for-byte copy of
+// the server's proto (CodeDesignPlus.Net.Microservice.ElectronicInvoicing, Kappali pendings/663 and 661).
+option csharp_namespace = "CodeDesignPlus.Net.gRpc.Clients.Services.ElectronicInvoicing";
+
+package ElectronicInvoicing;
+
+import "google/protobuf/timestamp.proto";
+
+// The electronic invoicing contract other services call inside the cluster.
+//
+// Every method is anonymous and receives the tenant in the request: the callers are workers and jobs without a user
+// token. That is only safe while this gRPC endpoint is not published outside the cluster (its Service is a ClusterIP and
+// no route reaches it), as in ms-payments.
+//
+// Which issuer a request works with is decided only by the request, never by headers or by the caller's context:
+// - a tenant and platform_issuer = false: the issuer of that tenant;
+// - no tenant (or platform_issuer = true and no tenant): the platform's own issuer, the company that runs the platform
+//   and invoices what it sells. It is not a tenant: for example, ms-licenses invoices the sale of a license with the
+//   platform's company as the issuer and the tenant that bought it as the buyer (in content.buyer);
+// - a tenant and platform_issuer = true at once: refused with INVALID_ARGUMENT (error 218) instead of guessing.
+// The platform's documents are kept under a tenant id reserved by this service (00000000-e1ec-0000-0000-000000000001);
+// it comes back in the events as their tenant, and naming it as a tenant is refused with INVALID_ARGUMENT (error 219).
+//
+// Amounts travel in minor units of their currency (int64) and rates in basis points (int32). Calendar dates are
+// strings "yyyy-MM-dd"; instants are google.protobuf.Timestamp in UTC. Quantities are decimals written as strings with
+// a point ("1", "2.5"), so no precision is lost.
+//
+// Field numbers removed from a message are reserved and never reused: emitters and consumers are deployed separately,
+// and a reused number would be read with the old meaning by whoever has not been upgraded yet.
+service ElectronicInvoicing {
+  // Issues a document. The answer is immediate (DRAFT) and the result arrives by the events Validated, Rejected or
+  // Stalled. The same id with the same content returns the same document; with another content, ALREADY_EXISTS.
+  rpc IssueDocument (IssueDocumentRequest) returns (IssueDocumentResponse);
+
+  // A document of a tenant or of the platform's issuer.
+  rpc GetDocument (GetDocumentRequest) returns (GetDocumentResponse);
+
+  // Corrects a rejected document with the content sent (same id, same number) or looks at a waiting one now.
+  rpc RetryDocument (RetryDocumentRequest) returns (IssueDocumentResponse);
+
+  // The issuer of a tenant or the platform's: whether it can issue, what its provider can do and the documents left in its quota, so the
+  // caller blocks a charge that cannot be invoiced before collecting it.
+  rpc GetIssuer (GetIssuerRequest) returns (GetIssuerResponse);
+}
+
+enum DocumentType {
+  DOCUMENT_TYPE_UNSPECIFIED = 0;
+  INVOICE = 1;
+  CREDIT_NOTE = 2;
+  DEBIT_NOTE = 3;
+  POS_TICKET = 4;
+  POS_ADJUSTMENT_NOTE = 5;
+}
+
+enum DocumentStatus {
+  DOCUMENT_STATUS_UNSPECIFIED = 0;
+  DRAFT = 1;
+  SENT = 2;
+  VALIDATED = 3;
+  REJECTED = 4;
+}
+
+enum IssuerStatus {
+  ISSUER_STATUS_UNSPECIFIED = 0;
+  ISSUER_DRAFT = 1;
+  ISSUER_PROVISIONED = 2;
+  ISSUER_TESTING = 3;
+  ISSUER_ENABLED = 4;
+  ISSUER_SUSPENDED = 5;
+}
+
+enum IssuerEnvironment {
+  ISSUER_ENVIRONMENT_UNSPECIFIED = 0;
+  ENVIRONMENT_TEST = 1;
+  ENVIRONMENT_HABILITATION = 2;
+  ENVIRONMENT_PRODUCTION = 3;
+}
+
+enum RejectionOrigin {
+  REJECTION_ORIGIN_UNSPECIFIED = 0;
+  REJECTED_BY_PROVIDER = 1;
+  REJECTED_BY_TAX_AUTHORITY = 2;
+}
+
+// An address with the codes of the tax authority's lists.
+message Address {
+  string street = 1;
+  string country_code = 2;
+  string country_name = 3;
+  string region_code = 4;
+  string region_name = 5;
+  string city_code = 6;
+  string city_name = 7;
+  optional string postal_code = 8;
+}
+
+// Who the document is issued to; every code is the tax authority's.
+message Buyer {
+  string person_type_code = 1;
+  string identification_type_code = 2;
+  string identification_number = 3;
+  optional string check_digit = 4;
+  string name = 5;
+  optional string first_name = 6;
+  optional string last_name = 7;
+  optional string email = 8;
+  optional string phone = 9;
+  optional string tax_liability_code = 10;
+  repeated string tax_responsibilities = 11;
+  Address address = 12;
+}
+
+// A tax or a withholding of a line.
+message LineTax {
+  string code = 1;
+  string name = 2;
+  int32 rate_basis_points = 3;
+  int64 base_amount = 4;
+  int64 amount = 5;
+}
+
+// A line: amount = round(quantity * unit_price) - discount_amount.
+message Line {
+  string code = 1;
+  string description = 2;
+  string quantity = 3;
+  string unit_code = 4;
+  int64 unit_price = 5;
+  int64 discount_amount = 6;
+  int64 amount = 7;
+  repeated LineTax taxes = 8;
+  repeated LineTax withholdings = 9;
+}
+
+// payable = gross - discount + tax - prepayment; withholdings do not lower it.
+message Totals {
+  string currency = 1;
+  int64 gross_amount = 2;
+  int64 discount_amount = 3;
+  int64 tax_amount = 4;
+  int64 withholding_amount = 5;
+  int64 prepayment_amount = 6;
+  int64 payable_amount = 7;
+}
+
+message Prepayment {
+  string id = 1;
+  int64 amount = 2;
+  string received_on = 3;
+}
+
+message PaymentMeans {
+  string form_code = 1;
+  string method_code = 2;
+}
+
+// In a note: the id of a document issued here, or the number, CUFE and issue date of one issued elsewhere.
+message BillingReference {
+  optional string document_id = 1;
+  optional string prefix = 2;
+  optional int64 consecutive = 3;
+  optional string cufe = 4;
+  optional string issue_date = 5;
+}
+
+message DocumentContent {
+  Buyer buyer = 1;
+  repeated Line lines = 2;
+  Totals totals = 3;
+  repeated Prepayment prepayments = 4;
+  PaymentMeans payment_means = 5;
+  string due_date = 6;
+  repeated string notes = 7;
+  BillingReference billing_reference = 8;
+  optional string correction_concept_code = 9;
+}
+
+message IssueDocumentRequest {
+  // Derived by the caller from its own source: retrying does not issue twice.
+  string id = 1;
+  // The tenant that issues. Absent: the platform's issuer issues.
+  optional string issuer_tenant = 2;
+  // The platform's issuer issues. It is what an absent issuer_tenant already means; sending it makes the intent explicit.
+  // Together with issuer_tenant it is refused (INVALID_ARGUMENT, error 218).
+  bool platform_issuer = 3;
+  DocumentType type = 4;
+  // Opaque text of the caller that comes back in the events.
+  string reference = 5;
+  DocumentContent content = 6;
+  // A document that must be validated before this one is sent.
+  optional string preceded_by = 7;
+}
+
+message IssueDocumentResponse {
+  string id = 1;
+  DocumentStatus status = 2;
+  optional string prefix = 3;
+  optional int64 consecutive = 4;
+}
+
+message GetDocumentRequest {
+  string id = 1;
+  // The tenant that issued it. Absent: a document of the platform's issuer.
+  optional string tenant = 2;
+  // A document of the platform's issuer; together with tenant it is refused (INVALID_ARGUMENT, error 218).
+  bool platform_issuer = 3;
+}
+
+// A file in ms-filestorage.
+message StoredFile {
+  string id = 1;
+  string target = 2;
+  string name = 3;
+  string extension = 4;
+  string mime_type = 5;
+  int64 size = 6;
+}
+
+message Rejection {
+  RejectionOrigin origin = 1;
+  repeated string reasons = 2;
+  google.protobuf.Timestamp at = 3;
+}
+
+message GetDocumentResponse {
+  string id = 1;
+  // The tenant that issued it; empty for a document of the platform's issuer.
+  string tenant = 2;
+  string reference = 3;
+  string issuer_id = 4;
+  DocumentType type = 5;
+  DocumentStatus status = 6;
+  optional string prefix = 7;
+  optional int64 consecutive = 8;
+  optional string cufe = 9;
+  optional string issue_date = 10;
+  google.protobuf.Timestamp validated_at = 11;
+  Rejection rejection = 12;
+  StoredFile xml = 13;
+  StoredFile pdf = 14;
+  StoredFile attached_document = 15;
+  bool contingency = 16;
+  int32 attempts = 17;
+  bool stalled = 18;
+  // Issued by the platform's issuer.
+  bool platform_issuer = 19;
+}
+
+message RetryDocumentRequest {
+  string id = 1;
+  // The tenant that issued it. Absent: a document of the platform's issuer.
+  optional string tenant = 2;
+  // Required when the document is rejected.
+  DocumentContent content = 3;
+  // A document of the platform's issuer; together with tenant it is refused (INVALID_ARGUMENT, error 218).
+  bool platform_issuer = 4;
+}
+
+message GetIssuerRequest {
+  // The tenant whose issuer is asked for. Absent: the platform's issuer.
+  optional string tenant = 1;
+  // The platform's issuer; together with tenant it is refused (INVALID_ARGUMENT, error 218).
+  bool platform_issuer = 2;
+}
+
+message Capabilities {
+  repeated DocumentType document_types = 1;
+  bool supports_prepayments = 2;
+  bool external_billing_reference = 3;
+  bool habilitation_by_api = 4;
+}
+
+message Quota {
+  int64 limit = 1;
+  int64 used = 2;
+  // What an invoice or a ticket can still use now; notes always go.
+  int64 remaining = 3;
+  google.protobuf.Timestamp period_start = 4;
+  google.protobuf.Timestamp period_end = 5;
+}
+
+message GetIssuerResponse {
+  // False when the tenant has no issuer: nothing can be invoiced.
+  bool registered = 1;
+  string id = 2;
+  IssuerStatus status = 3;
+  IssuerEnvironment environment = 4;
+  bool can_issue = 5;
+  string provider = 6;
+  Capabilities capabilities = 7;
+  Quota quota = 8;
+  optional string suspension_reason_code = 9;
+}

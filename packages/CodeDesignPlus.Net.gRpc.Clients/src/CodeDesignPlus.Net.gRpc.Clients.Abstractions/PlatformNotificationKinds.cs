@@ -60,4 +60,13 @@ public static class PlatformNotificationKinds
     /// comprador. Payload: { orderId, buyerId, stepName, reason, failedAt }
     /// </summary>
     public const string LicenseOrderNotApplied = "license.order-not-applied";
+
+    /// <summary>
+    /// Al Super Administrador: el proveedor o la DIAN rechazó la factura electrónica de una orden de licencia pagada, y
+    /// hay que corregirla y reenviarla sobre el mismo número (Kappali pendings/661). La compra no se deshace: la
+    /// copropiedad ya tiene su licencia. Sale de <c>ElectronicDocumentRejectedDomainEvent</c> de ms-electronicinvoicing,
+    /// correlacionado con la orden por su referencia. Payload: { orderId, documentId, tenantId, tenantName, origin,
+    /// reasons, rejectedAt }
+    /// </summary>
+    public const string LicenseInvoiceRejected = "license.invoice-rejected";
 }

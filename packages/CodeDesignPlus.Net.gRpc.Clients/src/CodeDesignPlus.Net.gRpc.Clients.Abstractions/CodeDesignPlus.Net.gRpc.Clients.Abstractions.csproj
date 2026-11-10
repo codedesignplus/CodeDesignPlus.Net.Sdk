@@ -74,6 +74,9 @@
     <Protobuf Include="Protos\filestorage.proto" GrpcServices="Client">
       <Link>Protos\filestorage.proto</Link>
     </Protobuf>
+    <Protobuf Include="Protos\electronicinvoicing.proto" GrpcServices="Client">
+      <Link>Protos\electronicinvoicing.proto</Link>
+    </Protobuf>
   </ItemGroup>
   
   <ItemGroup>

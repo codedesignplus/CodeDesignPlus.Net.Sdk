@@ -46,4 +46,8 @@ public class GrpcClientsOptions
     /// Gets or sets the URL for the FileStorage gRPC service.
     /// </summary>
     public string FileStorage { get; set; } = null!;
+    /// <summary>
+    /// Gets or sets the URL for the ElectronicInvoicing gRPC service (ms-electronicinvoicing). Empty: the client is not registered.
+    /// </summary>
+    public string ElectronicInvoicing { get; set; } = null!;
 }
