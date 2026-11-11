@@ -193,6 +193,13 @@ message IssueDocumentRequest {
   DocumentContent content = 6;
   // A document that must be validated before this one is sent.
   optional string preceded_by = 7;
+  // The number of a caller that keeps its own sequence: prefix (1 to 4 letters or digits, no hyphen) and consecutive
+  // (greater than zero) go together; one without the other is refused (INVALID_ARGUMENT, error 220). With them nothing is
+  // reserved: the number must fall in a numbering range of the issuer for the type (error 221) valid today in the time
+  // zone of the issuer (error 222), unless the issuer has no range for the type (notes without a resolution), and no other
+  // document of the issuer and type may carry it (error 223). Absent: this service numbers the document, as before.
+  optional string prefix = 8;
+  optional int64 consecutive = 9;
 }
 
 message IssueDocumentResponse {
@@ -272,6 +279,9 @@ message Capabilities {
   bool supports_prepayments = 2;
   bool external_billing_reference = 3;
   bool habilitation_by_api = 4;
+  // Whether the document carries the issue date this service sends. False: the provider dates it the day it receives it,
+  // and the issue date of the validated document (event Validated) is the legal one.
+  bool issuer_sets_issue_date = 5;
 }
 
 message Quota {
