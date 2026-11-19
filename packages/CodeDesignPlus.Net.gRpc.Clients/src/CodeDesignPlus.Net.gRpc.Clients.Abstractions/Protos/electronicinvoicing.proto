@@ -167,6 +167,23 @@ message BillingReference {
   optional string issue_date = 5;
 }
 
+// The cash register a point of sale ticket was sold at, as the tax authority asks for it in the ticket. This service
+// does not know what the register is: the caller says it. Each text has at most 100 characters.
+message PointOfSale {
+  // The inventory plate of the register.
+  string register_code = 1;
+  // The type of register, as the caller names it.
+  string register_type = 2;
+  // The name of the place where the register is (a store, a branch, a front desk).
+  string location_name = 3;
+  // The address of that place.
+  string location_address = 4;
+  // First and last names of the cashier or seller.
+  string cashier_name = 5;
+  // The code of the sale in the caller.
+  string sale_code = 6;
+}
+
 message DocumentContent {
   Buyer buyer = 1;
   repeated Line lines = 2;
@@ -177,6 +194,10 @@ message DocumentContent {
   repeated string notes = 7;
   BillingReference billing_reference = 8;
   optional string correction_concept_code = 9;
+  // The cash register of the sale. Required in a POS_TICKET, with its six texts (INVALID_ARGUMENT, error 155): the tax
+  // authority rejects a ticket without it. Optional in a POS_ADJUSTMENT_NOTE, and refused in the other types (error 156).
+  // The subtotal of the sale the tax authority asks for with it is not sent: it comes from totals.
+  PointOfSale point_of_sale = 10;
 }
 
 message IssueDocumentRequest {

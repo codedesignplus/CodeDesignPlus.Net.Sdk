@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.gRpc.Clients.Services.ElectronicInvoicing;
+using Google.Protobuf;
 
 namespace CodeDesignPlus.Net.gRpc.Clients.Test.Services.ElectronicInvoicing;
 
@@ -39,6 +40,55 @@ public class ElectronicInvoicingContractTest
 
         // Assert
         Assert.Equal(name, field?.Name);
+    }
+
+    /// <summary>
+    /// The cash register of a point of sale ticket travels in field 10 of the content, after the fields a caller written
+    /// before it already sends.
+    /// </summary>
+    [Theory]
+    [InlineData(8, "billing_reference")]
+    [InlineData(9, "correction_concept_code")]
+    [InlineData(10, "point_of_sale")]
+    public void DocumentContent_FieldNumbers_MatchTheServer(int number, string name)
+    {
+        // Act
+        var field = DocumentContent.Descriptor.FindFieldByNumber(number);
+
+        // Assert
+        Assert.Equal(name, field?.Name);
+    }
+
+    /// <summary>
+    /// The six texts of the cash register travel in the numbers the server reads.
+    /// </summary>
+    [Theory]
+    [InlineData(1, "register_code")]
+    [InlineData(2, "register_type")]
+    [InlineData(3, "location_name")]
+    [InlineData(4, "location_address")]
+    [InlineData(5, "cashier_name")]
+    [InlineData(6, "sale_code")]
+    public void PointOfSale_FieldNumbers_MatchTheServer(int number, string name)
+    {
+        // Act
+        var field = PointOfSale.Descriptor.FindFieldByNumber(number);
+
+        // Assert
+        Assert.Equal(name, field?.Name);
+    }
+
+    /// <summary>
+    /// A content without the cash register is still a whole content: a caller that issues an invoice sends none.
+    /// </summary>
+    [Fact]
+    public void DocumentContent_WithoutPointOfSale_SaysItIsAbsent()
+    {
+        // Arrange
+        var content = DocumentContent.Parser.ParseFrom(new DocumentContent { DueDate = "2026-11-19" }.ToByteArray());
+
+        // Assert
+        Assert.Null(content.PointOfSale);
     }
 
     /// <summary>
