@@ -19,6 +19,7 @@ public class PlatformNotificationKindsTest
         { PlatformNotificationKinds.LicenseOrderNotApplied, "license.order-not-applied" },
         { PlatformNotificationKinds.LicenseInvoiceRejected, "license.invoice-rejected" },
         { PlatformNotificationKinds.ElectronicInvoicingProviderPlanThreshold, "electronic-invoicing.provider-plan-threshold" },
+        { PlatformNotificationKinds.ElectronicInvoicingProviderPlanExpiring, "electronic-invoicing.provider-plan-expiring" },
     };
 
     [Theory]

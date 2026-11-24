@@ -80,4 +80,12 @@ public static class PlatformNotificationKinds
     /// estimatedOverageCost, currency, periodEnd }
     /// </summary>
     public const string ElectronicInvoicingProviderPlanThreshold = "electronic-invoicing.provider-plan-threshold";
+
+    /// <summary>
+    /// Al Super Administrador: el contrato con el proveedor de factura electronica vence pronto y hay que renovarlo para no
+    /// interrumpir la emision (Kappali pendings/744). Sale de <c>ProviderPlanExpiringDomainEvent</c> de
+    /// ms-electronicinvoicing, una sola vez, cuando se abre la ventana de aviso antes del fin del contrato. Payload:
+    /// { provider, validUntil, expiresOn, daysLeft, used, documents }
+    /// </summary>
+    public const string ElectronicInvoicingProviderPlanExpiring = "electronic-invoicing.provider-plan-expiring";
 }
