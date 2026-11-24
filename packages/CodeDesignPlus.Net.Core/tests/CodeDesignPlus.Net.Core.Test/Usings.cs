@@ -8,6 +8,7 @@ global using CodeDesignPlus.Net.Core.Test.Helpers.Models;
 global using Microsoft.Extensions.Configuration;
 global using Microsoft.Extensions.DependencyInjection;
 global using Microsoft.Extensions.Options;
+global using System.Runtime.CompilerServices;
 global using System.Text;
 global using Xunit;
 global using NodaTime;

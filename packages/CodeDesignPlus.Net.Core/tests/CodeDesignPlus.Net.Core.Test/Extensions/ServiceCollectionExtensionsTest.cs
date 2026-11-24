@@ -81,4 +81,60 @@ public class ServiceCollectionExtensionsTest
         Assert.True(StartupFake.Initialized);
     }
 
+    [Fact]
+    public void AddCore_CalledThreeTimes_RunsEachStartupOnce()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddCore(configuration);
+        serviceCollection.AddCore(configuration);
+        serviceCollection.AddCore(configuration);
+
+        // Assert
+        Assert.Equal(1, CountingStartupFake.GetExecutions(serviceCollection));
+    }
+
+    [Fact]
+    public void AddCore_CalledThreeTimes_BoundListHasNoDuplicates()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration(new
+        {
+            Core = ConfigurationUtil.CoreOptions,
+            ListFake = new ListOptionsFake { Items = ["R-99-PN", "O-13"] }
+        });
+
+        var serviceCollection = new ServiceCollection();
+
+        // Act
+        serviceCollection.AddCore(configuration);
+        serviceCollection.AddCore(configuration);
+        serviceCollection.AddCore(configuration);
+
+        // Assert
+        var options = serviceCollection.BuildServiceProvider().GetRequiredService<IOptions<ListOptionsFake>>();
+
+        Assert.Equal(["R-99-PN", "O-13"], options.Value.Items);
+    }
+
+    [Fact]
+    public void AddCore_DistinctServiceCollections_RunsStartupsOnEach()
+    {
+        // Arrange
+        var configuration = ConfigurationUtil.GetConfiguration();
+
+        var first = new ServiceCollection();
+        var second = new ServiceCollection();
+
+        // Act
+        first.AddCore(configuration);
+        second.AddCore(configuration);
+
+        // Assert
+        Assert.Equal([1, 1], new[] { CountingStartupFake.GetExecutions(first), CountingStartupFake.GetExecutions(second) });
+    }
 }

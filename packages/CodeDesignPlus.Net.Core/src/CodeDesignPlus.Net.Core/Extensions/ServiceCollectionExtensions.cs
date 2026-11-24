@@ -8,6 +8,10 @@ public static class ServiceCollectionExtensions
     /// <summary>
     /// Adds the core services to the specified <see cref="IServiceCollection"/> using the provided <see cref="IConfiguration"/>.
     /// </summary>
+    /// <remarks>
+    /// Idempotent per <see cref="IServiceCollection"/>: other packages (Redis, Logger, Observability, PubSub, Event Sourcing) call it too,
+    /// so only the first call binds <see cref="CoreOptions"/> and runs the <see cref="IStartup"/> implementations; later calls return as-is.
+    /// </remarks>
     /// <param name="services">The <see cref="IServiceCollection"/> to add the services to.</param>
     /// <param name="configuration">The <see cref="IConfiguration"/> used to configure the core services.</param>
     /// <returns>The modified <see cref="IServiceCollection"/> instance.</returns>
@@ -23,6 +27,13 @@ public static class ServiceCollectionExtensions
         if (!section.Exists())
             throw new CoreException($"The section {CoreOptions.Section} is required.");
 
+        if (services.Any(x => x.ServiceType == typeof(CoreMarker)))
+        {
+            return services;
+        }
+
+        services.AddSingleton<CoreMarker>();
+
         services
             .AddOptions<CoreOptions>()
             .Bind(section)
@@ -31,7 +42,7 @@ public static class ServiceCollectionExtensions
 
         services.TryAddSingleton<IDomainEventResolver, DomainEventResolverService>();
         services.TryAddScoped<IEventContext, EventContext>();
-        
+
         services.AddStartups(configuration);
 
         return services;
@@ -60,4 +71,9 @@ public static class ServiceCollectionExtensions
 
         return services;
     }
+
+    /// <summary>
+    /// Marks an <see cref="IServiceCollection"/> on which <see cref="AddCore"/> has already run.
+    /// </summary>
+    private sealed class CoreMarker;
 }
