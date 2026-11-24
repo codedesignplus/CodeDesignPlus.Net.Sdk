@@ -40,14 +40,14 @@ public class InMemoryProjectionSyncStore : IProjectionSyncStore
         return Task.CompletedTask;
     }
 
-    public Task MarkSyncedAsync(SnapshotKey key, Guid requestId, long count, CancellationToken cancellationToken)
+    public Task MarkSyncedAsync(SnapshotKey key, Guid requestId, long count, int revision, CancellationToken cancellationToken)
     {
         lock (this.sync)
         {
             this.SyncedMarks++;
         }
 
-        this.Change(key, x => x with { SyncedAt = SystemClock.Instance.GetCurrentInstant(), Count = count, Applied = count, IncompleteRequestId = null, IncompleteAt = null });
+        this.Change(key, x => x with { SyncedAt = SystemClock.Instance.GetCurrentInstant(), Count = count, Applied = count, Revision = revision, IncompleteRequestId = null, IncompleteAt = null });
 
         return Task.CompletedTask;
     }

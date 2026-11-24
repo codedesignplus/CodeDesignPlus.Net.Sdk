@@ -59,6 +59,32 @@ public class SnapshotProgressTest
     }
 
     /// <summary>
+    /// La marca guarda la revisión que declara el gemelo, aunque el cierre no traiga su tipo: si no, la copia volvería a
+    /// pedir la foto en cada arranque.
+    /// </summary>
+    [Fact]
+    public async Task RecordCompletedAsync_TwinWithRevision_MarksTheSourceWithThatRevision()
+    {
+        // Arrange
+        var key = new SnapshotKey("xunit-owner", "UserEntity", nameof(RevisedUserSnapshotDomainEvent));
+        var request = SnapshotRequestedDomainEvent.Create(key, App, null);
+        var options = new SnapshotSyncOptions();
+
+        options.Snapshots.Add((typeof(UserSnapshotDomainEvent), typeof(UserSnapshotHandler)));
+        options.Snapshots.Add((typeof(RevisedUserSnapshotDomainEvent), typeof(UserSnapshotHandler)));
+
+        var revisedTracker = new SnapshotProgressTracker(NullLogger<SnapshotProgressTracker>.Instance, this.store, Microsoft.Extensions.Options.Options.Create(options));
+
+        await revisedTracker.RecordAppliedAsync(new RevisedUserSnapshotDomainEvent(Guid.NewGuid(), Tenant) { RequestId = request.RequestId, RequestedBy = App }, CancellationToken.None);
+
+        // Act
+        await revisedTracker.RecordCompletedAsync(SnapshotCompletedDomainEvent.Create(request, 1), CancellationToken.None);
+
+        // Assert
+        Assert.Equal((true, 2), (this.store.State(key)!.IsSynced, this.store.State(key)!.Revision));
+    }
+
+    /// <summary>
     /// Todas las fotos acabaron en la cola de descartados y el cierre anunció las tres: la foto no queda sincronizada (el
     /// caso de ms-assemblies que abrió el plan, con 28 usuarios).
     /// </summary>

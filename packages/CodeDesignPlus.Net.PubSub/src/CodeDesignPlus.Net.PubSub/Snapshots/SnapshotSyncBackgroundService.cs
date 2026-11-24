@@ -29,6 +29,10 @@ internal sealed class SnapshotSyncOptions
 /// (pendings/485). Al repetir la petición lo avisa con una advertencia, con cuántas fotos aplicó de cuántas.
 /// </para>
 /// <para>
+/// Una fuente sincronizada con una revisión anterior a la que declara su gemelo (<see cref="SnapshotRevisionAttribute"/>)
+/// se vuelve a pedir: la copia tiene los datos con la forma vieja.
+/// </para>
+/// <para>
 /// El dueño no contesta si arrancó después que la copia: la petición llegó antes de que existiera su suscripción y se
 /// perdió. Las primeras repeticiones van pronto para que esa copia no espere el intervalo entero (pendings/466).
 /// </para>
@@ -123,10 +127,11 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
         try
         {
             var key = SnapshotSync.KeyOf(snapshot);
+            var revision = SnapshotRevisionAttribute.Of(snapshot);
 
             var state = await store.FindAsync(key, stoppingToken).ConfigureAwait(false);
 
-            if (state?.IsSynced == true)
+            if (state?.IsSyncedAt(revision) == true)
             {
                 return;
             }
@@ -139,7 +144,7 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
                 return;
             }
 
-            await this.WarnWhyAsync(key, state, retryAfter.HasValue, stoppingToken).ConfigureAwait(false);
+            await this.WarnWhyAsync(key, state, revision, retryAfter.HasValue, stoppingToken).ConfigureAwait(false);
 
             var requestId = await requester.RequestAsync(snapshot, null, stoppingToken).ConfigureAwait(false);
 
@@ -157,10 +162,17 @@ internal sealed class SnapshotSyncBackgroundService(ISubscriptionTracker tracker
     /// <summary>
     /// Deja en el log por qué se vuelve a pedir una foto que ya se había pedido.
     /// </summary>
-    private async Task WarnWhyAsync(SnapshotKey key, ProjectionSyncState state, bool retrying, CancellationToken stoppingToken)
+    private async Task WarnWhyAsync(SnapshotKey key, ProjectionSyncState state, int revision, bool retrying, CancellationToken stoppingToken)
     {
         if (state is null)
         {
+            return;
+        }
+
+        if (state.IsSynced)
+        {
+            logger.LogInformation("Snapshot {Snapshot} from {Source} was synced at revision {Synced} and this copy expects revision {Revision}. Requesting it again.", key.Snapshot, key.Source, state.Revision ?? SnapshotRevisionAttribute.Initial, revision);
+
             return;
         }
 

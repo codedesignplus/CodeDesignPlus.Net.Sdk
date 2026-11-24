@@ -10,8 +10,13 @@ namespace CodeDesignPlus.Net.PubSub.Snapshots;
 /// Las fotos y el cierre llegan por colas distintas y en cualquier orden. Cada lado anota lo suyo en el progreso de la
 /// petición con una operación atómica que devuelve también lo del otro, así que el que escribe último ve las dos cosas y
 /// marca: la última foto si el cierre ya estaba, o el cierre si ya estaban todas las fotos.
+/// <para>
+/// La marca guarda la revisión que declara el gemelo de la copia (<see cref="SnapshotRevisionAttribute"/>), para que al
+/// subirla la copia vuelva a pedir la foto. El cierre no trae el tipo del gemelo: la revisión se busca entre las fotos que
+/// consume esta aplicación.
+/// </para>
 /// </remarks>
-internal sealed class SnapshotProgressTracker(ILogger<SnapshotProgressTracker> logger, IProjectionSyncStore store = null) : ISnapshotProgressTracker
+internal sealed class SnapshotProgressTracker(ILogger<SnapshotProgressTracker> logger, IProjectionSyncStore store = null, IOptions<SnapshotSyncOptions> options = null) : ISnapshotProgressTracker
 {
     /// <inheritdoc/>
     public async Task RecordAppliedAsync(SnapshotDomainEvent snapshot, CancellationToken cancellationToken)
@@ -35,7 +40,7 @@ internal sealed class SnapshotProgressTracker(ILogger<SnapshotProgressTracker> l
 
         if (progress.IsComplete)
         {
-            await store.MarkSyncedAsync(key, progress.RequestId, progress.Applied, cancellationToken).ConfigureAwait(false);
+            await store.MarkSyncedAsync(key, progress.RequestId, progress.Applied, this.RevisionOf(key), cancellationToken).ConfigureAwait(false);
 
             logger.LogInformation("Projection of {Aggregate} from {Source} synced with snapshot {RequestId}: {Applied} of {Expected} applied.", key.Aggregate, key.Source, progress.RequestId, progress.Applied, progress.Expected);
         }
@@ -63,7 +68,7 @@ internal sealed class SnapshotProgressTracker(ILogger<SnapshotProgressTracker> l
 
         if (progress.IsComplete)
         {
-            await store.MarkSyncedAsync(key, completed.RequestId, completed.Count, cancellationToken).ConfigureAwait(false);
+            await store.MarkSyncedAsync(key, completed.RequestId, completed.Count, this.RevisionOf(key), cancellationToken).ConfigureAwait(false);
 
             logger.LogInformation("Projection of {Aggregate} from {Source} synced with snapshot {RequestId}: {Applied} of {Expected} applied.", completed.Aggregate, completed.Source, completed.RequestId, progress.Applied, completed.Count);
 
@@ -75,5 +80,18 @@ internal sealed class SnapshotProgressTracker(ILogger<SnapshotProgressTracker> l
         // Información y no advertencia: el cierre suele adelantarse a las últimas fotos, que siguen en su cola. La
         // advertencia sale cuando la petición se vuelve a pedir porque no se completó.
         logger.LogInformation("Snapshot {RequestId} of {Aggregate} from {Source} completed by the owner with {Expected} snapshots, {Applied} applied so far: incomplete until the rest are applied.", completed.RequestId, completed.Aggregate, completed.Source, completed.Count, progress.Applied);
+    }
+
+    /// <summary>
+    /// La revisión que declara el gemelo de la foto entre las que consume esta aplicación; la inicial si no la consume.
+    /// </summary>
+    private int RevisionOf(SnapshotKey key)
+    {
+        var revisions = options?.Value.Snapshots
+            .Where(x => SnapshotSync.KeyOf(x.Snapshot) == key)
+            .Select(x => SnapshotRevisionAttribute.Of(x.Snapshot))
+            .ToList();
+
+        return revisions is { Count: > 0 } ? revisions.Max() : SnapshotRevisionAttribute.Initial;
     }
 }

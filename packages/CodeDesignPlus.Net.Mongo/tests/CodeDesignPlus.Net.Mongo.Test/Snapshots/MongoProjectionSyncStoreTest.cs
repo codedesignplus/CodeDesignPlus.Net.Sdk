@@ -66,12 +66,12 @@ public class MongoProjectionSyncStoreTest
         await this.store.MarkRequestedAsync(key, requestId, CancellationToken.None);
 
         // Act
-        await this.store.MarkSyncedAsync(key, requestId, 3, CancellationToken.None);
+        await this.store.MarkSyncedAsync(key, requestId, 3, 2, CancellationToken.None);
 
         // Assert
         var state = await this.store.FindAsync(key, CancellationToken.None);
 
-        Assert.Equal((requestId, true, 3L, 3L), (state!.LastRequestId, state.IsSynced, state.Count, state.Applied));
+        Assert.Equal((requestId, true, 3L, 3L, 2), (state!.LastRequestId, state.IsSynced, state.Count, state.Applied, state.Revision));
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ public class MongoProjectionSyncStoreTest
         // Arrange
         var key = Key("Legacy");
 
-        await this.store.MarkSyncedAsync(key, Guid.NewGuid(), 28, CancellationToken.None);
+        await this.store.MarkSyncedAsync(key, Guid.NewGuid(), 28, 1, CancellationToken.None);
 
         await this.database.GetCollection<BsonDocument>(MongoProjectionSyncStore.CollectionName).UpdateOneAsync(Builders<BsonDocument>.Filter.Eq("_id", ProjectionSyncState.IdOf(key)), Builders<BsonDocument>.Update.Unset("Applied").Unset("IncompleteRequestId").Unset("IncompleteAt"));
 
@@ -158,7 +158,7 @@ public class MongoProjectionSyncStoreTest
         await this.store.RecordCompletedAsync(key, requestId, 1, CancellationToken.None);
 
         // Act
-        await this.store.MarkSyncedAsync(key, requestId, 1, CancellationToken.None);
+        await this.store.MarkSyncedAsync(key, requestId, 1, 1, CancellationToken.None);
 
         // Assert
         var progress = await this.store.FindProgressAsync(requestId, CancellationToken.None);

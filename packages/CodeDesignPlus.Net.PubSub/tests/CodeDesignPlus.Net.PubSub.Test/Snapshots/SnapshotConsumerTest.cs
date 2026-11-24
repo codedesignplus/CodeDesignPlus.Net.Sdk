@@ -189,7 +189,7 @@ public class SnapshotConsumerTest
         await handler.HandleAsync(SnapshotCompletedDomainEvent.Create(request, 3), CancellationToken.None);
 
         // Assert
-        this.store.Verify(x => x.MarkSyncedAsync(Assemblies, request.RequestId, 3, It.IsAny<CancellationToken>()), Times.Once);
+        this.store.Verify(x => x.MarkSyncedAsync(Assemblies, request.RequestId, 3, SnapshotRevisionAttribute.Initial, It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [Theory]

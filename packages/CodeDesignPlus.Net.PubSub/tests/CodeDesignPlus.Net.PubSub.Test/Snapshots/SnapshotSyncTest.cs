@@ -17,6 +17,7 @@ namespace CodeDesignPlus.Net.PubSub.Test.Snapshots;
 public class SnapshotSyncTest
 {
     private static readonly SnapshotKey UserSnapshot = new("xunit-owner", "UserEntity", nameof(UserSnapshotDomainEvent));
+    private static readonly SnapshotKey RevisedSnapshot = new("xunit-owner", "UserEntity", nameof(RevisedUserSnapshotDomainEvent));
 
     private readonly Mock<ISubscriptionTracker> tracker = new();
     private readonly Mock<ISnapshotRequester> requester = new();
@@ -58,6 +59,44 @@ public class SnapshotSyncTest
             .ReturnsAsync(State(synced: true) with { Applied = 3 });
 
         var service = this.Service();
+
+        // Act
+        await RunAsync(service);
+
+        // Assert
+        this.requester.Verify(x => x.RequestAsync(It.IsAny<Type>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    /// <summary>
+    /// El gemelo subió de revisión porque el dueño empezó a mandar un campo nuevo: la copia sincronizada con la revisión
+    /// anterior tiene los datos sin él y vuelve a pedir la foto (el múltiplo de efectivo que no llegó a ms-parking).
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_SourceSyncedAtAnOlderRevision_RequestsAgain()
+    {
+        // Arrange
+        this.store
+            .Setup(x => x.FindAsync(RevisedSnapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RevisedState() with { Applied = 3 });
+
+        var service = this.Service(snapshot: typeof(RevisedUserSnapshotDomainEvent));
+
+        // Act
+        await RunAsync(service);
+
+        // Assert
+        this.requester.Verify(x => x.RequestAsync(typeof(RevisedUserSnapshotDomainEvent), null, It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task ExecuteAsync_SourceSyncedAtTheDeclaredRevision_DoesNotRequest()
+    {
+        // Arrange
+        this.store
+            .Setup(x => x.FindAsync(RevisedSnapshot, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(RevisedState() with { Applied = 3, Revision = 2 });
+
+        var service = this.Service(snapshot: typeof(RevisedUserSnapshotDomainEvent));
 
         // Act
         await RunAsync(service);
@@ -270,11 +309,11 @@ public class SnapshotSyncTest
             handlers.Contains(typeof(SnapshotCompletedHandler))));
     }
 
-    private SnapshotSyncBackgroundService Service(TimeSpan? retryInterval = null, Instant? now = null, TimeSpan[] retryDelays = null)
+    private SnapshotSyncBackgroundService Service(TimeSpan? retryInterval = null, Instant? now = null, TimeSpan[] retryDelays = null, Type snapshot = null)
     {
         var options = new SnapshotSyncOptions();
 
-        options.Snapshots.Add((typeof(UserSnapshotDomainEvent), typeof(UserSnapshotHandler)));
+        options.Snapshots.Add((snapshot ?? typeof(UserSnapshotDomainEvent), typeof(UserSnapshotHandler)));
 
         // Sin esperas crecientes salvo que la prueba las pida: así se prueba el intervalo solo.
         var pubSubOptions = new PubSubOptions { SnapshotRetryDelays = retryDelays ?? [] };
@@ -292,6 +331,8 @@ public class SnapshotSyncTest
     }
 
     private static ProjectionSyncState State(bool synced) => new("xunit-owner", "UserEntity", nameof(UserSnapshotDomainEvent), Guid.NewGuid(), RequestedAt, synced ? RequestedAt + Duration.FromMinutes(1) : null, 3);
+
+    private static ProjectionSyncState RevisedState() => new("xunit-owner", "UserEntity", nameof(RevisedUserSnapshotDomainEvent), Guid.NewGuid(), RequestedAt, RequestedAt + Duration.FromMinutes(1), 3);
 
     private static async Task RunAsync(BackgroundService service, TimeSpan? duration = null)
     {

@@ -17,6 +17,16 @@ public class UserSnapshotDomainEvent(Guid aggregateId, string name, Guid tenant,
 }
 
 /// <summary>
+/// Gemelo de una foto que creció: la copia declara la revisión 2 para que se la vuelvan a mandar entera.
+/// </summary>
+[SnapshotRevision(2)]
+[EventKey("UserEntity", 1, "RevisedUserSnapshotDomainEvent", "xunit-owner", "codedesignplus")]
+public class RevisedUserSnapshotDomainEvent(Guid aggregateId, Guid tenant, Guid? eventId = null, Instant? occurredAt = null, Dictionary<string, object>? metadata = null)
+    : SnapshotDomainEvent(aggregateId, tenant, eventId, occurredAt, metadata)
+{
+}
+
+/// <summary>
 /// Fuente de fotos en memoria, con los usuarios ordenados por identificador.
 /// </summary>
 public class UserSnapshotSource : ISnapshotSource<UserSnapshotDomainEvent>

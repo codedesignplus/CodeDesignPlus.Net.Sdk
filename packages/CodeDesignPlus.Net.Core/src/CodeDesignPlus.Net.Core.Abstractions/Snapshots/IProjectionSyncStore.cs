@@ -41,9 +41,10 @@ public interface IProjectionSyncStore
     /// <param name="key">La foto, con su aplicación dueña.</param>
     /// <param name="requestId">El identificador de la petición contestada.</param>
     /// <param name="count">Cuántas fotos publicó el dueño, y aplicó la copia.</param>
+    /// <param name="revision">La revisión de la foto que espera la copia (<see cref="SnapshotRevisionAttribute"/>).</param>
     /// <param name="cancellationToken">El token de cancelación.</param>
     /// <returns>La tarea.</returns>
-    Task MarkSyncedAsync(SnapshotKey key, Guid requestId, long count, CancellationToken cancellationToken);
+    Task MarkSyncedAsync(SnapshotKey key, Guid requestId, long count, int revision, CancellationToken cancellationToken);
 
     /// <summary>
     /// Anota que el dueño cerró una petición completa y la copia todavía no aplicó todas sus fotos.
@@ -139,6 +140,12 @@ public sealed record ProjectionSyncState(string Source, string Aggregate, string
     public Instant? IncompleteAt { get; init; }
 
     /// <summary>
+    /// La revisión de la foto con que se sincronizó la copia, o nulo si la marca es anterior a que se guardara: entonces es
+    /// <see cref="SnapshotRevisionAttribute.Initial"/>.
+    /// </summary>
+    public int? Revision { get; init; }
+
+    /// <summary>
     /// Si la copia ya recibió y aplicó una foto completa.
     /// </summary>
     /// <remarks>
@@ -146,6 +153,16 @@ public sealed record ProjectionSyncState(string Source, string Aggregate, string
     /// dueño: no prueba que la copia esté completa y se vuelve a pedir.
     /// </remarks>
     public bool IsSynced => this.SyncedAt.HasValue && this.Applied.HasValue;
+
+    /// <summary>
+    /// Si la copia está sincronizada con una foto de la revisión que espera, o de una posterior.
+    /// </summary>
+    /// <remarks>
+    /// Una copia sincronizada con una revisión anterior tiene los datos con la forma vieja: se vuelve a pedir.
+    /// </remarks>
+    /// <param name="revision">La revisión que declara el gemelo de la copia.</param>
+    /// <returns><c>true</c> si no hace falta volver a pedir la foto.</returns>
+    public bool IsSyncedAt(int revision) => this.IsSynced && (this.Revision ?? SnapshotRevisionAttribute.Initial) >= revision;
 
     /// <summary>
     /// Si el dueño cerró una petición y la copia no ha aplicado todas sus fotos.

@@ -65,6 +65,7 @@ internal sealed class MongoProjectionSyncStore(IMongoClient client, IOptions<Mon
         return new ProjectionSyncState(document.Source, document.Aggregate, document.Snapshot, document.LastRequestId, document.RequestedAt, document.SyncedAt, document.Count)
         {
             Applied = document.Applied,
+            Revision = document.Revision,
             IncompleteRequestId = document.IncompleteRequestId,
             IncompleteAt = document.IncompleteAt
         };
@@ -84,7 +85,7 @@ internal sealed class MongoProjectionSyncStore(IMongoClient client, IOptions<Mon
     }
 
     /// <inheritdoc/>
-    public async Task MarkSyncedAsync(SnapshotKey key, Guid requestId, long count, CancellationToken cancellationToken)
+    public async Task MarkSyncedAsync(SnapshotKey key, Guid requestId, long count, int revision, CancellationToken cancellationToken)
     {
         var update = Builders<ProjectionSyncDocument>.Update
             .Set(x => x.Source, key.Source)
@@ -94,6 +95,7 @@ internal sealed class MongoProjectionSyncStore(IMongoClient client, IOptions<Mon
             .Set(x => x.SyncedAt, SystemClock.Instance.GetCurrentInstant())
             .Set(x => x.Count, count)
             .Set(x => x.Applied, count)
+            .Set(x => x.Revision, revision)
             .Unset(x => x.IncompleteRequestId)
             .Unset(x => x.IncompleteAt);
 
@@ -262,6 +264,11 @@ internal sealed class ProjectionSyncDocument
     /// Cuántas aplicó la copia con éxito; nulo en una marca anterior a que se contaran (pendings/485).
     /// </summary>
     public long? Applied { get; set; }
+
+    /// <summary>
+    /// La revisión de la foto con que se sincronizó; nulo en una marca anterior a que se guardara.
+    /// </summary>
+    public int? Revision { get; set; }
 
     /// <summary>
     /// La última petición cerrada sin que la copia hubiera aplicado todas sus fotos.
