@@ -4,7 +4,7 @@ namespace CodeDesignPlus.Net.gRpc.Clients.Abstractions;
 /// El catalogo de tipos de aviso de la plataforma: los que nacen del sistema y no del negocio de un producto.
 /// </summary>
 /// <remarks>
-/// Aqui van solo los avisos del sistema: licencias y facturacion de la plataforma. Los de negocio de Kappali
+/// Aqui van solo los avisos del sistema: licencias, facturacion de la plataforma y su plan con el proveedor de factura electronica. Los de negocio de Kappali
 /// (cuentas de cobro, PQRS, porteria, asambleas…) siguen en <c>Kappali.Net.Common.Notifications.NotificationKinds</c>,
 /// del SDK de Kappali; este SDK no conoce ninguno. Vive junto a <see cref="INotificationGrpc"/> y
 /// <see cref="NotificationIds"/> porque es lo que ya consume cualquier micro que avisa, sin dependencias nuevas.
@@ -69,4 +69,15 @@ public static class PlatformNotificationKinds
     /// reasons, rejectedAt }
     /// </summary>
     public const string LicenseInvoiceRejected = "license.invoice-rejected";
+
+    // ─── Facturación electrónica ─────────────────────────────────────────────────
+
+    /// <summary>
+    /// Al Super Administrador: los documentos electrónicos del mes pasaron un umbral de los que incluye el plan contratado
+    /// con el proveedor (por ejemplo 70, 90 o 100 %); desde el 100 % cada documento se cobra como excedente, sin bloquear
+    /// nada (Kappali pendings/744). Sale de <c>ProviderPlanThresholdReachedDomainEvent</c> de ms-electronicinvoicing, una
+    /// vez por mes y umbral. Payload: { month, provider, threshold, percentage, used, documents, overage,
+    /// estimatedOverageCost, currency, periodEnd }
+    /// </summary>
+    public const string ElectronicInvoicingProviderPlanThreshold = "electronic-invoicing.provider-plan-threshold";
 }

@@ -18,6 +18,7 @@ public class PlatformNotificationKindsTest
         { PlatformNotificationKinds.LicenseOfferWithdrawn, "license.offer-withdrawn" },
         { PlatformNotificationKinds.LicenseOrderNotApplied, "license.order-not-applied" },
         { PlatformNotificationKinds.LicenseInvoiceRejected, "license.invoice-rejected" },
+        { PlatformNotificationKinds.ElectronicInvoicingProviderPlanThreshold, "electronic-invoicing.provider-plan-threshold" },
     };
 
     [Theory]
