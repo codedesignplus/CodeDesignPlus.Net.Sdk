@@ -29,6 +29,18 @@ public interface IUserGrpc
     /// <returns>Returns a task representing the asynchronous operation.</returns>
     Task RemoveGroupFromUser(RemoveGroupRequest request, CancellationToken cancellationToken);
     /// <summary>
+    /// Deletes the account that was deactivated because nothing was left to it, if it is still that way.
+    /// </summary>
+    /// <remarks>
+    /// An account is left deactivated instead of deleted when the last role is removed with
+    /// <see cref="RemoveGroupRequest.KeepAccount"/>. If it got a role again in the meantime, or an administrator
+    /// deactivated it by hand, it is not deleted.
+    /// </remarks>
+    /// <param name="request">The request containing the user identifier.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Whether the account was deleted.</returns>
+    Task<DeleteReleasedUserResponse> DeleteReleasedUser(DeleteReleasedUserRequest request, CancellationToken cancellationToken);
+    /// <summary>
     /// Gets every role of a user, both the platform ones and those of each tenant.
     /// </summary>
     /// <remarks>

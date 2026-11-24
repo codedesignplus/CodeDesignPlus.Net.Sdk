@@ -99,4 +99,37 @@ public class UserServiceTest
         // Assert
         mockClient.Verify(m => m.RemoveGroupFromUserAsync(It.IsAny<RemoveGroupRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None), Times.Once);
     }
+    [Fact]
+    public async Task DeleteReleasedUser_ValidRequest_ReturnsTheServerAnswer()
+    {
+        // Arrange
+        var userContextMock = new Mock<IUserContext>();
+        userContextMock.Setup(uc => uc.AccessToken).Returns("test-access-token");
+        userContextMock.Setup(uc => uc.Tenant).Returns(Guid.NewGuid());
+
+        var mockCall = GrpcUtil.CreateAsyncUnaryCall(new DeleteReleasedUserResponse { Deleted = true });
+
+        var mockClient = new Mock<gRpc.Clients.Services.User.Users.UsersClient>();
+        mockClient
+            .Setup(m => m.DeleteReleasedUserAsync(It.IsAny<DeleteReleasedUserRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), CancellationToken.None))
+            .Returns(mockCall);
+
+        var userService = new UserService(mockClient.Object, userContextMock.Object);
+
+        // Act
+        var response = await userService.DeleteReleasedUser(new DeleteReleasedUserRequest { Id = Guid.NewGuid().ToString() }, CancellationToken.None);
+
+        // Assert
+        Assert.True(response.Deleted);
+    }
+
+    [Fact]
+    public void RemoveGroupRequest_KeepAccountNotSet_DefaultsToDeletingTheAccount()
+    {
+        // Act
+        var request = new RemoveGroupRequest { Id = Guid.NewGuid().ToString(), Role = Guid.NewGuid().ToString(), Tenant = Guid.NewGuid().ToString() };
+
+        // Assert
+        Assert.False(request.KeepAccount);
+    }
 }

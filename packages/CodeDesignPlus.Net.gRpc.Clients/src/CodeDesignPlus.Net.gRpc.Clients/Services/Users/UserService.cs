@@ -60,6 +60,21 @@ public class UserService(User.Users.UsersClient client, IUserContext userContext
     }
 
     /// <summary>
+    /// Deletes the account that was deactivated because nothing was left to it, if it is still that way.
+    /// </summary>
+    /// <param name="request">The request containing the user identifier.</param>
+    /// <param name="cancellationToken">Cancellation token to observe while waiting for the task to complete.</param>
+    /// <returns>Whether the account was deleted.</returns>
+    public async Task<DeleteReleasedUserResponse> DeleteReleasedUser(DeleteReleasedUserRequest request, CancellationToken cancellationToken)
+    {
+        return await client.DeleteReleasedUserAsync(request, new Grpc.Core.Metadata
+        {
+            { "Authorization", $"Bearer {userContext.AccessToken}" },
+            { "X-Tenant", userContext.Tenant.ToString() }
+        }, cancellationToken: cancellationToken);
+    }
+
+    /// <summary>
     /// Gets every role of a user, both the platform ones and those of each tenant.
     /// </summary>
     /// <param name="request">The request containing the user identifier.</param>

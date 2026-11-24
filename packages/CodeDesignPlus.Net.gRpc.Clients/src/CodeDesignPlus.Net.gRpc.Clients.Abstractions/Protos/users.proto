@@ -14,6 +14,10 @@ service Users {
   rpc AddGroupToUser (AddGroupRequest) returns (google.protobuf.Empty);
   rpc RemoveGroupFromUser (RemoveGroupRequest) returns (google.protobuf.Empty);
 
+  // Borra la cuenta que quedo desactivada por no tener nada (RemoveGroupRequest.KeepAccount), si sigue asi. Si
+  // entretanto recibio un rol, o un administrador la desactivo a mano, no la toca.
+  rpc DeleteReleasedUser (DeleteReleasedUserRequest) returns (DeleteReleasedUserResponse);
+
   // Ultimo recurso del directorio de roles, cuando la cache compartida no tiene la instantanea.
   rpc GetUserRoles (GetUserRolesRequest) returns (GetUserRolesResponse);
 }
@@ -33,6 +37,18 @@ message RemoveGroupRequest {
   string Role = 2;
   // La copropiedad de la que se retira el rol. Retirarlo de una no lo retira de las demas.
   string Tenant = 3;
+  // Si al usuario no le queda nada (ninguna copropiedad ni rol de plataforma), desactiva la cuenta en vez de
+  // borrarla. Por omision, false: se borra, como siempre.
+  bool KeepAccount = 4;
+}
+
+message DeleteReleasedUserRequest {
+  string Id = 1;
+}
+
+message DeleteReleasedUserResponse {
+  // Si se borro. False si la cuenta ya no estaba desactivada por no tener nada.
+  bool Deleted = 1;
 }
 
 message AddTenantRequest {
