@@ -53,7 +53,18 @@ public static class SwaggerExtensions
 
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
 
-            x.IncludeXmlComments(xmlPath);
+            // Sin el XML el Swagger se genera igual, sin las descripciones; antes fallaba la generación entera.
+            if (File.Exists(xmlPath))
+                x.IncludeXmlComments(xmlPath);
+
+            // El contrato que se describe es el que serializa el micro, y el micro serializa con Newtonsoft
+            // (AddSwaggerGenNewtonsoftSupport, abajo). Estos filtros cubren lo que ese soporte no describe bien
+            // (pendings/753).
+            x.MapNodaTimeTypes();
+            x.SchemaFilter<ConstructorParameterSchemaFilter>();
+            x.SchemaFilter<EnumNamesSchemaFilter>();
+            x.SchemaFilter<MoneySchemaFilter>();
+            x.OperationFilter<TenantHeaderOperationFilter>();
 
             x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
@@ -80,6 +91,11 @@ public static class SwaggerExtensions
                 }
             });
         });
+
+        // Swashbuckle describe los tipos por defecto con System.Text.Json, pero los micros serializan con Newtonsoft
+        // (AddNewtonsoftJson en los 37 REST). Sin esto el Swagger ignoraba [Newtonsoft.Json.JsonIgnore] y
+        // [JsonProperty] y obedecía atributos de System.Text.Json que en el cable no tienen efecto (pendings/753).
+        services.AddSwaggerGenNewtonsoftSupport();
 
         return services;
     }

@@ -30,6 +30,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\CodeDesignPlus.Net.Microservice.Commons\CodeDesignPlus.Net.Microservice.Commons.csproj" />
+    <ProjectReference Include="..\..\..\CodeDesignPlus.Net.ValueObjects\src\CodeDesignPlus.Net.ValueObjects\CodeDesignPlus.Net.ValueObjects.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Helpers\Application\Commands\" />
