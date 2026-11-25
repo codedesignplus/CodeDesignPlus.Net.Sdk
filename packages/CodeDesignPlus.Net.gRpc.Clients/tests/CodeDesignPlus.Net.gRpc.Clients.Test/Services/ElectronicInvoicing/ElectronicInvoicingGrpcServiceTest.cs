@@ -73,6 +73,66 @@ public class ElectronicInvoicingGrpcServiceTest
         Assert.Empty(headers!);
     }
 
+    /// <summary>
+    /// A worker that keeps the reason of a refusal to show it later asks for it in the language it will be read in
+    /// (Kappali pendings/744).
+    /// </summary>
+    [Fact]
+    public async Task IssueDocumentAsync_LanguageOfTheErrorsSet_SendsItAsAcceptLanguage()
+    {
+        // Arrange
+        Grpc.Core.Metadata? headers = null;
+
+        var client = new Mock<ElectronicInvoicingProto.ElectronicInvoicingClient>();
+        client
+            .Setup(m => m.IssueDocumentAsync(It.IsAny<IssueDocumentRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .Callback<IssueDocumentRequest, Grpc.Core.Metadata, DateTime?, CancellationToken>((_, h, _, _) => headers = h)
+            .Returns(GrpcUtil.CreateAsyncUnaryCall(new IssueDocumentResponse()));
+
+        var service = new ElectronicInvoicingGrpcService(client.Object);
+
+        // Act
+        await RunInLanguageAsync("es", () => service.IssueDocumentAsync(PlatformInvoice(), CancellationToken.None));
+
+        // Assert
+        Assert.Equal("es", headers!.GetValue("accept-language"));
+    }
+
+    [Fact]
+    public async Task RetryDocumentAsync_LanguageOfTheErrorsSet_SendsItAsAcceptLanguage()
+    {
+        // Arrange
+        Grpc.Core.Metadata? headers = null;
+
+        var client = new Mock<ElectronicInvoicingProto.ElectronicInvoicingClient>();
+        client
+            .Setup(m => m.RetryDocumentAsync(It.IsAny<RetryDocumentRequest>(), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .Callback<RetryDocumentRequest, Grpc.Core.Metadata, DateTime?, CancellationToken>((_, h, _, _) => headers = h)
+            .Returns(GrpcUtil.CreateAsyncUnaryCall(new IssueDocumentResponse()));
+
+        var service = new ElectronicInvoicingGrpcService(client.Object);
+
+        // Act
+        await RunInLanguageAsync("es", () => service.RetryDocumentAsync(new RetryDocumentRequest { Id = Guid.NewGuid().ToString() }, CancellationToken.None));
+
+        // Assert
+        Assert.Equal("es", headers!.GetValue("accept-language"));
+    }
+
+    private static async Task RunInLanguageAsync(string language, Func<Task> call)
+    {
+        CodeDesignPlus.Net.Exceptions.ErrorLanguage.Current = language;
+
+        try
+        {
+            await call();
+        }
+        finally
+        {
+            CodeDesignPlus.Net.Exceptions.ErrorLanguage.Current = null;
+        }
+    }
+
     [Fact]
     public async Task IssueDocumentAsync_NullRequest_ThrowsArgumentNullException()
     {

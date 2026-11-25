@@ -45,6 +45,54 @@ public class ErrorInterceptorTest
         Assert.Equal(StatusCode.FailedPrecondition, exception.StatusCode);
     }
 
+    /// <summary>
+    /// El detalle va en el idioma que pidio quien llama, como la respuesta REST: quien guarda el motivo lo muestra
+    /// despues (Kappali pendings/744). La cabecera Message sigue en ingles, que es ASCII.
+    /// </summary>
+    [Fact]
+    public async Task UnaryServerHandler_CatalogErrorWithALanguageAsked_AnswersTheDetailInThatLanguage()
+    {
+        // Arrange
+        var request = new Mock<object>().Object;
+        var context = new Mock<ServerCallContext>().Object;
+        var continuation = new Mock<UnaryServerMethod<object, object>>();
+        continuation.Setup(c => c(request, context)).ThrowsAsync(new CodeDesignPlusException(Layer.Application, new Error("239")));
+
+        // Act
+        RpcException exception;
+
+        ErrorLanguage.Current = "es";
+
+        try
+        {
+            exception = await Assert.ThrowsAsync<RpcException>(() => _interceptor.UnaryServerHandler(request, context, continuation.Object));
+        }
+        finally
+        {
+            ErrorLanguage.Current = null;
+        }
+
+        // Assert
+        Assert.Equal(("En ese periodo no se retuvo nada.", "239"), (exception.Status.Detail, exception.Trailers.GetValue("code")));
+    }
+
+    [Fact]
+    public async Task UnaryServerHandler_CatalogErrorWithoutALanguage_AnswersInEnglish()
+    {
+        // Arrange
+        var request = new Mock<object>().Object;
+        var context = new Mock<ServerCallContext>().Object;
+        var continuation = new Mock<UnaryServerMethod<object, object>>();
+        var error = new CodeDesignPlusException(Layer.Application, new Error("239"));
+        continuation.Setup(c => c(request, context)).ThrowsAsync(error);
+
+        // Act
+        var exception = await Assert.ThrowsAsync<RpcException>(() => _interceptor.UnaryServerHandler(request, context, continuation.Object));
+
+        // Assert
+        Assert.Equal(error.Message, exception.Status.Detail);
+    }
+
     // Un filtro mal escrito es un argumento invalido, no una precondicion que falla (Kappali pendings/403).
     [Theory]
     [InlineData("status=0|status!=0")]

@@ -175,14 +175,21 @@ public class ErrorInterceptor(ILogger<ErrorInterceptor> logger) : Interceptor
     /// <summary>
     /// Handles CodeDesignPlus exceptions.
     /// </summary>
+    /// <remarks>
+    /// El detalle del estado va en el idioma de la llamada (<see cref="ErrorLanguage"/>, que fija
+    /// <c>LanguageMiddleware</c> con la cabecera <c>accept-language</c>), como la respuesta REST: quien guarda el motivo
+    /// para mostrarlo despues lo pide en el idioma en que se va a leer. Sin idioma pedido sigue en ingles. La cabecera
+    /// <c>Message</c> se queda en ingles: los valores de una cabecera solo admiten ASCII.
+    /// </remarks>
     /// <param name="exception">CodeDesignPlus exception.</param>
     /// <param name="statusCode">The gRPC status that answers the exception.</param>
     /// <returns>Corresponding RpcException.</returns>
     private static RpcException HandleCodeDesignPlusException(CodeDesignPlusException exception, StatusCode statusCode)
     {
+        var message = exception.Error?.GetMessage() ?? exception.Message;
         var response = new ErrorResponse(null, exception.Layer);
 
-        response.Errors.Add(new ErrorDetail(exception.Code, null, exception.Message));
+        response.Errors.Add(new ErrorDetail(exception.Code, null, message));
 
         var metadata = new Metadata
         {
@@ -191,7 +198,7 @@ public class ErrorInterceptor(ILogger<ErrorInterceptor> logger) : Interceptor
             { "Message", exception.Message }
         };
 
-        var status = new Status(statusCode, exception.Message);
+        var status = new Status(statusCode, message);
 
         return new RpcException(status, metadata, response.ToString());
     }
