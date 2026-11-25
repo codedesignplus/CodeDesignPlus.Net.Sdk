@@ -250,4 +250,39 @@ public class ElectronicInvoicingGrpcServiceTest
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(() => service.GetIssuerAsync(null!, CancellationToken.None));
     }
+
+    [Fact]
+    public async Task SetManagedFiscalProfileAsync_History_SendsItAsItCame()
+    {
+        // Arrange
+        var client = new Mock<ElectronicInvoicingProto.ElectronicInvoicingClient>();
+        client
+            .Setup(m => m.SetManagedFiscalProfileAsync(It.Is<SetManagedFiscalProfileRequest>(r => r.Tenant == "aa000000-0000-4000-8000-000000000001" && r.Entries.Single().TaxRegimeCode == "48"), It.IsAny<Grpc.Core.Metadata>(), It.IsAny<DateTime?>(), It.IsAny<CancellationToken>()))
+            .Returns(GrpcUtil.CreateAsyncUnaryCall(new SetManagedFiscalProfileResponse()));
+
+        var service = new ElectronicInvoicingGrpcService(client.Object);
+        var request = new SetManagedFiscalProfileRequest
+        {
+            Tenant = "aa000000-0000-4000-8000-000000000001",
+            TimeZoneId = "America/Bogota",
+            ManagedResponsibilities = { "O-23" },
+            Entries = { new ManagedFiscalProfileEntry { EffectiveFrom = "2026-11-25", TaxRegimeCode = "48", TaxResponsibilities = { "O-23" } } }
+        };
+
+        // Act
+        var response = await service.SetManagedFiscalProfileAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(response);
+    }
+
+    [Fact]
+    public async Task SetManagedFiscalProfileAsync_WithoutTenant_ThrowsArgumentException()
+    {
+        // Arrange
+        var service = new ElectronicInvoicingGrpcService(Mock.Of<ElectronicInvoicingProto.ElectronicInvoicingClient>());
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => service.SetManagedFiscalProfileAsync(new SetManagedFiscalProfileRequest(), CancellationToken.None));
+    }
 }

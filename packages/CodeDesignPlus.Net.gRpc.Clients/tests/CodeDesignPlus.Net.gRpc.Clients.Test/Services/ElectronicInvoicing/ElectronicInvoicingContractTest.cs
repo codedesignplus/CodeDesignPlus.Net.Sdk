@@ -105,4 +105,35 @@ public class ElectronicInvoicingContractTest
         // Assert
         Assert.Equal(expected, (int)type);
     }
+
+    /// <summary>
+    /// The history of the fiscal data managed from outside the issuer travels in the numbers the server reads (Kappali
+    /// pendings/752).
+    /// </summary>
+    [Theory]
+    [InlineData(1, "tenant")]
+    [InlineData(2, "time_zone_id")]
+    [InlineData(3, "managed_responsibilities")]
+    [InlineData(4, "entries")]
+    public void SetManagedFiscalProfileRequest_FieldNumbers_MatchTheServer(int number, string name)
+    {
+        // Act
+        var field = SetManagedFiscalProfileRequest.Descriptor.FindFieldByNumber(number);
+
+        // Assert
+        Assert.Equal(name, field?.Name);
+    }
+
+    [Theory]
+    [InlineData(1, "effective_from")]
+    [InlineData(2, "tax_regime_code")]
+    [InlineData(3, "tax_responsibilities")]
+    public void ManagedFiscalProfileEntry_FieldNumbers_MatchTheServer(int number, string name)
+    {
+        // Act
+        var field = ManagedFiscalProfileEntry.Descriptor.FindFieldByNumber(number);
+
+        // Assert
+        Assert.Equal(name, field?.Name);
+    }
 }

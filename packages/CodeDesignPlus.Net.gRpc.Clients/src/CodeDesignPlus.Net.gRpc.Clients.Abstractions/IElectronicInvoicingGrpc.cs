@@ -67,4 +67,17 @@ public interface IElectronicInvoicingGrpc
     /// <returns>The issuer; <c>registered = false</c> when there is none.</returns>
     /// <exception cref="ArgumentNullException">Thrown when the request is null.</exception>
     Task<GetIssuerResponse> GetIssuerAsync(GetIssuerRequest request, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Replaces the history of the tax regime and the fiscal responsibilities the issuer of a tenant must follow, as the
+    /// service that owns those facts decides them (in Kappali, ms-accounting from the fiscal profile of the copropiedad,
+    /// pendings/752). The server keeps the whole history, aligns the issuer with the version in force today in the time
+    /// zone sent, and applies a later version when its day comes; sending the same history again changes nothing.
+    /// </summary>
+    /// <param name="request">The tenant, its time zone, the responsibilities the history decides and every version with the day it rules from.</param>
+    /// <param name="cancellationToken">Cancellation token propagated to the gRPC call.</param>
+    /// <returns>An empty answer once the history is kept.</returns>
+    /// <exception cref="ArgumentNullException">Thrown when the request is null.</exception>
+    /// <exception cref="ArgumentException">Thrown when the request names no tenant.</exception>
+    Task<SetManagedFiscalProfileResponse> SetManagedFiscalProfileAsync(SetManagedFiscalProfileRequest request, CancellationToken cancellationToken);
 }

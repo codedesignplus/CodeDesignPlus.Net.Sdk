@@ -45,6 +45,17 @@ service ElectronicInvoicing {
   // The issuer of a tenant or the platform's: whether it can issue, what its provider can do and the documents left in its quota, so the
   // caller blocks a charge that cannot be invoiced before collecting it.
   rpc GetIssuer (GetIssuerRequest) returns (GetIssuerResponse);
+
+  // Replaces the history of the tax regime and the fiscal responsibilities the issuer of a tenant must follow, as the
+  // service that owns those facts sends it (in Kappali, ms-accounting from the fiscal profile of the copropiedad). This
+  // service does not know why a tenant has them: it keeps the history, aligns the issuer with the version in force today
+  // in the time zone of the request, and applies a later version when its day comes. The responsibilities not listed in
+  // managed_responsibilities stay the issuer's own, and the code of "no responsibility" of the country is kept only when
+  // the issuer has no other. The history may arrive before the issuer is registered: the issuer is born with it. Sending
+  // the same history again changes nothing. The provider gets the data before the issuer keeps them: a refusal is recorded
+  // on the issuer, which stops issuing until the provider accepts them, and a provider that does not answer does not fail
+  // the call (a round tries again within the hour).
+  rpc SetManagedFiscalProfile (SetManagedFiscalProfileRequest) returns (SetManagedFiscalProfileResponse);
 }
 
 enum DocumentType {
@@ -325,4 +336,31 @@ message GetIssuerResponse {
   Capabilities capabilities = 7;
   Quota quota = 8;
   optional string suspension_reason_code = 9;
+}
+
+// A version of the fiscal data managed from outside the issuer.
+message ManagedFiscalProfileEntry {
+  // The day it rules from, "yyyy-MM-dd" in the time zone of the request.
+  string effective_from = 1;
+  // Code of the tax regime in the tax authority's list.
+  string tax_regime_code = 2;
+  // The managed responsibilities the issuer has from that day; each one is in managed_responsibilities. A managed one that
+  // is not listed, the issuer does not have from that day.
+  repeated string tax_responsibilities = 3;
+}
+
+message SetManagedFiscalProfileRequest {
+  // The tenant of the issuer. Required: the platform's issuer edits its own fiscal data, and its reserved tenant is
+  // refused (INVALID_ARGUMENT, error 219).
+  string tenant = 1;
+  // IANA time zone the days of the entries are read in: the one of the tenant.
+  string time_zone_id = 2;
+  // Codes of the responsibilities the history decides; the issuer does not choose them.
+  repeated string managed_responsibilities = 3;
+  // The whole history, not a change: at least one entry and one per day (INVALID_ARGUMENT, errors 164 to 167);
+  // a day not written "yyyy-MM-dd" fails with error 312, as in the other methods.
+  repeated ManagedFiscalProfileEntry entries = 4;
+}
+
+message SetManagedFiscalProfileResponse {
 }

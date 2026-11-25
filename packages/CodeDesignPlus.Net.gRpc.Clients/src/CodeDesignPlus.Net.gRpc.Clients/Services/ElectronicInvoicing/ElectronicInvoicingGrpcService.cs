@@ -58,6 +58,15 @@ public class ElectronicInvoicingGrpcService(ElectronicInvoicing.ElectronicInvoic
         return await client.GetIssuerAsync(request, Headers(), cancellationToken: cancellationToken);
     }
 
+    /// <inheritdoc/>
+    public async Task<SetManagedFiscalProfileResponse> SetManagedFiscalProfileAsync(SetManagedFiscalProfileRequest request, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+        ArgumentException.ThrowIfNullOrWhiteSpace(request.Tenant);
+
+        return await client.SetManagedFiscalProfileAsync(request, Headers(), cancellationToken: cancellationToken);
+    }
+
     /// <summary>
     /// The headers of a call: only the language of the errors, when the caller asked for one.
     /// </summary>
