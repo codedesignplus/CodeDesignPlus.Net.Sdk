@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Swagger;
+using CodeDesignPlus.Net.Microservice.Commons.FluentValidation;
 using CodeDesignPlus.Net.ValueObjects.Financial;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
@@ -143,6 +144,42 @@ public class SwaggerContractTest
         Assert.DoesNotContain(anonymous.Parameters ?? [], x => x.Name == TenantHeaderOperationFilter.HeaderName);
     }
 
+    [Fact]
+    public void GetSwagger_CommandValidator_ReachesTheDtoSchema()
+    {
+        var schema = Document().Components.Schemas[nameof(CreateSampleDto)];
+        var properties = schema.Properties;
+
+        Assert.Contains("id", schema.Required);
+        Assert.Contains("code", schema.Required);
+
+        // Regla con When: depende de otro valor, no es obligatorio.
+        Assert.DoesNotContain("notes", schema.Required);
+
+        Assert.Equal(1, properties["code"].MinLength);
+        Assert.Equal(32, properties["code"].MaxLength);
+        Assert.Equal("^[A-Z0-9-]+$", properties["code"].Pattern);
+        Assert.Equal("email", properties["email"].Format);
+        Assert.Equal(1, properties["seats"].Minimum);
+        Assert.Equal(500, properties["seats"].Maximum);
+        Assert.Equal(0, properties["rate"].Minimum);
+        Assert.True(properties["rate"].ExclusiveMinimum);
+
+        // La regla del comando sobre algo que el DTO no tiene no inventa una propiedad.
+        Assert.False(properties.ContainsKey("internal"));
+    }
+
+    [Fact]
+    public void GetSwagger_BodyThatIsTheCommand_UsesItsOwnValidator()
+    {
+        var schema = Document().Components.Schemas[nameof(RenameSampleCommand)];
+
+        Assert.Contains("name", schema.Required);
+        Assert.Equal(3, schema.Properties["name"].MinLength);
+        Assert.Equal(64, schema.Properties["name"].MaxLength);
+        Assert.DoesNotContain("id", schema.Required);
+    }
+
     private static void AssertString(OpenApiSchema schema, string format, string example)
     {
         Assert.Equal("string", schema.Type);
@@ -186,6 +223,7 @@ public class SwaggerContractTest
             .AddNewtonsoftJson(options => options.SerializerSettings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
 
         builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddFluentValidation<SampleController>();
 
         if (withSdk)
             builder.Services.AddCoreSwagger<SampleController>(builder.Configuration);

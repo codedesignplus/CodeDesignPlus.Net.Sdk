@@ -64,6 +64,7 @@ public static class SwaggerExtensions
             x.SchemaFilter<ConstructorParameterSchemaFilter>();
             x.SchemaFilter<EnumNamesSchemaFilter>();
             x.SchemaFilter<MoneySchemaFilter>();
+            x.SchemaFilter<FluentValidationSchemaFilter>();
             x.OperationFilter<TenantHeaderOperationFilter>();
 
             x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme

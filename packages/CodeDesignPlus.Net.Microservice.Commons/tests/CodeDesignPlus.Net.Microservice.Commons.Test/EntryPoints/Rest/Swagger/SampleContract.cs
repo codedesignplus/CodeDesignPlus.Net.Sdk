@@ -1,4 +1,5 @@
 using CodeDesignPlus.Net.ValueObjects.Financial;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -67,11 +68,57 @@ public sealed class CreateSampleDto
 
     public MoneyInput Price { get; set; }
 
+    public string Code { get; set; }
+
+    public string Email { get; set; }
+
+    public int Seats { get; set; }
+
+    public decimal Rate { get; set; }
+
+    public string Notes { get; set; }
+
     /// <summary>
     /// Como <c>PlatformIssuer</c> de factura electrónica: la pone el endpoint, el body no.
     /// </summary>
     [Newtonsoft.Json.JsonIgnore]
     public bool PlatformIssuer { get; set; }
+}
+
+/// <summary>
+/// El comando al que el controller mapea <see cref="CreateSampleDto"/>: el validador es suyo, no del DTO.
+/// </summary>
+public sealed record CreateSampleCommand(Guid Id, string Code, string Email, int Seats, decimal Rate, string Notes, string Internal);
+
+public sealed class CreateSampleCommandValidator : AbstractValidator<CreateSampleCommand>
+{
+    public CreateSampleCommandValidator()
+    {
+        this.RuleFor(x => x.Id).NotEmpty();
+        this.RuleFor(x => x.Code).NotEmpty().MaximumLength(32).Matches("^[A-Z0-9-]+$");
+        this.RuleFor(x => x.Email).EmailAddress();
+        this.RuleFor(x => x.Seats).InclusiveBetween(1, 500);
+        this.RuleFor(x => x.Rate).GreaterThan(0);
+
+        // Condicional: no hace obligatorio el campo.
+        this.RuleFor(x => x.Notes).NotEmpty().When(x => x.Seats > 100);
+
+        // El DTO no la tiene: no debe aparecer en su esquema.
+        this.RuleFor(x => x.Internal).NotEmpty();
+    }
+}
+
+/// <summary>
+/// Como los comandos de factura electrónica, que llegan como body tal cual.
+/// </summary>
+public sealed record RenameSampleCommand(Guid Id, string Name);
+
+public sealed class RenameSampleCommandValidator : AbstractValidator<RenameSampleCommand>
+{
+    public RenameSampleCommandValidator()
+    {
+        this.RuleFor(x => x.Name).NotEmpty().Length(3, 64);
+    }
 }
 
 public sealed class SampleDto
@@ -100,6 +147,10 @@ public sealed class SampleController : ControllerBase
     [HttpPost]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public IActionResult Create([FromBody] CreateSampleDto data) => this.NoContent();
+
+    [HttpPut("{id}/name")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public IActionResult Rename(Guid id, [FromBody] RenameSampleCommand data) => this.NoContent();
 
     [HttpGet("{id}")]
     [ProducesResponseType<SampleDto>(StatusCodes.Status200OK)]
