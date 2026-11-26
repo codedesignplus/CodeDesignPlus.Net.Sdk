@@ -50,6 +50,19 @@ public static class SwaggerExtensions
         {
             x.SwaggerDoc(coreOptions.Version, info);
 
+            // El documento del gateway MCP (pendings/754): todas las operaciones salvo [ExcludeFromMcp], con su
+            // operationId y la raíz como servidor. Ver McpDocument.
+            x.SwaggerDoc(McpDocument.Name, new OpenApiInfo
+            {
+                Title = $"{coreOptions.AppName} MCP",
+                Version = coreOptions.Version,
+                Description = coreOptions.Description,
+                Contact = info.Contact
+            });
+            x.DocInclusionPredicate(McpDocument.Includes);
+            x.CustomOperationIds(McpDocument.OperationId);
+            x.DocumentFilter<McpServersDocumentFilter>();
+
             var xmlFile = $"{typeof(TProgram).Assembly.GetName().Name}.xml";
 
             var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -65,6 +78,7 @@ public static class SwaggerExtensions
             x.SchemaFilter<ConstructorParameterSchemaFilter>();
             x.SchemaFilter<EnumNamesSchemaFilter>();
             x.SchemaFilter<MoneySchemaFilter>();
+            x.SchemaFilter<MinorUnitsSchemaFilter>();
             x.SchemaFilter<FluentValidationSchemaFilter>();
             x.OperationFilter<TenantHeaderOperationFilter>();
 
@@ -126,6 +140,7 @@ public static class SwaggerExtensions
         app.UseSwaggerUI(c =>
         {
             c.SwaggerEndpoint("v1/swagger.json", $"{options.AppName} {options.Version}");
+            c.SwaggerEndpoint($"{McpDocument.Name}/swagger.json", $"{options.AppName} MCP");
             c.RoutePrefix = "swagger";
         });
 

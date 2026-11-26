@@ -1,3 +1,5 @@
+using CodeDesignPlus.Net.Core.Abstractions.Attributes;
+using CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Swagger;
 using CodeDesignPlus.Net.ValueObjects.Financial;
 using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
@@ -140,6 +142,34 @@ public sealed class SampleDto
     public string Key => $"{this.Id}:{this.Status}";
 }
 
+/// <summary>
+/// Como el resumen de cartera de invoicing: montos en long junto a la moneda, contadores en int.
+/// </summary>
+public sealed class SampleSummaryDto
+{
+    public long TotalDue { get; set; }
+
+    public long? AccruedInterest { get; set; }
+
+    public int Units { get; set; }
+
+    public string Currency { get; set; }
+
+    [NotMoney]
+    public long SizeInBytes { get; set; }
+}
+
+/// <summary>
+/// Sin la moneda al lado: el long sigue siendo dinero, salvo el marcado (regla 74).
+/// </summary>
+public sealed class SampleAmountDto
+{
+    public long Amount { get; set; }
+
+    [NotMoney]
+    public long Consecutive { get; set; }
+}
+
 [ApiController]
 [Route("api/[controller]")]
 public sealed class SampleController : ControllerBase
@@ -155,6 +185,23 @@ public sealed class SampleController : ControllerBase
     [HttpGet("{id}")]
     [ProducesResponseType<SampleDto>(StatusCodes.Status200OK)]
     public IActionResult Get(Guid id) => this.Ok(new SampleDto { Id = id });
+
+    [HttpGet("summary")]
+    [ProducesResponseType<SampleSummaryDto>(StatusCodes.Status200OK)]
+    public IActionResult GetSummary() => this.Ok(new SampleSummaryDto());
+
+    [HttpGet("amount")]
+    [ProducesResponseType<SampleAmountDto>(StatusCodes.Status200OK)]
+    public IActionResult GetAmount() => this.Ok(new SampleAmountDto());
+
+    [HttpGet("page")]
+    [ProducesResponseType<CodeDesignPlus.Net.Core.Abstractions.Models.Pager.Pagination<SampleDto>>(StatusCodes.Status200OK)]
+    public IActionResult GetPage() => this.Ok();
+
+    [HttpGet("internal")]
+    [ExcludeFromMcp]
+    [ProducesResponseType<SampleDto>(StatusCodes.Status200OK)]
+    public IActionResult GetInternal() => this.Ok(new SampleDto());
 
     [HttpGet("public")]
     [AllowAnonymous]

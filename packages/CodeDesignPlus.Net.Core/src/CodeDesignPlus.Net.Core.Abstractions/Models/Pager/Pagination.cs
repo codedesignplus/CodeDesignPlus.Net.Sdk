@@ -17,6 +17,8 @@ namespace CodeDesignPlus.Net.Core.Abstractions.Models.Pager
         /// <summary>
         /// Gets the total count of items.
         /// </summary>
+        /// <remarks>No es dinero aunque sea <c>long</c> (regla 74).</remarks>
+        [CodeDesignPlus.Net.Core.Abstractions.Attributes.NotMoney]
         public long TotalCount { get; } = totalCount;
         /// <summary>
         /// Gets the maximum number of items to return.

@@ -211,6 +211,7 @@ public class SwaggerContractTest
     [Theory]
     [InlineData("/swagger/index.html", 200)]
     [InlineData("/swagger/v1/swagger.json", 200)]
+    [InlineData("/swagger/mcp/swagger.json", 200)]
     [InlineData("/index.html", 404)]
     public async Task UseCoreSwagger_ServesEverythingUnderSwagger(string path, int expected)
     {
@@ -246,6 +247,69 @@ public class SwaggerContractTest
         ["Core:Contact:Email"] = "contact@codedesignplus.com"
     };
 
+    [Fact]
+    public void GetSwagger_OperationIds_AreControllerAndActionAndUnique()
+    {
+        var operations = Document().Paths.SelectMany(x => x.Value.Operations.Values).ToList();
+
+        Assert.All(operations, x => Assert.False(string.IsNullOrWhiteSpace(x.OperationId)));
+        Assert.Equal(operations.Count, operations.Select(x => x.OperationId).Distinct().Count());
+        Assert.Equal("Sample_Create", Document().Paths["/api/Sample"].Operations[OperationType.Post].OperationId);
+        Assert.Equal("Sample_GetSummary", Document().Paths["/api/Sample/summary"].Operations[OperationType.Get].OperationId);
+    }
+
+    [Fact]
+    public void GetSwagger_McpDocument_HasEveryOperationButTheExcluded()
+    {
+        var normal = Document();
+        var mcp = Document(McpDocument.Name);
+
+        Assert.True(normal.Paths.ContainsKey("/api/Sample/internal"));
+        Assert.False(mcp.Paths.ContainsKey("/api/Sample/internal"));
+
+        // Todo lo demás, igual que en el documento normal.
+        Assert.Equal(normal.Paths.Keys.Where(x => x != "/api/Sample/internal").OrderBy(x => x), mcp.Paths.Keys.OrderBy(x => x));
+
+        Assert.Equal("/", Assert.Single(mcp.Servers).Url);
+        Assert.Empty(normal.Servers ?? []);
+        Assert.Equal("Sample_GetSummary", mcp.Paths["/api/Sample/summary"].Operations[OperationType.Get].OperationId);
+    }
+
+    [Fact]
+    public void GetSwagger_MinorUnits_ConventionAndExceptions()
+    {
+        var schemas = Document().Components.Schemas;
+        var summary = schemas[nameof(SampleSummaryDto)].Properties;
+        var amount = schemas[nameof(SampleAmountDto)].Properties;
+
+        // Todo long es dinero en centavos (regla 74), también el que admite nulo.
+        AssertMinor(summary["totalDue"]);
+        AssertMinor(summary["accruedInterest"]);
+
+        // int: contador. [NotMoney]: fuera aunque sea long.
+        Assert.False(summary["units"].Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
+        Assert.False(summary["sizeInBytes"].Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
+
+        // Sin currency también es dinero; el [NotMoney] no.
+        AssertMinor(amount["amount"]);
+        Assert.False(amount["consecutive"].Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
+
+        // El total de la paginación del SDK lleva [NotMoney].
+        Assert.False(schemas["SampleDtoPagination"].Properties["totalCount"].Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
+
+        // Money ya tenía su descripción: lleva la marca y no repite el texto.
+        var money = schemas[nameof(Money)].Properties["amount"];
+
+        Assert.True(money.Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(money.Description, "minor unit"));
+    }
+
+    private static void AssertMinor(OpenApiSchema property)
+    {
+        Assert.Equal("minor", Assert.IsType<OpenApiString>(property.Extensions[MinorUnitsSchemaFilter.Extension]).Value);
+        Assert.Contains("minor unit", property.Description, StringComparison.Ordinal);
+    }
+
     private static void AssertString(OpenApiSchema schema, string format, string example)
     {
         Assert.Equal("string", schema.Type);
@@ -254,7 +318,7 @@ public class SwaggerContractTest
         Assert.Empty(schema.Properties);
     }
 
-    private static OpenApiDocument Document() => Build(withSdk: true).GetRequiredService<ISwaggerProvider>().GetSwagger("v1");
+    private static OpenApiDocument Document(string name = "v1") => Build(withSdk: true).GetRequiredService<ISwaggerProvider>().GetSwagger(name);
 
     /// <summary>
     /// Un REST como los de los micros: controllers con Newtonsoft y NodaTime, y el Swagger del SDK o el de serie.
