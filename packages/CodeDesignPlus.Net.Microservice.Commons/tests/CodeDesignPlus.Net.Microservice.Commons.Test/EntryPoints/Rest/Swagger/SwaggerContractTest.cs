@@ -318,6 +318,15 @@ public class SwaggerContractTest
         // A través de una referencia y de un genérico: SampleDto lleva Money.
         Assert.Contains(MoneyResponseOperationFilter.Notice, paths["/api/Sample/page"].Operations[OperationType.Get].Description, StringComparison.Ordinal);
 
+        // Con resumen, el gateway usa el resumen y no la descripción: el aviso va también ahí, una sola vez.
+        var summary = paths["/api/Sample/summary"].Operations[OperationType.Get].Summary;
+
+        Assert.StartsWith("Returns the portfolio summary.", summary, StringComparison.Ordinal);
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(summary, System.Text.RegularExpressions.Regex.Escape(MoneyResponseOperationFilter.Notice)));
+
+        // Sin resumen no se inventa uno.
+        Assert.True(string.IsNullOrEmpty(paths["/api/Sample/page"].Operations[OperationType.Get].Summary));
+
         // Sin montos en la respuesta, o sin respuesta: nada.
         Assert.DoesNotContain(MoneyResponseOperationFilter.Notice, paths["/api/Sample/spot"].Operations[OperationType.Get].Description ?? string.Empty, StringComparison.Ordinal);
         Assert.DoesNotContain(MoneyResponseOperationFilter.Notice, paths["/api/Sample"].Operations[OperationType.Post].Description ?? string.Empty, StringComparison.Ordinal);

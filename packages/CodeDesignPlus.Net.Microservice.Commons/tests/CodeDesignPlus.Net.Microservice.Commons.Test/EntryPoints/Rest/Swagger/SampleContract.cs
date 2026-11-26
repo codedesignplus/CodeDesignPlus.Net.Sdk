@@ -195,6 +195,7 @@ public sealed class SampleController : ControllerBase
     public IActionResult Get(Guid id) => this.Ok(new SampleDto { Id = id });
 
     [HttpGet("summary")]
+    [EndpointSummary("Returns the portfolio summary.")]
     [ProducesResponseType<SampleSummaryDto>(StatusCodes.Status200OK)]
     public IActionResult GetSummary() => this.Ok(new SampleSummaryDto());
 

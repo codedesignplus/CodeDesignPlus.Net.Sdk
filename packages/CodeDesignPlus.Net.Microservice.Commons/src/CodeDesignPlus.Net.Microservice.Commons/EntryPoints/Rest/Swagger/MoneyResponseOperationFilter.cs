@@ -10,7 +10,8 @@ namespace CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Swagger;
 /// <see cref="MinorUnitsSchemaFilter"/> marca cada monto en el esquema, pero el gateway MCP (agentgateway v1.7.0) solo le
 /// entrega al agente el esquema de entrada de cada herramienta, no el de la respuesta: la marca de una respuesta como
 /// <c>totalDue: 706167868</c> no le llegaba y lo leía como pesos (Kappali pendings/754). La descripción sí le llega, así
-/// que se avisa ahí, solo en las operaciones cuya respuesta exitosa lleva algún monto.
+/// que se avisa ahí, solo en las operaciones cuya respuesta exitosa lleva algún monto. Y también en el resumen cuando
+/// la operación lo tiene, porque entonces el gateway usa el resumen y no la descripción.
 /// </remarks>
 public sealed class MoneyResponseOperationFilter : IOperationFilter
 {
@@ -41,10 +42,20 @@ public sealed class MoneyResponseOperationFilter : IOperationFilter
         if (!success.Any(schema => HasMoney(schema, context.SchemaRepository, [])))
             return;
 
-        if (operation.Description?.Contains(Notice, StringComparison.Ordinal) == true)
-            return;
+        operation.Description = Append(operation.Description, "\n\n");
 
-        operation.Description = string.IsNullOrWhiteSpace(operation.Description) ? Notice : $"{operation.Description}\n\n{Notice}";
+        // agentgateway usa el summary como descripción de la herramienta cuando existe y descarta el description: en 162
+        // operaciones de los micros el aviso no le llegaba al agente (Kappali pendings/754). Va en los dos.
+        if (!string.IsNullOrWhiteSpace(operation.Summary))
+            operation.Summary = Append(operation.Summary, " ");
+    }
+
+    private static string Append(string text, string separator)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return Notice;
+
+        return text.Contains(Notice, StringComparison.Ordinal) ? text : $"{text.TrimEnd()}{separator}{Notice}";
     }
 
     private static bool HasMoney(OpenApiSchema schema, SchemaRepository repository, HashSet<string> visited)
