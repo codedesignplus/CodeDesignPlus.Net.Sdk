@@ -60,6 +60,7 @@ public static class SwaggerExtensions
             // El contrato que se describe es el que serializa el micro, y el micro serializa con Newtonsoft
             // (AddSwaggerGenNewtonsoftSupport, abajo). Estos filtros cubren lo que ese soporte no describe bien
             // (pendings/753).
+            x.CustomSchemaIds(new SchemaIdSelector().Select);
             x.MapNodaTimeTypes();
             x.SchemaFilter<ConstructorParameterSchemaFilter>();
             x.SchemaFilter<EnumNamesSchemaFilter>();

@@ -180,6 +180,31 @@ public class SwaggerContractTest
         Assert.DoesNotContain("id", schema.Required);
     }
 
+    [Fact]
+    public void GetSwagger_TwoTypesWithTheSameName_GetDistinctIds()
+    {
+        var schemas = Build(withSdk: true, typeof(DuplicateNamesController)).GetRequiredService<ISwaggerProvider>().GetSwagger("v1").Components.Schemas;
+
+        var licenses = schemas.Where(x => x.Key.EndsWith("LicenseDto", StringComparison.Ordinal)).ToList();
+
+        Assert.Equal(2, licenses.Count);
+        Assert.Contains(licenses, x => x.Key == "LicenseDto");
+        Assert.Contains(licenses, x => x.Value.Properties.ContainsKey("name"));
+        Assert.Contains(licenses, x => x.Value.Properties.ContainsKey("seats"));
+        Assert.Contains(licenses, x => x.Key is "LicenseLicenseDto" or "OrderLicenseDto");
+
+        // Los ids de siempre no cambian.
+        Assert.True(schemas.ContainsKey(nameof(SampleDto)));
+    }
+
+    [Fact]
+    public void GetSwagger_TwoTypesWithTheSameName_FailWithoutTheSelector()
+    {
+        var provider = Build(withSdk: false, typeof(DuplicateNamesController)).GetRequiredService<ISwaggerProvider>();
+
+        Assert.ThrowsAny<Exception>(() => provider.GetSwagger("v1"));
+    }
+
     private static void AssertString(OpenApiSchema schema, string format, string example)
     {
         Assert.Equal("string", schema.Type);
@@ -193,7 +218,7 @@ public class SwaggerContractTest
     /// <summary>
     /// Un REST como los de los micros: controllers con Newtonsoft y NodaTime, y el Swagger del SDK o el de serie.
     /// </summary>
-    private static IServiceProvider Build(bool withSdk)
+    private static IServiceProvider Build(bool withSdk, params Type[] extraControllers)
     {
         var builder = WebApplication.CreateBuilder();
 
@@ -218,7 +243,7 @@ public class SwaggerContractTest
                 foreach (var provider in manager.FeatureProviders.OfType<ControllerFeatureProvider>().ToList())
                     manager.FeatureProviders.Remove(provider);
 
-                manager.FeatureProviders.Add(new SampleControllerFeatureProvider());
+                manager.FeatureProviders.Add(new SampleControllerFeatureProvider([typeof(SampleController), .. extraControllers]));
             })
             .AddNewtonsoftJson(options => options.SerializerSettings.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb));
 
@@ -237,8 +262,8 @@ public class SwaggerContractTest
         return app.Services;
     }
 
-    private sealed class SampleControllerFeatureProvider : ControllerFeatureProvider
+    private sealed class SampleControllerFeatureProvider(Type[] controllers) : ControllerFeatureProvider
     {
-        protected override bool IsController(TypeInfo typeInfo) => typeInfo.AsType() == typeof(SampleController);
+        protected override bool IsController(TypeInfo typeInfo) => controllers.Contains(typeInfo.AsType());
     }
 }

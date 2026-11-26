@@ -161,3 +161,19 @@ public sealed class SampleController : ControllerBase
     [ProducesResponseType<SampleDto>(StatusCodes.Status200OK)]
     public IActionResult GetPublic() => this.Ok(new SampleDto());
 }
+
+/// <summary>
+/// Dos respuestas con tipos que se llaman igual; se monta solo en la prueba de ids de esquema.
+/// </summary>
+[ApiController]
+[Route("api/[controller]")]
+public sealed class DuplicateNamesController : ControllerBase
+{
+    [HttpGet("license")]
+    [ProducesResponseType<License.DataTransferObjects.LicenseDto>(StatusCodes.Status200OK)]
+    public IActionResult GetLicense() => this.Ok(new License.DataTransferObjects.LicenseDto());
+
+    [HttpGet("order-license")]
+    [ProducesResponseType<Order.DataTransferObjects.LicenseDto>(StatusCodes.Status200OK)]
+    public IActionResult GetOrderLicense() => this.Ok(new Order.DataTransferObjects.LicenseDto());
+}
