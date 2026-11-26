@@ -189,11 +189,12 @@ public class SwaggerContractTest
 
         var licenses = schemas.Where(x => x.Key.EndsWith("LicenseDto", StringComparison.Ordinal)).ToList();
 
+        // Los dos llevan prefijo: ninguno se queda el nombre corto, así el resultado no depende del orden en que se
+        // generan los esquemas.
         Assert.Equal(2, licenses.Count);
-        Assert.Contains(licenses, x => x.Key == "LicenseDto");
-        Assert.Contains(licenses, x => x.Value.Properties.ContainsKey("name"));
-        Assert.Contains(licenses, x => x.Value.Properties.ContainsKey("seats"));
-        Assert.Contains(licenses, x => x.Key is "LicenseLicenseDto" or "OrderLicenseDto");
+        Assert.DoesNotContain(licenses, x => x.Key == "LicenseDto");
+        Assert.True(schemas["LicenseLicenseDto"].Properties.ContainsKey("name"));
+        Assert.True(schemas["OrderLicenseDto"].Properties.ContainsKey("seats"));
 
         // Los ids de siempre no cambian.
         Assert.True(schemas.ContainsKey(nameof(SampleDto)));

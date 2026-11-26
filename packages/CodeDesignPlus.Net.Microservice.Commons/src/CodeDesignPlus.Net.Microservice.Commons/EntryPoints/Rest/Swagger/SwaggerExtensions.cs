@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 
 namespace CodeDesignPlus.Net.Microservice.Commons.EntryPoints.Rest.Swagger;
@@ -60,7 +61,6 @@ public static class SwaggerExtensions
             // El contrato que se describe es el que serializa el micro, y el micro serializa con Newtonsoft
             // (AddSwaggerGenNewtonsoftSupport, abajo). Estos filtros cubren lo que ese soporte no describe bien
             // (pendings/753).
-            x.CustomSchemaIds(new SchemaIdSelector().Select);
             x.MapNodaTimeTypes();
             x.SchemaFilter<ConstructorParameterSchemaFilter>();
             x.SchemaFilter<EnumNamesSchemaFilter>();
@@ -98,6 +98,11 @@ public static class SwaggerExtensions
         // (AddNewtonsoftJson en los 37 REST). Sin esto el Swagger ignoraba [Newtonsoft.Json.JsonIgnore] y
         // [JsonProperty] y obedecía atributos de System.Text.Json que en el cable no tienen efecto (pendings/753).
         services.AddSwaggerGenNewtonsoftSupport();
+
+        // Los ids de esquema necesitan ver todas las operaciones antes de dar el primero (SchemaIdSelector), y eso
+        // pide los servicios de la aplicación: por eso van por IConfigureOptions y no en la lambda de AddSwaggerGen.
+        services.AddSingleton<SchemaIdSelector>();
+        services.AddTransient<IConfigureOptions<SwaggerGenOptions>, ConfigureSchemaIds>();
 
         return services;
     }
