@@ -157,6 +157,11 @@ public sealed class SampleSummaryDto
 
     [NotMoney]
     public long SizeInBytes { get; set; }
+
+    /// <summary>
+    /// El File de ValueObjects: su Size es de bytes y lleva [NotMoney] en el SDK.
+    /// </summary>
+    public CodeDesignPlus.Net.ValueObjects.FileServer.File Attachment { get; set; }
 }
 
 /// <summary>

@@ -41,6 +41,8 @@ public sealed class File : IEquatable<File>, IValidatableValueObject
     /// <summary>
     /// Gets the size of the file in bytes.
     /// </summary>
+    /// <remarks>No es dinero aunque sea <c>long</c> (regla 74).</remarks>
+    [CodeDesignPlus.Net.Core.Abstractions.Attributes.NotMoney]
     public long Size { get; private set; }
 
     [JsonConstructor]

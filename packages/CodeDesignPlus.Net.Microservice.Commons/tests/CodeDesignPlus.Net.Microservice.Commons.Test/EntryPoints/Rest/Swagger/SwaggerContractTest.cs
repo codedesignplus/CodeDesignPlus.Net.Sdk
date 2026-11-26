@@ -294,6 +294,9 @@ public class SwaggerContractTest
         AssertMinor(amount["amount"]);
         Assert.False(amount["consecutive"].Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
 
+        // El tamaño del File de ValueObjects tampoco es dinero.
+        Assert.False(schemas["File"].Properties["size"].Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
+
         // El total de la paginación del SDK lleva [NotMoney].
         Assert.False(schemas["SampleDtoPagination"].Properties["totalCount"].Extensions.ContainsKey(MinorUnitsSchemaFilter.Extension));
 
