@@ -307,6 +307,22 @@ public class SwaggerContractTest
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(money.Description, "minor unit"));
     }
 
+    [Fact]
+    public void GetSwagger_ResponseWithMoney_SaysItInTheDescription()
+    {
+        var paths = Document(McpDocument.Name).Paths;
+
+        // El gateway MCP solo le pasa al agente la descripción y la entrada: la unidad va en la descripción.
+        Assert.Contains(MoneyResponseOperationFilter.Notice, paths["/api/Sample/summary"].Operations[OperationType.Get].Description, StringComparison.Ordinal);
+
+        // A través de una referencia y de un genérico: SampleDto lleva Money.
+        Assert.Contains(MoneyResponseOperationFilter.Notice, paths["/api/Sample/page"].Operations[OperationType.Get].Description, StringComparison.Ordinal);
+
+        // Sin montos en la respuesta, o sin respuesta: nada.
+        Assert.DoesNotContain(MoneyResponseOperationFilter.Notice, paths["/api/Sample/spot"].Operations[OperationType.Get].Description ?? string.Empty, StringComparison.Ordinal);
+        Assert.DoesNotContain(MoneyResponseOperationFilter.Notice, paths["/api/Sample"].Operations[OperationType.Post].Description ?? string.Empty, StringComparison.Ordinal);
+    }
+
     private static void AssertMinor(OpenApiSchema property)
     {
         Assert.Equal("minor", Assert.IsType<OpenApiString>(property.Extensions[MinorUnitsSchemaFilter.Extension]).Value);

@@ -81,6 +81,7 @@ public static class SwaggerExtensions
             x.SchemaFilter<MinorUnitsSchemaFilter>();
             x.SchemaFilter<FluentValidationSchemaFilter>();
             x.OperationFilter<TenantHeaderOperationFilter>();
+            x.OperationFilter<MoneyResponseOperationFilter>();
 
             x.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {

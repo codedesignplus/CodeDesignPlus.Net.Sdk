@@ -199,6 +199,10 @@ public sealed class SampleController : ControllerBase
     [ProducesResponseType<SampleAmountDto>(StatusCodes.Status200OK)]
     public IActionResult GetAmount() => this.Ok(new SampleAmountDto());
 
+    [HttpGet("spot")]
+    [ProducesResponseType<SampleSpot>(StatusCodes.Status200OK)]
+    public IActionResult GetSpot() => this.Ok();
+
     [HttpGet("page")]
     [ProducesResponseType<CodeDesignPlus.Net.Core.Abstractions.Models.Pager.Pagination<SampleDto>>(StatusCodes.Status200OK)]
     public IActionResult GetPage() => this.Ok();
