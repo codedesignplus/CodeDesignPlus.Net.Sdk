@@ -62,6 +62,7 @@ public static class SwaggerExtensions
             x.DocInclusionPredicate(McpDocument.Includes);
             x.CustomOperationIds(McpDocument.OperationId);
             x.DocumentFilter<McpServersDocumentFilter>();
+            x.DocumentFilter<McpBoundsDocumentFilter>();
 
             var xmlFile = $"{typeof(TProgram).Assembly.GetName().Name}.xml";
 

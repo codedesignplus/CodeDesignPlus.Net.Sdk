@@ -323,6 +323,44 @@ public class SwaggerContractTest
         Assert.DoesNotContain(MoneyResponseOperationFilter.Notice, paths["/api/Sample"].Operations[OperationType.Post].Description ?? string.Empty, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void GetSwagger_McpDocument_HasNoBooleanExclusiveBounds()
+    {
+        // El mismo proveedor, como en el micro: el documento del MCP no puede alterar el normal.
+        var provider = Build(withSdk: true).GetRequiredService<ISwaggerProvider>();
+        var mcp = provider.GetSwagger(McpDocument.Name);
+        var normal = provider.GetSwagger("v1");
+
+        // JSON Schema 2020-12 (lo que validan los clientes MCP) no acepta exclusiveMinimum: true.
+        var json = Microsoft.OpenApi.Extensions.OpenApiSerializableExtensions.SerializeAsJson(mcp, Microsoft.OpenApi.OpenApiSpecVersion.OpenApi3_0);
+
+        Assert.DoesNotContain("\"exclusiveMinimum\"", json, StringComparison.Ordinal);
+        Assert.DoesNotContain("\"exclusiveMaximum\"", json, StringComparison.Ordinal);
+
+        var mcpDto = mcp.Components.Schemas[nameof(CreateSampleDto)].Properties;
+
+        // Entero: el límite exclusivo pasa a ser el inclusivo exacto.
+        Assert.Equal(1, mcpDto["floors"].Minimum);
+        Assert.Equal(99, mcpDto["floors"].Maximum);
+
+        // Decimal: el límite inclusivo y la condición estricta en la descripción.
+        Assert.Equal(0, mcpDto["rate"].Minimum);
+        Assert.Contains("Must be greater than 0.", mcpDto["rate"].Description, StringComparison.Ordinal);
+
+        // Los límites inclusivos no cambian.
+        Assert.Equal(1, mcpDto["seats"].Minimum);
+        Assert.Equal(500, mcpDto["seats"].Maximum);
+
+        // El documento normal sigue siendo OpenAPI 3.0 con su forma booleana.
+        var normalDto = normal.Components.Schemas[nameof(CreateSampleDto)].Properties;
+
+        Assert.Equal(0, normalDto["floors"].Minimum);
+        Assert.True(normalDto["floors"].ExclusiveMinimum);
+        Assert.Equal(100, normalDto["floors"].Maximum);
+        Assert.True(normalDto["floors"].ExclusiveMaximum);
+        Assert.True(normalDto["rate"].ExclusiveMinimum);
+    }
+
     private static void AssertMinor(OpenApiSchema property)
     {
         Assert.Equal("minor", Assert.IsType<OpenApiString>(property.Extensions[MinorUnitsSchemaFilter.Extension]).Value);

@@ -78,6 +78,8 @@ public sealed class CreateSampleDto
 
     public decimal Rate { get; set; }
 
+    public int Floors { get; set; }
+
     public string Notes { get; set; }
 
     /// <summary>
@@ -90,7 +92,7 @@ public sealed class CreateSampleDto
 /// <summary>
 /// El comando al que el controller mapea <see cref="CreateSampleDto"/>: el validador es suyo, no del DTO.
 /// </summary>
-public sealed record CreateSampleCommand(Guid Id, string Code, string Email, int Seats, decimal Rate, string Notes, string Internal);
+public sealed record CreateSampleCommand(Guid Id, string Code, string Email, int Seats, decimal Rate, int Floors, string Notes, string Internal);
 
 public sealed class CreateSampleCommandValidator : AbstractValidator<CreateSampleCommand>
 {
@@ -101,6 +103,7 @@ public sealed class CreateSampleCommandValidator : AbstractValidator<CreateSampl
         this.RuleFor(x => x.Email).EmailAddress();
         this.RuleFor(x => x.Seats).InclusiveBetween(1, 500);
         this.RuleFor(x => x.Rate).GreaterThan(0);
+        this.RuleFor(x => x.Floors).GreaterThan(0).LessThan(100);
 
         // Condicional: no hace obligatorio el campo.
         this.RuleFor(x => x.Notes).NotEmpty().When(x => x.Seats > 100);
