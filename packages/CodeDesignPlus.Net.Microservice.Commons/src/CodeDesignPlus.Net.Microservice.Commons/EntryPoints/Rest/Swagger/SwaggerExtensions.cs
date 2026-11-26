@@ -115,10 +115,13 @@ public static class SwaggerExtensions
 
         app.UseSwagger();
 
+        // Todo el Swagger, la UI y el JSON, vive bajo /swagger/: así el ingress lo cierra hacia afuera con una sola
+        // regla (/svc/{*}/swagger/{**}) y dentro del clúster se sigue leyendo en ms-xxx-rest:5000/swagger/v1/swagger.json,
+        // que es por donde lo lee el gateway MCP (pendings/753 y 754). Antes la UI estaba en la raíz del micro.
         app.UseSwaggerUI(c =>
         {
-            c.SwaggerEndpoint("./swagger/v1/swagger.json", $"{options.AppName} {options.Version}");
-            c.RoutePrefix = string.Empty;
+            c.SwaggerEndpoint("v1/swagger.json", $"{options.AppName} {options.Version}");
+            c.RoutePrefix = "swagger";
         });
 
         return app;

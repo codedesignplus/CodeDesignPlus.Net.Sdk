@@ -3,6 +3,8 @@ using CodeDesignPlus.Net.Microservice.Commons.FluentValidation;
 using CodeDesignPlus.Net.ValueObjects.Financial;
 using System.Reflection;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -204,6 +206,44 @@ public class SwaggerContractTest
 
         Assert.ThrowsAny<Exception>(() => provider.GetSwagger("v1"));
     }
+
+    [Theory]
+    [InlineData("/swagger/index.html", 200)]
+    [InlineData("/swagger/v1/swagger.json", 200)]
+    [InlineData("/index.html", 404)]
+    public async Task UseCoreSwagger_ServesEverythingUnderSwagger(string path, int expected)
+    {
+        var builder = WebApplication.CreateBuilder();
+
+        builder.WebHost.UseTestServer();
+        builder.Configuration.AddInMemoryCollection(Settings);
+        builder.Services.AddControllers().AddNewtonsoftJson();
+        builder.Services.AddEndpointsApiExplorer();
+        builder.Services.AddCoreSwagger<SampleController>(builder.Configuration);
+        builder.Services.Configure<CodeDesignPlus.Net.Core.Abstractions.Options.CoreOptions>(builder.Configuration.GetSection("Core"));
+
+        await using var app = builder.Build();
+
+        app.UseCoreSwagger();
+
+        await app.StartAsync();
+
+        var response = await app.GetTestClient().GetAsync(path);
+
+        Assert.Equal(expected, (int)response.StatusCode);
+    }
+
+    private static readonly Dictionary<string, string> Settings = new()
+    {
+        ["Core:Id"] = Guid.NewGuid().ToString(),
+        ["Core:Business"] = "CodeDesignPlus",
+        ["Core:AppName"] = "ms-sample",
+        ["Core:TypeEntryPoint"] = "rest",
+        ["Core:Version"] = "v1",
+        ["Core:Description"] = "Sample contract",
+        ["Core:Contact:Name"] = "CodeDesignPlus",
+        ["Core:Contact:Email"] = "contact@codedesignplus.com"
+    };
 
     private static void AssertString(OpenApiSchema schema, string format, string example)
     {
