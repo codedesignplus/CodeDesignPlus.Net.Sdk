@@ -72,6 +72,69 @@ public class DtoGeneratorTest
     }
 
 
+    /// <summary>
+    /// [NotMoney] del comando llega al DTO: el DTO es lo que describe el Swagger (regla 74).
+    /// </summary>
+    [Theory]
+    [InlineData("Record")]
+    [InlineData("Class")]
+    public void Execute_CommandWithNotMoney_CopiesTheAttributeToTheDto(string commandType)
+    {
+        const string attribute = """
+        namespace CodeDesignPlus.Net.Core.Abstractions.Attributes
+        {
+            [System.AttributeUsage(System.AttributeTargets.Property | System.AttributeTargets.Field)]
+            public sealed class NotMoneyAttribute : System.Attribute { }
+        }
+        """;
+
+        var command = commandType == "Record"
+            ? """
+              namespace CodeDesignPlus.Microservice.Application.Commands
+              {
+                  [DtoGeneratorAttribute]
+                  public record CreateRangeCommand([property: CodeDesignPlus.Net.Core.Abstractions.Attributes.NotMoney] long From, long Amount);
+              }
+              """
+            : """
+              namespace CodeDesignPlus.Microservice.Application.Commands
+              {
+                  [DtoGeneratorAttribute]
+                  public class CreateRangeCommand
+                  {
+                      [CodeDesignPlus.Net.Core.Abstractions.Attributes.NotMoney]
+                      public long From { get; set; }
+
+                      public long Amount { get; set; }
+                  }
+              }
+              """;
+
+        var compilation = CSharpCompilation.Create("CodeDesignPlus.Net.Dummy",
+            syntaxTrees: [SyntaxFactory.ParseSyntaxTree(attribute), SyntaxFactory.ParseSyntaxTree(command)],
+            references: [MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(CodeDesignPlus.Net.Generator.DtoGenerator).Assembly.Location)],
+            options: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+
+        GeneratorDriver driver = CSharpGeneratorDriver.Create(new DtoGenerator());
+        driver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var output, out var diagnostics);
+
+        Assert.Empty(diagnostics);
+
+        var generated = Assert.Single(driver.GetRunResult().Results[0].GeneratedSources).SourceText.ToString();
+        var lines = generated.Split('\n').Select(x => x.Trim()).ToList();
+        var from = lines.FindIndex(x => x.Contains("long From"));
+        var amount = lines.FindIndex(x => x.Contains("long Amount"));
+
+        Assert.Equal("[global::CodeDesignPlus.Net.Core.Abstractions.Attributes.NotMoneyAttribute]", lines[from - 1]);
+        Assert.DoesNotContain("NotMoney", lines[amount - 1]);
+
+        // El DTO generado compila con el atributo (los errores del comando de prueba, que no resuelve DtoGenerator, no cuentan).
+        var dtoTree = Assert.Single(driver.GetRunResult().GeneratedTrees);
+
+        Assert.DoesNotContain(output.GetDiagnostics(), x => x.Severity == DiagnosticSeverity.Error && x.Location.SourceTree == dtoTree);
+    }
+
     [Fact]
     public void Execute_AssemblyApplicationNotExist_DoesNotGenerateDto()
     {

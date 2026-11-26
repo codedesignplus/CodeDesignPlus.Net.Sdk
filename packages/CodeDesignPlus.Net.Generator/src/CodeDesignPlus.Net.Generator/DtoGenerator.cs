@@ -113,13 +113,29 @@ namespace CodeDesignPlus.Net.Generator
         {
             var properties = command.GetMembers()
                 .OfType<IPropertySymbol>()
-                .Where(prop => prop.DeclaredAccessibility == Accessibility.Public && !prop.IsStatic && !prop.IsReadOnly && prop.Name != "EqualityContract")
-                .Select(prop => $"\t\t public {prop.Type.ToDisplayString()} {prop.Name} {{ get; set; }}");
+                .Where(prop => prop.DeclaredAccessibility == Accessibility.Public && !prop.IsStatic && !prop.IsReadOnly && prop.Name != "EqualityContract");
 
             foreach (var property in properties)
             {
-                codeBuilder.AppendLine(property);
+                // El DTO es lo que recibe el controller y lo que describe el Swagger: los atributos de contrato del
+                // comando tienen que llegar a él. Sin esto, un [NotMoney] en el comando no lo veía el Swagger y el
+                // long quedaba descrito como centavos (regla 74, Kappali pendings/754).
+                foreach (var attribute in property.GetAttributes().Where(IsCopiedAttribute))
+                    codeBuilder.AppendLine($"\t\t [global::{attribute.AttributeClass.ToDisplayString()}]");
+
+                codeBuilder.AppendLine($"\t\t public {property.Type.ToDisplayString()} {property.Name} {{ get; set; }}");
             }
         }
+
+        /// <summary>
+        /// Los atributos del comando que se copian a la propiedad del DTO.
+        /// </summary>
+        private static readonly string[] CopiedAttributes =
+        {
+            "CodeDesignPlus.Net.Core.Abstractions.Attributes.NotMoneyAttribute"
+        };
+
+        private static bool IsCopiedAttribute(AttributeData attribute) =>
+            attribute.AttributeClass != null && CopiedAttributes.Contains(attribute.AttributeClass.ToDisplayString());
     }
 }
